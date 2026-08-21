@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { resolveUriTemplate } from '@common/utils/uriTemplateUtils'
 
 describe('resolveUriTemplate', () => {
