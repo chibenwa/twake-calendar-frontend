@@ -50,6 +50,11 @@ var ENABLE_EVENT_ATTACHMENTS = false
 //   'https://{workplaceFqdn.localpart}-chat.{workplaceFqdn.domain}/#/bridge/web/#/chat/@{target}:{workplaceFqdn.domain}'
 //   'https://{localpart}-chat.twake.linagora.com/#/bridge/web/#/chat/@{target}:linagora.com'
 var CHAT_SPA_URL = 'https://{workplaceFqdn.localpart}-chat.{workplaceFqdn.domain}/#/bridge/web/#/chat/@{target}:{workplaceFqdn.domain}'
+// Fallback used when the OIDC provider does not expose a workplace FQDN.
+// Supported expressions: {localpart}
+// Examples:
+//   '{localpart}.twake.linagora.com'
+// var WORKPLACE_FQDN_FALLBACK = '{localpart}.twake.linagora.com'; // optional
 var TDRIVE_ENABLED = false
 var TDRIVE_INTENT_URL = "https://{localpart}.example.com"
 // TDRIVE_INTENT_URL is a URI template (RFC 6570 style).

@@ -13,6 +13,26 @@ export interface UriTemplateContext {
 }
 
 /**
+ * Resolve the workplace FQDN to use, falling back to the
+ * WORKPLACE_FQDN_FALLBACK configuration entry when the OIDC provider did not
+ * supply one.
+ *
+ * WORKPLACE_FQDN_FALLBACK is itself a template supporting {localpart}, e.g.
+ * '{localpart}.twake.linagora.com'.
+ */
+function resolveWorkplaceFqdn(
+  workplaceFqdn: string,
+  localpart: string
+): string {
+  if (workplaceFqdn) return workplaceFqdn
+
+  const fallback = window.WORKPLACE_FQDN_FALLBACK
+  if (!fallback) return ''
+
+  return fallback.replace(/\{localpart\}/g, localpart)
+}
+
+/**
  * Resolve a URI-template (RFC 6570 style) configuration value.
  *
  * Supported expressions:
@@ -22,18 +42,22 @@ export interface UriTemplateContext {
  *  - {workplaceFqdn.domain}    the FQDN without its first label (e.g. stg.lin-saas.com)
  *  - {target}                  the target username for chat url
  *
+ * When no workplace FQDN is available in the context, the
+ * WORKPLACE_FQDN_FALLBACK configuration entry is used instead.
+ *
  * Unknown expressions are left untouched.
  */
 export function resolveUriTemplate(
   template: string,
   { localpart = '', workplaceFqdn = '', target = '' }: UriTemplateContext
 ): string {
-  const [fqdnLocalpart = '', ...fqdnRest] = workplaceFqdn.split('.')
+  const effectiveFqdn = resolveWorkplaceFqdn(workplaceFqdn, localpart)
+  const [fqdnLocalpart = '', ...fqdnRest] = effectiveFqdn.split('.')
   const fqdnDomain = fqdnRest.join('.')
 
   const values: Record<string, string> = {
     localpart,
-    workplaceFqdn,
+    workplaceFqdn: effectiveFqdn,
     'workplaceFqdn.localpart': fqdnLocalpart,
     'workplaceFqdn.domain': fqdnDomain,
     target
