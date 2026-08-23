@@ -17,10 +17,10 @@ import {
   useTheme
 } from '@linagora/twake-mui'
 import Tooltip from '@common/components/Tooltip'
+import { useIsInIframe } from '@common/contexts/EmbeddingContext'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
-import CozyBridge from 'cozy-external-bridge'
 import React, { ReactNode, useContext, useId, useMemo } from 'react'
 import useDynamicPosition from './useDynamicPosition'
 
@@ -205,7 +205,7 @@ function ResponsiveDialog({
 }: ResponsiveDialogProps): JSX.Element {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const isInIframe = useMemo(() => new CozyBridge().isInIframe(), [])
+  const isInIframe = useIsInIframe()
 
   const uid = useId()
   const titleId = `responsive-dialog-title-${uid}`

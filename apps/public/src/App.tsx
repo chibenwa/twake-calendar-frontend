@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom'
 import { HistoryRouter as Router } from 'redux-first-history/rr6'
 import { history } from '@common/app/store'
 import { Error as ErrorPage } from '@common/components/Error/Error'
+import { EmbeddingProvider } from '@common/contexts/EmbeddingContext'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Loading } from '@common/components/Loading/Loading'
 import { PublicLayout } from './components/PublicLayout'
@@ -42,68 +43,70 @@ export default function App(): JSX.Element {
   }
 
   return (
-    <TwakeMuiThemeProvider>
-      <I18n
-        dictRequire={(lang: keyof typeof locale) => locale[lang]}
-        lang={lang}
-        locales={dateLocales}
-      >
-        <PublicLanguageContext.Provider
-          value={{
-            currentLanguage: lang,
-            setCurrentLanguage: handleLanguageChange
-          }}
+    <EmbeddingProvider>
+      <TwakeMuiThemeProvider>
+        <I18n
+          dictRequire={(lang: keyof typeof locale) => locale[lang]}
+          lang={lang}
+          locales={dateLocales}
         >
-          <ErrorBoundary
-            FallbackComponent={({ error }) => (
-              <ErrorPage
-                isCrashFallback
-                errorBoundaryMessage={error as Error}
-              />
-            )}
-            onError={(error, errorInfo) => {
-              Sentry.captureException(error, {
-                contexts: {
-                  react: {
-                    componentStack: errorInfo.componentStack
-                  }
-                }
-              })
+          <PublicLanguageContext.Provider
+            value={{
+              currentLanguage: lang,
+              setCurrentLanguage: handleLanguageChange
             }}
           >
-            <Suspense fallback={<Loading />}>
-              <Router history={history}>
-                <Routes>
-                  <Route
-                    path="/excal"
-                    element={
-                      <PublicLayout>
-                        <EventPreviewPage />
-                      </PublicLayout>
+            <ErrorBoundary
+              FallbackComponent={({ error }) => (
+                <ErrorPage
+                  isCrashFallback
+                  errorBoundaryMessage={error as Error}
+                />
+              )}
+              onError={(error, errorInfo) => {
+                Sentry.captureException(error, {
+                  contexts: {
+                    react: {
+                      componentStack: errorInfo.componentStack
                     }
-                  />
-                  <Route
-                    path="/booking/confirmed/:bookingConfirmationToken"
-                    element={
-                      <PublicLayout>
-                        <BookedEventPreviewPage />
-                      </PublicLayout>
-                    }
-                  />
-                  <Route
-                    path="/booking/:bookingLinkPublicId"
-                    element={
-                      <PublicLayout>
-                        <BookingPage />
-                      </PublicLayout>
-                    }
-                  />
-                </Routes>
-              </Router>
-            </Suspense>
-          </ErrorBoundary>
-        </PublicLanguageContext.Provider>
-      </I18n>
-    </TwakeMuiThemeProvider>
+                  }
+                })
+              }}
+            >
+              <Suspense fallback={<Loading />}>
+                <Router history={history}>
+                  <Routes>
+                    <Route
+                      path="/excal"
+                      element={
+                        <PublicLayout>
+                          <EventPreviewPage />
+                        </PublicLayout>
+                      }
+                    />
+                    <Route
+                      path="/booking/confirmed/:bookingConfirmationToken"
+                      element={
+                        <PublicLayout>
+                          <BookedEventPreviewPage />
+                        </PublicLayout>
+                      }
+                    />
+                    <Route
+                      path="/booking/:bookingLinkPublicId"
+                      element={
+                        <PublicLayout>
+                          <BookingPage />
+                        </PublicLayout>
+                      }
+                    />
+                  </Routes>
+                </Router>
+              </Suspense>
+            </ErrorBoundary>
+          </PublicLanguageContext.Provider>
+        </I18n>
+      </TwakeMuiThemeProvider>
+    </EmbeddingProvider>
   )
 }

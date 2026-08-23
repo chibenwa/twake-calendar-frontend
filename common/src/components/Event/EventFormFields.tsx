@@ -4,6 +4,7 @@ import { useEventOrganizer } from '@common/features/Events/useEventOrganizer'
 import { useResponsiveInputSize } from '@common/hooks/useResponsiveInputSize'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { saveEventFormDataToTemp } from '@common/utils/eventFormTempStorage'
+import { isSafeHttpUrl } from '@common/utils/isSafeUrl'
 import {
   browserDefaultTimeZone,
   getTimezoneOffset,
@@ -30,12 +31,14 @@ import {
   EventFormHandle,
   EventFormValues
 } from './EventFormFields.types'
+import { AttachmentField } from './fields/AttachmentField'
 import { CalendarSelectField } from './fields/CalendarSelectField'
 import { EventDateTimeField } from './fields/EventDateTimeField'
 import LocationField from './fields/LocationField'
 import { TitleField } from './fields/TitleField'
 import { VideoConferenceField } from './fields/VideoConferenceField'
 import { TdriveButton } from '@common/features/Tdrive/components/TdriveButton'
+import { useIsTdrivePickerAvailable } from '@common/features/Tdrive/hooks/useIsTdrivePickerAvailable'
 import { TdriveFile } from '@common/features/Tdrive/types'
 import { Attachment } from '@common/types/Attachment'
 import { useEventFormValues } from './hooks/useEventFormValues'
@@ -213,6 +216,12 @@ const EventFormFields = forwardRef<EventFormHandle, EventFormFieldsProps>(
     const v = formValues
     const isExpanded = showMore && !isMobile
 
+    const pickerAvailable = useIsTdrivePickerAvailable()
+
+    // AttachmentField silently skips attachments whose URI is not a safe
+    // http(s) URL, so mirror that predicate to avoid an orphan label.
+    const hasVisibleAttachments = v.attachments.some(a => isSafeHttpUrl(a.uri))
+
     const handleTdriveFilesSelected = useCallback(
       (files: TdriveFile[]): void => {
         // Convert Tdrive files to Attachments
@@ -296,13 +305,25 @@ const EventFormFields = forwardRef<EventFormHandle, EventFormFieldsProps>(
           setDescription={setDescription}
         />
 
-        {window.TDRIVE_INTENT_URL && window.TDRIVE_ENABLED && (
+        {pickerAvailable ? (
           <TdriveButton
             onFilesSelected={handleTdriveFilesSelected}
             showMore={showMore}
             attachments={v.attachments}
             setAttachments={setAttachments}
           />
+        ) : (
+          hasVisibleAttachments && (
+            <FieldWithLabel
+              label={showInputLabel(showMore, t('event.form.tdriveFiles'))}
+              isExpanded={isExpanded}
+            >
+              <AttachmentField
+                attachments={v.attachments}
+                setAttachments={setAttachments}
+              />
+            </FieldWithLabel>
+          )
         )}
 
         <LocationField

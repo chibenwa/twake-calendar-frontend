@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { history } from '@common/app/store'
 import { Error as ErrorPage } from '@common/components/Error/Error'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
+import { EmbeddingProvider } from '@common/contexts/EmbeddingContext'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Loading } from '@common/components/Loading/Loading'
 import { AVAILABLE_LANGUAGES } from '@common/features/Settings/constants'
@@ -68,47 +69,52 @@ export default function App(): JSX.Element {
   useInitializeApp()
 
   return (
-    <TwakeMuiThemeProvider
-      themeOptions={{
-        ...makeCalendarOverrides()
-      }}
-    >
-      <I18n
-        dictRequire={(lang: keyof typeof locale) => locale[lang]}
-        lang={lang}
-        locales={dateLocales}
+    <EmbeddingProvider>
+      <TwakeMuiThemeProvider
+        themeOptions={{
+          ...makeCalendarOverrides()
+        }}
       >
-        <ErrorBoundary
-          FallbackComponent={({ error }) => (
-            <ErrorPage isCrashFallback errorBoundaryMessage={error as Error} />
-          )}
-          onError={(error, errorInfo) => {
-            Sentry.captureException(error, {
-              contexts: {
-                react: {
-                  componentStack: errorInfo.componentStack
-                }
-              }
-            })
-          }}
+        <I18n
+          dictRequire={(lang: keyof typeof locale) => locale[lang]}
+          lang={lang}
+          locales={dateLocales}
         >
-          <Suspense fallback={<Loading />}>
-            <WebSocketGate />
-            <Router history={history}>
-              <Routes>
-                <Route path="/" element={<HandleLogin />} />
-                <Route path="/calendar" element={<CalendarLayout />} />
-                <Route path="/events/:uid" element={<EventDeepLink />} />
-                <Route path="/newEvent" element={<NewEventDeepLink />} />
-                <Route path="/callback" element={<CallbackResume />} />
-                <Route path="/error" element={<ErrorPage />} />
-              </Routes>
-            </Router>
-            <ErrorSnackbar error={error} type="user" />
-          </Suspense>
-          {appLoading && <Loading />}
-        </ErrorBoundary>
-      </I18n>
-    </TwakeMuiThemeProvider>
+          <ErrorBoundary
+            FallbackComponent={({ error }) => (
+              <ErrorPage
+                isCrashFallback
+                errorBoundaryMessage={error as Error}
+              />
+            )}
+            onError={(error, errorInfo) => {
+              Sentry.captureException(error, {
+                contexts: {
+                  react: {
+                    componentStack: errorInfo.componentStack
+                  }
+                }
+              })
+            }}
+          >
+            <Suspense fallback={<Loading />}>
+              <WebSocketGate />
+              <Router history={history}>
+                <Routes>
+                  <Route path="/" element={<HandleLogin />} />
+                  <Route path="/calendar" element={<CalendarLayout />} />
+                  <Route path="/events/:uid" element={<EventDeepLink />} />
+                  <Route path="/newEvent" element={<NewEventDeepLink />} />
+                  <Route path="/callback" element={<CallbackResume />} />
+                  <Route path="/error" element={<ErrorPage />} />
+                </Routes>
+              </Router>
+              <ErrorSnackbar error={error} type="user" />
+            </Suspense>
+            {appLoading && <Loading />}
+          </ErrorBoundary>
+        </I18n>
+      </TwakeMuiThemeProvider>
+    </EmbeddingProvider>
   )
 }

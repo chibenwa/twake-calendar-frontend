@@ -4,6 +4,7 @@ import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import { refreshCalendars } from '@common/components/Event/utils/eventUtils'
 import { Menubar, MenubarProps } from '@common/components/Menubar/Menubar'
+import { useIsInIframe } from '@common/contexts/EmbeddingContext'
 import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
@@ -12,8 +13,7 @@ import { getViewRange } from '@common/utils/dateUtils'
 import type { CalendarApi } from '@fullcalendar/core'
 import CalendarController, { CalendarControllerRef } from './CalendarController'
 import cx from 'classnames'
-import CozyBridge from 'cozy-external-bridge'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useManageCalendarSelection } from './hooks/useManageCalendarSelection'
 import Sidebar from './Sidebar/SideBar'
 
@@ -53,7 +53,7 @@ export default function CalendarLayout(): JSX.Element {
     setViewMode()
   }, [isTablet, isMobile])
 
-  const isInIframe = useMemo(() => new CozyBridge().isInIframe(), [])
+  const isInIframe = useIsInIframe()
 
   // Manage calendar selection states
   const {
