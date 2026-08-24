@@ -67,7 +67,7 @@ export class RepetitionObject implements RepetitionData {
     if (this.interval != null) {
       repetitionRule.interval = this.interval
     }
-    if (this.occurrences != null) {
+    if (this.occurrences != null && this.occurrences > 0) {
       repetitionRule.count = this.occurrences
     }
     if (this.endDate) {

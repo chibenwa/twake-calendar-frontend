@@ -73,7 +73,7 @@ const DateTimeControlsRow: React.FC<DateTimeControlsRowProps> = ({
       setRepetition({
         freq: 'weekly',
         interval: 1,
-        occurrences: 0,
+        occurrences: null,
         endDate: '',
         byday: [icsDay]
       } as RepetitionObject)
@@ -81,7 +81,7 @@ const DateTimeControlsRow: React.FC<DateTimeControlsRowProps> = ({
       setRepetition({
         freq: '',
         interval: 1,
-        occurrences: 0,
+        occurrences: null,
         endDate: '',
         byday: null
       } as RepetitionObject)
