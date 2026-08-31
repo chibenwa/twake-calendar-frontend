@@ -9,6 +9,7 @@ import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
 class AuthenticationTest extends TwakeCalendarE2ETest {
@@ -31,6 +32,83 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
         page.reload();
         new CalendarPage(page).waitUntilLoaded();
 
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
+        assertThat(page.getByLabel("Create a new event")).isVisible();
+    }
+
+    @Test
+    @DisplayName("AUTH-04 The user menu shows the email address of the signed in account")
+    void theUserMenuShowsTheEmail(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        org.assertj.core.api.Assertions.assertThat(calendar.loggedInUser()).contains(user.email());
+    }
+
+    @Test
+    @DisplayName("AUTH-05 The menubar avatar carries the initials of the signed in account")
+    void theAvatarCarriesTheInitials(Page page, E2EUser user) {
+        LoginPage.loginAs(page, user);
+
+        String initials = page.getByLabel("User profile").innerText().trim();
+        org.assertj.core.api.Assertions.assertThat(initials)
+            .as("the avatar of %s reads %s", user.displayName(), initials)
+            .isNotEmpty()
+            .containsIgnoringCase(user.displayName().substring(0, 1));
+    }
+
+    @Test
+    @DisplayName("AUTH-06 Invalid credentials leave the user on the SSO form with an error")
+    void invalidCredentialsStayOnTheForm(Page page, E2EUser user) {
+        page.navigate("/");
+        LoginPage login = new LoginPage(page).waitUntilDisplayed();
+
+        login.fill(user.email(), "not-the-password");
+        login.submit();
+
+        assertThat(login.loginField()).isVisible();
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/auth.*"));
+        org.assertj.core.api.Assertions.assertThat(page.locator("body").innerText())
+            .containsIgnoringCase("invalid");
+    }
+
+    @Test
+    @DisplayName("AUTH-08 The default personal calendar is provisioned on the first login")
+    void theDefaultCalendarIsProvisionedOnFirstLogin(Page page, E2EUser user,
+                                                     com.linagora.calendar.e2e.backend.CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        assertThat(calendar.calendarCheckbox("My calendar")).isVisible();
+        org.assertj.core.api.Assertions.assertThat(probe.openPaasId(user))
+            .as("the account is created in OpenPaaS on its first authenticated call")
+            .isPresent();
+        // the calendar collection answers, which is what provisioning means on the DAV side
+        org.assertj.core.api.Assertions.assertThat(probe.eventSummaries(user)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("AUTH-09 Opening /calendar without a session goes through the SSO and comes back")
+    void openingCalendarWithoutASessionComesBack(Page page, E2EUser user) {
+        page.navigate("/calendar");
+
+        new LoginPage(page).submit(user);
+
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
+        assertThat(page.getByLabel("Create a new event")).isVisible();
+    }
+
+    @Test
+    @DisplayName("AUTH-10 An expired token re-authenticates without losing the current view")
+    void anExpiredTokenReAuthenticatesSilently(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.switchView("Month");
+        assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
+
+        // the SSO session is still valid, only the token the SPA holds is not
+        page.evaluate("() => { const t = JSON.parse(sessionStorage.getItem('tokenSet'));"
+            + " t.access_token = 'expired-token'; sessionStorage.setItem('tokenSet', JSON.stringify(t)); }");
+        page.reload();
+
+        new CalendarPage(page).waitUntilLoaded();
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
         assertThat(page.getByLabel("Create a new event")).isVisible();
     }

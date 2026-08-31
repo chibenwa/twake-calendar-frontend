@@ -20,10 +20,20 @@ public class LoginPage {
 
     public CalendarPage submit(E2EUser user) {
         waitUntilDisplayed();
-        page.locator("input[name='login']").fill(user.email());
-        page.locator("input[name='password']").fill(user.password());
-        page.locator("button[type='submit']").click();
+        fill(user.email(), user.password());
+        submit();
         return new CalendarPage(page).waitUntilLoaded();
+    }
+
+    /** Fills the form without submitting it, for the tests that assert on what it does next. */
+    public LoginPage fill(String login, String password) {
+        page.locator("input[name='login']").fill(login);
+        page.locator("input[name='password']").fill(password);
+        return this;
+    }
+
+    public void submit() {
+        page.locator("button[type='submit']").click();
     }
 
     public LoginPage waitUntilDisplayed() {

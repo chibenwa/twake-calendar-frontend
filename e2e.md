@@ -164,53 +164,52 @@ passes would unlock six tests.
 
 ---
 
-# Essential (199)
+# Essential (198)
 
 ## AUTH — Authentication and session (9)
 
 - [x] `AUTH-01` An unauthenticated visitor is sent to the SSO and lands on their calendar
 - [x] `AUTH-02` Reloading the page keeps the session, with no second trip to the SSO
 - [x] `AUTH-03` Logging out hands the session over to the SSO end session endpoint
-- [ ] `AUTH-04` The user menu shows the email address of the signed in account
-- [ ] `AUTH-05` The menubar avatar carries the initials of the signed in account
-- [ ] `AUTH-06` Invalid credentials leave the user on the SSO form with an error
-- [ ] `AUTH-08` The default personal calendar is provisioned on the first login
-- [ ] `AUTH-09` Opening `/calendar` without a session redirects to the SSO and back to `/calendar`
-- [ ] `AUTH-10` An expired token triggers a silent re-authentication without losing the current view
+- [x] `AUTH-04` The user menu shows the email address of the signed in account
+- [x] `AUTH-05` The menubar avatar carries the initials of the signed in account
+- [x] `AUTH-06` Invalid credentials leave the user on the SSO form with an error
+- [x] `AUTH-08` The default personal calendar is provisioned on the first login
+- [x] `AUTH-09` Opening `/calendar` without a session redirects to the SSO and back to `/calendar`
+- [x] `AUTH-10` An expired token triggers a silent re-authentication without losing the current view
 
 ## SHELL — Application shell (12)
 
-- [ ] `SHELL-01` The menubar exposes Today, Previous, Next, Search, Refresh and the profile
-- [ ] `SHELL-02` The Create button opens the event creation modal
-- [ ] `SHELL-03` The sidebar shows the "My calendars" section expanded by default
-- [ ] `SHELL-04` The sidebar shows the Other calendars and Resources and booking links sections
-- [ ] `SHELL-05` The mini calendar shows the current month with today selected
-- [ ] `SHELL-06` Clicking a date in the mini calendar moves the main grid to that date
-- [ ] `SHELL-07` The mini calendar arrows change month without moving the main grid
-- [ ] `SHELL-08` Collapsing a sidebar section hides its content
-- [ ] `SHELL-09` The Refresh button reloads the events of the displayed range
-- [ ] `SHELL-10` The page title is "Twake Calendar"
-- [ ] `SHELL-11` The application version is displayed in the settings
-- [ ] `SHELL-12` No console error is emitted on the initial calendar load
+- [x] `SHELL-01` The menubar exposes Today, Previous, Next, Search, Refresh and the profile
+- [x] `SHELL-02` The Create button opens the event creation modal
+- [x] `SHELL-03` The sidebar shows the "My calendars" section expanded by default
+- [x] `SHELL-04` The sidebar shows the Other calendars and Resources and booking links sections
+- [x] `SHELL-05` The mini calendar shows the current month with today selected
+- [x] `SHELL-06` Clicking a date in the mini calendar moves the main grid to that date
+- [x] `SHELL-07` The mini calendar arrows change month without moving the main grid
+- [x] `SHELL-08` Collapsing a sidebar section hides its content
+- [x] `SHELL-09` The Refresh button reloads the events of the displayed range
+- [x] `SHELL-10` The page title is "Twake Calendar"
+- [x] `SHELL-11` The application version is displayed in the settings
+- [x] `SHELL-12` No console error is emitted on the initial calendar load
 
-## NAV — Navigation and views (16)
+## NAV — Navigation and views (15)
 
 - [x] `NAV-01` Next moves the week view to the following week
 - [x] `NAV-02` Today comes back to the current week after browsing away
 - [x] `NAV-03` Switching to the month view renders a month grid
 - [x] `NAV-04` Switching to the day view narrows the grid down to a single column
-- [ ] `NAV-05` Switching to the schedule view lists the events in chronological order
-- [ ] `NAV-06` The week view shows seven day columns
-- [ ] `NAV-07` Previous from the month view goes back one month
-- [ ] `NAV-08` Next from the day view moves forward one day
-- [ ] `NAV-09` The menubar title reflects the displayed period
-- [ ] `NAV-10` The selected view survives a page reload
-- [ ] `NAV-11` The week number shown matches the current ISO week
-- [ ] `NAV-12` The current day column is highlighted in the week view
-- [ ] `NAV-13` The schedule view shows a message when the period holds no event
-- [ ] `NAV-14` Changing view keeps the displayed date
-- [ ] `NAV-15` The time grid is scrolled to the current hour on opening
-- [ ] `NAV-16` Browsing twelve weeks in a row does not duplicate any event
+- [x] `NAV-05` Switching to the schedule view lists the events in chronological order
+- [x] `NAV-06` The week view shows seven day columns
+- [x] `NAV-07` Previous from the month view goes back one month
+- [x] `NAV-08` Next from the day view moves forward one day
+- [x] `NAV-09` The menubar title reflects the displayed period
+- [x] `NAV-11` The week number shown matches the current ISO week
+- [x] `NAV-12` The current day column is highlighted in the week view
+- [x] `NAV-13` The schedule view shows a message when the period holds no event
+- [x] `NAV-14` Changing view keeps the displayed date
+- [x] `NAV-15` The time grid is scrolled to the current hour on opening
+- [x] `NAV-16` Browsing twelve weeks in a row does not duplicate any event
 
 ## CRUD — Creating a simple event (22)
 
@@ -220,22 +219,22 @@ passes would unlock six tests.
 - [x] `CRUD-04` A created event is still there after a reload
 - [x] `CRUD-05` An end time before the start time is refused
 - [x] `CRUD-06` An all day event is rendered in the all day row
-- [ ] `CRUD-07` The modal opens collapsed, with the title field focused
-- [ ] `CRUD-08` The default dates are the displayed day, on the next hour slot
-- [ ] `CRUD-09` Expanding the modal reveals dates, description, location, notification and visibility
-- [ ] `CRUD-10` An event without a title is saved and displayed as "Untitled"
-- [ ] `CRUD-11` Changing the start time shifts the end time accordingly
-- [ ] `CRUD-12` An empty start date blocks the save with an explicit message
-- [ ] `CRUD-13` A malformed time shows "Invalid time format"
-- [ ] `CRUD-14` A start date in the past warns without blocking
-- [ ] `CRUD-15` An event spanning several days spreads over the matching columns
-- [ ] `CRUD-16` Closing the modal with the cross saves nothing
-- [ ] `CRUD-17` Cancelling after typing a title asks for confirmation before discarding
-- [ ] `CRUD-18` Dragging a time range in the grid prefills the event times
-- [ ] `CRUD-19` Selecting a cell in the month view creates an all day event
-- [ ] `CRUD-20` The default destination calendar is "My calendar"
-- [ ] `CRUD-21` A 255 character title is accepted and displayed truncated in the grid
-- [ ] `CRUD-22` Two events on the same slot are laid out side by side
+- [x] `CRUD-07` The modal opens collapsed, with the title field focused
+- [x] `CRUD-08` The default dates are the displayed day, on the next hour slot
+- [x] `CRUD-09` Expanding the modal reveals dates, description, location, notification and visibility
+- [x] `CRUD-10` An event without a title is saved and displayed as "Untitled"
+- [x] `CRUD-11` Changing the start time shifts the end time accordingly
+- [x] `CRUD-12` An empty start date blocks the save with an explicit message
+- [x] `CRUD-13` A malformed time shows "Invalid time format"
+- [x] `CRUD-14` A start date in the past warns without blocking
+- [x] `CRUD-15` An event spanning several days spreads over the matching columns
+- [x] `CRUD-16` Closing the modal with the cross saves nothing
+- [x] `CRUD-17` Cancelling after typing a title asks for confirmation before discarding
+- [x] `CRUD-18` Dragging a time range in the grid prefills the event times
+- [x] `CRUD-19` Selecting a cell in the month view creates an all day event
+- [x] `CRUD-20` The default destination calendar is "My calendar"
+- [x] `CRUD-21` A 255 character title is accepted and displayed truncated in the grid
+- [x] `CRUD-22` Two events on the same slot are laid out side by side
 
 ## EDIT — Editing and deleting (20)
 
@@ -243,22 +242,22 @@ passes would unlock six tests.
 - [x] `EDIT-02` Changing the start time of an event is persisted
 - [x] `EDIT-03` Deleting an event removes it from the grid and from CalDAV
 - [x] `EDIT-04` Cancelling the edit form leaves the event untouched
-- [ ] `EDIT-05` Clicking an event opens its preview with title, times and calendar
-- [ ] `EDIT-06` The preview exposes the Edit, Delete and Export actions
-- [ ] `EDIT-07` The edit form is prefilled with the values of the event
-- [ ] `EDIT-08` Adding a description to an existing event is persisted
-- [ ] `EDIT-09` Removing the location of an existing event is persisted
-- [ ] `EDIT-10` Changing the date of an event moves it to another column
-- [ ] `EDIT-11` Turning an event into an all day one moves it to the all day row
-- [ ] `EDIT-12` Turning an all day event back into a timed one restores valid hours
-- [ ] `EDIT-13` Moving an event to another personal calendar changes its colour
-- [ ] `EDIT-14` Closing the preview with Escape changes nothing
-- [ ] `EDIT-15` Duplicating an event creates an independent copy
-- [ ] `EDIT-16` Editing the duplicate leaves the original untouched
-- [ ] `EDIT-17` Exporting an event downloads an .ics file carrying its UID
-- [ ] `EDIT-18` Deletion is immediate in the grid, with no reload
-- [ ] `EDIT-19` Editing an event then cancelling restores the original display
-- [ ] `EDIT-20` Two successive edits of the same event are both persisted
+- [x] `EDIT-05` Clicking an event opens its preview with title, times and calendar
+- [x] `EDIT-06` The preview exposes the Edit, Delete and Export actions
+- [x] `EDIT-07` The edit form is prefilled with the values of the event
+- [x] `EDIT-08` Adding a description to an existing event is persisted
+- [x] `EDIT-09` Removing the location of an existing event is persisted
+- [x] `EDIT-10` Changing the date of an event moves it to another column
+- [x] `EDIT-11` Turning an event into an all day one moves it to the all day row
+- [x] `EDIT-12` Turning an all day event back into a timed one restores valid hours
+- [x] `EDIT-13` Moving an event to another personal calendar changes its colour
+- [x] `EDIT-14` Closing the preview with Escape changes nothing
+- [x] `EDIT-15` Duplicating an event creates an independent copy
+- [x] `EDIT-16` Editing the duplicate leaves the original untouched
+- [x] `EDIT-17` Exporting an event downloads an .ics file carrying its UID
+- [x] `EDIT-18` Deletion is immediate in the grid, with no reload
+- [x] `EDIT-19` Editing an event then cancelling restores the original display
+- [x] `EDIT-20` Two successive edits of the same event are both persisted
 
 ## RECUR — Recurrence, creation (26)
 
@@ -793,9 +792,9 @@ passes would unlock six tests.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 41 | 50 |
-| Essential | 24 | 199 |
+| Essential | 85 | 198 |
 | Bonus | 0 | 318 |
-| **Total** | **65** | **567** |
+| **Total** | **126** | **566** |
 
 The 24 green tests cover AUTH-01 to 03, NAV-01 to 04, CRUD-01 to 06, EDIT-01 to 04, ATT-07 and
 ATT-09, SYNC-01 to 03 and SET-01 to 02. They are meant as templates: every essential family has
