@@ -150,7 +150,8 @@ mvn clean test
 ```
 
 See [`e2e/README.md`](e2e/README.md) for how to write a test, watch the browser work, and read
-the traces left behind by a failure.
+the traces left behind by a failure, and [`e2e.md`](e2e.md) for the backlog of scenarios left
+to cover.
 
 ### Linting
 

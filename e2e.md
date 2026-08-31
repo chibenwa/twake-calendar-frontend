@@ -1,0 +1,773 @@
+# End to end test plan
+
+Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
+
+- **Past incidents — 50 tests**: bugs and regressions this project has already shipped at
+  least once. They are the cheapest tests to justify and the most likely to fire again.
+- **Essential — 199 tests**: every basic feature working as intended. Until they are all green,
+  a regression can slip through.
+- **Bonus — 318 tests**: the peripheral features, the edge cases, accessibility, responsive
+  layouts and robustness.
+
+Measured cost: **~3 s per test** once the stack is up (~20 s, once per run). The 567 tests of
+this document therefore amount to roughly **half an hour** of CI. See
+[`e2e/README.md`](e2e/README.md) for how to write one, and its Isolation section for how
+accounts are handed out.
+
+## How to use this list
+
+- Tick the box when the test is written **and** green.
+- The identifier (`RECUR-07`) is stable: quote it in the method name or in a `@DisplayName`,
+  it is what keeps the backlog and the code connected.
+- One test, one behaviour a user can observe. If the sentence does not describe what a user
+  sees or gets, it is a badly written test.
+- Where it makes sense, back the UI assertion with a backend one through `CalendarProbe`: the
+  screen can lie, CalDAV cannot.
+- Every test receives a brand new `E2EUser` of its own. Multi user scenarios ask
+  `E2EUserFactory` for the extra accounts and `E2ESessions` for their sessions — accounts are
+  created on the fly in the directory, with no cap on how many.
+
+---
+
+# Past incidents (50)
+
+Drawn from the [issue tracker](https://github.com/linagora/twake-calendar-frontend/issues):
+708 issues read, 233 labelled `bug`, 46 labelled `REGRESSION`. Each line below reproduces a
+defect that actually reached a user, and cites the issue it came from.
+
+Two reasons to start here rather than at the top. A bug that shipped once has already proven
+that nothing in the current pipeline catches it. And the same handful of areas keeps coming
+back — a third of this list is recurrence, which is exactly what the `RECUR-*` families cover
+from the other direction.
+
+Pure display defects are deliberately absent: alignment, margins, z-index, colours, blinking
+and double scrollbars belong to pixel level tooling, not to this suite.
+
+## PAST — Recurrence and occurrences (18)
+
+- [ ] `PAST-01` Toggling repeat on a new event produces a valid RRULE, never `count: 0` ([#1277](https://github.com/linagora/twake-calendar-frontend/issues/1277))
+- [ ] `PAST-02` Editing one instance of a weekly series opens that instance, at its own date and in its own timezone ([#489](https://github.com/linagora/twake-calendar-frontend/issues/489))
+- [ ] `PAST-03` Deleting a second occurrence does not resurrect the ones deleted before it ([#938](https://github.com/linagora/twake-calendar-frontend/issues/938))
+- [ ] `PAST-04` Renaming one occurrence of a series bounded by `UNTIL` does not make the series vanish from the grid ([#1004](https://github.com/linagora/twake-calendar-frontend/issues/1004))
+- [ ] `PAST-05` An overridden instance is written once, with a `RECURRENCE-ID` in the same date-time form as `DTSTART` ([#819](https://github.com/linagora/twake-calendar-frontend/issues/819))
+- [ ] `PAST-06` No VEVENT ever carries both an `RRULE` and a `RECURRENCE-ID` ([#466](https://github.com/linagora/twake-calendar-frontend/issues/466))
+- [ ] `PAST-07` A recurrence ending on a date writes an RFC 5545 compliant `UNTIL`, matching the `DTSTART` precision ([#748](https://github.com/linagora/twake-calendar-frontend/issues/748))
+- [ ] `PAST-08` Updating a recurring event whose rule carries `WKST` does not return 500 ([#860](https://github.com/linagora/twake-calendar-frontend/issues/860))
+- [ ] `PAST-09` Deleting an occurrence through `EXDATE` increments the `SEQUENCE` of the master ([#1217](https://github.com/linagora/twake-calendar-frontend/issues/1217))
+- [ ] `PAST-10` Renaming a whole series keeps its exceptions; only a date change may reset them ([#352](https://github.com/linagora/twake-calendar-frontend/issues/352))
+- [ ] `PAST-11` A guest accepting a series that holds an exception does not overwrite that exception ([#229](https://github.com/linagora/twake-calendar-frontend/issues/229))
+- [ ] `PAST-12` Inviting someone on a single occurrence keeps the other guests' answers on it ([#299](https://github.com/linagora/twake-calendar-frontend/issues/299))
+- [ ] `PAST-13` Turning a recurring event into a simple one stops offering the this-event / all-events dialog ([#364](https://github.com/linagora/twake-calendar-frontend/issues/364))
+- [ ] `PAST-14` A daily series shows on every day of the last week of the month view, spill-over days included ([#263](https://github.com/linagora/twake-calendar-frontend/issues/263))
+- [ ] `PAST-15` Changing a rule from every day to every two days keeps the master occurrence visible ([#441](https://github.com/linagora/twake-calendar-frontend/issues/441))
+- [ ] `PAST-16` Editing a single occurrence does not offer to move it to another calendar ([#916](https://github.com/linagora/twake-calendar-frontend/issues/916))
+- [ ] `PAST-17` The preview of a recurring event states its rule, including interval and count ([#442](https://github.com/linagora/twake-calendar-frontend/issues/442))
+- [ ] `PAST-18` The recurrence interval never accepts a float ([#961](https://github.com/linagora/twake-calendar-frontend/issues/961))
+
+## PAST — Timezones (4)
+
+- [ ] `PAST-19` The update modal reopens an event in the timezone it was created with ([#490](https://github.com/linagora/twake-calendar-frontend/issues/490))
+- [ ] `PAST-20` Answering an invitation twice never normalises `DTSTART` to UTC and drops its `TZID` ([#1031](https://github.com/linagora/twake-calendar-frontend/issues/1031))
+- [ ] `PAST-21` A user in Asia/Jakarta sees a Monday event on Monday ([#632](https://github.com/linagora/twake-calendar-frontend/issues/632))
+- [ ] `PAST-22` Picking an explicit timezone in the form creates the event at that timezone's hour, not the local one ([#896](https://github.com/linagora/twake-calendar-frontend/issues/896))
+
+## PAST — All day events (4)
+
+- [ ] `PAST-23` Renaming an all day event does not stretch it over two days ([#425](https://github.com/linagora/twake-calendar-frontend/issues/425))
+- [ ] `PAST-24` Creating an all day event on the clicked day lands on that day, not the one before ([#870](https://github.com/linagora/twake-calendar-frontend/issues/870))
+- [ ] `PAST-25` Dragging an all day event one day back moves it exactly one day back ([#942](https://github.com/linagora/twake-calendar-frontend/issues/942))
+- [ ] `PAST-26` The time inputs stay hidden for an all day event, multi day ones included ([#774](https://github.com/linagora/twake-calendar-frontend/issues/774))
+
+## PAST — Guests and attendance (5)
+
+- [ ] `PAST-27` Editing an event does not reset the guests' answers ([#307](https://github.com/linagora/twake-calendar-frontend/issues/307))
+- [ ] `PAST-28` Changing the time of an event keeps the organizer accepted, while resetting the guests ([#324](https://github.com/linagora/twake-calendar-frontend/issues/324))
+- [ ] `PAST-29` The guest count of the preview matches the actual number of guests ([#500](https://github.com/linagora/twake-calendar-frontend/issues/500))
+- [ ] `PAST-30` An address unknown to the directory is kept when the guest field loses focus, without pressing Enter ([#548](https://github.com/linagora/twake-calendar-frontend/issues/548))
+- [ ] `PAST-31` Guests are written with `ROLE=REQ-PARTICIPANT`, the organizer alone as `CHAIR` ([#319](https://github.com/linagora/twake-calendar-frontend/issues/319))
+
+## PAST — Calendars (5)
+
+- [ ] `PAST-32` The set of ticked calendars survives a reload ([#475](https://github.com/linagora/twake-calendar-frontend/issues/475))
+- [ ] `PAST-33` Deleting a personal calendar leaves the user on the calendar, never on a blank page ([#213](https://github.com/linagora/twake-calendar-frontend/issues/213))
+- [ ] `PAST-34` A calendar created with a custom colour still renders after a reload ([#242](https://github.com/linagora/twake-calendar-frontend/issues/242))
+- [ ] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
+- [ ] `PAST-36` A user cannot delegate their own calendar to themselves and lock themselves out of it ([#908](https://github.com/linagora/twake-calendar-frontend/issues/908))
+
+## PAST — Search (4)
+
+- [ ] `PAST-37` A calendar picked through quick search is displayed in the central grid ([#196](https://github.com/linagora/twake-calendar-frontend/issues/196))
+- [ ] `PAST-38` Searching again with a different keyword sends the new keyword, not the previous one ([#998](https://github.com/linagora/twake-calendar-frontend/issues/998))
+- [ ] `PAST-39` Quick searching a user who delegated their calendar returns that calendar ([#596](https://github.com/linagora/twake-calendar-frontend/issues/596))
+- [ ] `PAST-40` Cancelling a search before its results arrive leaves no ghost calendar behind ([#271](https://github.com/linagora/twake-calendar-frontend/issues/271))
+
+## PAST — Loading and stability (4)
+
+- [ ] `PAST-41` A tab left open and woken up hours later recovers on its own, without a blank page ([#623](https://github.com/linagora/twake-calendar-frontend/issues/623))
+- [ ] `PAST-42` A 401 on the websocket ticket restarts the SSO flow instead of looping forever ([#488](https://github.com/linagora/twake-calendar-frontend/issues/488))
+- [ ] `PAST-43` Browsing quickly across many weeks does not flood the API into failure ([#617](https://github.com/linagora/twake-calendar-frontend/issues/617))
+- [ ] `PAST-44` The mini calendar highlights the current week on load ([#1156](https://github.com/linagora/twake-calendar-frontend/issues/1156))
+
+## PAST — iCalendar interoperability (4)
+
+- [ ] `PAST-45` Updating an event preserves the iCalendar properties the SPA does not manage ([#638](https://github.com/linagora/twake-calendar-frontend/issues/638))
+- [ ] `PAST-46` `SEQUENCE` starts at 1 on creation and grows on every update ([#318](https://github.com/linagora/twake-calendar-frontend/issues/318))
+- [ ] `PAST-47` A `CN` holding non-ASCII characters is quoted in `ATTENDEE` and `ORGANIZER` ([#789](https://github.com/linagora/twake-calendar-frontend/issues/789))
+- [ ] `PAST-48` The CalDAV URL shown in the Access tab points at the DAV server, not at the API ([#562](https://github.com/linagora/twake-calendar-frontend/issues/562))
+
+## PAST — Video conferencing and reminders (2)
+
+- [ ] `PAST-49` A generated video conference link carries a single slash before the meeting code ([#894](https://github.com/linagora/twake-calendar-frontend/issues/894))
+- [ ] `PAST-50` A one week reminder writes a `TRIGGER` of exactly one week ([#1201](https://github.com/linagora/twake-calendar-frontend/issues/1201))
+
+---
+
+# Essential (199)
+
+## AUTH — Authentication and session (9)
+
+- [x] `AUTH-01` An unauthenticated visitor is sent to the SSO and lands on their calendar
+- [x] `AUTH-02` Reloading the page keeps the session, with no second trip to the SSO
+- [x] `AUTH-03` Logging out hands the session over to the SSO end session endpoint
+- [ ] `AUTH-04` The user menu shows the email address of the signed in account
+- [ ] `AUTH-05` The menubar avatar carries the initials of the signed in account
+- [ ] `AUTH-06` Invalid credentials leave the user on the SSO form with an error
+- [ ] `AUTH-08` The default personal calendar is provisioned on the first login
+- [ ] `AUTH-09` Opening `/calendar` without a session redirects to the SSO and back to `/calendar`
+- [ ] `AUTH-10` An expired token triggers a silent re-authentication without losing the current view
+
+## SHELL — Application shell (12)
+
+- [ ] `SHELL-01` The menubar exposes Today, Previous, Next, Search, Refresh and the profile
+- [ ] `SHELL-02` The Create button opens the event creation modal
+- [ ] `SHELL-03` The sidebar shows the "My calendars" section expanded by default
+- [ ] `SHELL-04` The sidebar shows the Other calendars and Resources and booking links sections
+- [ ] `SHELL-05` The mini calendar shows the current month with today selected
+- [ ] `SHELL-06` Clicking a date in the mini calendar moves the main grid to that date
+- [ ] `SHELL-07` The mini calendar arrows change month without moving the main grid
+- [ ] `SHELL-08` Collapsing a sidebar section hides its content
+- [ ] `SHELL-09` The Refresh button reloads the events of the displayed range
+- [ ] `SHELL-10` The page title is "Twake Calendar"
+- [ ] `SHELL-11` The application version is displayed in the settings
+- [ ] `SHELL-12` No console error is emitted on the initial calendar load
+
+## NAV — Navigation and views (16)
+
+- [x] `NAV-01` Next moves the week view to the following week
+- [x] `NAV-02` Today comes back to the current week after browsing away
+- [x] `NAV-03` Switching to the month view renders a month grid
+- [x] `NAV-04` Switching to the day view narrows the grid down to a single column
+- [ ] `NAV-05` Switching to the schedule view lists the events in chronological order
+- [ ] `NAV-06` The week view shows seven day columns
+- [ ] `NAV-07` Previous from the month view goes back one month
+- [ ] `NAV-08` Next from the day view moves forward one day
+- [ ] `NAV-09` The menubar title reflects the displayed period
+- [ ] `NAV-10` The selected view survives a page reload
+- [ ] `NAV-11` The week number shown matches the current ISO week
+- [ ] `NAV-12` The current day column is highlighted in the week view
+- [ ] `NAV-13` The schedule view shows a message when the period holds no event
+- [ ] `NAV-14` Changing view keeps the displayed date
+- [ ] `NAV-15` The time grid is scrolled to the current hour on opening
+- [ ] `NAV-16` Browsing twelve weeks in a row does not duplicate any event
+
+## CRUD — Creating a simple event (22)
+
+- [x] `CRUD-01` An event created from the form shows up in the grid
+- [x] `CRUD-02` An event created from the form reaches CalDAV
+- [x] `CRUD-03` Description and location typed in the expanded form are persisted
+- [x] `CRUD-04` A created event is still there after a reload
+- [x] `CRUD-05` An end time before the start time is refused
+- [x] `CRUD-06` An all day event is rendered in the all day row
+- [ ] `CRUD-07` The modal opens collapsed, with the title field focused
+- [ ] `CRUD-08` The default dates are the displayed day, on the next hour slot
+- [ ] `CRUD-09` Expanding the modal reveals dates, description, location, notification and visibility
+- [ ] `CRUD-10` An event without a title is saved and displayed as "Untitled"
+- [ ] `CRUD-11` Changing the start time shifts the end time accordingly
+- [ ] `CRUD-12` An empty start date blocks the save with an explicit message
+- [ ] `CRUD-13` A malformed time shows "Invalid time format"
+- [ ] `CRUD-14` A start date in the past warns without blocking
+- [ ] `CRUD-15` An event spanning several days spreads over the matching columns
+- [ ] `CRUD-16` Closing the modal with the cross saves nothing
+- [ ] `CRUD-17` Cancelling after typing a title asks for confirmation before discarding
+- [ ] `CRUD-18` Dragging a time range in the grid prefills the event times
+- [ ] `CRUD-19` Selecting a cell in the month view creates an all day event
+- [ ] `CRUD-20` The default destination calendar is "My calendar"
+- [ ] `CRUD-21` A 255 character title is accepted and displayed truncated in the grid
+- [ ] `CRUD-22` Two events on the same slot are laid out side by side
+
+## EDIT — Editing and deleting (20)
+
+- [x] `EDIT-01` Renaming an event updates both the grid and CalDAV
+- [x] `EDIT-02` Changing the start time of an event is persisted
+- [x] `EDIT-03` Deleting an event removes it from the grid and from CalDAV
+- [x] `EDIT-04` Cancelling the edit form leaves the event untouched
+- [ ] `EDIT-05` Clicking an event opens its preview with title, times and calendar
+- [ ] `EDIT-06` The preview exposes the Edit, Delete and Export actions
+- [ ] `EDIT-07` The edit form is prefilled with the values of the event
+- [ ] `EDIT-08` Adding a description to an existing event is persisted
+- [ ] `EDIT-09` Removing the location of an existing event is persisted
+- [ ] `EDIT-10` Changing the date of an event moves it to another column
+- [ ] `EDIT-11` Turning an event into an all day one moves it to the all day row
+- [ ] `EDIT-12` Turning an all day event back into a timed one restores valid hours
+- [ ] `EDIT-13` Moving an event to another personal calendar changes its colour
+- [ ] `EDIT-14` Closing the preview with Escape changes nothing
+- [ ] `EDIT-15` Duplicating an event creates an independent copy
+- [ ] `EDIT-16` Editing the duplicate leaves the original untouched
+- [ ] `EDIT-17` Exporting an event downloads an .ics file carrying its UID
+- [ ] `EDIT-18` Deletion is immediate in the grid, with no reload
+- [ ] `EDIT-19` Editing an event then cancelling restores the original display
+- [ ] `EDIT-20` Two successive edits of the same event are both persisted
+
+## RECUR — Recurrence, creation (26)
+
+> Top risk area. Every test checks **both** how the occurrences are rendered in the grid **and**
+> the `RRULE` actually written to CalDAV: the two drift apart easily.
+
+- [ ] `RECUR-01` A new event is "Doesn't repeat" by default, with no RRULE
+- [ ] `RECUR-02` A daily recurrence shows one occurrence on every day of the week
+- [ ] `RECUR-03` A daily recurrence writes `FREQ=DAILY;INTERVAL=1`
+- [ ] `RECUR-04` A daily interval of 2 only shows an occurrence every other day
+- [ ] `RECUR-05` A daily interval of 3 writes `INTERVAL=3`
+- [ ] `RECUR-06` Switching to weekly automatically ticks the weekday of the start date
+- [ ] `RECUR-07` A weekly recurrence on Monday, Wednesday, Friday shows three occurrences
+- [ ] `RECUR-08` The weekday picker writes `BYDAY=MO,WE,FR` in the right order
+- [ ] `RECUR-09` Unticking every weekday of a weekly recurrence drops `BYDAY`
+- [ ] `RECUR-10` A weekly interval of 2 skips every other week
+- [ ] `RECUR-11` A monthly recurrence falls on the same day of month the next month
+- [ ] `RECUR-12` A monthly recurrence starting on the 31st creates no occurrence in short months
+- [ ] `RECUR-13` A monthly interval of 3 behaves as a quarterly recurrence
+- [ ] `RECUR-14` A yearly recurrence comes back on the same date the following year
+- [ ] `RECUR-15` Switching from weekly to monthly clears `BYDAY`
+- [ ] `RECUR-16` The "Always" ending writes neither `COUNT` nor `UNTIL`
+- [ ] `RECUR-17` The "After N occurrences" ending writes `COUNT=N` and stops at the Nth
+- [ ] `RECUR-18` An ending after 1 occurrence produces a single event
+- [ ] `RECUR-19` The "Until" ending writes `UNTIL` and shows nothing past the chosen date
+- [ ] `RECUR-20` The end date picker refuses a date before the start
+- [ ] `RECUR-21` Switching from "After" to "Until" clears the occurrence count
+- [ ] `RECUR-22` Switching to "Always" clears both the occurrence count and the end date
+- [ ] `RECUR-23` An interval of 0 or a negative one is brought back to 1
+- [ ] `RECUR-24` A decimal interval is refused on input
+- [ ] `RECUR-25` A recurrence on an all day event is accepted and rendered in the all day row
+- [ ] `RECUR-26` The preview of an occurrence spells the rule out ("Every 2 weeks on monday, wednesday")
+
+## RECUR-EDIT — Recurrence, editing and deleting (24)
+
+> Where a regression costs the most: a badly written exception silently corrupts a whole
+> series. Always check `RECURRENCE-ID` and `EXDATE` on the CalDAV side.
+
+- [ ] `RECUR-EDIT-01` Editing an occurrence opens the "This event / All the events" dialog
+- [ ] `RECUR-EDIT-02` Cancelling that dialog modifies no occurrence
+- [ ] `RECUR-EDIT-03` Renaming "this event" only renames the clicked occurrence
+- [ ] `RECUR-EDIT-04` Renaming "this event" writes an exception carrying `RECURRENCE-ID`
+- [ ] `RECUR-EDIT-05` Renaming "all the events" renames the whole series
+- [ ] `RECUR-EDIT-06` Moving the time of a single occurrence leaves the others in place
+- [ ] `RECUR-EDIT-07` Moving the time of the whole series shifts every occurrence
+- [ ] `RECUR-EDIT-08` Deleting an occurrence opens the two choice deletion dialog
+- [ ] `RECUR-EDIT-09` Deleting "this event" removes one occurrence and adds an `EXDATE`
+- [ ] `RECUR-EDIT-10` Deleting "all the events" clears the series from the calendar
+- [ ] `RECUR-EDIT-11` Changing the frequency from daily to weekly on the whole series
+- [ ] `RECUR-EDIT-12` Raising the occurrence count brings the missing occurrences back
+- [ ] `RECUR-EDIT-13` Lowering the occurrence count removes the extra occurrences
+- [ ] `RECUR-EDIT-14` Pushing the end date further extends the series
+- [ ] `RECUR-EDIT-15` Making a recurring event non recurring leaves a single occurrence
+- [ ] `RECUR-EDIT-16` Making a single event recurring creates the following occurrences
+- [ ] `RECUR-EDIT-17` An already edited occurrence survives an edit of the series
+- [ ] `RECUR-EDIT-18` Deleting an exception occurrence does not break the rest of the series
+- [ ] `RECUR-EDIT-19` Adding a guest to a single occurrence leaves the others alone
+- [ ] `RECUR-EDIT-20` Adding a guest to the whole series invites them on every occurrence
+- [ ] `RECUR-EDIT-21` Answering on a single occurrence opens the participation status dialog
+- [ ] `RECUR-EDIT-22` Answering for the whole series applies the status everywhere
+- [ ] `RECUR-EDIT-23` The preview of an occurrence carries the "Recurrent Event" badge
+- [ ] `RECUR-EDIT-24` Moving a recurring series to another calendar keeps its rule
+
+## ATT — Guests and invitations (18)
+
+- [ ] `ATT-01` Typing a valid email in the guest field adds it to the list
+- [ ] `ATT-02` An invalid address shows "is not a valid email address" and is not added
+- [ ] `ATT-03` The directory search suggests the users of the domain
+- [ ] `ATT-04` Picking a suggestion adds the guest with their display name
+- [ ] `ATT-05` Removing a guest before saving takes them off the list
+- [ ] `ATT-06` The organizer is part of the guests and cannot be removed
+- [x] `ATT-07` Guests are written as `ATTENDEE` in CalDAV
+- [ ] `ATT-08` The preview shows the guest count and the breakdown of answers
+- [x] `ATT-09` An invited user sees the event show up in their own calendar
+- [ ] `ATT-10` A guest can accept the invitation from the preview
+- [ ] `ATT-11` A guest can decline the invitation from the preview
+- [ ] `ATT-12` A guest can answer "Maybe"
+- [ ] `ATT-13` A guest's answer reaches the organizer
+- [ ] `ATT-14` A guest who declined is shown as "Declined"
+- [ ] `ATT-15` Adding a guest to an existing event sends them the invitation
+- [ ] `ATT-16` Removing a guest from an existing event takes it out of their calendar
+- [ ] `ATT-17` The same guest cannot be added twice
+- [ ] `ATT-18` "Show more" expands the full guest list beyond the fold
+
+## CAL — Personal calendars (16)
+
+- [ ] `CAL-01` The default personal calendar is named "My calendar"
+- [ ] `CAL-02` Creating a personal calendar adds it to the sidebar
+- [ ] `CAL-03` A created calendar is visible over CalDAV
+- [ ] `CAL-04` Unticking a calendar hides its events from the grid
+- [ ] `CAL-05` Ticking a calendar back shows its events again
+- [ ] `CAL-06` Renaming a calendar updates the sidebar
+- [ ] `CAL-07` Changing the colour of a calendar recolours its events
+- [ ] `CAL-08` The custom colour picker accepts a hexadecimal value
+- [ ] `CAL-09` Deleting a calendar asks for confirmation, warning about the loss of its events
+- [ ] `CAL-10` Deleting a calendar removes its events from the grid
+- [ ] `CAL-11` The default calendar cannot be deleted
+- [ ] `CAL-12` An event created in a second calendar takes its colour
+- [ ] `CAL-13` The Access tab shows the CalDAV URL of the calendar
+- [ ] `CAL-14` The Access tab allows resetting the secret URL
+- [ ] `CAL-15` The default visibility of new events is configurable per calendar
+- [ ] `CAL-16` The calendar selection survives a reload
+
+## SYNC — Live updates and persistence (12)
+
+- [x] `SYNC-01` An event written over CalDAV pops up without a reload
+- [x] `SYNC-02` An event deleted over CalDAV is gone after a refresh
+- [x] `SYNC-03` Browsing to another week loads the events of that week
+- [ ] `SYNC-04` An event renamed over CalDAV changes title live
+- [ ] `SYNC-05` An event moved over CalDAV changes slot live
+- [ ] `SYNC-06` An incoming invitation shows up live in the guest's calendar
+- [ ] `SYNC-07` A guest's answer reaches the organizer live
+- [ ] `SYNC-08` Losing the websocket shows the "Live updates were interrupted" banner
+- [ ] `SYNC-09` Recovering the websocket shows "Live updates are back"
+- [ ] `SYNC-10` An edit made while offline is replayed on reconnection
+- [ ] `SYNC-11` Two tabs of the same user stay in sync
+- [ ] `SYNC-12` A manual refresh catches up on an event the websocket missed
+
+## SEARCH — Search (10)
+
+- [ ] `SEARCH-01` Searching a keyword brings back the matching event
+- [ ] `SEARCH-02` A search with no match shows "No events found"
+- [ ] `SEARCH-03` The search also covers the description
+- [ ] `SEARCH-04` The search also covers the location
+- [ ] `SEARCH-05` The "My calendars" filter narrows the search scope
+- [ ] `SEARCH-06` The organizer filter narrows the results
+- [ ] `SEARCH-07` The participant filter narrows the results
+- [ ] `SEARCH-08` Clicking a result opens the event preview
+- [ ] `SEARCH-09` Clearing the search restores the calendar view
+- [ ] `SEARCH-10` An empty search invites the user to type keywords
+
+## SET — Settings (14)
+
+- [x] `SET-01` Switching the interface to French relabels the menubar
+- [x] `SET-02` Turning the week number off removes it from the grid
+- [ ] `SET-03` The chosen language survives a reload
+- [ ] `SET-04` Every offered language actually relabels the interface
+- [ ] `SET-05` Changing the timezone shifts how events are displayed
+- [ ] `SET-06` Automatic timezone detection can be turned off
+- [ ] `SET-07` Choosing working days is persisted
+- [ ] `SET-08` "Show only working days" hides the weekend from the grid
+- [ ] `SET-09` "Show declined events" brings a declined event back
+- [ ] `SET-10` Hiding declined events removes them from the grid
+- [ ] `SET-11` The email notification delivery method is saved
+- [ ] `SET-12` The back button returns to the previous calendar view
+- [ ] `SET-13` A failed save shows the matching error message
+- [ ] `SET-14` One user's settings do not affect another's
+
+---
+
+# Bonus (318)
+
+## RES — Resources (18)
+
+- [ ] `RES-01` The Resources section lists the resources of the domain
+- [ ] `RES-02` Browsing resources allows adding one to the sidebar
+- [ ] `RES-03` Booking a resource from the event form adds it as a participant
+- [ ] `RES-04` A booked resource shows up in the resource's own calendar
+- [ ] `RES-05` The resource administrator receives the booking request
+- [ ] `RES-06` The administrator can accept the booking
+- [ ] `RES-07` The administrator can decline the booking
+- [ ] `RES-08` The booking status reaches the organizer
+- [ ] `RES-09` A resource already booked on the slot is flagged as busy
+- [ ] `RES-10` Removing a resource from an event frees the slot
+- [ ] `RES-11` Deleting the event frees the resource
+- [ ] `RES-12` The resource search filters by name
+- [ ] `RES-13` A resource search with no match shows "No results"
+- [ ] `RES-14` The resource icon is displayed in the list
+- [ ] `RES-15` Unticking a resource hides its bookings
+- [ ] `RES-16` Removing a resource from the sidebar does not delete its bookings
+- [ ] `RES-17` A non administrator cannot edit the resource calendar
+- [ ] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
+
+## TEAM — Team calendars (18)
+
+- [ ] `TEAM-01` A team calendar appears in its own section
+- [ ] `TEAM-02` A viewer member sees the events of the team
+- [ ] `TEAM-03` A viewer member cannot create an event in the team calendar
+- [ ] `TEAM-04` An editor member can create an event in the team calendar
+- [ ] `TEAM-05` An editor member can edit an event of the team
+- [ ] `TEAM-06` An administrator can delete an event of the team
+- [ ] `TEAM-07` Creating in a team calendar allows choosing the organizer
+- [ ] `TEAM-08` A team event shows "Team's organizer" in the preview
+- [ ] `TEAM-09` The tooltip names the team that organized the event
+- [ ] `TEAM-10` A team event is visible live by every member
+- [ ] `TEAM-11` Unticking the team calendar hides its events
+- [ ] `TEAM-12` The team calendar colour is applied to its events
+- [ ] `TEAM-13` A non member does not see the team calendar
+- [ ] `TEAM-14` Removing a member revokes their access live
+- [ ] `TEAM-15` Inviting an external guest from a team calendar works
+- [ ] `TEAM-16` A recurring team event behaves like a personal recurring one
+- [ ] `TEAM-17` The team calendar appears in the calendar picker of the form
+- [ ] `TEAM-18` Moving a personal event to a team calendar changes its organizer
+
+## SHARE — Sharing and delegation (26)
+
+- [ ] `SHARE-01` The Access tab allows granting a right to another user
+- [ ] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
+- [ ] `SHARE-03` A read right shows the events without allowing edition
+- [ ] `SHARE-04` An edit right allows creating an event in the shared calendar
+- [ ] `SHARE-05` An edit right allows editing an existing event
+- [ ] `SHARE-06` An administration right allows managing the shares
+- [ ] `SHARE-07` Revoking a right removes the calendar from the grantee
+- [ ] `SHARE-08` The owner is identified in the list of rights
+- [ ] `SHARE-09` "View all events" exposes the details of private events
+- [ ] `SHARE-10` Without that right, private events appear without details
+- [ ] `SHARE-11` A private event shows "Details are hidden" to the delegate
+- [ ] `SHARE-12` Browsing a user's public calendars offers them for subscription
+- [ ] `SHARE-13` Subscribing to a public calendar adds it to the sidebar
+- [ ] `SHARE-14` Unsubscribing from a public calendar removes it without deleting it
+- [ ] `SHARE-15` A user with no public calendar shows the matching message
+- [ ] `SHARE-16` The colours of a shared calendar are per subscriber
+- [ ] `SHARE-17` Creating an event in a delegated calendar sets the right organizer
+- [ ] `SHARE-18` The preview offers "Edit in <calendar>" for a delegated event
+- [ ] `SHARE-19` A delegate cannot delete the shared calendar
+- [ ] `SHARE-20` The share survives a logout and login on both sides
+- [ ] `SHARE-21` An edit made by the delegate is visible live to the owner
+- [ ] `SHARE-22` Sharing with an address outside the domain is refused
+- [ ] `SHARE-23` Sharing with oneself is refused
+- [ ] `SHARE-24` The list of rights is paginated beyond a dozen grantees
+- [ ] `SHARE-25` Disabling the sharing module hides the Access tab
+- [ ] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
+
+## IMPEX — Import, export, CalDAV (20)
+
+- [ ] `IMPEX-01` Importing an .ics file adds its events to the chosen calendar
+- [ ] `IMPEX-02` The import reports how many events were imported
+- [ ] `IMPEX-03` Importing an .ics holding a recurrence keeps the rule
+- [ ] `IMPEX-04` Importing an .ics holding exceptions keeps the `RECURRENCE-ID` entries
+- [ ] `IMPEX-05` Importing an invalid file shows an explicit error
+- [ ] `IMPEX-06` Importing an empty file adds nothing and says so
+- [ ] `IMPEX-07` Importing from an ICS feed URL works
+- [ ] `IMPEX-08` An unreachable feed URL shows an error
+- [ ] `IMPEX-09` Importing the same file twice does not duplicate the events
+- [ ] `IMPEX-10` The import honours the selected destination calendar
+- [ ] `IMPEX-11` Exporting a calendar downloads an .ics holding all its events
+- [ ] `IMPEX-12` Exporting an empty calendar produces a valid .ics
+- [ ] `IMPEX-13` The displayed CalDAV URL accepts an authenticated `PROPFIND`
+- [ ] `IMPEX-14` The secret URL allows reading the calendar without authentication
+- [ ] `IMPEX-15` Resetting the secret URL invalidates the previous one
+- [ ] `IMPEX-16` An event created by a third party CalDAV client shows in the interface
+- [ ] `IMPEX-17` An imported event in an exotic timezone displays at the right hour
+- [ ] `IMPEX-18` A bulk import of 500 events completes without timing out
+- [ ] `IMPEX-19` Importing an .ics with attachments keeps the references
+- [ ] `IMPEX-20` Exporting a recurring event carries the complete `RRULE`
+
+## BOOK — Booking links, private side (22)
+
+- [ ] `BOOK-01` The Booking links section is hidden when the feature is off
+- [ ] `BOOK-02` Creating a booking link adds it to the sidebar
+- [ ] `BOOK-03` The form requires a schedule name
+- [ ] `BOOK-04` The slot duration offers 15, 30, 45 minutes, 1 hour and 2 hours
+- [ ] `BOOK-05` Regular hours are configurable day by day
+- [ ] `BOOK-06` "Copy to all" replicates a slot onto every day
+- [ ] `BOOK-07` A day without a slot is marked unavailable
+- [ ] `BOOK-08` Adding then removing a slot updates the preview
+- [ ] `BOOK-09` The chosen colour is applied to the link
+- [ ] `BOOK-10` A schedule can be deactivated and reactivated
+- [ ] `BOOK-11` Copying the booking link puts the URL in the clipboard
+- [ ] `BOOK-12` Editing an existing schedule is persisted
+- [ ] `BOOK-13` Deleting a schedule removes it from the sidebar
+- [ ] `BOOK-14` A slot already taken by an event is not offered
+- [ ] `BOOK-15` A confirmed booking creates an event in the owner's calendar
+- [ ] `BOOK-16` The owner sees the name and email of the person who booked
+- [ ] `BOOK-17` The owner can accept the booking
+- [ ] `BOOK-18` The owner can decline the booking
+- [ ] `BOOK-19` Cancelling the event frees the slot on the public side
+- [ ] `BOOK-20` The schedule timezone is independent from the user's own
+- [ ] `BOOK-21` Two schedules can coexist without overlapping
+- [ ] `BOOK-22` A schedule with video conferencing generates a link on booking
+
+## PUB — Public application (26)
+
+- [ ] `PUB-01` A public booking page loads without authentication
+- [ ] `PUB-02` The public calendar offers the days holding slots
+- [ ] `PUB-03` Selecting a day shows the available slots
+- [ ] `PUB-04` A day without a slot shows "No slots available"
+- [ ] `PUB-05` An unknown link shows "This booking link is not found"
+- [ ] `PUB-06` A deactivated link shows "This booking link is not available"
+- [ ] `PUB-07` The form requires a name
+- [ ] `PUB-08` The form requires an email
+- [ ] `PUB-09` An invalid email is refused
+- [ ] `PUB-10` Confirming a booking shows the success screen with the date
+- [ ] `PUB-11` Booking a slot taken in the meantime shows "no longer available"
+- [ ] `PUB-12` The cancellation link allows cancelling the booking
+- [ ] `PUB-13` After cancellation the slot becomes bookable again
+- [ ] `PUB-14` Changing the visitor's timezone shifts the displayed slots
+- [ ] `PUB-15` The public event preview opens with a valid JWT
+- [ ] `PUB-16` A missing token shows "Your link is invalid"
+- [ ] `PUB-17` An expired token shows "invalid or has expired"
+- [ ] `PUB-18` A deleted event shows "The event could not be found"
+- [ ] `PUB-19` The public preview allows answering the invitation
+- [ ] `PUB-20` An answer given publicly reaches the organizer
+- [ ] `PUB-21` The public preview allows proposing a new time
+- [ ] `PUB-22` The time proposal reaches the organizer
+- [ ] `PUB-23` The footer exposes the Privacy and Terms links
+- [ ] `PUB-24` The help button points to `SUPPORT_URL`
+- [ ] `PUB-25` The public preview of a recurring occurrence shows the right date
+- [ ] `PUB-26` No data of another user is reachable through a public token
+
+## VISIO — Video conferencing (12)
+
+- [ ] `VISIO-01` "Add Visio conference" generates a link on the event
+- [ ] `VISIO-02` The generated link derives from `VIDEO_CONFERENCE_BASE_URL`
+- [ ] `VISIO-03` The link is persisted in CalDAV
+- [ ] `VISIO-04` Copying the meeting link shows "Meeting link copied"
+- [ ] `VISIO-05` Removing the video conference deletes the link from the event
+- [ ] `VISIO-06` The preview offers "Join the video conference"
+- [ ] `VISIO-07` The Join button opens the link in a new tab
+- [ ] `VISIO-08` Guests can see the video conference link
+- [ ] `VISIO-09` The "Please do not edit this section" marker is present in the description
+- [ ] `VISIO-10` Editing the event does not break the existing link
+- [ ] `VISIO-11` A video conference on a recurring event is shared by every occurrence
+- [ ] `VISIO-12` The link stays valid after a time change
+
+## ALARM — Notifications and reminders (16)
+
+- [ ] `ALARM-01` The default notification is "No notification"
+- [ ] `ALARM-02` Choosing a reminder 10 minutes before writes a `VALARM`
+- [ ] `ALARM-03` Every offered duration translates into the right `TRIGGER`
+- [ ] `ALARM-04` The email reminder writes `ACTION:EMAIL`
+- [ ] `ALARM-05` The display reminder writes `ACTION:DISPLAY`
+- [ ] `ALARM-06` Removing the notification deletes the `VALARM`
+- [ ] `ALARM-07` The preview spells the reminder out
+- [ ] `ALARM-08` A reminder on an all day event is accepted
+- [ ] `ALARM-09` A reminder on a recurring event applies to every occurrence
+- [ ] `ALARM-10` Changing the reminder of a single occurrence leaves the others alone
+- [ ] `ALARM-11` The reminder is kept through a time change
+- [ ] `ALARM-12` An email reminder actually triggers an SMTP delivery
+- [ ] `ALARM-13` The reminder goes to the right recipient
+- [ ] `ALARM-14` Turning email notifications off in the settings stops the deliveries
+- [ ] `ALARM-15` Deleting the event cancels the scheduled reminder
+- [ ] `ALARM-16` A reminder in the past is not replayed
+
+## FB — Free / busy (14)
+
+- [ ] `FB-01` Adding a guest shows their availability
+- [ ] `FB-02` A guest busy on the slot is flagged "This person is busy"
+- [ ] `FB-03` A free guest is flagged "User is free"
+- [ ] `FB-04` The unknown status shows its dedicated icon and tooltip
+- [ ] `FB-05` The loading status shows "Status is loading"
+- [ ] `FB-06` A clash with one's own agenda shows "You have another event at this time"
+- [ ] `FB-07` Changing the time recomputes the availabilities
+- [ ] `FB-08` An event marked "Free" does not make the guest busy
+- [ ] `FB-09` An event marked "Busy" makes the guest busy
+- [ ] `FB-10` A resource's availability is computed like a user's
+- [ ] `FB-11` A guest outside the domain shows the unknown status
+- [ ] `FB-12` Availability accounts for recurring occurrences
+- [ ] `FB-13` The "Check availability" field searches both users and resources
+- [ ] `FB-14` Removing a guest removes their availability row
+
+## TZ — Timezones (20)
+
+- [ ] `TZ-01` The default timezone of the form is the one from the settings
+- [ ] `TZ-02` Changing the timezone of an event shifts its display
+- [ ] `TZ-03` The chosen timezone is written in `DTSTART;TZID`
+- [ ] `TZ-04` The timezone search filters the list
+- [ ] `TZ-05` Clearing the timezone restores the default one
+- [ ] `TZ-06` The grid axis shows the current UTC offset
+- [ ] `TZ-07` An event created in Paris displays correctly for a user in Tokyo
+- [ ] `TZ-08` An event created in Tokyo displays correctly for a user in Paris
+- [ ] `TZ-09` An all day event does not move from one timezone to another
+- [ ] `TZ-10` The spring DST change does not shift a daily recurring event
+- [ ] `TZ-11` The autumn DST change does not shift a weekly recurring event
+- [ ] `TZ-12` An event placed in the skipped spring hour is handled
+- [ ] `TZ-13` An event placed in the doubled autumn hour is handled
+- [ ] `TZ-14` Changing the timezone in the settings redraws the whole grid
+- [ ] `TZ-15` Automatic detection picks up the browser timezone
+- [ ] `TZ-16` The banner offers to switch when the detected timezone differs from the configured one
+- [ ] `TZ-17` Declining the switch keeps the configured timezone
+- [ ] `TZ-18` `ASK_FOR_TZ_UPDATE=false` hides the banner
+- [ ] `TZ-19` An invitation received from another timezone displays at local time
+- [ ] `TZ-20` A recurrence spanning three months crosses the DST change correctly
+
+## DND — Drag, drop and resize (16)
+
+- [ ] `DND-01` Dragging an event changes its time
+- [ ] `DND-02` The new time is persisted in CalDAV
+- [ ] `DND-03` Dragging an event from one day to another changes its date
+- [ ] `DND-04` Resizing an event from the bottom lengthens it
+- [ ] `DND-05` Resizing from the top moves the start time earlier
+- [ ] `DND-06` A zero duration is refused when resizing
+- [ ] `DND-07` Dragging a recurring event opens the scope dialog
+- [ ] `DND-08` Dragging a single occurrence creates an exception
+- [ ] `DND-09` Dragging an event into the all day row converts it
+- [ ] `DND-10` Dragging an all day event onto a slot gives it hours
+- [ ] `DND-11` Dragging a read only event is refused
+- [ ] `DND-12` Dragging updates the availability of the guests
+- [ ] `DND-13` The drag is rolled back when the server refuses the update
+- [ ] `DND-14` Dragging in the month view changes the date without touching the time
+- [ ] `DND-15` Dragging a range opens the prefilled creation form
+- [ ] `DND-16` A drag followed by a reload shows the same position
+
+## DEEP — Deep links (12)
+
+- [ ] `DEEP-01` `/events/:uid` opens the event preview after login
+- [ ] `DEEP-02` `/events/:uid` on an unknown UID shows the dedicated error
+- [ ] `DEEP-03` `/events/:uid` goes through the SSO flow when no session exists
+- [ ] `DEEP-04` `/events/:uid` moves the grid to the event date
+- [ ] `DEEP-05` `/newEvent?attendee=a@x.com` opens the form with the guest prefilled
+- [ ] `DEEP-06` Several repeated `attendee` parameters are all prefilled
+- [ ] `DEEP-07` Comma separated `attendee` values are all prefilled
+- [ ] `DEEP-08` An invalid `attendee` is ignored with a message
+- [ ] `DEEP-09` The Create button tooltip names the prefilled guest
+- [ ] `DEEP-10` `/error` shows the generic error page
+- [ ] `DEEP-11` An unknown route redirects to the calendar
+- [ ] `DEEP-12` `/events/:uid` on a recurring occurrence opens the right occurrence
+
+## PRINT — Printing (12)
+
+- [ ] `PRINT-01` The Print action opens the printable schedule dialog
+- [ ] `PRINT-02` The scale offers Day, Week and Month
+- [ ] `PRINT-03` The layout offers Grid and Schedule
+- [ ] `PRINT-04` The "This week" period prefills the dates
+- [ ] `PRINT-05` An end date before the start shows the dedicated error
+- [ ] `PRINT-06` A range too wide shows "too large to print"
+- [ ] `PRINT-07` Additional calendars can be added to the printout
+- [ ] `PRINT-08` A period without events shows "No events"
+- [ ] `PRINT-09` An untitled event is printed as "(No title)"
+- [ ] `PRINT-10` All day events are grouped under "All day"
+- [ ] `PRINT-11` A blocked pop-up shows the warning message
+- [ ] `PRINT-12` A loading failure shows "Could not load the calendar events"
+
+## I18N — Internationalisation (14)
+
+- [ ] `I18N-01` Russian relabels the menubar and the sidebar
+- [ ] `I18N-02` Vietnamese relabels the menubar and the sidebar
+- [ ] `I18N-03` The month names of the grid follow the chosen language
+- [ ] `I18N-04` The day names of the grid follow the chosen language
+- [ ] `I18N-05` The first day of the week follows the locale
+- [ ] `I18N-06` The 24 hour format is honoured when configured
+- [ ] `I18N-07` The long date format of the form follows the locale
+- [ ] `I18N-08` Validation messages are translated
+- [ ] `I18N-09` Network error messages are translated
+- [ ] `I18N-10` The recurrence summary of the preview is translated
+- [ ] `I18N-11` The default calendar is named in the user's language
+- [ ] `I18N-12` `HIDE_LANGUAGE_SELECTOR` hides the language picker
+- [ ] `I18N-13` `LANG` sets the initial language before any user choice
+- [ ] `I18N-14` No raw translation key ever shows up in the interface
+
+## A11Y — Accessibility and keyboard (14)
+
+- [ ] `A11Y-01` Every menubar button exposes an accessible name
+- [ ] `A11Y-02` The creation modal traps the focus
+- [ ] `A11Y-03` Escape closes the event preview
+- [ ] `A11Y-04` Tab walks through the form fields in visual order
+- [ ] `A11Y-05` Enter submits the form from the title field
+- [ ] `A11Y-06` Focus returns to the triggering element when a modal closes
+- [ ] `A11Y-07` Every form field has an associated label
+- [ ] `A11Y-08` Dropdowns are operable with the keyboard
+- [ ] `A11Y-09` Calendar checkboxes are operable with the keyboard
+- [ ] `A11Y-10` Events in the grid are reachable with the keyboard
+- [ ] `A11Y-11` Error messages are announced to screen readers
+- [ ] `A11Y-12` The contrast of the main text meets AA
+- [ ] `A11Y-13` Icon only controls carry alternative text
+- [ ] `A11Y-14` The page title changes to reflect the current view
+
+## RESP — Responsive, mobile and tablet (18)
+
+- [ ] `RESP-01` On a mobile viewport, the default view is the day view
+- [ ] `RESP-02` On a tablet viewport, the tablet menubar is used
+- [ ] `RESP-03` The sidebar is collapsed by default on mobile
+- [ ] `RESP-04` The toggle button shows and hides the sidebar
+- [ ] `RESP-05` The creation modal is fullscreen on mobile
+- [ ] `RESP-06` The booking management modal is fullscreen on mobile
+- [ ] `RESP-07` The Drive file picker is fullscreen on mobile
+- [ ] `RESP-08` Mobile search opens its dedicated dialog
+- [ ] `RESP-09` Swiping horizontally changes day
+- [ ] `RESP-10` Input fields use a font size that avoids the iOS zoom
+- [ ] `RESP-11` The event preview is readable without horizontal scrolling
+- [ ] `RESP-12` The view picker stays reachable on a small screen
+- [ ] `RESP-13` The grid does not overflow horizontally at 320 px wide
+- [ ] `RESP-14` The mini calendar is hidden on mobile
+- [ ] `RESP-15` The mobile search filter offers the same options as the desktop one
+- [ ] `RESP-16` Resizing from mobile to desktop switches the view back
+- [ ] `RESP-17` Guest lists stay usable on a small screen
+- [ ] `RESP-18` The recurrence form stays usable on a small screen
+
+## ROBUST — Robustness and large volumes (18)
+
+- [ ] `ROBUST-01` A backend 500 shows the error banner rather than a blank screen
+- [ ] `ROBUST-02` A backend 401 restarts the SSO flow
+- [ ] `ROBUST-03` A network drop while saving shows an actionable error
+- [ ] `ROBUST-04` The typed event is restored after a failed save
+- [ ] `ROBUST-05` The automatic retry recovers from a transient error
+- [ ] `ROBUST-06` A slow backend (3 s) never shows an inconsistent state
+- [ ] `ROBUST-07` A week loaded with 200 events renders in under 5 seconds
+- [ ] `ROBUST-08` A month view loaded with 500 events stays navigable
+- [ ] `ROBUST-09` The "show more" link of a month cell expands the hidden events
+- [ ] `ROBUST-10` A calendar holding 2000 events loads without freezing
+- [ ] `ROBUST-11` An event with a corrupted iCalendar is reported without breaking the grid
+- [ ] `ROBUST-12` Several failing events are grouped in a single message
+- [ ] `ROBUST-13` Reloading during a write does not lose the already acknowledged data
+- [ ] `ROBUST-14` Two concurrent edits of the same event are arbitrated cleanly
+- [ ] `ROBUST-15` Browsing quickly between weeks does not fire duplicate requests
+- [ ] `ROBUST-16` Closing the modal while saving does not create a duplicate
+- [ ] `ROBUST-17` A title with special characters and emojis is returned unchanged
+- [ ] `ROBUST-18` A description containing HTML is displayed escaped, never interpreted
+
+## DRIVE — Attachments (10)
+
+- [ ] `DRIVE-01` The attachments section is hidden when the feature is off
+- [ ] `DRIVE-02` The Drive picker opens from the event form
+- [ ] `DRIVE-03` A picked file shows up in the attachment list
+- [ ] `DRIVE-04` The attachment is persisted in CalDAV
+- [ ] `DRIVE-05` Removing an attachment deletes it from the event
+- [ ] `DRIVE-06` The event preview lists the attachments
+- [ ] `DRIVE-07` A guest can see the attachments of the event
+- [ ] `DRIVE-08` A Drive loading failure shows the dedicated message
+- [ ] `DRIVE-09` A picker opening failure shows the dedicated message
+- [ ] `DRIVE-10` Attachments survive an edit of the event
+
+## SEC — Security and privacy (12)
+
+- [ ] `SEC-01` A user cannot read another's calendar without a share
+- [ ] `SEC-02` A CalDAV request carrying another user's token is refused
+- [ ] `SEC-03` The details of a private event never reach an unauthorised delegate
+- [ ] `SEC-04` The access token is never written into a URL
+- [ ] `SEC-05` The token is wiped from storage on logout
+- [ ] `SEC-06` A description containing a script is never executed
+- [ ] `SEC-07` A title containing a script is never executed
+- [ ] `SEC-08` An external link in a description opens with `rel=noopener`
+- [ ] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
+- [ ] `SEC-10` A public token only grants access to the event it designates
+- [ ] `SEC-11` The CORS headers do not allow an arbitrary origin in production
+- [ ] `SEC-12` A websocket ticket cannot be replayed by another session
+
+---
+
+## Progress
+
+| Batch | Written | Total |
+| --- | --- | --- |
+| Past incidents | 0 | 50 |
+| Essential | 24 | 199 |
+| Bonus | 0 | 318 |
+| **Total** | **24** | **567** |
+
+The 24 green tests cover AUTH-01 to 03, NAV-01 to 04, CRUD-01 to 06, EDIT-01 to 04, ATT-07 and
+ATT-09, SYNC-01 to 03 and SET-01 to 02. They are meant as templates: every essential family has
+at least one, and `AttendeesTest` shows the multi user pattern.
+
+### Suggested order of attack
+
+1. **PAST** — the 50 known incidents. Every one of them is a defect this project has already
+   shipped, so each is a proven gap in the current pipeline, and the reproduction steps are
+   already written in the issue.
+2. **CRUD, EDIT, NAV, SHELL** — the foundation. Cheap, high yield, they secure navigation and
+   the life cycle of an event.
+3. **RECUR and RECUR-EDIT** — the most fragile area and the most expensive to debug in
+   production. 50 tests, worth treating as a project of its own.
+4. **ATT, CAL, SYNC** — interactions between users, and live updates.
+5. **SEARCH, SET** — to close out the essential batch.
+6. The bonus afterwards, in order of real usage: SHARE, RES, TEAM, IMPEX, then the rest.
