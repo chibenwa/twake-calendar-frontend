@@ -1,5 +1,6 @@
 package com.linagora.calendar.e2e.pages;
 
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 
@@ -21,6 +22,23 @@ public class SettingsPage {
         page.getByLabel("Language selector").click();
         awaitPersisted(() -> page.getByRole(AriaRole.OPTION,
             new Page.GetByRoleOptions().setName(language).setExact(true)).click());
+        return this;
+    }
+
+    /**
+     * Pins the application timezone. Automatic detection has to go first, otherwise the
+     * browser timezone wins straight back.
+     */
+    public SettingsPage selectTimezone(String timezone) {
+        Locator autoDetect = page.getByLabel("Detect time zone automatically").first();
+        if (autoDetect.isChecked()) {
+            awaitPersisted(autoDetect::click);
+        }
+        Locator picker = page.getByPlaceholder("Select timezone");
+        picker.click();
+        picker.fill("");
+        picker.pressSequentially(timezone, new Locator.PressSequentiallyOptions().setDelay(40));
+        awaitPersisted(() -> page.locator("li[role=option]").first().click());
         return this;
     }
 
