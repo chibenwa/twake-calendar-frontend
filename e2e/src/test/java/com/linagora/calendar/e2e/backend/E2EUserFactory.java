@@ -62,22 +62,31 @@ public class E2EUserFactory {
      * that asserts on what it displays. The prefix is suffixed to keep it unique.
      */
     public E2EUser newUser(String prefix) {
-        String uid = prefix + "-" + UUID.randomUUID().toString().substring(0, 8);
-        String email = uid + "@" + DOMAIN;
-        create(uid, email);
-        return new E2EUser(uid, email, PASSWORD, uid);
+        return newUser(prefix, null);
     }
 
-    private synchronized void create(String uid, String email) {
+    /**
+     * A brand new account whose display name is the one given, which the SPA then writes as
+     * the `CN` of `ORGANIZER` and `ATTENDEE`. Use it to cover non-ASCII names.
+     */
+    public E2EUser newUser(String prefix, String displayName) {
+        String uid = prefix + "-" + UUID.randomUUID().toString().substring(0, 8);
+        String email = uid + "@" + DOMAIN;
+        String commonName = displayName == null ? uid : displayName;
+        create(uid, email, commonName);
+        return new E2EUser(uid, email, PASSWORD, commonName);
+    }
+
+    private synchronized void create(String uid, String email, String commonName) {
         Attribute objectClass = new BasicAttribute("objectClass");
         objectClass.add("inetOrgPerson");
 
         Attributes attributes = new BasicAttributes(true);
         attributes.put(objectClass);
         attributes.put("uid", uid);
-        attributes.put("cn", uid);
-        attributes.put("sn", uid);
-        attributes.put("givenName", uid);
+        attributes.put("cn", commonName);
+        attributes.put("sn", commonName);
+        attributes.put("givenName", commonName);
         attributes.put("mail", email);
         attributes.put("userPassword", PASSWORD);
 

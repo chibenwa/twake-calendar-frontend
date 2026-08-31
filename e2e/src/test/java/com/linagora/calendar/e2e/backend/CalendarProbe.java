@@ -78,6 +78,18 @@ public class CalendarProbe {
             .toList();
     }
 
+    /**
+     * The one and only calendar object of the user, raw. A recurring event is a single object,
+     * holding its master VEVENT and one VEVENT per overridden occurrence.
+     */
+    public String singleEvent(E2EUser user) {
+        List<String> events = rawEvents(user);
+        if (events.size() != 1) {
+            throw new AssertionError("Expected exactly one calendar object, got " + events.size());
+        }
+        return events.getFirst();
+    }
+
     /** Removes every event of the user's default calendar, to give a test a clean slate. */
     public void clearCalendar(E2EUser user) {
         eventHrefs(user).forEach(href -> execute(user, "DELETE", href, null, null));

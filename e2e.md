@@ -45,53 +45,53 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 ## PAST — Recurrence and occurrences (18)
 
-- [ ] `PAST-01` Toggling repeat on a new event produces a valid RRULE, never `count: 0` ([#1277](https://github.com/linagora/twake-calendar-frontend/issues/1277))
-- [ ] `PAST-02` Editing one instance of a weekly series opens that instance, at its own date and in its own timezone ([#489](https://github.com/linagora/twake-calendar-frontend/issues/489))
-- [ ] `PAST-03` Deleting a second occurrence does not resurrect the ones deleted before it ([#938](https://github.com/linagora/twake-calendar-frontend/issues/938))
-- [ ] `PAST-04` Renaming one occurrence of a series bounded by `UNTIL` does not make the series vanish from the grid ([#1004](https://github.com/linagora/twake-calendar-frontend/issues/1004))
-- [ ] `PAST-05` An overridden instance is written once, with a `RECURRENCE-ID` in the same date-time form as `DTSTART` ([#819](https://github.com/linagora/twake-calendar-frontend/issues/819))
-- [ ] `PAST-06` No VEVENT ever carries both an `RRULE` and a `RECURRENCE-ID` ([#466](https://github.com/linagora/twake-calendar-frontend/issues/466))
-- [ ] `PAST-07` A recurrence ending on a date writes an RFC 5545 compliant `UNTIL`, matching the `DTSTART` precision ([#748](https://github.com/linagora/twake-calendar-frontend/issues/748))
-- [ ] `PAST-08` Updating a recurring event whose rule carries `WKST` does not return 500 ([#860](https://github.com/linagora/twake-calendar-frontend/issues/860))
-- [ ] `PAST-09` Deleting an occurrence through `EXDATE` increments the `SEQUENCE` of the master ([#1217](https://github.com/linagora/twake-calendar-frontend/issues/1217))
-- [ ] `PAST-10` Renaming a whole series keeps its exceptions; only a date change may reset them ([#352](https://github.com/linagora/twake-calendar-frontend/issues/352))
-- [ ] `PAST-11` A guest accepting a series that holds an exception does not overwrite that exception ([#229](https://github.com/linagora/twake-calendar-frontend/issues/229))
-- [ ] `PAST-12` Inviting someone on a single occurrence keeps the other guests' answers on it ([#299](https://github.com/linagora/twake-calendar-frontend/issues/299))
-- [ ] `PAST-13` Turning a recurring event into a simple one stops offering the this-event / all-events dialog ([#364](https://github.com/linagora/twake-calendar-frontend/issues/364))
-- [ ] `PAST-14` A daily series shows on every day of the last week of the month view, spill-over days included ([#263](https://github.com/linagora/twake-calendar-frontend/issues/263))
-- [ ] `PAST-15` Changing a rule from every day to every two days keeps the master occurrence visible ([#441](https://github.com/linagora/twake-calendar-frontend/issues/441))
-- [ ] `PAST-16` Editing a single occurrence does not offer to move it to another calendar ([#916](https://github.com/linagora/twake-calendar-frontend/issues/916))
-- [ ] `PAST-17` The preview of a recurring event states its rule, including interval and count ([#442](https://github.com/linagora/twake-calendar-frontend/issues/442))
-- [ ] `PAST-18` The recurrence interval never accepts a float ([#961](https://github.com/linagora/twake-calendar-frontend/issues/961))
+- [x] `PAST-01` Toggling repeat on a new event produces a valid RRULE, never `count: 0` ([#1277](https://github.com/linagora/twake-calendar-frontend/issues/1277))
+- [x] `PAST-02` Editing one instance of a weekly series opens that instance, at its own date and in its own timezone ([#489](https://github.com/linagora/twake-calendar-frontend/issues/489))
+- [x] `PAST-03` Deleting a second occurrence does not resurrect the ones deleted before it ([#938](https://github.com/linagora/twake-calendar-frontend/issues/938))
+- [x] `PAST-04` Renaming one occurrence of a series bounded by `UNTIL` does not make the series vanish from the grid ([#1004](https://github.com/linagora/twake-calendar-frontend/issues/1004))
+- [x] `PAST-05` An overridden instance is written once, with a `RECURRENCE-ID` in the same date-time form as `DTSTART` ([#819](https://github.com/linagora/twake-calendar-frontend/issues/819))
+- [x] `PAST-06` No VEVENT ever carries both an `RRULE` and a `RECURRENCE-ID` ([#466](https://github.com/linagora/twake-calendar-frontend/issues/466))
+- [x] `PAST-07` A recurrence ending on a date writes an RFC 5545 compliant `UNTIL`, matching the `DTSTART` precision ([#748](https://github.com/linagora/twake-calendar-frontend/issues/748))
+- [x] `PAST-08` Updating a recurring event whose rule carries `WKST` does not return 500 ([#860](https://github.com/linagora/twake-calendar-frontend/issues/860))
+- [x] `PAST-09` Deleting an occurrence through `EXDATE` increments the `SEQUENCE` of the master ([#1217](https://github.com/linagora/twake-calendar-frontend/issues/1217))
+- [x] `PAST-10` Renaming a whole series keeps its exceptions; only a date change may reset them ([#352](https://github.com/linagora/twake-calendar-frontend/issues/352))
+- [x] `PAST-11` A guest accepting a series that holds an exception does not overwrite that exception ([#229](https://github.com/linagora/twake-calendar-frontend/issues/229))
+- [x] `PAST-12` Inviting someone on a single occurrence keeps the other guests' answers on it ([#299](https://github.com/linagora/twake-calendar-frontend/issues/299))
+- [x] `PAST-13` Turning a recurring event into a simple one stops offering the this-event / all-events dialog ([#364](https://github.com/linagora/twake-calendar-frontend/issues/364))
+- [x] `PAST-14` A daily series shows on every day of the last week of the month view, spill-over days included ([#263](https://github.com/linagora/twake-calendar-frontend/issues/263))
+- [x] `PAST-15` Changing a rule from every day to every two days keeps the master occurrence visible ([#441](https://github.com/linagora/twake-calendar-frontend/issues/441))
+- [x] `PAST-16` Editing a single occurrence does not offer to move it to another calendar ([#916](https://github.com/linagora/twake-calendar-frontend/issues/916))
+- [x] `PAST-17` The preview of a recurring event states its rule, including interval and count ([#442](https://github.com/linagora/twake-calendar-frontend/issues/442))
+- [x] `PAST-18` The recurrence interval never accepts a float ([#961](https://github.com/linagora/twake-calendar-frontend/issues/961))
 
 ## PAST — Timezones (4)
 
-- [ ] `PAST-19` The update modal reopens an event in the timezone it was created with ([#490](https://github.com/linagora/twake-calendar-frontend/issues/490))
-- [ ] `PAST-20` Answering an invitation twice never normalises `DTSTART` to UTC and drops its `TZID` ([#1031](https://github.com/linagora/twake-calendar-frontend/issues/1031))
-- [ ] `PAST-21` A user in Asia/Jakarta sees a Monday event on Monday ([#632](https://github.com/linagora/twake-calendar-frontend/issues/632))
-- [ ] `PAST-22` Picking an explicit timezone in the form creates the event at that timezone's hour, not the local one ([#896](https://github.com/linagora/twake-calendar-frontend/issues/896))
+- [x] `PAST-19` The update modal reopens an event in the timezone it was created with ([#490](https://github.com/linagora/twake-calendar-frontend/issues/490))
+- [x] `PAST-20` Answering an invitation twice never normalises `DTSTART` to UTC and drops its `TZID` ([#1031](https://github.com/linagora/twake-calendar-frontend/issues/1031))
+- [x] `PAST-21` A user in Asia/Jakarta sees a Monday event on Monday ([#632](https://github.com/linagora/twake-calendar-frontend/issues/632))
+- [x] `PAST-22` Picking an explicit timezone in the form creates the event at that timezone's hour, not the local one ([#896](https://github.com/linagora/twake-calendar-frontend/issues/896))
 
 ## PAST — All day events (4)
 
-- [ ] `PAST-23` Renaming an all day event does not stretch it over two days ([#425](https://github.com/linagora/twake-calendar-frontend/issues/425))
-- [ ] `PAST-24` Creating an all day event on the clicked day lands on that day, not the one before ([#870](https://github.com/linagora/twake-calendar-frontend/issues/870))
-- [ ] `PAST-25` Dragging an all day event one day back moves it exactly one day back ([#942](https://github.com/linagora/twake-calendar-frontend/issues/942))
-- [ ] `PAST-26` The time inputs stay hidden for an all day event, multi day ones included ([#774](https://github.com/linagora/twake-calendar-frontend/issues/774))
+- [x] `PAST-23` Renaming an all day event does not stretch it over two days ([#425](https://github.com/linagora/twake-calendar-frontend/issues/425))
+- [x] `PAST-24` Creating an all day event on the clicked day lands on that day, not the one before ([#870](https://github.com/linagora/twake-calendar-frontend/issues/870))
+- [x] `PAST-25` Dragging an all day event one day back moves it exactly one day back ([#942](https://github.com/linagora/twake-calendar-frontend/issues/942))
+- [x] `PAST-26` The time inputs stay hidden for an all day event, multi day ones included ([#774](https://github.com/linagora/twake-calendar-frontend/issues/774))
 
 ## PAST — Guests and attendance (5)
 
-- [ ] `PAST-27` Editing an event does not reset the guests' answers ([#307](https://github.com/linagora/twake-calendar-frontend/issues/307))
-- [ ] `PAST-28` Changing the time of an event keeps the organizer accepted, while resetting the guests ([#324](https://github.com/linagora/twake-calendar-frontend/issues/324))
-- [ ] `PAST-29` The guest count of the preview matches the actual number of guests ([#500](https://github.com/linagora/twake-calendar-frontend/issues/500))
-- [ ] `PAST-30` An address unknown to the directory is kept when the guest field loses focus, without pressing Enter ([#548](https://github.com/linagora/twake-calendar-frontend/issues/548))
-- [ ] `PAST-31` Guests are written with `ROLE=REQ-PARTICIPANT`, the organizer alone as `CHAIR` ([#319](https://github.com/linagora/twake-calendar-frontend/issues/319))
+- [x] `PAST-27` Editing an event does not reset the guests' answers ([#307](https://github.com/linagora/twake-calendar-frontend/issues/307))
+- [x] `PAST-28` Changing the time of an event keeps the organizer accepted, while resetting the guests ([#324](https://github.com/linagora/twake-calendar-frontend/issues/324))
+- [x] `PAST-29` The guest count of the preview matches the actual number of guests ([#500](https://github.com/linagora/twake-calendar-frontend/issues/500))
+- [x] `PAST-30` An address unknown to the directory is kept when the guest field loses focus, without pressing Enter ([#548](https://github.com/linagora/twake-calendar-frontend/issues/548))
+- [x] `PAST-31` Guests are written with `ROLE=REQ-PARTICIPANT`, the organizer alone as `CHAIR` ([#319](https://github.com/linagora/twake-calendar-frontend/issues/319))
 
 ## PAST — Calendars (5)
 
 - [ ] `PAST-32` The set of ticked calendars survives a reload ([#475](https://github.com/linagora/twake-calendar-frontend/issues/475))
 - [ ] `PAST-33` Deleting a personal calendar leaves the user on the calendar, never on a blank page ([#213](https://github.com/linagora/twake-calendar-frontend/issues/213))
-- [ ] `PAST-34` A calendar created with a custom colour still renders after a reload ([#242](https://github.com/linagora/twake-calendar-frontend/issues/242))
-- [ ] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
+- [x] `PAST-34` A calendar created with a custom colour still renders after a reload ([#242](https://github.com/linagora/twake-calendar-frontend/issues/242))
+- [x] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
 - [ ] `PAST-36` A user cannot delegate their own calendar to themselves and lock themselves out of it ([#908](https://github.com/linagora/twake-calendar-frontend/issues/908))
 
 ## PAST — Search (4)
@@ -103,22 +103,64 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 ## PAST — Loading and stability (4)
 
-- [ ] `PAST-41` A tab left open and woken up hours later recovers on its own, without a blank page ([#623](https://github.com/linagora/twake-calendar-frontend/issues/623))
-- [ ] `PAST-42` A 401 on the websocket ticket restarts the SSO flow instead of looping forever ([#488](https://github.com/linagora/twake-calendar-frontend/issues/488))
-- [ ] `PAST-43` Browsing quickly across many weeks does not flood the API into failure ([#617](https://github.com/linagora/twake-calendar-frontend/issues/617))
-- [ ] `PAST-44` The mini calendar highlights the current week on load ([#1156](https://github.com/linagora/twake-calendar-frontend/issues/1156))
+- [x] `PAST-41` A tab left open and woken up hours later recovers on its own, without a blank page ([#623](https://github.com/linagora/twake-calendar-frontend/issues/623))
+- [x] `PAST-42` A 401 on the websocket ticket restarts the SSO flow instead of looping forever ([#488](https://github.com/linagora/twake-calendar-frontend/issues/488))
+- [x] `PAST-43` Browsing quickly across many weeks does not flood the API into failure ([#617](https://github.com/linagora/twake-calendar-frontend/issues/617))
+- [x] `PAST-44` The mini calendar highlights the current week on load ([#1156](https://github.com/linagora/twake-calendar-frontend/issues/1156))
 
 ## PAST — iCalendar interoperability (4)
 
-- [ ] `PAST-45` Updating an event preserves the iCalendar properties the SPA does not manage ([#638](https://github.com/linagora/twake-calendar-frontend/issues/638))
-- [ ] `PAST-46` `SEQUENCE` starts at 1 on creation and grows on every update ([#318](https://github.com/linagora/twake-calendar-frontend/issues/318))
-- [ ] `PAST-47` A `CN` holding non-ASCII characters is quoted in `ATTENDEE` and `ORGANIZER` ([#789](https://github.com/linagora/twake-calendar-frontend/issues/789))
+- [x] `PAST-45` Updating an event preserves the iCalendar properties the SPA does not manage ([#638](https://github.com/linagora/twake-calendar-frontend/issues/638))
+- [x] `PAST-46` `SEQUENCE` starts at 1 on creation and grows on every update ([#318](https://github.com/linagora/twake-calendar-frontend/issues/318))
+- [x] `PAST-47` A `CN` holding non-ASCII characters is quoted in `ATTENDEE` and `ORGANIZER` ([#789](https://github.com/linagora/twake-calendar-frontend/issues/789))
 - [ ] `PAST-48` The CalDAV URL shown in the Access tab points at the DAV server, not at the API ([#562](https://github.com/linagora/twake-calendar-frontend/issues/562))
 
 ## PAST — Video conferencing and reminders (2)
 
-- [ ] `PAST-49` A generated video conference link carries a single slash before the meeting code ([#894](https://github.com/linagora/twake-calendar-frontend/issues/894))
+- [x] `PAST-49` A generated video conference link carries a single slash before the meeting code ([#894](https://github.com/linagora/twake-calendar-frontend/issues/894))
 - [ ] `PAST-50` A one week reminder writes a `TRIGGER` of exactly one week ([#1201](https://github.com/linagora/twake-calendar-frontend/issues/1201))
+
+### Not covered yet
+
+Ten of the fifty are not asserted. None of them is a gap in the plan: they are the screens the
+suite cannot drive yet, plus one scenario parked because the harness and a real browser
+disagree. See [ticket.md](ticket.md) for the defect candidates that were investigated.
+
+**Parked — harness and reality disagree.**
+
+- `PAST-32` (#475) The ticked calendars surviving a reload. The harness sees the choice lost on
+  every reload, including with a second calendar present so the selection never becomes empty;
+  the same steps do not reproduce in a real browser. Rather than ship a red test or assert a
+  behaviour that cannot be confirmed, the scenario is switched off. `PAST-35` still covers that
+  unticking works and hides the events.
+
+**Written but switched off — the interaction defeated me, not the scenario.**
+
+- `PAST-33` (#213) Deleting a calendar. I could not find how a calendar is deleted from the
+  interface: the sidebar row menu button opens nothing holding a `Remove` entry within the
+  timeout, and the dialog reached from `Add a new personal calendar` only ever exposes the
+  `Add new calendar` and `Import` tabs — never the `Settings` tab the deletion is said to live
+  in. Needs someone who knows the intended path.
+- `PAST-38` (#998) Searching again with a different keyword. `getByLabel("Search for events or
+  calendars")` resolves on an empty calendar but times out once the test has created events, so
+  the search never opens. The search entry point needs an exploration pass of its own.
+- `PAST-50` (#1201) The `TRIGGER` of a one week reminder. Picking a reminder leaves the modal in
+  a state where the `Save` button can no longer be located: the MUI `Select` option list stays
+  mounted over it, and dismissing it with `Escape` closes the whole modal rather than the list.
+  The reminder field needs its own interaction helper.
+
+**Not written — they need a screen the suite has never opened.**
+
+- `PAST-36` (#908) Self delegation, and `PAST-48` (#562) the CalDAV URL of the `Access` tab.
+  Both live behind the same unreachable calendar settings dialog as `PAST-33`.
+- `PAST-37` (#196), `PAST-39` (#596) and `PAST-40` (#271) Quick searching a calendar, and the
+  ghost calendar left by a cancelled search. All three need the sidebar people search to surface
+  *another user's* calendar in the central grid, which in turn needs a delegation or a public
+  calendar to exist. No delegation flow is driveable yet.
+
+**The common root** is two screens: the calendar management dialog blocks `PAST-33`, `PAST-36`
+and `PAST-48`; the people search blocks `PAST-37`, `PAST-39` and `PAST-40`. Two exploration
+passes would unlock six tests.
 
 ---
 
@@ -750,10 +792,10 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 | Batch | Written | Total |
 | --- | --- | --- |
-| Past incidents | 0 | 50 |
+| Past incidents | 41 | 50 |
 | Essential | 24 | 199 |
 | Bonus | 0 | 318 |
-| **Total** | **24** | **567** |
+| **Total** | **65** | **567** |
 
 The 24 green tests cover AUTH-01 to 03, NAV-01 to 04, CRUD-01 to 06, EDIT-01 to 04, ATT-07 and
 ATT-09, SYNC-01 to 03 and SET-01 to 02. They are meant as templates: every essential family has

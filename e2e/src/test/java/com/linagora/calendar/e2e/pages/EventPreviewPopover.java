@@ -13,7 +13,9 @@ public class EventPreviewPopover {
     }
 
     EventPreviewPopover waitUntilOpen() {
-        page.getByLabel("Edit event").waitFor();
+        // the title heading, not the Edit button: a guest invited to an event they do not own
+        // gets the preview without the editing actions
+        content().locator("h3").first().waitFor();
         return this;
     }
 
@@ -26,14 +28,64 @@ public class EventPreviewPopover {
     }
 
     public EventFormModal edit() {
-        page.getByLabel("Edit event").click();
+        clickEdit();
         return new EventFormModal(page).waitUntilOpen();
+    }
+
+    /**
+     * Editing an occurrence of a series: the scope dialog comes up first, and the form only
+     * opens once the caller has said what the edit applies to.
+     */
+    public EventFormModal edit(EventFormModal.Scope scope) {
+        clickEdit();
+        ScopeDialog dialog = ScopeDialog.waitFor(page);
+        if (scope == EventFormModal.Scope.THIS_EVENT) {
+            dialog.thisEvent();
+        } else {
+            dialog.allEvents();
+        }
+        return new EventFormModal(page).waitUntilOpen();
+    }
+
+    /** Clicks Edit without assuming what comes next, for the tests that assert on it. */
+    public void clickEdit() {
+        page.getByLabel("Edit event").click();
     }
 
     public void delete() {
         page.getByLabel("Delete event").click();
         page.getByLabel("Delete event").waitFor(
             new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+    }
+
+    /** Deleting an occurrence of a series first asks what it should apply to. */
+    public void delete(EventFormModal.Scope scope) {
+        page.getByLabel("Delete event").click();
+        ScopeDialog dialog = ScopeDialog.waitFor(page);
+        if (scope == EventFormModal.Scope.THIS_EVENT) {
+            dialog.thisEvent();
+        } else {
+            dialog.allEvents();
+        }
+        page.getByLabel("Delete event").waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+    }
+
+    /** Answers the invitation: Yes, No or Maybe. */
+    public void answer(String answer) {
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(answer).setExact(true)).last().click();
+    }
+
+    /** Answers on a series: the scope dialog comes up in between. */
+    public void answer(String answer, EventFormModal.Scope scope) {
+        answer(answer);
+        ScopeDialog dialog = ScopeDialog.waitFor(page);
+        if (scope == EventFormModal.Scope.THIS_EVENT) {
+            dialog.thisEvent();
+        } else {
+            dialog.allEvents();
+        }
     }
 
     public void close() {

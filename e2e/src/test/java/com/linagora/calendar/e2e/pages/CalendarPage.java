@@ -117,11 +117,46 @@ public class CalendarPage {
             .toList();
     }
 
+    /** The grid column of a given day, to assert an event landed on the right one. */
+    public Locator dayColumn(java.time.LocalDate day) {
+        return page.locator("[data-date='" + day + "']");
+    }
+
+    /** The long date format the pickers display: "Monday, August 31, 2026". */
+    public static String longDate(java.time.LocalDate day) {
+        return day.format(java.time.format.DateTimeFormatter
+            .ofPattern("EEEE, MMMM d, yyyy", java.util.Locale.ENGLISH));
+    }
+
     public Locator weekNumber() {
         return page.locator(".fc-timegrid-axis-cushion");
     }
 
     // ------------------------------------------------------------------- menus
+
+    /** The sidebar checkbox toggling the display of one calendar. */
+    public Locator calendarCheckbox(String calendarName) {
+        return page.locator("input[type=checkbox][aria-label='" + calendarName + "']");
+    }
+
+    /** Opens the "Add new calendar" dialog from the sidebar. */
+    public CalendarModal addCalendar() {
+        page.getByLabel("Add a new personal calendar").click();
+        return new CalendarModal(page).waitUntilOpen();
+    }
+
+    /** The per calendar menu button of a sidebar row. */
+    public Locator calendarMenu(String calendarName) {
+        return page.locator("li:has(label[aria-label='" + calendarName + "']) button");
+    }
+
+    /** Removes a calendar through its sidebar menu, confirmation included. */
+    public void deleteCalendar(String calendarName) {
+        calendarMenu(calendarName).last().click();
+        page.getByText("Remove", new Page.GetByTextOptions().setExact(true)).last().click();
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Remove").setExact(true))
+            .last().click();
+    }
 
     public SettingsPage openSettings() {
         page.getByLabel("User profile").click();

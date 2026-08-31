@@ -47,17 +47,106 @@ public class EventFormModal {
     }
 
     public EventFormModal startTime(String hhmm) {
-        page.getByLabel("Start Time").fill(hhmm);
+        page.getByTestId("start-time-input").fill(hhmm);
         return this;
     }
 
     public EventFormModal endTime(String hhmm) {
-        page.getByLabel("End Time").fill(hhmm);
+        page.getByTestId("end-time-input").fill(hhmm);
         return this;
     }
 
     public String startTime() {
-        return page.getByLabel("Start Time").inputValue();
+        return page.getByTestId("start-time-input").inputValue();
+    }
+
+    public String endTime() {
+        return page.getByTestId("end-time-input").inputValue();
+    }
+
+    /** The date fields are read only, so this drives the picker the way a user would. */
+    public EventFormModal startDate(java.time.LocalDate date) {
+        DatePickerField.pick(page, page.getByTestId("start-date-input"), date);
+        return this;
+    }
+
+    public String startDate() {
+        return page.getByTestId("start-date-input").inputValue();
+    }
+
+    public EventFormModal endDate(java.time.LocalDate date) {
+        DatePickerField.pick(page, page.getByTestId("end-date-input"), date);
+        return this;
+    }
+
+    /** The repeat panel. Enables the recurrence if it is not on yet. */
+    public RecurrenceSection repeat() {
+        if (!new RecurrenceSection(page).isVisible()) {
+            page.getByLabel("Repeat", new Page.GetByLabelOptions().setExact(true)).check();
+            page.getByTestId("repeat-interval").waitFor();
+        }
+        return new RecurrenceSection(page);
+    }
+
+    public EventFormModal doesNotRepeat() {
+        page.getByLabel("Repeat", new Page.GetByLabelOptions().setExact(true)).uncheck();
+        return this;
+    }
+
+    public Locator repeatToggle() {
+        return page.getByLabel("Repeat", new Page.GetByLabelOptions().setExact(true));
+    }
+
+    /** The destination calendar picker of the form -- scoped to the modal, the menubar logo
+     * carries the same accessible name. */
+    public Locator calendarSelect() {
+        return dialog().getByLabel("Calendar", new Locator.GetByLabelOptions().setExact(true));
+    }
+
+    /** Whether the form actually offers to move the event to another calendar. */
+    public boolean canMoveToAnotherCalendar() {
+        Locator select = calendarSelect();
+        if (select.count() == 0) {
+            return false;
+        }
+        String classes = String.valueOf(select.first().getAttribute("class"));
+        return !classes.contains("Mui-disabled")
+            && !"true".equals(select.first().getAttribute("aria-disabled"));
+    }
+
+    public EventFormModal timezone(String timezone) {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            // fill() does not reach the MUI autocomplete filter, its value is controlled: type it
+            timezoneInput().click();
+            timezoneInput().fill("");
+            timezoneInput().pressSequentially(timezone,
+                new Locator.PressSequentiallyOptions().setDelay(40));
+            page.locator("li[role=option]").first().click();
+            awaitNoOverlay();
+            if (timezoneInput().inputValue().contains(timezone)) {
+                return this;
+            }
+        }
+        throw new AssertionError("Could not set the timezone to " + timezone
+            + ", the field still reads " + timezoneInput().inputValue());
+    }
+
+    /**
+     * Waits for the option list the last interaction opened to be gone. Never presses Escape:
+     * one press too many closes the modal itself.
+     */
+    private void awaitNoOverlay() {
+        for (int guard = 0; guard < 30 && page.locator("[role=listbox]").count() > 0; guard++) {
+            page.waitForTimeout(100);
+        }
+    }
+
+    public String timezone() {
+        return timezoneInput().inputValue();
+    }
+
+    private Locator timezoneInput() {
+        return dialog().getByPlaceholder("Select timezone");
     }
 
     public EventFormModal allDay() {
@@ -75,11 +164,53 @@ public class EventFormModal {
         return this;
     }
 
-    /** Types an email in the guest picker and validates it. */
+    /**
+     * Types an email in the guest picker and validates it.
+     *
+     * <p>Typed rather than filled: the picker is a controlled MUI autocomplete, and a fill()
+     * does not always reach its filter. The result is checked, and retried once, because a
+     * guest silently dropped turns into a puzzling failure three assertions later.
+     */
     public EventFormModal addGuest(String email) {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            Locator guests = page.getByPlaceholder("Add guests");
+            guests.click();
+            guests.fill("");
+            guests.pressSequentially(email, new Locator.PressSequentiallyOptions().setDelay(30));
+            page.waitForTimeout(400);
+            guests.press("Enter");
+            page.waitForTimeout(400);
+            if (text().contains(email)) {
+                return this;
+            }
+        }
+        throw new AssertionError("Could not add " + email + " as a guest");
+    }
+
+    /** Types a guest without validating, to cover what happens when the field loses focus. */
+    public EventFormModal typeGuest(String email) {
         Locator guests = page.getByPlaceholder("Add guests");
-        guests.fill(email);
-        guests.press("Enter");
+        guests.click();
+        guests.pressSequentially(email, new Locator.PressSequentiallyOptions().setDelay(30));
+        return this;
+    }
+
+    public EventFormModal addVideoConference() {
+        dialog().getByText("Add Visio conference").last().click();
+        return this;
+    }
+
+    /** Picks the reminder whose label holds the given text, "week" for instance. */
+    public EventFormModal notification(String labelContains) {
+        dialog().getByRole(AriaRole.COMBOBOX)
+            .filter(new Locator.FilterOptions().setHasText("No notification"))
+            .last()
+            .click();
+        page.getByRole(AriaRole.OPTION)
+            .filter(new Locator.FilterOptions().setHasText(labelContains))
+            .first()
+            .click();
+        awaitNoOverlay();
         return this;
     }
 
@@ -91,6 +222,27 @@ public class EventFormModal {
         saveButton().click();
         titleInput().waitFor(new Locator.WaitForOptions()
             .setState(com.microsoft.playwright.options.WaitForSelectorState.DETACHED));
+    }
+
+    /**
+     * Saves an event that belongs to a series: the scope dialog comes up first, and the caller
+     * says whether the change targets the clicked occurrence or all of them.
+     */
+    public void save(Scope scope) {
+        saveButton().click();
+        ScopeDialog dialog = ScopeDialog.waitFor(page);
+        if (scope == Scope.THIS_EVENT) {
+            dialog.thisEvent();
+        } else {
+            dialog.allEvents();
+        }
+        titleInput().waitFor(new Locator.WaitForOptions()
+            .setState(com.microsoft.playwright.options.WaitForSelectorState.DETACHED));
+    }
+
+    public enum Scope {
+        THIS_EVENT,
+        ALL_EVENTS
     }
 
     /** Submits without waiting for the modal to close: for the cases where it must not. */
