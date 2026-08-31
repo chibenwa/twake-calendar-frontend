@@ -1,0 +1,4 @@
+# Build context: the e2e/ directory
+FROM nginx:alpine
+
+COPY src/test/resources/nginx/default.conf /etc/nginx/conf.d/default.conf

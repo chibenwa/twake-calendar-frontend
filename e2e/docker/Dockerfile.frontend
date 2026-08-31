@@ -1,0 +1,9 @@
+# Build context: the e2e/ directory
+#
+# Layers the e2e runtime configuration on top of the *production* image built from
+# apps/private/Dockerfile, so the artifact under test is the one we actually ship.
+ARG FRONTEND_IMAGE="twake-calendar-web-e2e-base"
+
+FROM ${FRONTEND_IMAGE}
+
+COPY src/test/resources/frontend/env.js /usr/share/nginx/html/.env.js

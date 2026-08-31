@@ -1,0 +1,46 @@
+package com.linagora.calendar.e2e.docker;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.linagora.calendar.e2e.backend.E2EUser;
+import com.linagora.calendar.e2e.pages.CalendarPage;
+import com.linagora.calendar.e2e.pages.LoginPage;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.Page;
+
+/**
+ * Opens additional logged in sessions, for the scenarios that need more than one person:
+ * invitations, shared calendars, team calendars, resource approvals.
+ *
+ * <p>Each session gets its own browser context, so cookies and tokens never bleed between
+ * users. They are all closed when the test ends.
+ */
+public class E2ESessions {
+    private final Browser browser;
+    private final List<BrowserContext> contexts = new ArrayList<>();
+
+    E2ESessions(Browser browser) {
+        this.browser = browser;
+    }
+
+    /** Logs the given user in, in a session of their own, and returns their calendar. */
+    public CalendarPage openFor(E2EUser user) {
+        return new CalendarPage(pageFor(user)).waitUntilLoaded();
+    }
+
+    /** Same, when the test needs the raw page rather than the calendar page object. */
+    public Page pageFor(E2EUser user) {
+        BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
+        contexts.add(context);
+        Page page = context.newPage();
+        LoginPage.loginAs(page, user);
+        return page;
+    }
+
+    void closeAll() {
+        contexts.forEach(BrowserContext::close);
+        contexts.clear();
+    }
+}
