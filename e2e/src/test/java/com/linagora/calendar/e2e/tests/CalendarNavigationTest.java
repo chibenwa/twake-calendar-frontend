@@ -12,6 +12,7 @@ import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
 
 class CalendarNavigationTest extends TwakeCalendarE2ETest {
 
@@ -62,5 +63,145 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
 
         assertThat(calendar.currentViewClass()).contains("fc-timeGridDay-view");
         assertThat(calendar.visibleDayHeaders()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("NAV-05 Switching to the schedule view lists the events in chronological order")
+    void scheduleViewListsTheEvents(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String morning = "Morning " + java.util.UUID.randomUUID().toString().substring(0, 6);
+        String evening = "Evening " + java.util.UUID.randomUUID().toString().substring(0, 6);
+        calendar.createEvent().title(morning).expand().startTime("08:00").endTime("09:00").save();
+        calendar.createEvent().title(evening).expand().startTime("18:00").endTime("19:00").save();
+
+        calendar.switchView("Schedule");
+
+        assertThat(calendar.currentViewClass()).contains("fc-list");
+        String listed = page.locator(".fc-view-harness").innerText();
+        assertThat(listed.indexOf(morning))
+            .as("the schedule reads in time order")
+            .isLessThan(listed.indexOf(evening));
+    }
+
+    @Test
+    @DisplayName("NAV-06 The week view shows seven day columns")
+    void theWeekViewShowsSevenColumns(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        assertThat(calendar.currentViewClass()).contains("fc-timeGridWeek-view");
+        assertThat(calendar.visibleDayHeaders()).hasSize(7);
+    }
+
+    @Test
+    @DisplayName("NAV-07 Previous from the month view goes back one month")
+    void previousFromMonthGoesBackOneMonth(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.switchView("Month");
+        String current = calendar.periodTitle();
+
+        calendar.previous();
+
+        String expected = java.time.LocalDate.now().minusMonths(1)
+            .format(java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.ENGLISH));
+        PlaywrightAssertions.assertThat(page.locator(".current-date-time"))
+            .containsText(expected.split(" ")[0],
+                new com.microsoft.playwright.assertions.LocatorAssertions.ContainsTextOptions().setTimeout(20_000));
+        assertThat(calendar.periodTitle()).isNotEqualTo(current);
+    }
+
+    @Test
+    @DisplayName("NAV-08 Next from the day view moves forward one day")
+    void nextFromDayMovesForwardOneDay(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.switchView("Day");
+        List<String> today = calendar.visibleDayHeaders();
+
+        calendar.next();
+
+        assertThat(calendar.visibleDayHeaders()).hasSize(1).isNotEqualTo(today);
+        PlaywrightAssertions.assertThat(calendar.dayColumn(java.time.LocalDate.now().plusDays(1)).first())
+            .isAttached();
+    }
+
+    @Test
+    @DisplayName("NAV-09 The menubar title reflects the displayed period")
+    void theMenubarTitleReflectsThePeriod(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        String month = java.time.LocalDate.now()
+            .format(java.time.format.DateTimeFormatter.ofPattern("MMMM", java.util.Locale.ENGLISH));
+        assertThat(calendar.periodTitle()).contains(month);
+
+        calendar.next().next().next().next().next();
+        assertThat(calendar.periodTitle()).isNotBlank();
+    }
+
+    @Test
+    @DisplayName("NAV-12 The current day column is highlighted in the week view")
+    void todayIsHighlightedInTheWeekView(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        PlaywrightAssertions.assertThat(page.locator(".fc-timegrid-col.fc-day-today").first()).isAttached();
+        assertThat(calendar.dayColumn(java.time.LocalDate.now()).count()).isPositive();
+    }
+
+    @Test
+    @DisplayName("NAV-13 The schedule view says so when the period holds no event")
+    void theScheduleViewSaysWhenItIsEmpty(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        calendar.switchView("Schedule");
+
+        PlaywrightAssertions.assertThat(page.getByText("No events to display").first())
+            .isVisible(new com.microsoft.playwright.assertions.LocatorAssertions.IsVisibleOptions()
+                .setTimeout(20_000));
+    }
+
+    @Test
+    @DisplayName("NAV-14 Changing view keeps the displayed date")
+    void changingViewKeepsTheDate(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.next().next();
+        java.time.LocalDate shown = java.time.LocalDate.now().plusWeeks(2);
+        PlaywrightAssertions.assertThat(calendar.dayColumn(shown).first()).isAttached();
+
+        calendar.switchView("Day");
+
+        PlaywrightAssertions.assertThat(calendar.dayColumn(shown).first())
+            .isAttached(new com.microsoft.playwright.assertions.LocatorAssertions.IsAttachedOptions()
+                .setTimeout(20_000));
+    }
+
+    @Test
+    @DisplayName("NAV-15 The time grid is scrolled to the working hours on opening")
+    void theTimeGridIsScrolledOnOpening(Page page, E2EUser user) {
+        LoginPage.loginAs(page, user);
+        page.waitForTimeout(3000);
+
+        Object scrollTop = page.evaluate(
+            "() => { const s = document.querySelector('.fc-timegrid .fc-scroller-liquid-absolute')"
+            + " || document.querySelector('.fc-timegrid .fc-scroller'); return s ? s.scrollTop : -1; }");
+        assertThat(((Number) scrollTop).doubleValue())
+            .as("midnight is never what the user wants to see first")
+            .isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("NAV-16 Browsing twelve weeks in a row does not duplicate any event")
+    void browsingTwelveWeeksDoesNotDuplicate(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = "Once " + java.util.UUID.randomUUID().toString().substring(0, 6);
+        calendar.createEvent(title);
+
+        for (int i = 0; i < 12; i++) {
+            calendar.next();
+        }
+        for (int i = 0; i < 12; i++) {
+            calendar.previous();
+        }
+
+        PlaywrightAssertions.assertThat(calendar.eventCard(title))
+            .hasCount(1, new com.microsoft.playwright.assertions.LocatorAssertions.HasCountOptions()
+                .setTimeout(30_000));
     }
 }

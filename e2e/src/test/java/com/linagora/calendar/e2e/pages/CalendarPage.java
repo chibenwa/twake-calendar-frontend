@@ -128,6 +128,37 @@ public class CalendarPage {
             .ofPattern("EEEE, MMMM d, yyyy", java.util.Locale.ENGLISH));
     }
 
+    /** The period the grid currently shows, as the menubar spells it out. */
+    public String periodTitle() {
+        return page.locator(".current-date-time").innerText().replace("\n", " ").trim();
+    }
+
+    public Locator menubar() {
+        return page.locator(".menubar");
+    }
+
+    /** A day cell of the sidebar mini calendar. */
+    public Locator miniCalendarDay(int dayOfMonth) {
+        return page.locator("button.MuiPickerDay-root:not(.MuiPickerDay-dayOutsideMonth)")
+            .filter(new Locator.FilterOptions()
+                .setHasText(java.util.regex.Pattern.compile("^" + dayOfMonth + "$")))
+            .first();
+    }
+
+    public String miniCalendarMonth() {
+        return page.locator(".MuiPickersCalendarHeader-label").first().innerText().trim();
+    }
+
+    public CalendarPage miniCalendarNextMonth() {
+        page.getByLabel("Next month").click();
+        return this;
+    }
+
+    /** The expandable sidebar sections: My calendars, Other calendars, Resources... */
+    public Locator sidebarSection(String name) {
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(name));
+    }
+
     public Locator weekNumber() {
         return page.locator(".fc-timegrid-axis-cushion");
     }
@@ -156,6 +187,30 @@ public class CalendarPage {
         page.getByText("Remove", new Page.GetByTextOptions().setExact(true)).last().click();
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Remove").setExact(true))
             .last().click();
+    }
+
+    /**
+     * Selects a time range in the week grid the way a user does, by dragging, which opens the
+     * creation modal prefilled with the range.
+     */
+    public EventFormModal selectTimeRange(java.time.LocalDate day, String fromSlot, String toSlot) {
+        var column = page.locator(".fc-timegrid-col[data-date='" + day + "']").last().boundingBox();
+        var from = page.locator(".fc-timegrid-slot[data-time='" + fromSlot + "']").first().boundingBox();
+        var to = page.locator(".fc-timegrid-slot[data-time='" + toSlot + "']").first().boundingBox();
+        double x = column.x + column.width / 2;
+
+        page.mouse().move(x, from.y + 2);
+        page.mouse().down();
+        page.mouse().move(x, to.y + to.height - 2, new com.microsoft.playwright.Mouse.MoveOptions().setSteps(12));
+        page.mouse().up();
+        return new EventFormModal(page).waitUntilOpen();
+    }
+
+    /** Clicks a day cell of the month grid, which starts an all day event on that day. */
+    public EventFormModal selectMonthCell(java.time.LocalDate day) {
+        page.locator(".fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame").first()
+            .click(new Locator.ClickOptions().setPosition(20, 40));
+        return new EventFormModal(page).waitUntilOpen();
     }
 
     public SettingsPage openSettings() {

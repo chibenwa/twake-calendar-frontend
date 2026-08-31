@@ -139,7 +139,8 @@ public class CalendarProbe {
     }
 
     private Optional<String> summaryOf(String icalendar) {
-        Matcher matcher = SUMMARY.matcher(icalendar);
+        // RFC 5545 folds long lines: unfold first, or a long summary comes back truncated
+        Matcher matcher = SUMMARY.matcher(Ics.unfold(icalendar));
         return matcher.find() ? Optional.of(matcher.group(1).trim()) : Optional.empty();
     }
 

@@ -88,8 +88,55 @@ public class EventPreviewPopover {
         }
     }
 
+    /**
+     * Dismisses the preview. Escape leaves it open on this build, so this clicks away from it,
+     * which is how a user actually gets rid of a popover.
+     */
     public void close() {
         page.keyboard().press("Escape");
+        if (page.getByLabel("Edit event").count() > 0) {
+            page.mouse().click(5, 5);
+        }
+        page.getByLabel("Edit event").waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+    }
+
+    /**
+     * Opens the overflow menu of the preview header. The button carries no accessible name, so
+     * it is located as the unlabelled sibling of the Delete action.
+     */
+    public EventPreviewPopover moreOptions() {
+        Locator siblings = page.getByLabel("Delete event").locator("xpath=..")
+            .locator("button:not([aria-label])");
+        for (int index = 0; index < siblings.count(); index++) {
+            siblings.nth(index).click();
+            page.waitForTimeout(500);
+            if (page.locator("[role=menu], [role=menuitem]").count() > 0) {
+                return this;
+            }
+        }
+        throw new AssertionError("No overflow menu in the event preview");
+    }
+
+    /** Duplicates the event, which opens the creation modal on the copy. */
+    public EventFormModal duplicate() {
+        moreOptions();
+        page.getByText("Duplicate event").last().click();
+        return new EventFormModal(page).waitUntilOpen();
+    }
+
+    /** Downloads the .ics of the event and returns its content. */
+    public String export() {
+        var download = page.waitForDownload(() ->
+            page.getByLabel("Export event details to .ics file").click());
+        java.nio.file.Path target = java.nio.file.Paths.get("target", "downloads",
+            download.suggestedFilename());
+        download.saveAs(target);
+        try {
+            return java.nio.file.Files.readString(target);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Cannot read the exported calendar", e);
+        }
     }
 
     /** Expands the participant list and the extra details. */

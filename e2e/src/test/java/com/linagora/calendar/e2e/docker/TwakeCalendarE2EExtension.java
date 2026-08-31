@@ -51,6 +51,7 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
     private Page page;
     private E2EUser user;
     private E2ESessions sessions;
+    private BrowserLog browserLog;
 
     private static volatile CalendarProbe probe;
     private static volatile E2EUserFactory userFactory;
@@ -106,15 +107,20 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
             .setSnapshots(true)
             .setSources(true));
 
+        browserLog = new BrowserLog();
         page = context.newPage();
         // Browser side errors are the usual suspects behind a flaky looking e2e failure:
         // surface them in the maven output rather than making people re-run with a debugger.
         page.onConsoleMessage(message -> {
             if ("error".equals(message.type())) {
+                browserLog.recordConsoleError(message.text());
                 System.out.println("[browser console error] " + message.text());
             }
         });
-        page.onPageError(error -> System.out.println("[browser page error] " + error));
+        page.onPageError(error -> {
+            browserLog.recordPageError(error);
+            System.out.println("[browser page error] " + error);
+        });
     }
 
     @Override
@@ -186,7 +192,8 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
             || type == CalendarProbe.class
             || type == E2EUser.class
             || type == E2EUserFactory.class
-            || type == E2ESessions.class;
+            || type == E2ESessions.class
+            || type == BrowserLog.class;
     }
 
     @Override
@@ -209,6 +216,9 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         }
         if (type == E2ESessions.class) {
             return sessions;
+        }
+        if (type == BrowserLog.class) {
+            return browserLog;
         }
         return probe();
     }

@@ -103,6 +103,23 @@ public class EventFormModal {
         return dialog().getByLabel("Calendar", new Locator.GetByLabelOptions().setExact(true));
     }
 
+    /** Moves the event to another calendar, by its name. */
+    public EventFormModal calendar(String calendarName) {
+        calendarSelect().click();
+        page.getByRole(AriaRole.OPTION,
+            new Page.GetByRoleOptions().setName(calendarName).setExact(true)).first().click();
+        page.waitForTimeout(400);
+        return this;
+    }
+
+    public String description() {
+        return page.getByLabel("Description").inputValue();
+    }
+
+    public String location() {
+        return page.getByLabel("Location").inputValue();
+    }
+
     /** Whether the form actually offers to move the event to another calendar. */
     public boolean canMoveToAnotherCalendar() {
         Locator select = calendarSelect();
@@ -151,6 +168,11 @@ public class EventFormModal {
 
     public EventFormModal allDay() {
         page.getByLabel("All day").check();
+        return this;
+    }
+
+    public EventFormModal notAllDay() {
+        page.getByLabel("All day").uncheck();
         return this;
     }
 
