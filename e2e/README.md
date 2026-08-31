@@ -60,6 +60,19 @@ So a hundred tests would still run in well under ten minutes. Write them.
 
 ---
 
+## What to write next
+
+[`../e2e.md`](../e2e.md) is the backlog: 200 essential scenarios covering every basic
+feature, then 318 bonus ones. Each line carries a stable identifier — quote it in the
+`@DisplayName` so the backlog and the code stay connected — and a checkbox to tick once the
+test is written **and** green.
+
+Recurring events (`RECUR-*`, `RECUR-EDIT-*`, 50 scenarios) are the priority: that is where a
+regression is both the likeliest and the most expensive, because a badly written exception
+corrupts a whole series silently.
+
+---
+
 ## Writing a test
 
 ```java
