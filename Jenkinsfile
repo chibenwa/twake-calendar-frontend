@@ -12,7 +12,8 @@ pipeline {
 
     options {
         // Configure an overall timeout for the build.
-        timeout(time: 1, unit: 'HOURS')
+        // 2 hours: the e2e stage boots a full backend stack in docker.
+        timeout(time: 2, unit: 'HOURS')
         disableConcurrentBuilds()
     }
     
@@ -35,6 +36,26 @@ pipeline {
       stage('Check Formatting') {
         steps {
           sh 'npx prettier --check .'
+        }
+      }
+      stage('End to end tests') {
+        steps {
+          // The e2e suite drives the production frontend image against a real backend,
+          // see e2e/README.md. It reuses the bundle rather than rebuilding it.
+          sh 'npm run build:private'
+          dir('e2e') {
+            sh 'SKIP_FRONTEND_BUILD=true ./pre-build.sh'
+            sh 'mvn clean test'
+          }
+        }
+        post {
+          always {
+            junit(testResults: 'e2e/target/surefire-reports/*.xml', allowEmptyResults: false)
+          }
+          failure {
+            // Screenshots and Playwright traces of whatever broke
+            archiveArtifacts artifacts: 'e2e/target/e2e-artifacts/**', allowEmptyArchive: true
+          }
         }
       }
       stage('Deploy docker image (PR)') {

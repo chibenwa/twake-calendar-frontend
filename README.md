@@ -137,6 +137,21 @@ Launches the Jest test runner:
 npm test
 ```
 
+### Running the end to end tests
+
+[`e2e/`](e2e) holds a Playwright + JUnit suite that drives a real browser against the
+production frontend image, a real backend (esn-sabre + twake-calendar-side-service) and a real
+OIDC provider, all in docker. It runs on every CI build.
+
+```bash
+cd e2e
+./pre-build.sh
+mvn clean test
+```
+
+See [`e2e/README.md`](e2e/README.md) for how to write a test, watch the browser work, and read
+the traces left behind by a failure.
+
 ### Linting
 
 To run the ESLint checks:
