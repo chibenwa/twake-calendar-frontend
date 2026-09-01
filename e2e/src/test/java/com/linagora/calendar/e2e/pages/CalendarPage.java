@@ -348,21 +348,40 @@ public class CalendarPage {
      * slot would drop it half a card too low.
      */
     public CalendarPage dragEventToSlot(String title, java.time.LocalDate day, String slot) {
-        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
-        BoundingBox column = requireBox(
-            page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
+        if (!tryDragEventToSlot(title, day, slot)) {
+            throw new AssertionError("The grid never registered the gesture: move "
+                + title + " to " + slot);
+        }
+        return this;
+    }
+
+    /**
+     * Same gesture, for the scenarios where the grid is entitled to refuse it: an event the user
+     * may not edit, a move the server rejects, a resize that would leave nothing. Returns whether
+     * the event ended up where it was aimed.
+     */
+    public boolean tryDragEventToSlot(String title, java.time.LocalDate day, String slot) {
+        // the destination first: reaching it may scroll the grid, and every box read before
+        // that would then describe a position the card no longer occupies
         BoundingBox target = requireBox(
             page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first(), "the " + slot + " slot");
-        drag(card.x + card.width / 2, card.y + card.height / 2,
-            column.x + column.width / 2, card.y + card.height / 2 + (target.y - card.y));
-        return this;
+        BoundingBox column = boxOf(
+            page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
+        BoundingBox card = boxOf(eventCard(title).first(), "the card of " + title);
+        return dragUntilMoved(
+            () -> {
+                BoundingBox now = boxOf(eventCard(title).first(), "the card of " + title);
+                drag(now.x + now.width / 2, now.y + now.height / 2,
+                    column.x + column.width / 2, now.y + now.height / 2 + (target.y - now.y));
+            },
+            () -> Math.abs(boxOf(eventCard(title).first(), "the card of " + title).y - target.y) < 12);
     }
 
     /** Same day of the week grid, another column: only the date changes. */
     public CalendarPage dragEventToDay(String title, java.time.LocalDate day) {
-        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
         BoundingBox column = requireBox(
             page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
+        BoundingBox card = boxOf(eventCard(title).first(), "the card of " + title);
         drag(card.x + card.width / 2, card.y + card.height / 2,
             column.x + column.width / 2, card.y + card.height / 2);
         return this;
@@ -391,32 +410,46 @@ public class CalendarPage {
 
     /** Drags the bottom handle of an event so that its end lands on {@code slot}. */
     public CalendarPage resizeEventEndTo(String title, String slot) {
+        if (!tryResizeEventEndTo(title, slot)) {
+            throw new AssertionError("The grid never registered the resize of " + title
+                + " to " + slot);
+        }
+        return this;
+    }
+
+    /** Same, for a resize the grid is entitled to refuse. */
+    public boolean tryResizeEventEndTo(String title, String slot) {
         return resize(title, "end", slot, box -> box.y + box.height);
     }
 
-    /** Drags the top handle of an event so that its start lands on {@code slot}. */
-    public CalendarPage resizeEventStartTo(String title, String slot) {
-        return resize(title, "start", slot, box -> box.y);
-    }
-
-    private CalendarPage resize(String title, String edge, String slot,
+    private boolean resize(String title, String edge, String slot,
                                 java.util.function.ToDoubleFunction<BoundingBox> movingEdge) {
         Locator harness = eventCard(title).first();
         harness.hover();
-        Locator handle = harness.locator("xpath=ancestor-or-self::*[contains(@class,'fc-event')][1]")
+        // the resizers are children of the outer FullCalendar event, not of the card we render
+        // inside it: `fc-event-main` is the closest ancestor matching `fc-event`, and holds none
+        Locator handle = harness.locator("xpath=ancestor::*[contains(@class,'fc-timegrid-event')][1]")
             .locator(".fc-event-resizer-" + edge);
         if (handle.count() == 0) {
             throw new AssertionError("No " + edge + " resize handle on " + title
                 + ", the event is probably not editable");
         }
-        BoundingBox card = requireBox(harness, "the card of " + title);
-        BoundingBox grip = requireBox(handle.first(), "the " + edge + " handle of " + title);
         BoundingBox target = requireBox(
             page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first(), "the " + slot + " slot");
+        harness.hover();
+        BoundingBox card = boxOf(harness, "the card of " + title);
+        BoundingBox grip = boxOf(handle.first(), "the " + edge + " handle of " + title);
         double gripCentreY = grip.y + grip.height / 2;
-        drag(grip.x + grip.width / 2, gripCentreY,
-            grip.x + grip.width / 2, gripCentreY + (target.y - movingEdge.applyAsDouble(card)));
-        return this;
+        return dragUntilMoved(
+            () -> {
+                harness.hover();
+                BoundingBox now = boxOf(harness, "the card of " + title);
+                drag(grip.x + grip.width / 2, gripCentreY,
+                    grip.x + grip.width / 2,
+                    gripCentreY + (target.y - movingEdge.applyAsDouble(now)));
+            },
+            () -> Math.abs(movingEdge.applyAsDouble(
+                boxOf(harness, "the card of " + title)) - target.y) < 12);
     }
 
     /**
@@ -426,13 +459,52 @@ public class CalendarPage {
     private void drag(double fromX, double fromY, double toX, double toY) {
         page.mouse().move(fromX, fromY);
         page.mouse().down();
-        page.mouse().move(fromX, fromY + 6, new Mouse.MoveOptions().setSteps(4));
-        page.mouse().move(toX, toY, new Mouse.MoveOptions().setSteps(16));
+        // FullCalendar arms a drag only past a small threshold, and it wants the pointer to
+        // travel rather than teleport: a single jump is taken for a click on the event
+        page.mouse().move(fromX, fromY + 10, new Mouse.MoveOptions().setSteps(6));
+        page.mouse().move(toX, toY, new Mouse.MoveOptions().setSteps(20));
+        page.mouse().move(toX, toY, new Mouse.MoveOptions().setSteps(2));
         page.mouse().up();
     }
 
+    /**
+     * Runs a mouse gesture until the grid shows its effect.
+     *
+     * <p>A drag that the grid did not pick up leaves no trace at all: the release is read as a
+     * click, the event stays put and the assertion fails much later on unchanged data. Rather
+     * than key on FullCalendar's internal markers, which move with its version, this checks the
+     * one thing the test actually cares about and repeats the gesture if it did not happen.
+     */
+    private boolean dragUntilMoved(Runnable gesture, java.util.function.BooleanSupplier moved) {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            gesture.run();
+            page.waitForTimeout(600);
+            if (moved.getAsBoolean()) {
+                return true;
+            }
+            // a click opened the preview instead: put it away before trying again. Best effort,
+            // since a gesture the grid refused outright leaves nothing to dismiss.
+            if (page.getByLabel("Edit event").count() > 0) {
+                page.keyboard().press("Escape");
+                try {
+                    page.getByLabel("Edit event").first().waitFor(new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.DETACHED).setTimeout(3_000));
+                } catch (com.microsoft.playwright.TimeoutError ignored) {
+                    page.mouse().click(5, 5);
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Brings an element into view, then measures it. */
     private BoundingBox requireBox(Locator locator, String what) {
         locator.scrollIntoViewIfNeeded();
+        return boxOf(locator, what);
+    }
+
+    /** Measures an element where it already is: scrolling here would move everything else. */
+    private BoundingBox boxOf(Locator locator, String what) {
         BoundingBox box = locator.boundingBox();
         if (box == null) {
             throw new AssertionError("Could not locate " + what + " on screen");
@@ -445,6 +517,71 @@ public class CalendarPage {
         page.locator(".fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame").first()
             .click(new Locator.ClickOptions().setPosition(20, 40));
         return new EventFormModal(page).waitUntilOpen();
+    }
+
+    // ------------------------------------------------------------- booking links
+
+    /** Opens the appointment schedule form from the Booking links section of the sidebar. */
+    public AppointmentModal createBookingLink() {
+        page.getByLabel("Create appointment schedule").first().click();
+        return new AppointmentModal(page).waitUntilOpen();
+    }
+
+    /** The sidebar entry of a booking link, which carries its name as accessible name. */
+    public Locator bookingLinkChip(String name) {
+        return page.locator("[aria-label='" + name + "']");
+    }
+
+    public List<String> bookingLinkNames() {
+        return page.locator("[aria-label]").all().stream()
+            .map(chip -> String.valueOf(chip.getAttribute("aria-label")))
+            .toList();
+    }
+
+    /** Reopens an existing schedule for edition. */
+    public AppointmentModal editBookingLink(String name) {
+        bookingLinkChip(name).first().click();
+        return new AppointmentModal(page).waitUntilOpen();
+    }
+
+    /** Clicks the copy button of the Booking links section and returns what landed in the clipboard. */
+    public String copyBookingLink(String name) {
+        bookingLinkChip(name).first().hover();
+        page.getByLabel("Copy booking link").first().click();
+        return String.valueOf(page.evaluate("() => navigator.clipboard.readText()"));
+    }
+
+    /**
+     * The identifier a booking link is published under.
+     *
+     * <p>Read from the API with the session of the browser rather than from the interface: the
+     * identifier is a uuid the sidebar never shows, and a test needs it to play the visitor.
+     */
+    public String bookingLinkPublicId(String name) {
+        Object id = page.evaluate("""
+            async name => {
+              const token = JSON.parse(sessionStorage.getItem('tokenSet') || '{}').access_token;
+              const response = await fetch(window.CALENDAR_BASE_URL + '/api/booking-links', {
+                headers: { Authorization: 'Bearer ' + token } });
+              const links = await response.json();
+              const found = links.find(link => link.name === name);
+              return found ? found.publicId : null;
+            }""", name);
+        if (id == null) {
+            throw new AssertionError("No booking link named " + name);
+        }
+        return String.valueOf(id);
+    }
+
+    /** Every booking link of the user, straight from the API, for the assertions on persistence. */
+    public String bookingLinksJson() {
+        return String.valueOf(page.evaluate("""
+            async () => {
+              const token = JSON.parse(sessionStorage.getItem('tokenSet') || '{}').access_token;
+              const response = await fetch(window.CALENDAR_BASE_URL + '/api/booking-links', {
+                headers: { Authorization: 'Bearer ' + token } });
+              return await response.text();
+            }"""));
     }
 
     public SettingsPage openSettings() {

@@ -13,6 +13,16 @@ services:
     depends_on:
       - proxy
 
+  # The unauthenticated SPA: booking links, invitation previews, booking confirmations
+  public:
+    image: twake-calendar-web-public-e2e
+    networks:
+      tcalendar-e2e:
+        aliases:
+          - public
+    depends_on:
+      - proxy
+
   # Exposes the backend to the browser as http://api and http://dav, with CORS
   proxy:
     image: tcalendar-proxy-e2e

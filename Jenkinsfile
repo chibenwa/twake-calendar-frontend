@@ -42,9 +42,10 @@ pipeline {
       }
       stage('End to end tests') {
         steps {
-          // The e2e suite drives the production frontend image against a real backend,
-          // see e2e/README.md. It reuses the bundle rather than rebuilding it.
-          sh 'npm run build:private'
+          // The e2e suite drives the production frontend images against a real backend,
+          // see e2e/README.md. Both applications are under test -- the private one and the
+          // public booking pages -- so both bundles are built here and reused as is.
+          sh 'npm run build'
           dir('e2e') {
             sh 'SKIP_FRONTEND_BUILD=true ./pre-build.sh'
             sh 'mvn clean test'

@@ -40,6 +40,28 @@ else
   echo "Reusing existing apps/private/dist (FORCE_FRONTEND_BUILD=true to rebuild)"
 fi
 
+echo "==> Building the public SPA bundle"
+if [ "$FORCE_FRONTEND_BUILD" = "true" ] || [ ! -d "$REPO_DIR/apps/public/dist" ]; then
+  if [ "$SKIP_FRONTEND_BUILD" = "true" ]; then
+    echo "apps/public/dist is missing and SKIP_FRONTEND_BUILD=true. Aborting." >&2
+    exit 1
+  fi
+  NODE_MAJOR="$(node -v 2>/dev/null | sed -E 's/^v([0-9]+).*/\1/')"
+  if [ -n "$NODE_MAJOR" ] && [ "$NODE_MAJOR" -ge 24 ]; then
+    (cd "$REPO_DIR" && [ -d node_modules ] || npm ci)
+    (cd "$REPO_DIR" && npm run build:public)
+  else
+    docker run --rm \
+      --user "$(id -u):$(id -g)" \
+      -e HOME=/tmp \
+      -e npm_config_cache=/tmp/.npm \
+      -v "$REPO_DIR:/app" -w /app \
+      node:24 sh -c '[ -d node_modules ] || npm ci; npm run build:public'
+  fi
+else
+  echo "Reusing existing apps/public/dist (FORCE_FRONTEND_BUILD=true to rebuild)"
+fi
+
 echo "==> Building the production frontend image"
 docker build --quiet -f "$REPO_DIR/apps/private/Dockerfile" \
   --build-arg BUILD_VERSION=e2e \
@@ -47,6 +69,12 @@ docker build --quiet -f "$REPO_DIR/apps/private/Dockerfile" \
 
 echo "==> Layering the e2e runtime configuration on top of it"
 docker build --quiet -f "$E2E_DIR/docker/Dockerfile.frontend" -t twake-calendar-web-e2e "$E2E_DIR"
+
+echo "==> Building the production public frontend image"
+docker build --quiet -f "$REPO_DIR/apps/public/Dockerfile" \
+  --build-arg BUILD_VERSION=e2e \
+  -t twake-calendar-web-public-e2e-base "$REPO_DIR"
+docker build --quiet -f "$E2E_DIR/docker/Dockerfile.public" -t twake-calendar-web-public-e2e "$E2E_DIR"
 
 echo "==> Building the backend images"
 docker build --quiet --pull -f "$E2E_DIR/docker/Dockerfile.tcalendar" -t tcalendar-e2e "$E2E_DIR"

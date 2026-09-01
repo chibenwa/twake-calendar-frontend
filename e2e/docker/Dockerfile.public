@@ -1,0 +1,9 @@
+# Build context: the e2e/ directory
+#
+# Same idea as Dockerfile.frontend, for the public SPA: layers the e2e runtime configuration
+# on top of the production image built from apps/public/Dockerfile.
+ARG PUBLIC_IMAGE="twake-calendar-web-public-e2e-base"
+
+FROM ${PUBLIC_IMAGE}
+
+COPY src/test/resources/frontend/env.public.js /usr/share/nginx/html/.env.js

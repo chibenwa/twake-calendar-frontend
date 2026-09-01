@@ -59,9 +59,10 @@ public class EventFormModal {
         page.getByLabel("Start Date").waitFor();
         // The compact and the expanded layout declare the same test ids. While the swap is in
         // flight both are in the page, and a fill started against the one on its way out lands
-        // wherever Playwright retries it. Wait for a single layout before touching a field.
+        // wherever Playwright retries it. Wait for the swap to settle -- never for a field to
+        // exist: an all day event has no time input at all, and would wait for ever.
         page.waitForFunction(
-            "() => document.querySelectorAll('[data-testid=\\'start-time-input\\']').length === 1");
+            "() => document.querySelectorAll('[data-testid=\\'start-time-input\\']').length <= 1");
         return this;
     }
 
@@ -80,12 +81,33 @@ public class EventFormModal {
      */
     private EventFormModal fillTime(String testId, String hhmm) {
         Locator field = page.getByTestId(testId);
+        String titleBefore = titleInput().inputValue();
+        field.click();
+        // The form puts the caret back in its title on the render that follows expanding. A
+        // fill racing that render inserts its text wherever the caret ended up -- in practice
+        // in the title, while the time field quietly keeps its default. Give the caret a moment
+        // to settle here; the checks below are what actually guarantee the outcome, so a field
+        // that never takes the focus is not a reason to fail on the spot.
+        try {
+            page.waitForFunction(
+                "id => document.activeElement && document.activeElement.getAttribute('data-testid') === id",
+                testId, new Page.WaitForFunctionOptions().setTimeout(3_000));
+        } catch (com.microsoft.playwright.TimeoutError ignored) {
+            // fall through: fill, then verify
+        }
         field.fill(hhmm);
         if (!hhmm.equals(field.inputValue())) {
             field.fill(hhmm);
         }
         if (!hhmm.equals(field.inputValue())) {
             throw new AssertionError(testId + " kept " + field.inputValue() + " instead of " + hhmm);
+        }
+        // Seen in the wild: the time lands in the title as well, and the test then fails much
+        // later on a title nobody typed. Say it here, where the cause is still visible.
+        String titleAfter = titleInput().inputValue();
+        if (!titleBefore.equals(titleAfter)) {
+            throw new AssertionError("Filling " + testId + " with " + hhmm
+                + " also changed the title, from " + titleBefore + " to " + titleAfter);
         }
         return this;
     }
