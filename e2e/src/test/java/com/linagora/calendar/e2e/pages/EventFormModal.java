@@ -82,32 +82,33 @@ public class EventFormModal {
     private EventFormModal fillTime(String testId, String hhmm) {
         Locator field = page.getByTestId(testId);
         String titleBefore = titleInput().inputValue();
-        field.click();
+        // focus rather than click: clicking one of these fields drops its list of times over
+        // the form, and whatever comes next then lands on the list instead of the form
+        field.focus();
         // The form puts the caret back in its title on the render that follows expanding. A
         // fill racing that render inserts its text wherever the caret ended up -- in practice
         // in the title, while the time field quietly keeps its default. Give the caret a moment
-        // to settle here; the checks below are what actually guarantee the outcome, so a field
-        // that never takes the focus is not a reason to fail on the spot.
+        // to settle; the check below is what actually guarantees the outcome.
         try {
             page.waitForFunction(
                 "id => document.activeElement && document.activeElement.getAttribute('data-testid') === id",
                 testId, new Page.WaitForFunctionOptions().setTimeout(3_000));
         } catch (com.microsoft.playwright.TimeoutError ignored) {
-            // fall through: fill, then verify
+            // fall through: fill, then check
         }
         field.fill(hhmm);
-        if (!hhmm.equals(field.inputValue())) {
+
+        // A field that holds something else may simply have normalised what it was given, which
+        // is its right and which some tests are precisely about. The telling sign of a misplaced
+        // fill is the title having changed: put it back and aim again.
+        if (!titleBefore.equals(titleInput().inputValue())) {
+            titleInput().fill(titleBefore);
+            field.focus();
             field.fill(hhmm);
         }
-        if (!hhmm.equals(field.inputValue())) {
-            throw new AssertionError(testId + " kept " + field.inputValue() + " instead of " + hhmm);
-        }
-        // Seen in the wild: the time lands in the title as well, and the test then fails much
-        // later on a title nobody typed. Say it here, where the cause is still visible.
-        String titleAfter = titleInput().inputValue();
-        if (!titleBefore.equals(titleAfter)) {
+        if (!titleBefore.equals(titleInput().inputValue())) {
             throw new AssertionError("Filling " + testId + " with " + hhmm
-                + " also changed the title, from " + titleBefore + " to " + titleAfter);
+                + " keeps landing in the title, which now reads " + titleInput().inputValue());
         }
         return this;
     }
@@ -148,14 +149,15 @@ public class EventFormModal {
         }
         page.getByTestId("repeat-interval").waitFor();
         // the panel arrives in pieces: the end options land after the interval, and a caller
-        // reaching for them straight away would find nothing
+        // reaching for them straight away would find nothing. Wait for the radios, which are
+        // always rendered -- never for the end date field, which only exists once the "on a
+        // date" option is the one selected, and which endsOn() waits for by itself.
         try {
             page.locator("input[type=radio][value=never]").waitFor();
-            page.getByTestId("event-repeat-end-date").waitFor();
+            page.locator("input[type=radio][value=on]").waitFor();
         } catch (com.microsoft.playwright.TimeoutError e) {
             throw new AssertionError("The repeat panel never finished rendering its end options."
                 + " Radios: " + page.locator("input[type=radio]").count()
-                + ", end date fields: " + page.getByTestId("event-repeat-end-date").count()
                 + ". The dialog reads:\n" + text(), e);
         }
         return new RecurrenceSection(page);
@@ -174,6 +176,19 @@ public class EventFormModal {
      * carries the same accessible name. */
     public Locator calendarSelect() {
         return dialog().getByLabel("Calendar", new Locator.GetByLabelOptions().setExact(true));
+    }
+
+    /** The calendars the picker offers as a destination. */
+    public java.util.List<String> calendarOptions() {
+        Locator select = calendarSelect();
+        select.scrollIntoViewIfNeeded();
+        select.click();
+        page.locator("li[role=option]").first().waitFor();
+        java.util.List<String> options = page.locator("li[role=option]").allInnerTexts()
+            .stream().map(String::trim).toList();
+        page.keyboard().press("Escape");
+        awaitNoOverlay();
+        return options;
     }
 
     /** Moves the event to another calendar, by its name. */
@@ -215,19 +230,35 @@ public class EventFormModal {
 
     public EventFormModal timezone(String timezone) {
         for (int attempt = 1; attempt <= 3; attempt++) {
-            // fill() does not reach the MUI autocomplete filter, its value is controlled: type it
-            timezoneInput().click();
-            timezoneInput().fill("");
-            timezoneInput().pressSequentially(timezone,
-                new Locator.PressSequentiallyOptions().setDelay(40));
-            page.locator("li[role=option]").first().click();
-            awaitNoOverlay();
-            if (timezoneInput().inputValue().contains(timezone)) {
-                return this;
+            try {
+                // fill() does not reach the MUI autocomplete filter, its value is controlled:
+                // type it out instead
+                timezoneInput().click();
+                timezoneInput().fill("");
+                timezoneInput().pressSequentially(timezone,
+                    new Locator.PressSequentiallyOptions().setDelay(40));
+                // wait for the option that matches what was typed, never for the first one to
+                // hand: under load the list is still showing the previous filter for a moment,
+                // and clicking it picks a zone nobody asked for
+                Locator wanted = page.locator("li[role=option]")
+                    .filter(new Locator.FilterOptions().setHasText(timezone));
+                wanted.first().waitFor(new Locator.WaitForOptions().setTimeout(15_000));
+                wanted.first().click();
+                awaitNoOverlay();
+                if (timezoneInput().inputValue().contains(timezone)) {
+                    return this;
+                }
+            } catch (com.microsoft.playwright.TimeoutError retry) {
+                // the list never settled on this attempt: type it again from scratch
             }
         }
         throw new AssertionError("Could not set the timezone to " + timezone
             + ", the field still reads " + timezoneInput().inputValue());
+    }
+
+    /** The timezone field itself, for the assertions that watch it settle. */
+    public Locator timezoneField() {
+        return timezoneInput();
     }
 
     /**

@@ -204,6 +204,8 @@ class EventCreationTest extends TwakeCalendarE2ETest {
 
         var form = calendar.createEvent().title(uniqueTitle("Bad time")).expand();
         form.startTime("99:99");
+        // a user does not stay in the field: they move on, which is when a form gets to object
+        page.keyboard().press("Tab");
         page.waitForTimeout(1000);
 
         // either the form refuses the input outright, or it says why -- never silently keeps it

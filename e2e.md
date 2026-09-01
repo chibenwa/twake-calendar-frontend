@@ -388,8 +388,84 @@ Eight of the forty nine, each with what stands in the way.
 
 ### Notes
 
-`SEC-05`, logging out clearing the stored session, is a confirmed defect rather than a missing
-test: see `TICKET-01` in [ticket.md](ticket.md). It stays unticked until the fix lands.
+`SEC-05`, logging out ending the session, stays unticked: see `TICKET-01` in
+[ticket.md](ticket.md). The front does clear `tokenSet`, but it leaves `userData` behind and its
+end session request carries no `id_token_hint`, so this stack's provider rejects it and a return
+to `/` silently signs the user back in. A deployment with back channel logout does not have that
+last problem, which is why the scenario is a note rather than a test: asserting it here would
+assert the absence of back channel logout, not the behaviour of the front.
+
+`DND-05`, resizing an event from the top, stays unticked: the grid renders a resize handle at
+the bottom of an event only, so there is no gesture to drive. `DND-09` and `DND-10`, dragging
+across the all day boundary in either direction, stay unticked too: the grid does not pick the
+gesture up at all, the event stays where it was and no request leaves. Converting an event that
+way looks simply unimplemented rather than broken, which is why neither is a ticket.
+
+`DND-15` is `CRUD-18` word for word, and is asserted there rather than twice.
+
+The remaining SHARE scenarios are not written yet. `SHARE-09`, `SHARE-10` and `SHARE-11` ask for
+a delegate who sees events without their details, and the product offers three rights and no
+more -- View all events, Editor, Administrator -- none of which is "read without details", so
+there is no configuration to exercise. `SHARE-12` to `SHARE-16` need the "Add shared calendar"
+subscription flow, `SHARE-17`, `SHARE-18`, `SHARE-22`, `SHARE-24`, `SHARE-25` and `SHARE-26` are
+simply not written.
+
+`IMPEX-02`, `IMPEX-07`, `IMPEX-08`, `IMPEX-18` and `IMPEX-19` are not written yet: the count an
+import reports, the ICS feed by URL and its error case, a five hundred event bulk, and
+attachments.
+
+`BOOK-09`, `BOOK-13`, `BOOK-17`, `BOOK-18` and `BOOK-20` are not written yet: the colour picker,
+the deletion of a schedule and the owner's answer to a booking have no affordance the suite could
+find from the sidebar, and the schedule timezone needs a second browser timezone to mean anything.
+`BOOK-19` is asserted from the public side, as `PUB-13`.
+
+`PUB-04`, `PUB-14` and `PUB-24` are not written yet. `PUB-15` to `PUB-22`, `PUB-25` and `PUB-26`
+cover the public *event preview* rather than booking: they need an invitation link carrying its
+own JWT, which is a separate feature from the booking pages this wave delivered.
+
+One thing worth knowing about `PUB-11` and `PUB-13`: a schedule is created with "Show me as" set
+to Free, and slots booked through it therefore do not block further bookings -- the same half hour
+can be taken twice. Both tests set the schedule to Busy, which is the configuration in which
+double booking is prevented. The default is a deliberate product choice, not a defect, but it is
+worth knowing before publishing a link.
+
+`TZ-05`, clearing the timezone falling back to the configured one, is out of the suite. Alone it
+passes in under a second; with four classes running against the one backend the field is still
+empty forty seconds later, twice out of two. Clearing remounts the field and the default is put
+back from somewhere that is slow under load, so the suite cannot state the rule either way
+without either lying or waiting absurdly long. Not filed as a defect: nothing is lost, the field
+refills on its own, it simply takes longer than a test can reasonably wait.
+
+**TEAM is blocked on provisioning.** A team calendar can be created from the webadmin API of the
+side service -- `POST /domains/{domain}/team-calendars` takes exactly `{"name", "displayName"}`
+and answers 201 with an id -- but nothing in that API adds a member to it. What the route offers
+was walked field by field against the running stack:
+
+| Route | Verb | What it does |
+| --- | --- | --- |
+| `/domains/{d}/team-calendars` | GET, POST | list, create; creation knows two properties, `name` and `displayName` |
+| `/domains/{d}/team-calendars/{id}` | GET, PATCH | read, rename; the update request knows `displayName` and nothing else |
+| `/domains/{d}/team-calendars/{id}/members` | GET | lists members, and always answered `[]` |
+
+POST and PUT on `/members`, and on `/members/{id}` addressed by both openPaaS id and address,
+are all 404: the route is not mounted. A member list passed at creation, or in a PATCH, is
+refused as an unrecognised field. A team calendar created that way stays invisible: after it is
+created the sidebar of a user of the domain still shows only "My calendars", "Other calendars"
+and "Resources" -- no "Team calendars" section at all, which is consistent with nobody being a
+member.
+
+So the eighteen TEAM scenarios cannot be set up from the harness against side service 2.4.5.1.
+Membership is presumably granted somewhere else -- an LDAP group, or an administration tool this
+stack does not run. Naming that mechanism is what unblocks the section; the rest of the work is
+ordinary, since a team calendar behaves like the shared ones already covered.
+
+`SHARE-03` and `SHARE-05` stay unticked: a delegate never sees the events of a calendar shared
+with them, so neither reading them nor editing one can be exercised. See `TICKET-03` in
+[ticket.md](ticket.md) -- the write side of the same share does work, which is what makes it a
+defect rather than a missing feature.
+
+`BOOK-03`, a schedule without a name being refused, stays unticked: the form publishes it
+instead, see `TICKET-02` in [ticket.md](ticket.md).
 
 `SEC-03`, `SEC-10` and `SEC-11` are not written yet. The first needs a delegation to exist, the
 second the public application, and the third asserts a production CORS policy this stack
@@ -443,14 +519,14 @@ application, which is the part worth guarding.
 
 ## SHARE — Sharing and delegation (26)
 
-- [ ] `SHARE-01` The Access tab allows granting a right to another user
-- [ ] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
+- [x] `SHARE-01` The Access tab allows granting a right to another user
+- [x] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
 - [ ] `SHARE-03` A read right shows the events without allowing edition
-- [ ] `SHARE-04` An edit right allows creating an event in the shared calendar
+- [x] `SHARE-04` An edit right allows creating an event in the shared calendar
 - [ ] `SHARE-05` An edit right allows editing an existing event
-- [ ] `SHARE-06` An administration right allows managing the shares
-- [ ] `SHARE-07` Revoking a right removes the calendar from the grantee
-- [ ] `SHARE-08` The owner is identified in the list of rights
+- [x] `SHARE-06` An administration right allows managing the shares
+- [x] `SHARE-07` Revoking a right removes the calendar from the grantee
+- [x] `SHARE-08` The owner is identified in the list of rights
 - [ ] `SHARE-09` "View all events" exposes the details of private events
 - [ ] `SHARE-10` Without that right, private events appear without details
 - [ ] `SHARE-11` A private event shows "Details are hidden" to the delegate
@@ -461,37 +537,37 @@ application, which is the part worth guarding.
 - [ ] `SHARE-16` The colours of a shared calendar are per subscriber
 - [ ] `SHARE-17` Creating an event in a delegated calendar sets the right organizer
 - [ ] `SHARE-18` The preview offers "Edit in <calendar>" for a delegated event
-- [ ] `SHARE-19` A delegate cannot delete the shared calendar
-- [ ] `SHARE-20` The share survives a logout and login on both sides
-- [ ] `SHARE-21` An edit made by the delegate is visible live to the owner
+- [x] `SHARE-19` A delegate cannot delete the shared calendar
+- [x] `SHARE-20` The share survives a logout and login on both sides
+- [x] `SHARE-21` An edit made by the delegate is visible live to the owner
 - [ ] `SHARE-22` Sharing with an address outside the domain is refused
-- [ ] `SHARE-23` Sharing with oneself is refused
+- [x] `SHARE-23` Sharing with oneself is refused
 - [ ] `SHARE-24` The list of rights is paginated beyond a dozen grantees
 - [ ] `SHARE-25` Disabling the sharing module hides the Access tab
 - [ ] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
 
 ## IMPEX — Import, export, CalDAV (20)
 
-- [ ] `IMPEX-01` Importing an .ics file adds its events to the chosen calendar
+- [x] `IMPEX-01` Importing an .ics file adds its events to the chosen calendar
 - [ ] `IMPEX-02` The import reports how many events were imported
-- [ ] `IMPEX-03` Importing an .ics holding a recurrence keeps the rule
-- [ ] `IMPEX-04` Importing an .ics holding exceptions keeps the `RECURRENCE-ID` entries
-- [ ] `IMPEX-05` Importing an invalid file shows an explicit error
-- [ ] `IMPEX-06` Importing an empty file adds nothing and says so
+- [x] `IMPEX-03` Importing an .ics holding a recurrence keeps the rule
+- [x] `IMPEX-04` Importing an .ics holding exceptions keeps the `RECURRENCE-ID` entries
+- [x] `IMPEX-05` Importing an invalid file shows an explicit error
+- [x] `IMPEX-06` Importing an empty file adds nothing and says so
 - [ ] `IMPEX-07` Importing from an ICS feed URL works
 - [ ] `IMPEX-08` An unreachable feed URL shows an error
-- [ ] `IMPEX-09` Importing the same file twice does not duplicate the events
-- [ ] `IMPEX-10` The import honours the selected destination calendar
-- [ ] `IMPEX-11` Exporting a calendar downloads an .ics holding all its events
-- [ ] `IMPEX-12` Exporting an empty calendar produces a valid .ics
-- [ ] `IMPEX-13` The displayed CalDAV URL accepts an authenticated `PROPFIND`
-- [ ] `IMPEX-14` The secret URL allows reading the calendar without authentication
-- [ ] `IMPEX-15` Resetting the secret URL invalidates the previous one
-- [ ] `IMPEX-16` An event created by a third party CalDAV client shows in the interface
-- [ ] `IMPEX-17` An imported event in an exotic timezone displays at the right hour
+- [x] `IMPEX-09` Importing the same file twice does not duplicate the events
+- [x] `IMPEX-10` The import honours the selected destination calendar
+- [x] `IMPEX-11` Exporting a calendar downloads an .ics holding all its events
+- [x] `IMPEX-12` Exporting an empty calendar produces a valid .ics
+- [x] `IMPEX-13` The displayed CalDAV URL accepts an authenticated `PROPFIND`
+- [x] `IMPEX-14` The secret URL allows reading the calendar without authentication
+- [x] `IMPEX-15` Resetting the secret URL invalidates the previous one
+- [x] `IMPEX-16` An event created by a third party CalDAV client shows in the interface
+- [x] `IMPEX-17` An imported event in an exotic timezone displays at the right hour
 - [ ] `IMPEX-18` A bulk import of 500 events completes without timing out
 - [ ] `IMPEX-19` Importing an .ics with attachments keeps the references
-- [ ] `IMPEX-20` Exporting a recurring event carries the complete `RRULE`
+- [x] `IMPEX-20` Exporting a recurring event carries the complete `RRULE`
 
 ## BOOK — Booking links, private side (22)
 
@@ -602,7 +678,7 @@ application, which is the part worth guarding.
 - [x] `TZ-02` Changing the timezone of an event shifts its display
 - [x] `TZ-03` The chosen timezone is written in `DTSTART;TZID`
 - [x] `TZ-04` The timezone search filters the list
-- [x] `TZ-05` Clearing the timezone restores the default one
+- [ ] `TZ-05` Clearing the timezone restores the default one
 - [x] `TZ-06` The grid axis shows the current UTC offset
 - [x] `TZ-07` An event created in Paris displays correctly for a user in Tokyo
 - [x] `TZ-08` An event created in Tokyo displays correctly for a user in Paris
@@ -778,8 +854,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 119 | 314 |
-| **Total** | **348** | **558** |
+| Bonus | 143 | 314 |
+| **Total** | **372** | **558** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
@@ -791,7 +867,7 @@ Seven of the 195, each with what stands in the way. None has a placeholder in th
 
 | Scenario | Why |
 | --- | --- |
-| `CAL-13`, `CAL-14` | The calendar dialog renders no CalDAV access block. Settings offers name, description, colour and default visibility; Access offers the sharing rights only. No CalDAV address, no secret URL, no export, although the locale carries `calendar.caldav_access`, `calendar.secretUrl` and `calendar.exportCalendar`. This also blocks `PAST-36` and `PAST-48`. |
+| `CAL-13`, `CAL-14` | **No longer blocked, and not yet written.** The earlier note here said the dialog rendered no CalDAV access block; that was wrong. The block is on the **Access** tab, below the sharing rights, and carries the CalDAV address, the secret URL with its Reset button, and the Export button. `IMPEX-13`, `IMPEX-14` and `IMPEX-15` now assert all three. `PAST-36` and `PAST-48` are unblocked by the same finding. |
 | `SYNC-08`, `SYNC-09` | The websocket interruption cannot be provoked from the page: closing the socket from JavaScript is a clean close, which the application rightly does not treat as an interruption. Forcing an unclean one needs `page.routeWebSocket` plumbing this suite does not have. |
 | `SEARCH-09` | No way found to leave the search results without reloading: emptying the field keeps the results page, and the search toggle has given way to the search bar. |
 | `SET-07` | The working day buttons give no readable state: their computed background is the same before and after a click. `SET-08` covers the observable half, that hiding the non working days shortens the week. |

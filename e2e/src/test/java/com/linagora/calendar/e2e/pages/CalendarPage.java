@@ -584,6 +584,17 @@ public class CalendarPage {
             }"""));
     }
 
+    /**
+     * The calendars the creation form offers as a destination, which is what says whether a
+     * delegated calendar is really writable from this session.
+     */
+    public List<String> calendarNamesInForm() {
+        EventFormModal form = createEvent().expand();
+        List<String> names = form.calendarOptions();
+        form.cancel();
+        return names;
+    }
+
     public SettingsPage openSettings() {
         page.getByLabel("User profile").click();
         page.getByText("Settings").last().click();

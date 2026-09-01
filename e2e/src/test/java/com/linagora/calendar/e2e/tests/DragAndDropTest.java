@@ -256,8 +256,14 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
         String title = anEventAt(calendar, "Refused move", "09:00", "10:00");
         String before = dtStart(probe, user);
 
+        // Refuse every write towards a calendar, whatever verb carries it: a move does not
+        // necessarily travel as a PUT, and letting the real one through would have the event
+        // move for good while the test believes it was refused.
         page.route("**/*", route -> {
-            if ("PUT".equals(route.request().method())) {
+            String method = route.request().method();
+            boolean write = "PUT".equals(method) || "POST".equals(method)
+                || "PATCH".equals(method) || "DELETE".equals(method);
+            if (write && route.request().url().contains("calendars")) {
                 route.fulfill(new com.microsoft.playwright.Route.FulfillOptions()
                     .setStatus(500).setBody("nope"));
             } else {
