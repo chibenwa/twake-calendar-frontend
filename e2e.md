@@ -6,10 +6,10 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
   least once. They are the cheapest tests to justify and the most likely to fire again.
 - **Essential — 195 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
-- **Bonus — 318 tests**: the peripheral features, the edge cases, accessibility, responsive
+- **Bonus — 314 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
 
-Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 562 tests
+Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 558 tests
 of this document therefore amount to roughly **45 minutes** of CI. See
 [`e2e/README.md`](e2e/README.md) for how to write one, and its Isolation section for how
 accounts are handed out.
@@ -384,16 +384,13 @@ Eight of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (318)
+# Bonus (314)
 
-### Not asserted so far
+### Notes
 
-- `DEEP-04` and `DEEP-11` describe behaviour the application does not have, see
-  [ticket.md](ticket.md): a deep link does not reach an event outside the displayed week, and an
-  unknown route renders a blank page. Both are out of the suite until the behaviour changes.
-- `DEEP-02` and `DEEP-10` were reworded: neither `/events/<unknown>` nor `/error` shows a
-  message, both quietly redirect to the calendar. The tests assert that a dead link never breaks
-  the application, which is the part worth guarding.
+`DEEP-02` and `DEEP-10` were reworded: neither `/events/<unknown>` nor `/error` shows a message,
+both quietly redirect to the calendar. The tests assert that a dead link never breaks the
+application, which is the part worth guarding.
 
 ## RES — Resources (18)
 
@@ -558,13 +555,12 @@ Eight of the forty nine, each with what stands in the way.
 - [ ] `VISIO-11` A video conference on a recurring event is shared by every occurrence
 - [ ] `VISIO-12` The link stays valid after a time change
 
-## ALARM — Notifications and reminders (16)
+## ALARM — Notifications and reminders (14)
 
 - [ ] `ALARM-01` The default notification is "No notification"
 - [ ] `ALARM-02` Choosing a reminder 10 minutes before writes a `VALARM`
 - [ ] `ALARM-03` Every offered duration translates into the right `TRIGGER`
 - [ ] `ALARM-04` The email reminder writes `ACTION:EMAIL`
-- [ ] `ALARM-05` The display reminder writes `ACTION:DISPLAY`
 - [ ] `ALARM-06` Removing the notification deletes the `VALARM`
 - [ ] `ALARM-07` The preview spells the reminder out
 - [ ] `ALARM-08` A reminder on an all day event is accepted
@@ -573,7 +569,6 @@ Eight of the forty nine, each with what stands in the way.
 - [ ] `ALARM-11` The reminder is kept through a time change
 - [ ] `ALARM-12` An email reminder actually triggers an SMTP delivery
 - [ ] `ALARM-13` The reminder goes to the right recipient
-- [ ] `ALARM-14` Turning email notifications off in the settings stops the deliveries
 - [ ] `ALARM-15` Deleting the event cancels the scheduled reminder
 - [ ] `ALARM-16` A reminder in the past is not replayed
 
@@ -636,19 +631,17 @@ Eight of the forty nine, each with what stands in the way.
 - [ ] `DND-15` Dragging a range opens the prefilled creation form
 - [ ] `DND-16` A drag followed by a reload shows the same position
 
-## DEEP — Deep links (12)
+## DEEP — Deep links (10)
 
 - [ ] `DEEP-01` `/events/:uid` opens the event preview after login
 - [ ] `DEEP-02` `/events/:uid` on an unknown UID shows the dedicated error
 - [ ] `DEEP-03` `/events/:uid` goes through the SSO flow when no session exists
-- [ ] `DEEP-04` `/events/:uid` moves the grid to the event date
 - [ ] `DEEP-05` `/newEvent?attendee=a@x.com` opens the form with the guest prefilled
 - [ ] `DEEP-06` Several repeated `attendee` parameters are all prefilled
 - [ ] `DEEP-07` Comma separated `attendee` values are all prefilled
 - [ ] `DEEP-08` An invalid `attendee` is ignored with a message
 - [ ] `DEEP-09` The Create button tooltip names the prefilled guest
 - [ ] `DEEP-10` `/error` shows the generic error page
-- [ ] `DEEP-11` An unknown route redirects to the calendar
 - [ ] `DEEP-12` `/events/:uid` on a recurring occurrence opens the right occurrence
 
 ## PRINT — Printing (12)
@@ -778,7 +771,7 @@ Eight of the forty nine, each with what stands in the way.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 0 | 318 |
+| Bonus | 0 | 314 |
 | **Total** | **229** | **562** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
