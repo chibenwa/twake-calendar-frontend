@@ -39,7 +39,9 @@ public class TwakeCalendarStack {
         SABRE("sabre_dav", 80),
         MONGO("mongo", 27017),
         /** Dex authenticates against it, and E2EUserFactory writes the test accounts to it */
-        LDAP("ldap", 389);
+        LDAP("ldap", 389),
+        /** The REST side of the mock SMTP server, where the mail the backend sent is read back */
+        MOCK_SMTP("mock-smtp", 8000);
 
         private final String serviceName;
         private final int port;
@@ -100,6 +102,7 @@ public class TwakeCalendarStack {
                 .withExposedService(Service.SABRE.serviceName(), Service.SABRE.port())
                 .withExposedService(Service.MONGO.serviceName(), Service.MONGO.port())
                 .withExposedService(Service.LDAP.serviceName(), Service.LDAP.port())
+                .withExposedService(Service.MOCK_SMTP.serviceName(), Service.MOCK_SMTP.port())
                 .waitingFor(Service.SIDE_SERVICE.serviceName(),
                     Wait.forLogMessage(".*StartUpChecks all succeeded.*", 1)
                         .withStartupTimeout(Duration.ofMinutes(10)))
@@ -143,6 +146,11 @@ public class TwakeCalendarStack {
     /** Base URI of the Sabre DAV server, used to seed and assert calendar content. */
     public String davUri() {
         return url(Service.SABRE, "http");
+    }
+
+    /** The mock SMTP server, whose REST side hands back everything the backend has sent. */
+    public String mockSmtpUri() {
+        return url(Service.MOCK_SMTP, "http");
     }
 
     /** Directory Dex authenticates against, where test accounts are created. */
