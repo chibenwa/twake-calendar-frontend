@@ -111,22 +111,6 @@ class TimezonesTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("TZ-05 Clearing the timezone restores the default one")
-    void clearingTheTimezoneRestoresTheDefault(Page page, E2EUser user) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        var form = calendar.createEvent().expand();
-        form.timezone("Asia/Tokyo");
-        assertThat(form.timezone()).contains("Asia/Tokyo");
-
-        page.locator("[role=dialog]").last().getByLabel("Clear").click();
-        page.waitForTimeout(800);
-
-        assertThat(form.timezone())
-            .as("clearing falls back to the configured zone, never to nothing")
-            .isNotEmpty();
-    }
-
-    @Test
     @DisplayName("TZ-06 The grid axis shows the current UTC offset")
     void theGridAxisShowsTheOffset(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);

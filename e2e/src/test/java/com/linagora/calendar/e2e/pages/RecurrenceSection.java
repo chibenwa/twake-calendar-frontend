@@ -103,11 +103,19 @@ public class RecurrenceSection {
      * the way a user would: open it, walk to the right month, click the day.
      */
     public RecurrenceSection endsOn(LocalDate date) {
-        page.locator("input[type=radio][value=on]").check();
-        endDateInput().click();
-
-        DatePickerField.pick(page, endDateInput(), date);
-        return this;
+        // Selecting the option remounts the end of the panel: the field can be there when the
+        // picker is opened and gone a render later. Aim again rather than fail on that race.
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                page.locator("input[type=radio][value=on]").check();
+                endDateInput().waitFor(new Locator.WaitForOptions().setTimeout(10_000));
+                DatePickerField.pick(page, endDateInput(), date);
+                return this;
+            } catch (com.microsoft.playwright.TimeoutError retry) {
+                page.keyboard().press("Escape");
+            }
+        }
+        throw new AssertionError("The end date field never settled long enough to pick " + date);
     }
 
     /** Opens the end date picker and reports whether the given day can be picked at all. */

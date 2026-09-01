@@ -94,8 +94,11 @@ public class PublicBookingPage {
 
     /** The month the picker header names. */
     public java.time.YearMonth displayedMonth() {
+        // month names only: a schedule called "Cancellable 1778" would otherwise read as one
         java.util.regex.Matcher matcher = java.util.regex.Pattern
-            .compile("([A-Z][a-z]+)\\s+(\\d{4})").matcher(page.locator("body").innerText());
+            .compile("(January|February|March|April|May|June|July|August|September|October"
+                + "|November|December)\\s+(\\d{4})")
+            .matcher(page.locator("body").innerText());
         if (!matcher.find()) {
             throw new AssertionError("No month in the booking page header");
         }

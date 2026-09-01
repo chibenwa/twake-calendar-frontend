@@ -183,8 +183,17 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         speaking(calendar, "Français");
 
-        page.route("**/dav/**", route -> route.fulfill(
-            new com.microsoft.playwright.Route.FulfillOptions().setStatus(500).setBody("")));
+        // fail every call for calendar data, not only the ones under /dav/: a refresh does not
+        // always take that path, and a route that misses it leaves the application perfectly
+        // happy and the banner nowhere to be found
+        page.route("**/*", route -> {
+            if (route.request().url().contains("calendars")) {
+                route.fulfill(new com.microsoft.playwright.Route.FulfillOptions()
+                    .setStatus(500).setBody(""));
+            } else {
+                route.resume();
+            }
+        });
         page.getByLabel(FR_REFRESH).click();
 
         PlaywrightAssertions.assertThat(page.getByText(
