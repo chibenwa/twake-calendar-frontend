@@ -65,9 +65,25 @@ public class RecurrenceSection {
         return page.getByLabel(icalDay, new Page.GetByLabelOptions().setExact(true));
     }
 
+    /**
+     * The weekday toggles carry no class, no aria-pressed: their state only shows through the
+     * emotion generated background, so that is what has to be read.
+     */
     public boolean isWeekdaySelected(String icalDay) {
-        // MUI marks the pressed toggle with a `Mui-selected` class
-        return weekday(icalDay).getAttribute("class").contains("Mui-selected");
+        String background = String.valueOf(weekday(icalDay)
+            .evaluate("(button) => getComputedStyle(button).backgroundColor"));
+        return !background.contains("rgba(0, 0, 0, 0)") && !"transparent".equals(background);
+    }
+
+    /** Leaves exactly the given weekdays ticked, in that order, which BYDAY follows. */
+    public RecurrenceSection onlyWeekdays(String... icalDays) {
+        List.of("MO", "TU", "WE", "TH", "FR", "SA", "SU").forEach(day -> {
+            if (isWeekdaySelected(day)) {
+                weekday(day).click();
+            }
+        });
+        List.of(icalDays).forEach(day -> weekday(day).click());
+        return this;
     }
 
     /** Never ends. */
@@ -92,6 +108,38 @@ public class RecurrenceSection {
 
         DatePickerField.pick(page, endDateInput(), date);
         return this;
+    }
+
+    /** Opens the end date picker and reports whether the given day can be picked at all. */
+    public boolean canEndOn(LocalDate date) {
+        page.locator("input[type=radio][value=on]").check();
+        endDateInput().click();
+        Locator picker = page.locator(".MuiPickerPopper-root").last();
+        picker.waitFor();
+        Locator header = picker.locator(".MuiPickersCalendarHeader-label");
+        java.time.YearMonth target = java.time.YearMonth.from(date);
+        for (int guard = 0; guard < 36; guard++) {
+            java.time.YearMonth displayed = java.time.YearMonth.parse(header.innerText().trim(),
+                DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH));
+            if (displayed.equals(target)) {
+                break;
+            }
+            Locator arrow = picker.getByLabel(displayed.isBefore(target) ? "Next month" : "Previous month");
+            if (!arrow.isEnabled()) {
+                // the picker refuses to walk past its minimum: the date is simply not offered
+                page.keyboard().press("Escape");
+                return false;
+            }
+            arrow.click();
+            page.waitForTimeout(120);
+        }
+        Locator day = picker.locator("button.MuiPickerDay-root:not(.MuiPickerDay-dayOutsideMonth)")
+            .filter(new Locator.FilterOptions()
+                .setHasText(Pattern.compile("^" + date.getDayOfMonth() + "$")))
+            .first();
+        boolean enabled = day.count() > 0 && day.isEnabled();
+        page.keyboard().press("Escape");
+        return enabled;
     }
 
     public Locator endDateInput() {

@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -441,10 +440,13 @@ class PastRecurrenceTest extends TwakeCalendarE2ETest {
 
         calendar.switchView("Month");
 
-        // the last cell of the month grid belongs to the next month, and must be loaded too
-        PlaywrightAssertions.assertThat(
-                page.locator(".fc-daygrid-day").last().locator(CalendarPage.EVENT_CARD).first())
-            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(30_000));
+        // the trailing days of a month grid belong to the next month: they must be loaded too,
+        // which is exactly what #263 got wrong
+        java.time.LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(calendar.eventDates(title))
+                .as("a daily series must reach the spill over days of the month view")
+                .anySatisfy(date -> assertThat(LocalDate.parse(date)).isAfter(endOfMonth)));
     }
 
     @Test

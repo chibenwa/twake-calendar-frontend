@@ -62,6 +62,18 @@ public class CalendarProbe {
             user.email() + " is not provisioned yet. It gets created upon its first login."));
     }
 
+    /** The display names of every calendar collection the user owns. */
+    public List<String> calendarNames(E2EUser user) {
+        HttpResponse<String> response = execute(user, "PROPFIND",
+            "/calendars/" + requireOpenPaasId(user) + "/", null, null);
+        List<String> names = new ArrayList<>();
+        Matcher matcher = Pattern.compile("<[^>]*displayname[^>]*>([^<]+)<").matcher(response.body());
+        while (matcher.find()) {
+            names.add(matcher.group(1).trim());
+        }
+        return names;
+    }
+
     /** Summaries of every event of the user's default calendar. */
     public List<String> eventSummaries(E2EUser user) {
         return eventHrefs(user).stream()

@@ -79,12 +79,18 @@ public class EventFormModal {
         return this;
     }
 
-    /** The repeat panel. Enables the recurrence if it is not on yet. */
+    /**
+     * The repeat panel, enabling the recurrence if it is not on yet.
+     *
+     * <p>Reads the toggle, never the visibility of the panel: on an event that already repeats,
+     * the panel can lag a render behind, and acting on that would switch the recurrence *off*.
+     */
     public RecurrenceSection repeat() {
-        if (!new RecurrenceSection(page).isVisible()) {
-            page.getByLabel("Repeat", new Page.GetByLabelOptions().setExact(true)).check();
-            page.getByTestId("repeat-interval").waitFor();
+        Locator toggle = repeatToggle();
+        if (!toggle.isChecked()) {
+            toggle.check();
         }
+        page.getByTestId("repeat-interval").waitFor();
         return new RecurrenceSection(page);
     }
 
@@ -105,10 +111,19 @@ public class EventFormModal {
 
     /** Moves the event to another calendar, by its name. */
     public EventFormModal calendar(String calendarName) {
-        calendarSelect().click();
-        page.getByRole(AriaRole.OPTION,
-            new Page.GetByRoleOptions().setName(calendarName).setExact(true)).first().click();
-        page.waitForTimeout(400);
+        Locator select = calendarSelect();
+        select.scrollIntoViewIfNeeded();
+        select.click();
+        Locator options = page.locator("li[role=option]");
+        options.first().waitFor();
+        Locator wanted = options.filter(new Locator.FilterOptions().setHasText(calendarName));
+        if (wanted.count() == 0) {
+            throw new AssertionError("No calendar named " + calendarName
+                + " in the picker, which offers " + options.allInnerTexts());
+        }
+        wanted.first().click();
+        // the option list going away is what says the choice was taken
+        awaitNoOverlay();
         return this;
     }
 
@@ -214,6 +229,18 @@ public class EventFormModal {
         Locator guests = page.getByPlaceholder("Add guests");
         guests.click();
         guests.pressSequentially(email, new Locator.PressSequentiallyOptions().setDelay(30));
+        return this;
+    }
+
+    /** Takes a guest off the list by clicking the delete control of their chip. */
+    public EventFormModal removeGuest(String email) {
+        dialog().locator(".MuiChip-root")
+            .filter(new Locator.FilterOptions().setHasText(email))
+            .first()
+            .locator("svg, button")
+            .last()
+            .click();
+        page.waitForTimeout(600);
         return this;
     }
 

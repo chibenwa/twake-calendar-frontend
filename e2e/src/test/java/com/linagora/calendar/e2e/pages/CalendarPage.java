@@ -58,6 +58,19 @@ public class CalendarPage {
         return page.locator(EVENT_CARD).filter(new Locator.FilterOptions().setHasText(title));
     }
 
+    /**
+     * The days an event is rendered on, as ISO dates, read from the grid column each card sits
+     * in. The natural way to assert what a recurrence rule actually produces.
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> eventDates(String title) {
+        return (List<String>) page.evaluate(
+            "(t) => Array.from(document.querySelectorAll('[data-testid^=event-card]'))"
+            + ".filter(e => e.innerText.includes(t))"
+            + ".map(e => { const c = e.closest('[data-date]'); return c ? c.getAttribute('data-date') : null; })"
+            + ".filter(Boolean).sort()", title);
+    }
+
     public List<String> eventTitles() {
         return page.locator(EVENT_CARD).allInnerTexts().stream()
             .map(text -> text.split("\n")[0].trim())
@@ -90,6 +103,37 @@ public class CalendarPage {
     public CalendarPage today() {
         page.getByLabel("Today", new Page.GetByLabelOptions().setExact(true)).click();
         return this;
+    }
+
+    /**
+     * Walks the grid to the given month, reading where it actually is at every step rather than
+     * counting from today: successive calls would otherwise navigate from the wrong origin.
+     */
+    public CalendarPage goToMonth(java.time.YearMonth month) {
+        for (int guard = 0; guard < 60; guard++) {
+            java.time.YearMonth displayed = displayedMonth();
+            if (displayed.equals(month)) {
+                return this;
+            }
+            if (displayed.isBefore(month)) {
+                next();
+            } else {
+                previous();
+            }
+            page.waitForTimeout(150);
+        }
+        throw new AssertionError("Could not reach " + month + ", the grid shows " + periodTitle());
+    }
+
+    /** The month the menubar title names. */
+    public java.time.YearMonth displayedMonth() {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+            .compile("([A-Z][a-z]+)\\s+(\\d{4})").matcher(periodTitle());
+        if (!matcher.find()) {
+            throw new AssertionError("No month in the menubar title: " + periodTitle());
+        }
+        return java.time.YearMonth.parse(matcher.group(1) + " " + matcher.group(2),
+            java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.ENGLISH));
     }
 
     public CalendarPage refresh() {
@@ -159,6 +203,22 @@ public class CalendarPage {
         return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(name));
     }
 
+    /** The first day the grid currently shows, read from the grid itself. */
+    public java.time.LocalDate firstVisibleDate() {
+        String date = String.valueOf(page.evaluate(
+            "() => { const c = document.querySelector('[data-date]');"
+            + " return c ? c.getAttribute('data-date') : null; }"));
+        return java.time.LocalDate.parse(date);
+    }
+
+    /** Every day the grid currently shows. */
+    @SuppressWarnings("unchecked")
+    public List<String> visibleDates() {
+        return (List<String>) page.evaluate(
+            "() => Array.from(new Set(Array.from(document.querySelectorAll('[data-date]'))"
+            + ".map(e => e.getAttribute('data-date')))).sort()");
+    }
+
     public Locator weekNumber() {
         return page.locator(".fc-timegrid-axis-cushion");
     }
@@ -176,16 +236,59 @@ public class CalendarPage {
         return new CalendarModal(page).waitUntilOpen();
     }
 
+    /**
+     * Makes sure a calendar is ticked, so its events actually reach the grid. A freshly created
+     * calendar is not always part of the selection.
+     */
+    public CalendarPage showCalendar(String calendarName) {
+        Locator checkbox = calendarCheckbox(calendarName);
+        checkbox.waitFor();
+        if (!checkbox.isChecked()) {
+            checkbox.check();
+            page.waitForTimeout(800);
+        }
+        return this;
+    }
+
     /** The per calendar menu button of a sidebar row. */
     public Locator calendarMenu(String calendarName) {
         return page.locator("li:has(label[aria-label='" + calendarName + "']) button");
     }
 
-    /** Removes a calendar through its sidebar menu, confirmation included. */
+    /**
+     * Opens the overflow menu of a sidebar calendar row. The button only shows on hover, so the
+     * row is hovered first.
+     */
+    public CalendarPage openCalendarMenu(String calendarName) {
+        Locator row = page.locator("li:has(label[aria-label='" + calendarName + "'])");
+        row.hover();
+        row.locator("button").last().click();
+        page.locator("[role=menuitem]").first().waitFor();
+        return this;
+    }
+
+    /** What the overflow menu of a calendar offers. */
+    public List<String> calendarMenuEntries(String calendarName) {
+        openCalendarMenu(calendarName);
+        List<String> entries = page.locator("[role=menuitem]").allInnerTexts();
+        page.keyboard().press("Escape");
+        return entries;
+    }
+
+    /** Opens the settings dialog of a calendar, through Modify. */
+    public CalendarModal modifyCalendar(String calendarName) {
+        openCalendarMenu(calendarName);
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Modify")).click();
+        return new CalendarModal(page).waitUntilOpen();
+    }
+
+    /** Deletes a calendar, going through the confirmation. */
     public void deleteCalendar(String calendarName) {
-        calendarMenu(calendarName).last().click();
-        page.getByText("Remove", new Page.GetByTextOptions().setExact(true)).last().click();
-        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Remove").setExact(true))
+        openCalendarMenu(calendarName);
+        page.getByRole(AriaRole.MENUITEM,
+            new Page.GetByRoleOptions().setName(java.util.regex.Pattern.compile("Delete|Remove"))).click();
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName(java.util.regex.Pattern.compile("^(Delete|Remove)$")))
             .last().click();
     }
 
@@ -231,10 +334,52 @@ public class CalendarPage {
         return menu;
     }
 
+    /** Searches for events. Opens the search bar first when it is not already showing. */
     public CalendarPage search(String keywords) {
-        page.getByLabel("Search for events or calendars").click();
-        page.locator("input[placeholder='Search']").fill(keywords);
-        page.keyboard().press("Enter");
+        Locator input = page.getByPlaceholder("Search");
+        if (input.count() == 0) {
+            page.getByLabel("Search for events or calendars").click();
+            input.first().waitFor();
+        }
+        input.first().fill(keywords);
+        input.first().press("Enter");
+        page.waitForTimeout(1500);
         return this;
+    }
+
+    /** Empties the search field, which takes the user back to the calendar. */
+    public CalendarPage clearSearch() {
+        Locator input = page.getByPlaceholder("Search");
+        if (input.count() > 0) {
+            input.first().fill("");
+            input.first().press("Enter");
+            page.waitForTimeout(1200);
+        }
+        if (page.locator(".fc-view-harness").count() == 0) {
+            // emptying the field is not always enough: the logo takes the user home, which is
+            // the gesture left once the search toggle has given way to the search bar
+            page.getByLabel("Calendar", new Page.GetByLabelOptions().setExact(true)).first().click();
+            page.locator(".fc-view-harness").waitFor();
+        }
+        return this;
+    }
+
+    /**
+     * Searches until the expected text shows up. Events are indexed asynchronously, so a query
+     * fired right after a creation legitimately comes back empty the first time.
+     */
+    public CalendarPage searchUntil(String keywords, String expected) {
+        org.awaitility.Awaitility.await()
+            .atMost(java.time.Duration.ofSeconds(60))
+            .pollInterval(java.time.Duration.ofSeconds(3))
+            .until(() -> {
+                search(keywords);
+                return page.getByText(expected).count() > 0;
+            });
+        return this;
+    }
+
+    public String searchResults() {
+        return page.locator("body").innerText();
     }
 }

@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -114,30 +113,6 @@ class PastIcalInteropTest extends TwakeCalendarE2ETest {
                 .as("many parsers drop the whole parameter list on an unquoted non-ASCII CN")
                 .containsPattern("CN=\"[^\"]*\"");
         }
-    }
-
-    @Test
-    @Disabled("Not implemented: picking a reminder leaves the modal in a state where the Save "
-        + "button can no longer be located. The MUI Select option list stays mounted, and "
-        + "dismissing it with Escape closes the whole modal. The reminder field needs its own "
-        + "interaction pass. See the Blocked section of e2e.md.")
-    @DisplayName("PAST-50 (#1201) A one week reminder writes a TRIGGER of exactly one week")
-    void aOneWeekReminderWritesAOneWeekTrigger(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        String title = title("Reminded");
-
-        calendar.createEvent().title(title).expand().notification("week").save();
-        awaitAttached(calendar.eventCard(title));
-
-        String ical = Ics.unfold(probe.singleEvent(user));
-        assertThat(ical).contains("BEGIN:VALARM");
-        String trigger = java.util.Arrays.stream(ical.split("\r?\n"))
-            .filter(line -> line.startsWith("TRIGGER"))
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("no TRIGGER in:\n" + ical));
-        assertThat(trigger)
-            .as("one week before means -P1W or its hourly equivalent, not a mangled duration")
-            .containsAnyOf("-P1W", "-P7D", "-PT168H");
     }
 
     @Test
