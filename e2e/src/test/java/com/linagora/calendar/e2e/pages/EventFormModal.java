@@ -260,18 +260,57 @@ public class EventFormModal {
         return this;
     }
 
-    /** Picks the reminder whose label holds the given text, "week" for instance. */
+    /**
+     * Picks the reminder whose label holds the given text, "10 minutes" for instance.
+     *
+     * <p>While the option list is open MUI marks the rest of the application `aria-hidden`, so
+     * the buttons of the modal vanish from the accessibility tree and nothing else can be
+     * clicked. The list must therefore be properly closed before handing back.
+     */
     public EventFormModal notification(String labelContains) {
-        dialog().getByRole(AriaRole.COMBOBOX)
-            .filter(new Locator.FilterOptions().setHasText("No notification"))
-            .last()
-            .click();
+        notificationSelect().click();
         page.getByRole(AriaRole.OPTION)
             .filter(new Locator.FilterOptions().setHasText(labelContains))
             .first()
             .click();
-        awaitNoOverlay();
+        closeOptionList();
         return this;
+    }
+
+    public String notification() {
+        return notificationSelect().innerText().trim();
+    }
+
+    private Locator notificationSelect() {
+        return dialog().getByRole(AriaRole.COMBOBOX)
+            .filter(new Locator.FilterOptions()
+                .setHasText(java.util.regex.Pattern.compile("notification|before", java.util.regex.Pattern.CASE_INSENSITIVE)))
+            .last();
+    }
+
+    /**
+     * Closes a lingering option list, and makes sure it did not take the modal with it.
+     *
+     * <p>MUI keeps the list mounted through its closing transition, so presence is not the
+     * question: visibility is. And the modal is recognised by its Save button rather than by a
+     * title field, because the personal settings form has no title.
+     */
+    private void closeOptionList() {
+        Locator list = page.locator("[role=listbox]");
+        for (int guard = 0; guard < 30 && isOptionListShowing(list); guard++) {
+            page.waitForTimeout(100);
+        }
+        if (isOptionListShowing(list)) {
+            page.keyboard().press("Escape");
+            page.waitForTimeout(400);
+        }
+        if (saveButton().count() == 0) {
+            throw new AssertionError("Closing the option list closed the whole modal");
+        }
+    }
+
+    private boolean isOptionListShowing(Locator list) {
+        return list.count() > 0 && list.last().isVisible();
     }
 
     public Locator saveButton() {

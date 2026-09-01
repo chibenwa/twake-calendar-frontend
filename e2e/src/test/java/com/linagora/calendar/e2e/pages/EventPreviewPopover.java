@@ -118,6 +118,17 @@ public class EventPreviewPopover {
         throw new AssertionError("No overflow menu in the event preview");
     }
 
+    /** Opens the personal settings of the event: the reminder and busy status of this user only. */
+    public EventFormModal personalSettings() {
+        moreOptions();
+        page.getByText("Edit personal event settings").last().click();
+        // this form is a restricted one: reminder, busy status and visibility, no title
+        page.locator("[role=dialog]").last().waitFor();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Save").setExact(true)).last().waitFor();
+        return new EventFormModal(page);
+    }
+
     /** Duplicates the event, which opens the creation modal on the copy. */
     public EventFormModal duplicate() {
         moreOptions();
