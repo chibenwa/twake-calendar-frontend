@@ -91,6 +91,10 @@ public class EventFormModal {
             toggle.check();
         }
         page.getByTestId("repeat-interval").waitFor();
+        // the panel arrives in pieces: the end options land after the interval, and a caller
+        // reaching for them straight away would find nothing
+        page.locator("input[type=radio][value=never]").waitFor();
+        page.getByTestId("event-repeat-end-date").waitFor();
         return new RecurrenceSection(page);
     }
 

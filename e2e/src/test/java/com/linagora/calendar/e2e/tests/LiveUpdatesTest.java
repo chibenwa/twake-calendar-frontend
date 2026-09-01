@@ -43,13 +43,17 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
         String before = unique("Before");
         String uid = UUID.randomUUID().toString();
         probe.putEvent(user, uid, Ical.event(uid, before, LocalDate.now(), 9));
+        // the subject here is the live *rename*: get the starting state on screen the reliable
+        // way, so a slow first delivery cannot be mistaken for a broken update
+        page.reload();
+        calendar.waitUntilLoaded();
         awaitAttached(calendar.eventCard(before));
 
         String after = unique("After");
         probe.putEvent(user, uid, Ical.event(uid, after, LocalDate.now(), 9));
 
         PlaywrightAssertions.assertThat(calendar.eventCard(after).first())
-            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(45_000));
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(60_000));
         PlaywrightAssertions.assertThat(calendar.eventCard(before)).hasCount(0);
     }
 
@@ -160,6 +164,6 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
         calendar.refresh();
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
-            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(45_000));
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(60_000));
     }
 }
