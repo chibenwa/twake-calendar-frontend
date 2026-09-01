@@ -156,7 +156,10 @@ public class TwakeCalendarStack {
                 rule("localhost:8099", Service.FRONTEND),
                 rule("api", Service.PROXY),
                 rule("dav", Service.PROXY),
-                rule("sso", Service.SSO))
+                rule("sso", Service.SSO),
+                // the external hosts the SPA links out to: pointed at the frontend so that
+                // following such a link lands on a real page instead of a browser error
+                rule("meet.e2e.local", Service.FRONTEND))
             .stream()
             .collect(Collectors.joining(","));
     }
