@@ -333,8 +333,8 @@ Eight of the forty nine, each with what stands in the way.
 - [x] `CAL-10` Deleting a calendar removes its events from the grid
 - [x] `CAL-11` The default calendar cannot be deleted
 - [x] `CAL-12` An event created in a second calendar takes its colour
-- [ ] `CAL-13` The Access tab shows the CalDAV URL of the calendar
-- [ ] `CAL-14` The Access tab allows resetting the secret URL
+- [x] `CAL-13` The Access tab shows the CalDAV URL of the calendar
+- [x] `CAL-14` The Access tab allows resetting the secret URL
 - [x] `CAL-15` The default visibility of new events is configurable per calendar
 
 ## SYNC — Live updates and persistence (12)
@@ -724,18 +724,18 @@ application, which is the part worth guarding.
 
 ## PRINT — Printing (12)
 
-- [ ] `PRINT-01` The Print action opens the printable schedule dialog
-- [ ] `PRINT-02` The scale offers Day, Week and Month
-- [ ] `PRINT-03` The layout offers Grid and Schedule
-- [ ] `PRINT-04` The "This week" period prefills the dates
-- [ ] `PRINT-05` An end date before the start shows the dedicated error
-- [ ] `PRINT-06` A range too wide shows "too large to print"
-- [ ] `PRINT-07` Additional calendars can be added to the printout
-- [ ] `PRINT-08` A period without events shows "No events"
-- [ ] `PRINT-09` An untitled event is printed as "(No title)"
-- [ ] `PRINT-10` All day events are grouped under "All day"
-- [ ] `PRINT-11` A blocked pop-up shows the warning message
-- [ ] `PRINT-12` A loading failure shows "Could not load the calendar events"
+- [x] `PRINT-01` The Print action opens the printable schedule dialog
+- [x] `PRINT-02` The scale offers Day, Week and Month
+- [x] `PRINT-03` The layout offers Grid and Schedule
+- [x] `PRINT-04` The "This week" period prefills the dates
+- [x] `PRINT-05` An end date before the start shows the dedicated error
+- [x] `PRINT-06` A range too wide shows "too large to print"
+- [x] `PRINT-07` Additional calendars can be added to the printout
+- [x] `PRINT-08` A period without events shows "No events"
+- [x] `PRINT-09` An untitled event is printed as "(No title)"
+- [x] `PRINT-10` All day events are grouped under "All day"
+- [x] `PRINT-11` A blocked pop-up shows the warning message
+- [x] `PRINT-12` A loading failure shows "Could not load the calendar events"
 
 ## I18N — Internationalisation (14)
 
@@ -848,9 +848,9 @@ application, which is the part worth guarding.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
-| Essential | 188 | 195 |
-| Bonus | 181 | 309 |
-| **Total** | **410** | **553** |
+| Essential | 190 | 195 |
+| Bonus | 193 | 309 |
+| **Total** | **424** | **553** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
@@ -862,7 +862,7 @@ Seven of the 195, each with what stands in the way. None has a placeholder in th
 
 | Scenario | Why |
 | --- | --- |
-| `CAL-13`, `CAL-14` | **No longer blocked, and not yet written.** The earlier note here said the dialog rendered no CalDAV access block; that was wrong. The block is on the **Access** tab, below the sharing rights, and carries the CalDAV address, the secret URL with its Reset button, and the Export button. `IMPEX-13`, `IMPEX-14` and `IMPEX-15` now assert all three. `PAST-36` and `PAST-48` are unblocked by the same finding. |
+| `CAL-13`, `CAL-14` | **Written and green.** The earlier note here said the dialog rendered no CalDAV access block; that was wrong. The block is on the **Access** tab, below the sharing rights, and carries the CalDAV address, the secret URL with its Reset button, and the Export button. `IMPEX-13` to `IMPEX-15` assert that those addresses work; `CAL-13` and `CAL-14` assert the tab publishes them. `PAST-36` and `PAST-48` are unblocked by the same finding and still unwritten. |
 | `SYNC-08`, `SYNC-09` | The websocket interruption cannot be provoked from the page: closing the socket from JavaScript is a clean close, which the application rightly does not treat as an interruption. Forcing an unclean one needs `page.routeWebSocket` plumbing this suite does not have. |
 | `SEARCH-09` | No way found to leave the search results without reloading: emptying the field keeps the results page, and the search toggle has given way to the search bar. |
 | `SET-07` | The working day buttons give no readable state: their computed background is the same before and after a click. `SET-08` covers the observable half, that hiding the non working days shortens the week. |
