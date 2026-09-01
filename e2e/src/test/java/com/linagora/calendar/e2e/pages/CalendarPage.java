@@ -311,6 +311,14 @@ public class CalendarPage {
         return new CalendarModal(page).waitUntilOpen();
     }
 
+    /** Opens the printable schedule dialog of a calendar, through its overflow menu. */
+    public PrintDialog printCalendar(String calendarName) {
+        openCalendarMenu(calendarName);
+        page.getByRole(AriaRole.MENUITEM,
+            new Page.GetByRoleOptions().setName("Print schedule")).click();
+        return new PrintDialog(page).waitUntilOpen();
+    }
+
     /** Deletes a calendar, going through the confirmation. */
     public void deleteCalendar(String calendarName) {
         openCalendarMenu(calendarName);

@@ -14,6 +14,7 @@ import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.Ical;
+import com.linagora.calendar.e2e.pages.CalendarModal;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
@@ -257,6 +258,41 @@ class CalendarsTest extends TwakeCalendarE2ETest {
         assertThat(calendar.modifyCalendar(name).text())
             .as("the choice must come back when the calendar is reopened")
             .contains("New events created will be visible to:");
+    }
+
+
+    @Test
+    @DisplayName("CAL-13 The Access tab publishes the CalDAV address of the calendar")
+    void theAccessTabPublishesTheCaldavAddress(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar("My calendar").tab("Access");
+
+        assertThat(modal.text()).contains("CalDAV access");
+        assertThat(modal.caldavUrl())
+            .as("the address has to name the calendar, not merely be present")
+            .contains("/calendars/");
+        modal.close();
+    }
+
+    @Test
+    @DisplayName("CAL-14 The Access tab offers a secret address and a way to renew it")
+    void theAccessTabOffersASecretAddress(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar("My calendar").tab("Access");
+        String before = modal.secretUrl();
+
+        assertThat(modal.text()).contains("Secret URL");
+        assertThat(before).contains("token=");
+
+        modal.resetSecretUrl();
+
+        assertThat(modal.secretUrl())
+            .as("renewing has to hand back a different address, otherwise it renews nothing")
+            .isNotEqualTo(before)
+            .contains("token=");
+        modal.close();
     }
 
 }
