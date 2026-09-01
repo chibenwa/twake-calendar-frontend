@@ -477,9 +477,9 @@ application, which is the part worth guarding.
 
 ## RES — Resources (18)
 
-- [ ] `RES-01` The Resources section lists the resources of the domain
+- [x] `RES-01` The Resources section lists the resources of the domain
 - [ ] `RES-02` Browsing resources allows adding one to the sidebar
-- [ ] `RES-03` Booking a resource from the event form adds it as a participant
+- [x] `RES-03` Booking a resource from the event form adds it as a participant
 - [ ] `RES-04` A booked resource shows up in the resource's own calendar
 - [ ] `RES-05` The resource administrator receives the booking request
 - [ ] `RES-06` The administrator can accept the booking
@@ -487,14 +487,14 @@ application, which is the part worth guarding.
 - [ ] `RES-08` The booking status reaches the organizer
 - [ ] `RES-09` A resource already booked on the slot is flagged as busy
 - [ ] `RES-10` Removing a resource from an event frees the slot
-- [ ] `RES-11` Deleting the event frees the resource
-- [ ] `RES-12` The resource search filters by name
-- [ ] `RES-13` A resource search with no match shows "No results"
+- [x] `RES-11` Deleting the event frees the resource
+- [x] `RES-12` The resource search filters by name
+- [x] `RES-13` A resource search with no match shows "No results"
 - [ ] `RES-14` The resource icon is displayed in the list
-- [ ] `RES-15` Unticking a resource hides its bookings
+- [x] `RES-15` Unticking a resource hides its bookings
 - [ ] `RES-16` Removing a resource from the sidebar does not delete its bookings
-- [ ] `RES-17` A non administrator cannot edit the resource calendar
-- [ ] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
+- [x] `RES-17` A non administrator cannot edit the resource calendar
+- [x] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
 
 ## TEAM — Team calendars (18)
 
@@ -652,20 +652,20 @@ application, which is the part worth guarding.
 
 ## FB — Free / busy (14)
 
-- [ ] `FB-01` Adding a guest shows their availability
-- [ ] `FB-02` A guest busy on the slot is flagged "This person is busy"
+- [x] `FB-01` Adding a guest shows their availability
+- [x] `FB-02` A guest busy on the slot is flagged "This person is busy"
 - [ ] `FB-03` A free guest is flagged "User is free"
 - [ ] `FB-04` The unknown status shows its dedicated icon and tooltip
 - [ ] `FB-05` The loading status shows "Status is loading"
 - [ ] `FB-06` A clash with one's own agenda shows "You have another event at this time"
-- [ ] `FB-07` Changing the time recomputes the availabilities
-- [ ] `FB-08` An event marked "Free" does not make the guest busy
-- [ ] `FB-09` An event marked "Busy" makes the guest busy
+- [x] `FB-07` Changing the time recomputes the availabilities
+- [x] `FB-08` An event marked "Free" does not make the guest busy
+- [x] `FB-09` An event marked "Busy" makes the guest busy
 - [ ] `FB-10` A resource's availability is computed like a user's
-- [ ] `FB-11` A guest outside the domain shows the unknown status
-- [ ] `FB-12` Availability accounts for recurring occurrences
+- [x] `FB-11` A guest outside the domain shows the unknown status
+- [x] `FB-12` Availability accounts for recurring occurrences
 - [ ] `FB-13` The "Check availability" field searches both users and resources
-- [ ] `FB-14` Removing a guest removes their availability row
+- [x] `FB-14` Removing a guest removes their availability row
 
 ## TZ — Timezones (20)
 
@@ -849,8 +849,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 165 | 314 |
-| **Total** | **394** | **558** |
+| Bonus | 181 | 309 |
+| **Total** | **410** | **553** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
