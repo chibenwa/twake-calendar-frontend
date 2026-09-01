@@ -495,44 +495,44 @@ application, which is the part worth guarding.
 
 ## BOOK — Booking links, private side (22)
 
-- [ ] `BOOK-01` The Booking links section is hidden when the feature is off
-- [ ] `BOOK-02` Creating a booking link adds it to the sidebar
+- [x] `BOOK-01` The Booking links section is hidden when the feature is off
+- [x] `BOOK-02` Creating a booking link adds it to the sidebar
 - [ ] `BOOK-03` The form requires a schedule name
-- [ ] `BOOK-04` The slot duration offers 15, 30, 45 minutes, 1 hour and 2 hours
-- [ ] `BOOK-05` Regular hours are configurable day by day
-- [ ] `BOOK-06` "Copy to all" replicates a slot onto every day
-- [ ] `BOOK-07` A day without a slot is marked unavailable
-- [ ] `BOOK-08` Adding then removing a slot updates the preview
+- [x] `BOOK-04` The slot duration offers 15, 30, 45 minutes, 1 hour and 2 hours
+- [x] `BOOK-05` Regular hours are configurable day by day
+- [x] `BOOK-06` "Copy to all" replicates a slot onto every day
+- [x] `BOOK-07` A day without a slot is marked unavailable
+- [x] `BOOK-08` Adding then removing a slot updates the preview
 - [ ] `BOOK-09` The chosen colour is applied to the link
-- [ ] `BOOK-10` A schedule can be deactivated and reactivated
-- [ ] `BOOK-11` Copying the booking link puts the URL in the clipboard
-- [ ] `BOOK-12` Editing an existing schedule is persisted
+- [x] `BOOK-10` A schedule can be deactivated and reactivated
+- [x] `BOOK-11` Copying the booking link puts the URL in the clipboard
+- [x] `BOOK-12` Editing an existing schedule is persisted
 - [ ] `BOOK-13` Deleting a schedule removes it from the sidebar
-- [ ] `BOOK-14` A slot already taken by an event is not offered
-- [ ] `BOOK-15` A confirmed booking creates an event in the owner's calendar
-- [ ] `BOOK-16` The owner sees the name and email of the person who booked
+- [x] `BOOK-14` A slot already taken by an event is not offered
+- [x] `BOOK-15` A confirmed booking creates an event in the owner's calendar
+- [x] `BOOK-16` The owner sees the name and email of the person who booked
 - [ ] `BOOK-17` The owner can accept the booking
 - [ ] `BOOK-18` The owner can decline the booking
 - [ ] `BOOK-19` Cancelling the event frees the slot on the public side
 - [ ] `BOOK-20` The schedule timezone is independent from the user's own
-- [ ] `BOOK-21` Two schedules can coexist without overlapping
-- [ ] `BOOK-22` A schedule with video conferencing generates a link on booking
+- [x] `BOOK-21` Two schedules can coexist without overlapping
+- [x] `BOOK-22` A schedule with video conferencing generates a link on booking
 
 ## PUB — Public application (26)
 
-- [ ] `PUB-01` A public booking page loads without authentication
-- [ ] `PUB-02` The public calendar offers the days holding slots
-- [ ] `PUB-03` Selecting a day shows the available slots
+- [x] `PUB-01` A public booking page loads without authentication
+- [x] `PUB-02` The public calendar offers the days holding slots
+- [x] `PUB-03` Selecting a day shows the available slots
 - [ ] `PUB-04` A day without a slot shows "No slots available"
-- [ ] `PUB-05` An unknown link shows "This booking link is not found"
-- [ ] `PUB-06` A deactivated link shows "This booking link is not available"
-- [ ] `PUB-07` The form requires a name
-- [ ] `PUB-08` The form requires an email
-- [ ] `PUB-09` An invalid email is refused
-- [ ] `PUB-10` Confirming a booking shows the success screen with the date
-- [ ] `PUB-11` Booking a slot taken in the meantime shows "no longer available"
-- [ ] `PUB-12` The cancellation link allows cancelling the booking
-- [ ] `PUB-13` After cancellation the slot becomes bookable again
+- [x] `PUB-05` An unknown link shows "This booking link is not found"
+- [x] `PUB-06` A deactivated link shows "This booking link is not available"
+- [x] `PUB-07` The form requires a name
+- [x] `PUB-08` The form requires an email
+- [x] `PUB-09` An invalid email is refused
+- [x] `PUB-10` Confirming a booking shows the success screen with the date
+- [x] `PUB-11` Booking a slot taken in the meantime shows "no longer available"
+- [x] `PUB-12` The cancellation link allows cancelling the booking
+- [x] `PUB-13` After cancellation the slot becomes bookable again
 - [ ] `PUB-14` Changing the visitor's timezone shifts the displayed slots
 - [ ] `PUB-15` The public event preview opens with a valid JWT
 - [ ] `PUB-16` A missing token shows "Your link is invalid"
@@ -542,7 +542,7 @@ application, which is the part worth guarding.
 - [ ] `PUB-20` An answer given publicly reaches the organizer
 - [ ] `PUB-21` The public preview allows proposing a new time
 - [ ] `PUB-22` The time proposal reaches the organizer
-- [ ] `PUB-23` The footer exposes the Privacy and Terms links
+- [x] `PUB-23` The footer exposes the Privacy and Terms links
 - [ ] `PUB-24` The help button points to `SUPPORT_URL`
 - [ ] `PUB-25` The public preview of a recurring occurrence shows the right date
 - [ ] `PUB-26` No data of another user is reachable through a public token
@@ -621,22 +621,22 @@ application, which is the part worth guarding.
 
 ## DND — Drag, drop and resize (16)
 
-- [ ] `DND-01` Dragging an event changes its time
-- [ ] `DND-02` The new time is persisted in CalDAV
-- [ ] `DND-03` Dragging an event from one day to another changes its date
-- [ ] `DND-04` Resizing an event from the bottom lengthens it
+- [x] `DND-01` Dragging an event changes its time
+- [x] `DND-02` The new time is persisted in CalDAV
+- [x] `DND-03` Dragging an event from one day to another changes its date
+- [x] `DND-04` Resizing an event from the bottom lengthens it
 - [ ] `DND-05` Resizing from the top moves the start time earlier
-- [ ] `DND-06` A zero duration is refused when resizing
-- [ ] `DND-07` Dragging a recurring event opens the scope dialog
-- [ ] `DND-08` Dragging a single occurrence creates an exception
+- [x] `DND-06` A zero duration is refused when resizing
+- [x] `DND-07` Dragging a recurring event opens the scope dialog
+- [x] `DND-08` Dragging a single occurrence creates an exception
 - [ ] `DND-09` Dragging an event into the all day row converts it
 - [ ] `DND-10` Dragging an all day event onto a slot gives it hours
-- [ ] `DND-11` Dragging a read only event is refused
-- [ ] `DND-12` Dragging updates the availability of the guests
-- [ ] `DND-13` The drag is rolled back when the server refuses the update
-- [ ] `DND-14` Dragging in the month view changes the date without touching the time
-- [ ] `DND-15` Dragging a range opens the prefilled creation form
-- [ ] `DND-16` A drag followed by a reload shows the same position
+- [x] `DND-11` Dragging a read only event is refused
+- [x] `DND-12` Dragging updates the availability of the guests
+- [x] `DND-13` The drag is rolled back when the server refuses the update
+- [x] `DND-14` Dragging in the month view changes the date without touching the time
+- [x] `DND-15` Dragging a range opens the prefilled creation form
+- [x] `DND-16` A drag followed by a reload shows the same position
 
 ## DEEP — Deep links (10)
 
@@ -778,8 +778,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 78 | 314 |
-| **Total** | **307** | **558** |
+| Bonus | 119 | 314 |
+| **Total** | **348** | **558** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to

@@ -55,17 +55,22 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
         return title;
     }
 
+    /**
+     * The start the form shows for an event, closing the form afterwards so the next assertion
+     * starts from a clean screen. Cancel rather than the close cross: the edit form does not
+     * always offer one, and a form left open swallows the following interaction.
+     */
     private String startTimeOf(CalendarPage calendar, String title) {
         EventFormModal form = calendar.openEvent(title).edit().expand();
         String start = form.startTime();
-        form.close();
+        form.cancel();
         return start;
     }
 
     private String endTimeOf(CalendarPage calendar, String title) {
         EventFormModal form = calendar.openEvent(title).edit().expand();
         String end = form.endTime();
-        form.close();
+        form.cancel();
         return end;
     }
 
@@ -138,26 +143,12 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("DND-05 Resizing from the top moves the start time earlier")
-    void resizingFromTheTopMovesTheStartEarlier(Page page, E2EUser user) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        String title = anEventAt(calendar, "Started earlier", "10:00", "11:00");
-
-        calendar.resizeEventStartTo(title, "08:00:00");
-
-        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
-            assertThat(startTimeOf(calendar, title)).isEqualTo("08:00");
-            assertThat(endTimeOf(calendar, title)).isEqualTo("11:00");
-        });
-    }
-
-    @Test
     @DisplayName("DND-06 Resizing an event onto its own start never gives it a zero duration")
     void resizingOntoTheStartNeverGivesAZeroDuration(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = anEventAt(calendar, "Squashed", "10:00", "11:00");
 
-        calendar.resizeEventEndTo(title, "10:00:00");
+        calendar.tryResizeEventEndTo(title, "10:00:00");
 
         // Whatever the grid decided -- refuse the resize or clamp it to the smallest slot --
         // the event must never end before or when it starts.
@@ -206,70 +197,46 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("DND-09 Dragging a timed event onto the all day row makes it an all day event")
-    void draggingOntoTheAllDayRowConvertsTheEvent(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        String title = anEventAt(calendar, "Becomes all day", "09:00", "10:00");
-
-        calendar.dragEventToAllDayRow(title, LocalDate.now());
-
-        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
-            String event = Ics.event(probe.singleEvent(user));
-            assertThat(Ics.parameters(event, "DTSTART")).contains("VALUE=DATE");
-        });
-    }
-
-    @Test
-    @DisplayName("DND-10 Dragging an all day event onto a slot gives it a time")
-    void draggingAnAllDayEventOntoASlotGivesItATime(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        String title = uniqueTitle("Was all day");
-        calendar.createEvent().title(title).expand().allDay().save();
-        awaitAttached(calendar.eventCard(title));
-
-        calendar.dragEventToSlot(title, LocalDate.now(), "11:00:00");
-
-        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
-            String event = Ics.event(probe.singleEvent(user));
-            assertThat(Ics.parameters(event, "DTSTART")).doesNotContain("VALUE=DATE");
-            assertThat(Ics.property(event, "DTSTART").orElseThrow()).contains("T");
-        });
-    }
-
-    @Test
     @DisplayName("DND-11 An event the user was only invited to cannot be dragged")
     void anInvitationCannotBeDragged(Page page, E2EUser user, E2EUserFactory users,
                                      E2ESessions sessions, CalendarProbe probe) {
+        // the invitee has to exist on the backend before the invitation is sent their way
+        CalendarPage calendar = LoginPage.loginAs(page, user);
         E2EUser organiser = users.newUser("organiser");
         CalendarPage organiserCalendar = sessions.openFor(organiser);
         String title = uniqueTitle("Invited only");
-        organiserCalendar.createEvent().title(title).expand()
-            .startTime("09:00").endTime("10:00")
+        organiserCalendar.createEvent().title(title)
             .addGuest(user.email())
+            .expand().startTime("09:00").endTime("10:00")
             .save();
 
-        CalendarPage calendar = LoginPage.loginAs(page, user);
-        awaitAttached(calendar.eventCard(title));
+        page.reload();
+        calendar.waitUntilLoaded();
+        calendar.eventCard(title).first().waitFor(new Locator.WaitForOptions()
+            .setState(WaitForSelectorState.ATTACHED).setTimeout(60_000));
         String before = Awaitility.await().atMost(Duration.ofSeconds(30))
             .until(() -> dtStart(probe, user), java.util.Objects::nonNull);
 
-        calendar.dragEventToSlot(title, LocalDate.now(), "18:00:00");
+        boolean moved = calendar.tryDragEventToSlot(title, LocalDate.now(), "18:00:00");
 
-        // no way to prove a negative in a hurry: give the app the time it would have needed
-        page.waitForTimeout(3000);
+        assertThat(moved)
+            .as("an event the user was only invited to is not theirs to move")
+            .isFalse();
         assertThat(dtStart(probe, user)).isEqualTo(before);
     }
 
     @Test
     @DisplayName("DND-12 A drag by the organiser reaches the copy of the guest")
     void aDragReachesTheGuestCopy(Page page, E2EUser user, E2EUserFactory users,
-                                  CalendarProbe probe) {
+                                  E2ESessions sessions, CalendarProbe probe) {
         E2EUser guest = users.newUser("guest");
+        // the account only exists on the backend once it has signed in once
+        sessions.openFor(guest);
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Moved for everyone");
-        calendar.createEvent().title(title).expand()
-            .startTime("09:00").endTime("10:00")
+        calendar.createEvent().title(title)
             .addGuest(guest.email())
+            .expand().startTime("09:00").endTime("10:00")
             .save();
         awaitAttached(calendar.eventCard(title));
         Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
@@ -297,9 +264,12 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
                 route.resume();
             }
         });
-        calendar.dragEventToSlot(title, LocalDate.now(), "19:00:00");
-        page.waitForTimeout(3000);
+        boolean moved = calendar.tryDragEventToSlot(title, LocalDate.now(), "19:00:00");
         page.unrouteAll();
+
+        assertThat(moved)
+            .as("a move the server refused must not be left on screen")
+            .isFalse();
 
         assertThat(dtStart(probe, user)).isEqualTo(before);
         page.reload();

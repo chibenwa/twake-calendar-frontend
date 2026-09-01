@@ -1,6 +1,7 @@
 # Twake Calendar Frontend — end to end tests
 
-A regression net for the SPA: a real browser, driving the real production frontend image,
+A regression net for the SPA: a real browser, driving the real production frontend images —
+the private application and the public booking pages —
 against a real backend (esn-sabre + twake-calendar-side-service + MongoDB, RabbitMQ,
 OpenSearch, Redis, OpenLDAP) and a real OIDC provider (Dex). No mock, no stub.
 
@@ -12,7 +13,7 @@ Java + JUnit 5 + [Playwright](https://playwright.dev/java/) + Testcontainers.
 
 ```bash
 cd e2e
-./pre-build.sh      # builds the SPA bundle and every docker image
+./pre-build.sh      # builds both SPA bundles and every docker image
 mvn clean test
 ```
 
@@ -158,6 +159,7 @@ them, through Chromium's `--host-resolver-rules`:
 | The app talks to | Which really is |
 |---|---|
 | `http://localhost:8099` | the `frontend` container (nginx serving the production bundle) |
+| `http://public` | the `public` container, the unauthenticated application: booking pages |
 | `http://api` | the `proxy` container, in front of the side service, adding CORS |
 | `http://dav` | the same proxy, in front of esn-sabre |
 | `https://sso:5554` | Dex |
@@ -190,7 +192,7 @@ hand-over to the SSO, not the effective session drop.
 
 ```
 e2e/
-├── pre-build.sh                     builds the SPA bundle and all the docker images
+├── pre-build.sh                     builds both SPA bundles and all the docker images
 ├── docker/                          one Dockerfile per service, configuration baked in
 └── src/test/
     ├── java/com/linagora/calendar/e2e/
@@ -201,7 +203,8 @@ e2e/
     │   └── tests/                    the tests themselves
     └── resources/
         ├── docker-twake-calendar-e2e.yml
-        ├── frontend/env.js           runtime configuration of the SPA under test
+        ├── frontend/env.js           runtime configuration of the private SPA under test
+        ├── frontend/env.public.js    runtime configuration of the public SPA under test
         ├── oidc/                     Dex configuration (LDAP connector, no static account)
         ├── nginx/                    the CORS reverse proxy
         └── twake-calendar-side-service-conf/

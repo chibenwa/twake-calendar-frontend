@@ -50,6 +50,18 @@ public class E2ESessions {
         return page;
     }
 
+    /**
+     * A session that never logs in, for the pages a stranger reaches.
+     *
+     * <p>Its own context, so it carries none of the tokens of the test user: a public page that
+     * only works because the owner happened to be signed in would pass unnoticed otherwise.
+     */
+    public Page blankPage() {
+        BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
+        contexts.add(context);
+        return context.newPage();
+    }
+
     void closeAll() {
         contexts.forEach(BrowserContext::close);
         contexts.clear();

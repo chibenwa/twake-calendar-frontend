@@ -29,6 +29,8 @@ public class TwakeCalendarStack {
 
     public enum Service {
         FRONTEND("frontend", 80),
+        /** The unauthenticated SPA: booking links, invitation previews */
+        PUBLIC("public", 80),
         /** Reverse proxy exposing the backend as `api` and `dav` */
         PROXY("proxy", 80),
         SSO("sso", 5554),
@@ -90,6 +92,7 @@ public class TwakeCalendarStack {
             environment = new ComposeContainer(
                 new File(TwakeCalendarStack.class.getResource("/docker-twake-calendar-e2e.yml").toURI()))
                 .withExposedService(Service.FRONTEND.serviceName(), Service.FRONTEND.port())
+                .withExposedService(Service.PUBLIC.serviceName(), Service.PUBLIC.port())
                 .withExposedService(Service.PROXY.serviceName(), Service.PROXY.port())
                 .withExposedService(Service.SSO.serviceName(), Service.SSO.port())
                 .withExposedService(Service.SIDE_SERVICE.serviceName(), Service.SIDE_SERVICE.port())
@@ -154,6 +157,7 @@ public class TwakeCalendarStack {
     public String hostResolverRules() {
         return List.of(
                 rule("localhost:8099", Service.FRONTEND),
+                rule("public", Service.PUBLIC),
                 rule("api", Service.PROXY),
                 rule("dav", Service.PROXY),
                 rule("sso", Service.SSO),
