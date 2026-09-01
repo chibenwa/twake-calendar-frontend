@@ -43,6 +43,7 @@ public class E2ESessions {
     /** Same, when the test needs the raw page rather than the calendar page object. */
     public Page pageFor(E2EUser user) {
         BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
+        context.grantPermissions(java.util.List.of("clipboard-read", "clipboard-write"));
         contexts.add(context);
         Page page = context.newPage();
         LoginPage.loginAs(page, user);
