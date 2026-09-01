@@ -3,8 +3,10 @@ package com.linagora.calendar.e2e.pages;
 import java.util.List;
 
 import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Mouse;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.BoundingBox;
 import com.microsoft.playwright.options.WaitForSelectorState;
 
 /**
@@ -39,8 +41,21 @@ public class CalendarPage {
 
     /** Opens the creation modal, collapsed. Call {@link EventFormModal#expand()} for the rest. */
     public EventFormModal createEvent() {
-        page.getByLabel("Create a new event").click();
-        return new EventFormModal(page).waitUntilOpen();
+        Locator button = page.getByLabel("Create a new event");
+        EventFormModal form = new EventFormModal(page);
+        // Under a loaded backend the shell sometimes swallows this click: nothing opens, and a
+        // plain wait would spend its whole budget on a click that will never arrive. Click again
+        // instead -- but only while no dialog is up, so a slow form is never opened twice.
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            button.click();
+            if (form.openedWithin(10_000)) {
+                return form;
+            }
+            if (form.isOnScreen()) {
+                return form.waitUntilOpen();
+            }
+        }
+        throw new AssertionError("The event creation form never opened, after 3 clicks on Create");
     }
 
     /** Creates a plain event with only a title, and returns once it shows up in the grid. */
@@ -134,6 +149,20 @@ public class CalendarPage {
         }
         return java.time.YearMonth.parse(matcher.group(1) + " " + matcher.group(2),
             java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.ENGLISH));
+    }
+
+    /**
+     * Waits until the live update socket is open.
+     *
+     * <p>A test that writes on CalDAV and expects the grid to react has to do it after the
+     * socket is up: a change made in between is delivered to nobody, and since nothing reloads
+     * the page afterwards the event simply never shows. Waiting on the grid being loaded is not
+     * enough, the socket comes later, and the gap widens when several classes share the backend.
+     */
+    public CalendarPage waitUntilLiveConnected() {
+        page.waitForFunction("() => window.__ws && window.__ws.readyState === 1",
+            null, new Page.WaitForFunctionOptions().setTimeout(60_000));
+        return this;
     }
 
     public CalendarPage refresh() {
@@ -307,6 +336,108 @@ public class CalendarPage {
         page.mouse().move(x, to.y + to.height - 2, new com.microsoft.playwright.Mouse.MoveOptions().setSteps(12));
         page.mouse().up();
         return new EventFormModal(page).waitUntilOpen();
+    }
+
+    // ------------------------------------------------------------- drag and drop
+
+    /**
+     * Drags an event card so that its top edge lands on {@code slot} of {@code day}.
+     *
+     * <p>Expressed as a translation rather than as a destination point: FullCalendar moves the
+     * event by the mouse delta, so grabbing the middle of a card and releasing over the target
+     * slot would drop it half a card too low.
+     */
+    public CalendarPage dragEventToSlot(String title, java.time.LocalDate day, String slot) {
+        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
+        BoundingBox column = requireBox(
+            page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
+        BoundingBox target = requireBox(
+            page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first(), "the " + slot + " slot");
+        drag(card.x + card.width / 2, card.y + card.height / 2,
+            column.x + column.width / 2, card.y + card.height / 2 + (target.y - card.y));
+        return this;
+    }
+
+    /** Same day of the week grid, another column: only the date changes. */
+    public CalendarPage dragEventToDay(String title, java.time.LocalDate day) {
+        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
+        BoundingBox column = requireBox(
+            page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
+        drag(card.x + card.width / 2, card.y + card.height / 2,
+            column.x + column.width / 2, card.y + card.height / 2);
+        return this;
+    }
+
+    /** Drags an event of the month grid onto another day cell. */
+    public CalendarPage dragMonthEventToDay(String title, java.time.LocalDate day) {
+        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
+        BoundingBox cell = requireBox(
+            page.locator(".fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame").first(),
+            "the cell of " + day);
+        drag(card.x + card.width / 2, card.y + card.height / 2,
+            cell.x + cell.width / 2, cell.y + cell.height / 2);
+        return this;
+    }
+
+    /** Drags a timed event onto the all day row of a day. */
+    public CalendarPage dragEventToAllDayRow(String title, java.time.LocalDate day) {
+        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
+        BoundingBox cell = requireBox(
+            page.locator(".fc-daygrid-day[data-date='" + day + "']").first(), "the all day cell of " + day);
+        drag(card.x + card.width / 2, card.y + card.height / 2,
+            cell.x + cell.width / 2, cell.y + cell.height / 2);
+        return this;
+    }
+
+    /** Drags the bottom handle of an event so that its end lands on {@code slot}. */
+    public CalendarPage resizeEventEndTo(String title, String slot) {
+        return resize(title, "end", slot, box -> box.y + box.height);
+    }
+
+    /** Drags the top handle of an event so that its start lands on {@code slot}. */
+    public CalendarPage resizeEventStartTo(String title, String slot) {
+        return resize(title, "start", slot, box -> box.y);
+    }
+
+    private CalendarPage resize(String title, String edge, String slot,
+                                java.util.function.ToDoubleFunction<BoundingBox> movingEdge) {
+        Locator harness = eventCard(title).first();
+        harness.hover();
+        Locator handle = harness.locator("xpath=ancestor-or-self::*[contains(@class,'fc-event')][1]")
+            .locator(".fc-event-resizer-" + edge);
+        if (handle.count() == 0) {
+            throw new AssertionError("No " + edge + " resize handle on " + title
+                + ", the event is probably not editable");
+        }
+        BoundingBox card = requireBox(harness, "the card of " + title);
+        BoundingBox grip = requireBox(handle.first(), "the " + edge + " handle of " + title);
+        BoundingBox target = requireBox(
+            page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first(), "the " + slot + " slot");
+        double gripCentreY = grip.y + grip.height / 2;
+        drag(grip.x + grip.width / 2, gripCentreY,
+            grip.x + grip.width / 2, gripCentreY + (target.y - movingEdge.applyAsDouble(card)));
+        return this;
+    }
+
+    /**
+     * A press, a nudge, a move and a release. The nudge matters: FullCalendar ignores a press
+     * that does not travel a few pixels, and a single jump would be taken for a click.
+     */
+    private void drag(double fromX, double fromY, double toX, double toY) {
+        page.mouse().move(fromX, fromY);
+        page.mouse().down();
+        page.mouse().move(fromX, fromY + 6, new Mouse.MoveOptions().setSteps(4));
+        page.mouse().move(toX, toY, new Mouse.MoveOptions().setSteps(16));
+        page.mouse().up();
+    }
+
+    private BoundingBox requireBox(Locator locator, String what) {
+        locator.scrollIntoViewIfNeeded();
+        BoundingBox box = locator.boundingBox();
+        if (box == null) {
+            throw new AssertionError("Could not locate " + what + " on screen");
+        }
+        return box;
     }
 
     /** Clicks a day cell of the month grid, which starts an all day event on that day. */

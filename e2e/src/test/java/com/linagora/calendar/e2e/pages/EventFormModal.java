@@ -22,6 +22,20 @@ public class EventFormModal {
         return this;
     }
 
+    /** Whether the form showed up within the budget, without failing the test if it did not. */
+    boolean openedWithin(double timeoutMs) {
+        try {
+            titleInput().waitFor(new Locator.WaitForOptions().setTimeout(timeoutMs));
+            return true;
+        } catch (com.microsoft.playwright.TimeoutError e) {
+            return false;
+        }
+    }
+
+    boolean isOnScreen() {
+        return page.locator("[role=dialog]").count() > 0;
+    }
+
     private Locator dialog() {
         return page.locator("[role=dialog]").last();
     }
@@ -43,16 +57,36 @@ public class EventFormModal {
     public EventFormModal expand() {
         page.getByLabel("expand").click();
         page.getByLabel("Start Date").waitFor();
+        // The compact and the expanded layout declare the same test ids. While the swap is in
+        // flight both are in the page, and a fill started against the one on its way out lands
+        // wherever Playwright retries it. Wait for a single layout before touching a field.
+        page.waitForFunction(
+            "() => document.querySelectorAll('[data-testid=\\'start-time-input\\']').length === 1");
         return this;
     }
 
     public EventFormModal startTime(String hhmm) {
-        page.getByTestId("start-time-input").fill(hhmm);
-        return this;
+        return fillTime("start-time-input", hhmm);
     }
 
     public EventFormModal endTime(String hhmm) {
-        page.getByTestId("end-time-input").fill(hhmm);
+        return fillTime("end-time-input", hhmm);
+    }
+
+    /**
+     * Fills a time field and checks what landed in it. A fill that misses its target is not
+     * only wrong here, it corrupts whatever field did receive it, and the test then fails much
+     * later on an unrelated assertion. Better to see it at the source.
+     */
+    private EventFormModal fillTime(String testId, String hhmm) {
+        Locator field = page.getByTestId(testId);
+        field.fill(hhmm);
+        if (!hhmm.equals(field.inputValue())) {
+            field.fill(hhmm);
+        }
+        if (!hhmm.equals(field.inputValue())) {
+            throw new AssertionError(testId + " kept " + field.inputValue() + " instead of " + hhmm);
+        }
         return this;
     }
 

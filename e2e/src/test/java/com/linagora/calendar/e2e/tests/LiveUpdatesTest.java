@@ -39,7 +39,7 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("SYNC-04 An event renamed over CalDAV changes title live")
     void aRenamedEventChangesTitleLive(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String before = unique("Before");
         String uid = UUID.randomUUID().toString();
         probe.putEvent(user, uid, Ical.event(uid, before, LocalDate.now(), 9));
@@ -60,7 +60,7 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("SYNC-05 An event moved over CalDAV changes slot live")
     void aMovedEventChangesSlotLive(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = unique("Moving");
         String uid = UUID.randomUUID().toString();
         // the day after tomorrow, so both slots stay inside the week on screen whatever day it is
@@ -82,8 +82,8 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     void anInvitationShowsUpLive(Page page, E2EUser organizer, E2EUserFactory users,
                                  E2ESessions sessions) {
         E2EUser guest = users.newUser();
-        CalendarPage guestCalendar = sessions.openFor(guest);
-        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        CalendarPage guestCalendar = sessions.openFor(guest).waitUntilLiveConnected();
+        CalendarPage calendar = LoginPage.loginAs(page, organizer).waitUntilLiveConnected();
         String title = unique("Live invitation");
 
         calendar.createEvent().title(title).addGuest(guest.email()).save();
@@ -97,8 +97,8 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     void anAnswerReachesTheOrganizerLive(Page page, E2EUser organizer, E2EUserFactory users,
                                          E2ESessions sessions, CalendarProbe probe) {
         E2EUser guest = users.newUser();
-        CalendarPage guestCalendar = sessions.openFor(guest);
-        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        CalendarPage guestCalendar = sessions.openFor(guest).waitUntilLiveConnected();
+        CalendarPage calendar = LoginPage.loginAs(page, organizer).waitUntilLiveConnected();
         String title = unique("Awaiting an answer");
         calendar.createEvent().title(title).addGuest(guest.email()).save();
         awaitAttached(calendar.eventCard(title));
@@ -121,7 +121,7 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     @DisplayName("SYNC-10 A change made while offline is picked up once back online")
     void aChangeMadeOfflineIsPickedUpOnReconnection(Page page, E2EUser user, BrowserContext context,
                                                     CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = unique("Written in the dark");
 
         context.setOffline(true);
@@ -139,8 +139,8 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("SYNC-11 Two tabs of the same user stay in sync")
     void twoTabsStayInSync(Page page, E2EUser user, E2ESessions sessions) {
-        CalendarPage first = LoginPage.loginAs(page, user);
-        CalendarPage second = sessions.openFor(user);
+        CalendarPage first = LoginPage.loginAs(page, user).waitUntilLiveConnected();
+        CalendarPage second = sessions.openFor(user).waitUntilLiveConnected();
         String title = unique("Two tabs");
 
         first.createEvent(title);
@@ -152,7 +152,7 @@ class LiveUpdatesTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("SYNC-12 A manual refresh catches up on an event the websocket missed")
     void aManualRefreshCatchesUp(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = unique("Missed");
         // the socket never learns about it: the page is not listening while it is being blocked
         page.route("**/ws**", route -> route.abort());
