@@ -322,6 +322,111 @@ public class EventFormModal {
         throw new AssertionError("Could not add " + email + " as a guest");
     }
 
+    /**
+     * The "Show me as" choice of the event: whether it makes its owner busy for the others.
+     * That is what free/busy reads, so it is the lever behind most availability scenarios.
+     */
+    public EventFormModal showMeAs(String label) {
+        Locator combo = page.locator(
+            "xpath=//*[normalize-space(text())='Show me as']/following::*[@role='combobox'][1]");
+        combo.scrollIntoViewIfNeeded();
+        combo.click();
+        page.locator("li[role=option]")
+            .filter(new Locator.FilterOptions().setHasText(label)).first().click();
+        awaitNoOverlay();
+        return this;
+    }
+
+    public String showMeAs() {
+        return page.locator(
+            "xpath=//*[normalize-space(text())='Show me as']/following::*[@role='combobox'][1]")
+            .innerText().trim();
+    }
+
+    // -------------------------------------------------------------- availability
+
+    /**
+     * What the form says about somebody's availability, read from the icon on their chip.
+     *
+     * <p>Empty when the form shows nothing: the indicator is only rendered for busy and for the
+     * two flavours of unknown, never for a guest who is free, so an empty answer means "nothing
+     * stands in the way" rather than "not computed yet".
+     *
+     * <p>Availability is only ever computed for attendees already on the event, so this says
+     * nothing while an event is being created -- reopen it for edition first.
+     */
+    public String availabilityOf(String email) {
+        Locator icon = chipOf(email).locator("svg[aria-label]");
+        return icon.count() == 0 ? "" : String.valueOf(icon.first().getAttribute("aria-label"));
+    }
+
+    /**
+     * Waits for the availability of somebody to reach the given answer, and is the assertion
+     * itself: reading the value again afterwards is unreliable, since the form clears every
+     * status and recomputes it whenever the times change, so a second look lands mid cycle.
+     */
+    public EventFormModal awaitAvailabilityOf(String email, String expected, String because) {
+        try {
+            page.waitForFunction("""
+                args => {
+                  const chip = Array.from(document.querySelectorAll('[role=dialog] .MuiChip-root'))
+                    .find(candidate => (candidate.innerText || '').includes(args.email));
+                  if (!chip) return false;
+                  const icon = chip.querySelector('svg[aria-label]');
+                  return (icon ? icon.getAttribute('aria-label') : '') === args.expected;
+                }""",
+                java.util.Map.of("email", email, "expected", expected),
+                new Page.WaitForFunctionOptions().setTimeout(45_000));
+        } catch (com.microsoft.playwright.TimeoutError e) {
+            throw new AssertionError(because + ". The form says \"" + availabilityOf(email)
+                + "\" about " + email + " where \"" + expected + "\" was expected", e);
+        }
+        return this;
+    }
+
+    public Locator chipOf(String email) {
+        return dialog().locator(".MuiChip-root")
+            .filter(new Locator.FilterOptions().setHasText(email)).first();
+    }
+
+    public boolean hasGuest(String email) {
+        return dialog().locator(".MuiChip-root")
+            .filter(new Locator.FilterOptions().setHasText(email)).count() > 0;
+    }
+
+    // ----------------------------------------------------------------- resources
+
+    /** Books a resource on the event, from the dedicated field of the expanded form. */
+    public EventFormModal addResource(String name) {
+        Locator search = resourceSearch();
+        search.click();
+        search.fill("");
+        search.pressSequentially(name, new Locator.PressSequentiallyOptions().setDelay(30));
+        Locator wanted = page.locator("li[role=option]")
+            .filter(new Locator.FilterOptions().setHasText(name));
+        wanted.first().waitFor(new Locator.WaitForOptions().setTimeout(20_000));
+        wanted.first().click();
+        awaitNoOverlay();
+        return this;
+    }
+
+    /** What the resource field offers for a search, which is what says the filter works. */
+    public java.util.List<String> resourceOptions(String query) {
+        Locator search = resourceSearch();
+        search.click();
+        search.fill("");
+        search.pressSequentially(query, new Locator.PressSequentiallyOptions().setDelay(30));
+        page.waitForTimeout(2500);
+        java.util.List<String> options = page.locator("li[role=option]").allInnerTexts()
+            .stream().map(String::trim).toList();
+        page.keyboard().press("Escape");
+        return options;
+    }
+
+    public Locator resourceSearch() {
+        return dialog().getByPlaceholder("Search by name");
+    }
+
     /** Types a guest without validating, to cover what happens when the field loses focus. */
     public EventFormModal typeGuest(String email) {
         Locator guests = page.getByPlaceholder("Add guests");
