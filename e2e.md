@@ -388,6 +388,13 @@ Eight of the forty nine, each with what stands in the way.
 
 ### Notes
 
+`SEC-05`, logging out clearing the stored session, is a confirmed defect rather than a missing
+test: see `TICKET-01` in [ticket.md](ticket.md). It stays unticked until the fix lands.
+
+`SEC-03`, `SEC-10` and `SEC-11` are not written yet. The first needs a delegation to exist, the
+second the public application, and the third asserts a production CORS policy this stack
+deliberately does not have.
+
 `DEEP-02` and `DEEP-10` were reworded: neither `/events/<unknown>` nor `/error` shows a message,
 both quietly redirect to the calendar. The tests assert that a dead link never breaks the
 application, which is the part worth guarding.
@@ -542,35 +549,35 @@ application, which is the part worth guarding.
 
 ## VISIO — Video conferencing (12)
 
-- [ ] `VISIO-01` "Add Visio conference" generates a link on the event
-- [ ] `VISIO-02` The generated link derives from `VIDEO_CONFERENCE_BASE_URL`
-- [ ] `VISIO-03` The link is persisted in CalDAV
-- [ ] `VISIO-04` Copying the meeting link shows "Meeting link copied"
-- [ ] `VISIO-05` Removing the video conference deletes the link from the event
-- [ ] `VISIO-06` The preview offers "Join the video conference"
-- [ ] `VISIO-07` The Join button opens the link in a new tab
-- [ ] `VISIO-08` Guests can see the video conference link
-- [ ] `VISIO-09` The "Please do not edit this section" marker is present in the description
-- [ ] `VISIO-10` Editing the event does not break the existing link
-- [ ] `VISIO-11` A video conference on a recurring event is shared by every occurrence
-- [ ] `VISIO-12` The link stays valid after a time change
+- [x] `VISIO-01` "Add Visio conference" generates a link on the event
+- [x] `VISIO-02` The generated link derives from `VIDEO_CONFERENCE_BASE_URL`
+- [x] `VISIO-03` The link is persisted in CalDAV
+- [x] `VISIO-04` Copying the meeting link shows "Meeting link copied"
+- [x] `VISIO-05` Removing the video conference deletes the link from the event
+- [x] `VISIO-06` The preview offers "Join the video conference"
+- [x] `VISIO-07` The Join button opens the link in a new tab
+- [x] `VISIO-08` Guests can see the video conference link
+- [x] `VISIO-09` The "Please do not edit this section" marker is present in the description
+- [x] `VISIO-10` Editing the event does not break the existing link
+- [x] `VISIO-11` A video conference on a recurring event is shared by every occurrence
+- [x] `VISIO-12` The link stays valid after a time change
 
 ## ALARM — Notifications and reminders (14)
 
-- [ ] `ALARM-01` The default notification is "No notification"
-- [ ] `ALARM-02` Choosing a reminder 10 minutes before writes a `VALARM`
-- [ ] `ALARM-03` Every offered duration translates into the right `TRIGGER`
-- [ ] `ALARM-04` The email reminder writes `ACTION:EMAIL`
-- [ ] `ALARM-06` Removing the notification deletes the `VALARM`
-- [ ] `ALARM-07` The preview spells the reminder out
-- [ ] `ALARM-08` A reminder on an all day event is accepted
-- [ ] `ALARM-09` A reminder on a recurring event applies to every occurrence
-- [ ] `ALARM-10` Changing the reminder of a single occurrence leaves the others alone
-- [ ] `ALARM-11` The reminder is kept through a time change
-- [ ] `ALARM-12` An email reminder actually triggers an SMTP delivery
-- [ ] `ALARM-13` The reminder goes to the right recipient
-- [ ] `ALARM-15` Deleting the event cancels the scheduled reminder
-- [ ] `ALARM-16` A reminder in the past is not replayed
+- [x] `ALARM-01` The default notification is "No notification"
+- [x] `ALARM-02` Choosing a reminder 10 minutes before writes a `VALARM`
+- [x] `ALARM-03` Every offered duration translates into the right `TRIGGER`
+- [x] `ALARM-04` The email reminder writes `ACTION:EMAIL`
+- [x] `ALARM-06` Removing the notification deletes the `VALARM`
+- [x] `ALARM-07` The preview spells the reminder out
+- [x] `ALARM-08` A reminder on an all day event is accepted
+- [x] `ALARM-09` A reminder on a recurring event applies to every occurrence
+- [x] `ALARM-10` Changing the reminder of a single occurrence leaves the others alone
+- [x] `ALARM-11` The reminder is kept through a time change
+- [x] `ALARM-12` An email reminder actually triggers an SMTP delivery
+- [x] `ALARM-13` The reminder goes to the right recipient
+- [x] `ALARM-15` Deleting the event cancels the scheduled reminder
+- [x] `ALARM-16` A reminder in the past is not replayed
 
 ## FB — Free / busy (14)
 
@@ -591,26 +598,26 @@ application, which is the part worth guarding.
 
 ## TZ — Timezones (20)
 
-- [ ] `TZ-01` The default timezone of the form is the one from the settings
-- [ ] `TZ-02` Changing the timezone of an event shifts its display
-- [ ] `TZ-03` The chosen timezone is written in `DTSTART;TZID`
-- [ ] `TZ-04` The timezone search filters the list
-- [ ] `TZ-05` Clearing the timezone restores the default one
-- [ ] `TZ-06` The grid axis shows the current UTC offset
-- [ ] `TZ-07` An event created in Paris displays correctly for a user in Tokyo
-- [ ] `TZ-08` An event created in Tokyo displays correctly for a user in Paris
-- [ ] `TZ-09` An all day event does not move from one timezone to another
-- [ ] `TZ-10` The spring DST change does not shift a daily recurring event
-- [ ] `TZ-11` The autumn DST change does not shift a weekly recurring event
-- [ ] `TZ-12` An event placed in the skipped spring hour is handled
-- [ ] `TZ-13` An event placed in the doubled autumn hour is handled
-- [ ] `TZ-14` Changing the timezone in the settings redraws the whole grid
-- [ ] `TZ-15` Automatic detection picks up the browser timezone
-- [ ] `TZ-16` The banner offers to switch when the detected timezone differs from the configured one
-- [ ] `TZ-17` Declining the switch keeps the configured timezone
-- [ ] `TZ-18` `ASK_FOR_TZ_UPDATE=false` hides the banner
-- [ ] `TZ-19` An invitation received from another timezone displays at local time
-- [ ] `TZ-20` A recurrence spanning three months crosses the DST change correctly
+- [x] `TZ-01` The default timezone of the form is the one from the settings
+- [x] `TZ-02` Changing the timezone of an event shifts its display
+- [x] `TZ-03` The chosen timezone is written in `DTSTART;TZID`
+- [x] `TZ-04` The timezone search filters the list
+- [x] `TZ-05` Clearing the timezone restores the default one
+- [x] `TZ-06` The grid axis shows the current UTC offset
+- [x] `TZ-07` An event created in Paris displays correctly for a user in Tokyo
+- [x] `TZ-08` An event created in Tokyo displays correctly for a user in Paris
+- [x] `TZ-09` An all day event does not move from one timezone to another
+- [x] `TZ-10` The spring DST change does not shift a daily recurring event
+- [x] `TZ-11` The autumn DST change does not shift a weekly recurring event
+- [x] `TZ-12` An event placed in the skipped spring hour is handled
+- [x] `TZ-13` An event placed in the doubled autumn hour is handled
+- [x] `TZ-14` Changing the timezone in the settings redraws the whole grid
+- [x] `TZ-15` Automatic detection picks up the browser timezone
+- [x] `TZ-16` The banner offers to switch when the detected timezone differs from the configured one
+- [x] `TZ-17` Declining the switch keeps the configured timezone
+- [x] `TZ-18` `ASK_FOR_TZ_UPDATE=false` hides the banner
+- [x] `TZ-19` An invitation received from another timezone displays at local time
+- [x] `TZ-20` A recurrence spanning three months crosses the DST change correctly
 
 ## DND — Drag, drop and resize (16)
 
@@ -633,16 +640,16 @@ application, which is the part worth guarding.
 
 ## DEEP — Deep links (10)
 
-- [ ] `DEEP-01` `/events/:uid` opens the event preview after login
-- [ ] `DEEP-02` `/events/:uid` on an unknown UID shows the dedicated error
-- [ ] `DEEP-03` `/events/:uid` goes through the SSO flow when no session exists
-- [ ] `DEEP-05` `/newEvent?attendee=a@x.com` opens the form with the guest prefilled
-- [ ] `DEEP-06` Several repeated `attendee` parameters are all prefilled
-- [ ] `DEEP-07` Comma separated `attendee` values are all prefilled
-- [ ] `DEEP-08` An invalid `attendee` is ignored with a message
-- [ ] `DEEP-09` The Create button tooltip names the prefilled guest
-- [ ] `DEEP-10` `/error` shows the generic error page
-- [ ] `DEEP-12` `/events/:uid` on a recurring occurrence opens the right occurrence
+- [x] `DEEP-01` `/events/:uid` opens the event preview after login
+- [x] `DEEP-02` `/events/:uid` on an unknown UID shows the dedicated error
+- [x] `DEEP-03` `/events/:uid` goes through the SSO flow when no session exists
+- [x] `DEEP-05` `/newEvent?attendee=a@x.com` opens the form with the guest prefilled
+- [x] `DEEP-06` Several repeated `attendee` parameters are all prefilled
+- [x] `DEEP-07` Comma separated `attendee` values are all prefilled
+- [x] `DEEP-08` An invalid `attendee` is ignored with a message
+- [x] `DEEP-09` The Create button tooltip names the prefilled guest
+- [x] `DEEP-10` `/error` shows the generic error page
+- [x] `DEEP-12` `/events/:uid` on a recurring occurrence opens the right occurrence
 
 ## PRINT — Printing (12)
 
@@ -661,20 +668,20 @@ application, which is the part worth guarding.
 
 ## I18N — Internationalisation (14)
 
-- [ ] `I18N-01` Russian relabels the menubar and the sidebar
-- [ ] `I18N-02` Vietnamese relabels the menubar and the sidebar
-- [ ] `I18N-03` The month names of the grid follow the chosen language
-- [ ] `I18N-04` The day names of the grid follow the chosen language
-- [ ] `I18N-05` The first day of the week follows the locale
-- [ ] `I18N-06` The 24 hour format is honoured when configured
-- [ ] `I18N-07` The long date format of the form follows the locale
-- [ ] `I18N-08` Validation messages are translated
-- [ ] `I18N-09` Network error messages are translated
-- [ ] `I18N-10` The recurrence summary of the preview is translated
-- [ ] `I18N-11` The default calendar is named in the user's language
-- [ ] `I18N-12` `HIDE_LANGUAGE_SELECTOR` hides the language picker
-- [ ] `I18N-13` `LANG` sets the initial language before any user choice
-- [ ] `I18N-14` No raw translation key ever shows up in the interface
+- [x] `I18N-01` Russian relabels the menubar and the sidebar
+- [x] `I18N-02` Vietnamese relabels the menubar and the sidebar
+- [x] `I18N-03` The month names of the grid follow the chosen language
+- [x] `I18N-04` The day names of the grid follow the chosen language
+- [x] `I18N-05` The first day of the week follows the locale
+- [x] `I18N-06` The 24 hour format is honoured when configured
+- [x] `I18N-07` The long date format of the form follows the locale
+- [x] `I18N-08` Validation messages are translated
+- [x] `I18N-09` Network error messages are translated
+- [x] `I18N-10` The recurrence summary of the preview is translated
+- [x] `I18N-11` The default calendar is named in the user's language
+- [x] `I18N-12` `HIDE_LANGUAGE_SELECTOR` hides the language picker
+- [x] `I18N-13` `LANG` sets the initial language before any user choice
+- [x] `I18N-14` No raw translation key ever shows up in the interface
 
 ## A11Y — Accessibility and keyboard (14)
 
@@ -750,18 +757,18 @@ application, which is the part worth guarding.
 
 ## SEC — Security and privacy (12)
 
-- [ ] `SEC-01` A user cannot read another's calendar without a share
-- [ ] `SEC-02` A CalDAV request carrying another user's token is refused
+- [x] `SEC-01` A user cannot read another's calendar without a share
+- [x] `SEC-02` A CalDAV request carrying another user's token is refused
 - [ ] `SEC-03` The details of a private event never reach an unauthorised delegate
-- [ ] `SEC-04` The access token is never written into a URL
+- [x] `SEC-04` The access token is never written into a URL
 - [ ] `SEC-05` The token is wiped from storage on logout
-- [ ] `SEC-06` A description containing a script is never executed
-- [ ] `SEC-07` A title containing a script is never executed
-- [ ] `SEC-08` An external link in a description opens with `rel=noopener`
-- [ ] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
+- [x] `SEC-06` A description containing a script is never executed
+- [x] `SEC-07` A title containing a script is never executed
+- [x] `SEC-08` An external link in a description opens with `rel=noopener`
+- [x] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
 - [ ] `SEC-10` A public token only grants access to the event it designates
 - [ ] `SEC-11` The CORS headers do not allow an arbitrary origin in production
-- [ ] `SEC-12` A websocket ticket cannot be replayed by another session
+- [x] `SEC-12` A websocket ticket cannot be replayed by another session
 
 ---
 
@@ -771,8 +778,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 0 | 314 |
-| **Total** | **229** | **562** |
+| Bonus | 78 | 314 |
+| **Total** | **307** | **558** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
