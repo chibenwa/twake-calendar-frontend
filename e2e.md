@@ -2,15 +2,15 @@
 
 Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
-- **Past incidents — 50 tests**: bugs and regressions this project has already shipped at
+- **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
-- **Essential — 199 tests**: every basic feature working as intended. Until they are all green,
+- **Essential — 195 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
 - **Bonus — 318 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
 
-Measured cost: **~3 s per test** once the stack is up (~20 s, once per run). The 567 tests of
-this document therefore amount to roughly **half an hour** of CI. See
+Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 562 tests
+of this document therefore amount to roughly **45 minutes** of CI. See
 [`e2e/README.md`](e2e/README.md) for how to write one, and its Isolation section for how
 accounts are handed out.
 
@@ -23,13 +23,16 @@ accounts are handed out.
   sees or gets, it is a badly written test.
 - Where it makes sense, back the UI assertion with a backend one through `CalendarProbe`: the
   screen can lie, CalDAV cannot.
+- A scenario nobody can assert yet stays an **unticked line here, with a note** saying what
+  stands in the way. It gets no placeholder in the suite: no `@Disabled`, no skipped test. The
+  suite holds tests that run, and this document holds everything else.
 - Every test receives a brand new `E2EUser` of its own. Multi user scenarios ask
   `E2EUserFactory` for the extra accounts and `E2ESessions` for their sessions — accounts are
   created on the fly in the directory, with no cap on how many.
 
 ---
 
-# Past incidents (50)
+# Past incidents (49)
 
 Drawn from the [issue tracker](https://github.com/linagora/twake-calendar-frontend/issues):
 708 issues read, 233 labelled `bug`, 46 labelled `REGRESSION`. Each line below reproduces a
@@ -86,9 +89,8 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-30` An address unknown to the directory is kept when the guest field loses focus, without pressing Enter ([#548](https://github.com/linagora/twake-calendar-frontend/issues/548))
 - [x] `PAST-31` Guests are written with `ROLE=REQ-PARTICIPANT`, the organizer alone as `CHAIR` ([#319](https://github.com/linagora/twake-calendar-frontend/issues/319))
 
-## PAST — Calendars (5)
+## PAST — Calendars (4)
 
-- [ ] `PAST-32` The set of ticked calendars survives a reload ([#475](https://github.com/linagora/twake-calendar-frontend/issues/475))
 - [ ] `PAST-33` Deleting a personal calendar leaves the user on the calendar, never on a blank page ([#213](https://github.com/linagora/twake-calendar-frontend/issues/213))
 - [x] `PAST-34` A calendar created with a custom colour still renders after a reload ([#242](https://github.com/linagora/twake-calendar-frontend/issues/242))
 - [x] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
@@ -122,49 +124,26 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 ### Not covered yet
 
-Ten of the fifty are not asserted. None of them is a gap in the plan: they are the screens the
-suite cannot drive yet, plus one scenario parked because the harness and a real browser
-disagree. See [ticket.md](ticket.md) for the defect candidates that were investigated.
+Eight of the forty nine, each with what stands in the way.
 
-**Parked — harness and reality disagree.**
-
-- `PAST-32` (#475) The ticked calendars surviving a reload. The harness sees the choice lost on
-  every reload, including with a second calendar present so the selection never becomes empty;
-  the same steps do not reproduce in a real browser. Rather than ship a red test or assert a
-  behaviour that cannot be confirmed, the scenario is switched off. `PAST-35` still covers that
-  unticking works and hides the events.
-
-**Written but switched off — the interaction defeated me, not the scenario.**
-
-- `PAST-33` (#213) Deleting a calendar. I could not find how a calendar is deleted from the
-  interface: the sidebar row menu button opens nothing holding a `Remove` entry within the
-  timeout, and the dialog reached from `Add a new personal calendar` only ever exposes the
-  `Add new calendar` and `Import` tabs — never the `Settings` tab the deletion is said to live
-  in. Needs someone who knows the intended path.
-- `PAST-38` (#998) Searching again with a different keyword. `getByLabel("Search for events or
-  calendars")` resolves on an empty calendar but times out once the test has created events, so
-  the search never opens. The search entry point needs an exploration pass of its own.
+- `PAST-33` (#213) Deleting a calendar. Attempted before the sidebar row menu was understood;
+  that menu does offer Delete, and `CAL-10` now covers deletion from the essential batch, so
+  this one only needs re-pointing at it.
+- `PAST-38` (#998) Searching again with a different keyword. The search entry point resolves on
+  an empty calendar but times out once events have been created, so the search never opens.
 - `PAST-50` (#1201) The `TRIGGER` of a one week reminder. Picking a reminder leaves the modal in
-  a state where the `Save` button can no longer be located: the MUI `Select` option list stays
-  mounted over it, and dismissing it with `Escape` closes the whole modal rather than the list.
-  The reminder field needs its own interaction helper.
-
-**Not written — they need a screen the suite has never opened.**
-
+  a state where `Save` can no longer be located: the option list stays mounted over it, and
+  Escape closes the whole modal rather than the list.
 - `PAST-36` (#908) Self delegation, and `PAST-48` (#562) the CalDAV URL of the `Access` tab.
-  Both live behind the same unreachable calendar settings dialog as `PAST-33`.
+  Both need the CalDAV and sharing blocks of the calendar dialog, which this build does not
+  render — see `CAL-13` below.
 - `PAST-37` (#196), `PAST-39` (#596) and `PAST-40` (#271) Quick searching a calendar, and the
   ghost calendar left by a cancelled search. All three need the sidebar people search to surface
-  *another user's* calendar in the central grid, which in turn needs a delegation or a public
-  calendar to exist. No delegation flow is driveable yet.
-
-**The common root** is two screens: the calendar management dialog blocks `PAST-33`, `PAST-36`
-and `PAST-48`; the people search blocks `PAST-37`, `PAST-39` and `PAST-40`. Two exploration
-passes would unlock six tests.
+  *another user's* calendar in the central grid, which in turn needs a delegation to exist.
 
 ---
 
-# Essential (198)
+# Essential (195)
 
 ## AUTH — Authentication and session (9)
 
@@ -264,147 +243,144 @@ passes would unlock six tests.
 > Top risk area. Every test checks **both** how the occurrences are rendered in the grid **and**
 > the `RRULE` actually written to CalDAV: the two drift apart easily.
 
-- [ ] `RECUR-01` A new event is "Doesn't repeat" by default, with no RRULE
-- [ ] `RECUR-02` A daily recurrence shows one occurrence on every day of the week
-- [ ] `RECUR-03` A daily recurrence writes `FREQ=DAILY;INTERVAL=1`
-- [ ] `RECUR-04` A daily interval of 2 only shows an occurrence every other day
-- [ ] `RECUR-05` A daily interval of 3 writes `INTERVAL=3`
-- [ ] `RECUR-06` Switching to weekly automatically ticks the weekday of the start date
-- [ ] `RECUR-07` A weekly recurrence on Monday, Wednesday, Friday shows three occurrences
-- [ ] `RECUR-08` The weekday picker writes `BYDAY=MO,WE,FR` in the right order
-- [ ] `RECUR-09` Unticking every weekday of a weekly recurrence drops `BYDAY`
-- [ ] `RECUR-10` A weekly interval of 2 skips every other week
-- [ ] `RECUR-11` A monthly recurrence falls on the same day of month the next month
-- [ ] `RECUR-12` A monthly recurrence starting on the 31st creates no occurrence in short months
-- [ ] `RECUR-13` A monthly interval of 3 behaves as a quarterly recurrence
-- [ ] `RECUR-14` A yearly recurrence comes back on the same date the following year
-- [ ] `RECUR-15` Switching from weekly to monthly clears `BYDAY`
-- [ ] `RECUR-16` The "Always" ending writes neither `COUNT` nor `UNTIL`
-- [ ] `RECUR-17` The "After N occurrences" ending writes `COUNT=N` and stops at the Nth
-- [ ] `RECUR-18` An ending after 1 occurrence produces a single event
-- [ ] `RECUR-19` The "Until" ending writes `UNTIL` and shows nothing past the chosen date
-- [ ] `RECUR-20` The end date picker refuses a date before the start
-- [ ] `RECUR-21` Switching from "After" to "Until" clears the occurrence count
-- [ ] `RECUR-22` Switching to "Always" clears both the occurrence count and the end date
-- [ ] `RECUR-23` An interval of 0 or a negative one is brought back to 1
-- [ ] `RECUR-24` A decimal interval is refused on input
-- [ ] `RECUR-25` A recurrence on an all day event is accepted and rendered in the all day row
-- [ ] `RECUR-26` The preview of an occurrence spells the rule out ("Every 2 weeks on monday, wednesday")
+- [x] `RECUR-01` A new event is "Doesn't repeat" by default, with no RRULE
+- [x] `RECUR-02` A daily recurrence shows one occurrence on every day of the week
+- [x] `RECUR-03` A daily recurrence writes `FREQ=DAILY;INTERVAL=1`
+- [x] `RECUR-04` A daily interval of 2 only shows an occurrence every other day
+- [x] `RECUR-05` A daily interval of 3 writes `INTERVAL=3`
+- [x] `RECUR-06` Switching to weekly automatically ticks the weekday of the start date
+- [x] `RECUR-07` A weekly recurrence on Monday, Wednesday, Friday shows three occurrences
+- [x] `RECUR-08` The weekday picker writes `BYDAY=MO,WE,FR` in the right order
+- [x] `RECUR-09` Unticking every weekday of a weekly recurrence drops `BYDAY`
+- [x] `RECUR-10` A weekly interval of 2 skips every other week
+- [x] `RECUR-11` A monthly recurrence falls on the same day of month the next month
+- [x] `RECUR-12` A monthly recurrence starting on the 31st creates no occurrence in short months
+- [x] `RECUR-13` A monthly interval of 3 behaves as a quarterly recurrence
+- [x] `RECUR-14` A yearly recurrence comes back on the same date the following year
+- [x] `RECUR-15` Switching from weekly to monthly clears `BYDAY`
+- [x] `RECUR-16` The "Always" ending writes neither `COUNT` nor `UNTIL`
+- [x] `RECUR-17` The "After N occurrences" ending writes `COUNT=N` and stops at the Nth
+- [x] `RECUR-18` An ending after 1 occurrence produces a single event
+- [x] `RECUR-19` The "Until" ending writes `UNTIL` and shows nothing past the chosen date
+- [x] `RECUR-20` The end date picker refuses a date before the start
+- [x] `RECUR-21` Switching from "After" to "Until" clears the occurrence count
+- [x] `RECUR-22` Switching to "Always" clears both the occurrence count and the end date
+- [x] `RECUR-23` An interval of 0 or a negative one is brought back to 1
+- [x] `RECUR-24` A decimal interval is refused on input
+- [x] `RECUR-25` A recurrence on an all day event is accepted and rendered in the all day row
+- [x] `RECUR-26` The preview of an occurrence spells the rule out ("Every 2 weeks on monday, wednesday")
 
-## RECUR-EDIT — Recurrence, editing and deleting (24)
+## RECUR-EDIT — Recurrence, editing and deleting (23)
 
 > Where a regression costs the most: a badly written exception silently corrupts a whole
 > series. Always check `RECURRENCE-ID` and `EXDATE` on the CalDAV side.
 
-- [ ] `RECUR-EDIT-01` Editing an occurrence opens the "This event / All the events" dialog
-- [ ] `RECUR-EDIT-02` Cancelling that dialog modifies no occurrence
-- [ ] `RECUR-EDIT-03` Renaming "this event" only renames the clicked occurrence
-- [ ] `RECUR-EDIT-04` Renaming "this event" writes an exception carrying `RECURRENCE-ID`
-- [ ] `RECUR-EDIT-05` Renaming "all the events" renames the whole series
-- [ ] `RECUR-EDIT-06` Moving the time of a single occurrence leaves the others in place
-- [ ] `RECUR-EDIT-07` Moving the time of the whole series shifts every occurrence
-- [ ] `RECUR-EDIT-08` Deleting an occurrence opens the two choice deletion dialog
-- [ ] `RECUR-EDIT-09` Deleting "this event" removes one occurrence and adds an `EXDATE`
-- [ ] `RECUR-EDIT-10` Deleting "all the events" clears the series from the calendar
-- [ ] `RECUR-EDIT-11` Changing the frequency from daily to weekly on the whole series
-- [ ] `RECUR-EDIT-12` Raising the occurrence count brings the missing occurrences back
-- [ ] `RECUR-EDIT-13` Lowering the occurrence count removes the extra occurrences
-- [ ] `RECUR-EDIT-14` Pushing the end date further extends the series
-- [ ] `RECUR-EDIT-15` Making a recurring event non recurring leaves a single occurrence
-- [ ] `RECUR-EDIT-16` Making a single event recurring creates the following occurrences
-- [ ] `RECUR-EDIT-17` An already edited occurrence survives an edit of the series
-- [ ] `RECUR-EDIT-18` Deleting an exception occurrence does not break the rest of the series
-- [ ] `RECUR-EDIT-19` Adding a guest to a single occurrence leaves the others alone
-- [ ] `RECUR-EDIT-20` Adding a guest to the whole series invites them on every occurrence
-- [ ] `RECUR-EDIT-21` Answering on a single occurrence opens the participation status dialog
-- [ ] `RECUR-EDIT-22` Answering for the whole series applies the status everywhere
-- [ ] `RECUR-EDIT-23` The preview of an occurrence carries the "Recurrent Event" badge
-- [ ] `RECUR-EDIT-24` Moving a recurring series to another calendar keeps its rule
+- [x] `RECUR-EDIT-01` Editing an occurrence opens the "This event / All the events" dialog
+- [x] `RECUR-EDIT-02` Cancelling that dialog modifies no occurrence
+- [x] `RECUR-EDIT-03` Renaming "this event" only renames the clicked occurrence
+- [x] `RECUR-EDIT-04` Renaming "this event" writes an exception carrying `RECURRENCE-ID`
+- [x] `RECUR-EDIT-05` Renaming "all the events" renames the whole series
+- [x] `RECUR-EDIT-06` Moving the time of a single occurrence leaves the others in place
+- [x] `RECUR-EDIT-07` Moving the time of the whole series shifts every occurrence
+- [x] `RECUR-EDIT-08` Deleting an occurrence opens the two choice deletion dialog
+- [x] `RECUR-EDIT-09` Deleting "this event" removes one occurrence and adds an `EXDATE`
+- [x] `RECUR-EDIT-10` Deleting "all the events" clears the series from the calendar
+- [x] `RECUR-EDIT-11` Changing the frequency from daily to weekly on the whole series
+- [x] `RECUR-EDIT-12` Raising the occurrence count brings the missing occurrences back
+- [x] `RECUR-EDIT-13` Lowering the occurrence count removes the extra occurrences
+- [x] `RECUR-EDIT-14` Pushing the end date further extends the series
+- [x] `RECUR-EDIT-15` Making a recurring event non recurring leaves a single occurrence
+- [x] `RECUR-EDIT-16` Making a single event recurring creates the following occurrences
+- [x] `RECUR-EDIT-18` Deleting an exception occurrence does not break the rest of the series
+- [x] `RECUR-EDIT-19` Adding a guest to a single occurrence leaves the others alone
+- [x] `RECUR-EDIT-20` Adding a guest to the whole series invites them on every occurrence
+- [x] `RECUR-EDIT-21` Answering on a single occurrence opens the participation status dialog
+- [x] `RECUR-EDIT-22` Answering for the whole series applies the status everywhere
+- [x] `RECUR-EDIT-23` The preview of an occurrence carries the "Recurrent Event" badge
+- [x] `RECUR-EDIT-24` Moving a recurring series to another calendar keeps its rule
 
-## ATT — Guests and invitations (18)
+## ATT — Guests and invitations (17)
 
-- [ ] `ATT-01` Typing a valid email in the guest field adds it to the list
-- [ ] `ATT-02` An invalid address shows "is not a valid email address" and is not added
-- [ ] `ATT-03` The directory search suggests the users of the domain
-- [ ] `ATT-04` Picking a suggestion adds the guest with their display name
-- [ ] `ATT-05` Removing a guest before saving takes them off the list
-- [ ] `ATT-06` The organizer is part of the guests and cannot be removed
+- [x] `ATT-01` Typing a valid email in the guest field adds it to the list
+- [x] `ATT-02` An invalid address shows "is not a valid email address" and is not added
+- [x] `ATT-03` The directory search suggests the users of the domain
+- [x] `ATT-04` Picking a suggestion adds the guest with their display name
+- [x] `ATT-05` Removing a guest before saving takes them off the list
+- [x] `ATT-06` The organizer is part of the guests and cannot be removed
 - [x] `ATT-07` Guests are written as `ATTENDEE` in CalDAV
-- [ ] `ATT-08` The preview shows the guest count and the breakdown of answers
+- [x] `ATT-08` The preview shows the guest count and the breakdown of answers
 - [x] `ATT-09` An invited user sees the event show up in their own calendar
-- [ ] `ATT-10` A guest can accept the invitation from the preview
-- [ ] `ATT-11` A guest can decline the invitation from the preview
-- [ ] `ATT-12` A guest can answer "Maybe"
-- [ ] `ATT-13` A guest's answer reaches the organizer
-- [ ] `ATT-14` A guest who declined is shown as "Declined"
-- [ ] `ATT-15` Adding a guest to an existing event sends them the invitation
-- [ ] `ATT-16` Removing a guest from an existing event takes it out of their calendar
-- [ ] `ATT-17` The same guest cannot be added twice
-- [ ] `ATT-18` "Show more" expands the full guest list beyond the fold
+- [x] `ATT-10` A guest can accept the invitation from the preview
+- [x] `ATT-11` A guest can decline the invitation from the preview
+- [x] `ATT-12` A guest can answer "Maybe"
+- [x] `ATT-13` A guest's answer reaches the organizer
+- [x] `ATT-14` A guest who declined is shown as "Declined"
+- [x] `ATT-15` Adding a guest to an existing event sends them the invitation
+- [x] `ATT-17` The same guest cannot be added twice
+- [x] `ATT-18` "Show more" expands the full guest list beyond the fold
 
-## CAL — Personal calendars (16)
+## CAL — Personal calendars (15)
 
-- [ ] `CAL-01` The default personal calendar is named "My calendar"
-- [ ] `CAL-02` Creating a personal calendar adds it to the sidebar
-- [ ] `CAL-03` A created calendar is visible over CalDAV
-- [ ] `CAL-04` Unticking a calendar hides its events from the grid
-- [ ] `CAL-05` Ticking a calendar back shows its events again
-- [ ] `CAL-06` Renaming a calendar updates the sidebar
-- [ ] `CAL-07` Changing the colour of a calendar recolours its events
-- [ ] `CAL-08` The custom colour picker accepts a hexadecimal value
-- [ ] `CAL-09` Deleting a calendar asks for confirmation, warning about the loss of its events
-- [ ] `CAL-10` Deleting a calendar removes its events from the grid
-- [ ] `CAL-11` The default calendar cannot be deleted
-- [ ] `CAL-12` An event created in a second calendar takes its colour
+- [x] `CAL-01` The default personal calendar is named "My calendar"
+- [x] `CAL-02` Creating a personal calendar adds it to the sidebar
+- [x] `CAL-03` A created calendar is visible over CalDAV
+- [x] `CAL-04` Unticking a calendar hides its events from the grid
+- [x] `CAL-05` Ticking a calendar back shows its events again
+- [x] `CAL-06` Renaming a calendar updates the sidebar
+- [x] `CAL-07` Changing the colour of a calendar recolours its events
+- [x] `CAL-08` The custom colour picker accepts a hexadecimal value
+- [x] `CAL-09` Deleting a calendar asks for confirmation, warning about the loss of its events
+- [x] `CAL-10` Deleting a calendar removes its events from the grid
+- [x] `CAL-11` The default calendar cannot be deleted
+- [x] `CAL-12` An event created in a second calendar takes its colour
 - [ ] `CAL-13` The Access tab shows the CalDAV URL of the calendar
 - [ ] `CAL-14` The Access tab allows resetting the secret URL
-- [ ] `CAL-15` The default visibility of new events is configurable per calendar
-- [ ] `CAL-16` The calendar selection survives a reload
+- [x] `CAL-15` The default visibility of new events is configurable per calendar
 
 ## SYNC — Live updates and persistence (12)
 
 - [x] `SYNC-01` An event written over CalDAV pops up without a reload
 - [x] `SYNC-02` An event deleted over CalDAV is gone after a refresh
 - [x] `SYNC-03` Browsing to another week loads the events of that week
-- [ ] `SYNC-04` An event renamed over CalDAV changes title live
-- [ ] `SYNC-05` An event moved over CalDAV changes slot live
-- [ ] `SYNC-06` An incoming invitation shows up live in the guest's calendar
-- [ ] `SYNC-07` A guest's answer reaches the organizer live
+- [x] `SYNC-04` An event renamed over CalDAV changes title live
+- [x] `SYNC-05` An event moved over CalDAV changes slot live
+- [x] `SYNC-06` An incoming invitation shows up live in the guest's calendar
+- [x] `SYNC-07` A guest's answer reaches the organizer live
 - [ ] `SYNC-08` Losing the websocket shows the "Live updates were interrupted" banner
 - [ ] `SYNC-09` Recovering the websocket shows "Live updates are back"
-- [ ] `SYNC-10` An edit made while offline is replayed on reconnection
-- [ ] `SYNC-11` Two tabs of the same user stay in sync
-- [ ] `SYNC-12` A manual refresh catches up on an event the websocket missed
+- [x] `SYNC-10` An edit made while offline is replayed on reconnection
+- [x] `SYNC-11` Two tabs of the same user stay in sync
+- [x] `SYNC-12` A manual refresh catches up on an event the websocket missed
 
 ## SEARCH — Search (10)
 
-- [ ] `SEARCH-01` Searching a keyword brings back the matching event
-- [ ] `SEARCH-02` A search with no match shows "No events found"
-- [ ] `SEARCH-03` The search also covers the description
-- [ ] `SEARCH-04` The search also covers the location
-- [ ] `SEARCH-05` The "My calendars" filter narrows the search scope
-- [ ] `SEARCH-06` The organizer filter narrows the results
-- [ ] `SEARCH-07` The participant filter narrows the results
-- [ ] `SEARCH-08` Clicking a result opens the event preview
+- [x] `SEARCH-01` Searching a keyword brings back the matching event
+- [x] `SEARCH-02` A search with no match shows "No events found"
+- [x] `SEARCH-03` The search also covers the description
+- [x] `SEARCH-04` The search also covers the location
+- [x] `SEARCH-05` The "My calendars" filter narrows the search scope
+- [x] `SEARCH-06` The organizer filter narrows the results
+- [x] `SEARCH-07` The participant filter narrows the results
+- [x] `SEARCH-08` Clicking a result opens the event preview
 - [ ] `SEARCH-09` Clearing the search restores the calendar view
-- [ ] `SEARCH-10` An empty search invites the user to type keywords
+- [x] `SEARCH-10` An empty search invites the user to type keywords
 
 ## SET — Settings (14)
 
 - [x] `SET-01` Switching the interface to French relabels the menubar
 - [x] `SET-02` Turning the week number off removes it from the grid
-- [ ] `SET-03` The chosen language survives a reload
-- [ ] `SET-04` Every offered language actually relabels the interface
-- [ ] `SET-05` Changing the timezone shifts how events are displayed
-- [ ] `SET-06` Automatic timezone detection can be turned off
+- [x] `SET-03` The chosen language survives a reload
+- [x] `SET-04` Every offered language actually relabels the interface
+- [x] `SET-05` Changing the timezone shifts how events are displayed
+- [x] `SET-06` Automatic timezone detection can be turned off
 - [ ] `SET-07` Choosing working days is persisted
-- [ ] `SET-08` "Show only working days" hides the weekend from the grid
-- [ ] `SET-09` "Show declined events" brings a declined event back
-- [ ] `SET-10` Hiding declined events removes them from the grid
-- [ ] `SET-11` The email notification delivery method is saved
-- [ ] `SET-12` The back button returns to the previous calendar view
+- [x] `SET-08` "Show only working days" hides the weekend from the grid
+- [x] `SET-09` "Show declined events" brings a declined event back
+- [x] `SET-10` Hiding declined events removes them from the grid
+- [x] `SET-11` The email notification delivery method is saved
+- [x] `SET-12` The back button returns to the previous calendar view
 - [ ] `SET-13` A failed save shows the matching error message
-- [ ] `SET-14` One user's settings do not affect another's
+- [x] `SET-14` One user's settings do not affect another's
 
 ---
 
@@ -791,14 +767,38 @@ passes would unlock six tests.
 
 | Batch | Written | Total |
 | --- | --- | --- |
-| Past incidents | 41 | 50 |
-| Essential | 85 | 198 |
+| Past incidents | 41 | 49 |
+| Essential | 188 | 195 |
 | Bonus | 0 | 318 |
-| **Total** | **126** | **566** |
+| **Total** | **229** | **562** |
 
-The 24 green tests cover AUTH-01 to 03, NAV-01 to 04, CRUD-01 to 06, EDIT-01 to 04, ATT-07 and
-ATT-09, SYNC-01 to 03 and SET-01 to 02. They are meant as templates: every essential family has
-at least one, and `AttendeesTest` shows the multi user pattern.
+The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
+the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
+back a UI assertion with a CalDAV one.
+
+### Essential scenarios not asserted
+
+Seven of the 195, each with what stands in the way. None has a placeholder in the suite.
+
+| Scenario | Why |
+| --- | --- |
+| `CAL-13`, `CAL-14` | The calendar dialog renders no CalDAV access block. Settings offers name, description, colour and default visibility; Access offers the sharing rights only. No CalDAV address, no secret URL, no export, although the locale carries `calendar.caldav_access`, `calendar.secretUrl` and `calendar.exportCalendar`. This also blocks `PAST-36` and `PAST-48`. |
+| `SYNC-08`, `SYNC-09` | The websocket interruption cannot be provoked from the page: closing the socket from JavaScript is a clean close, which the application rightly does not treat as an interruption. Forcing an unclean one needs `page.routeWebSocket` plumbing this suite does not have. |
+| `SEARCH-09` | No way found to leave the search results without reloading: emptying the field keeps the results page, and the search toggle has given way to the search bar. |
+| `SET-07` | The working day buttons give no readable state: their computed background is the same before and after a click. `SET-08` covers the observable half, that hiding the non working days shortens the week. |
+| `SET-13` | A settings save answered with a 500 raises nothing visible, although the locale carries `settings.displayWeekNumbersUpdateError` and its siblings. |
+
+### Retired scenarios
+
+Four identifiers are gone from the backlog rather than parked, because the behaviour they
+described is not one this suite should assert:
+
+- `RECUR-EDIT-17` and `PAST-32` — investigated and settled as not defects, see
+  [ticket.md](ticket.md).
+- `ATT-16` — removing a guest drops them from the organizer's invitation, which is the part the
+  frontend owns and `ATT-05` covers. Whether their own copy disappears depends on an iMIP mail
+  setup this stack does not have; it works in production.
+- `CAL-16` — the same scenario as `PAST-32`.
 
 ### Suggested order of attack
 

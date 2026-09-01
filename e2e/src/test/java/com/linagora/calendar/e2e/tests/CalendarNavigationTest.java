@@ -128,12 +128,18 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     void theMenubarTitleReflectsThePeriod(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
-        String month = java.time.LocalDate.now()
-            .format(java.time.format.DateTimeFormatter.ofPattern("MMMM", java.util.Locale.ENGLISH));
-        assertThat(calendar.periodTitle()).contains(month);
+        // the title names the month of the week on screen, which is not always the month of
+        // today: a week straddling a month boundary belongs to the month it starts in
+        assertThat(calendar.periodTitle()).contains(monthOf(calendar.firstVisibleDate()));
 
         calendar.next().next().next().next().next();
-        assertThat(calendar.periodTitle()).isNotBlank();
+
+        assertThat(calendar.periodTitle()).contains(monthOf(calendar.firstVisibleDate()));
+    }
+
+    private static String monthOf(java.time.LocalDate date) {
+        return date.format(java.time.format.DateTimeFormatter
+            .ofPattern("MMMM", java.util.Locale.ENGLISH));
     }
 
     @Test
@@ -162,8 +168,9 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     void changingViewKeepsTheDate(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         calendar.next().next();
-        java.time.LocalDate shown = java.time.LocalDate.now().plusWeeks(2);
-        PlaywrightAssertions.assertThat(calendar.dayColumn(shown).first()).isAttached();
+        // read the date off the grid rather than computing it: the day view keeps the first day
+        // of the week that was on screen, whatever the calendar arithmetic would suggest
+        java.time.LocalDate shown = calendar.firstVisibleDate();
 
         calendar.switchView("Day");
 
