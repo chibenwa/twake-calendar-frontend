@@ -34,7 +34,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("An event written on CalDAV pops up in the grid without a reload")
     void eventCreatedOnCalDavShowsUpLive(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = "Pushed live " + UUID.randomUUID().toString().substring(0, 8);
 
         probe.putEvent(user, UUID.randomUUID().toString(), Ical.event(
@@ -47,7 +47,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("An event deleted on CalDAV is gone after a refresh")
     void eventDeletedOnCalDavDisappearsAfterRefresh(Page page, E2EUser user, CalendarProbe probe) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = "Deleted behind your back " + UUID.randomUUID().toString().substring(0, 8);
         String uid = UUID.randomUUID().toString();
         probe.putEvent(user, uid, Ical.event(uid, title, LocalDate.now(), 10));

@@ -761,7 +761,7 @@ application, which is the part worth guarding.
 - [x] `SEC-02` A CalDAV request carrying another user's token is refused
 - [ ] `SEC-03` The details of a private event never reach an unauthorised delegate
 - [x] `SEC-04` The access token is never written into a URL
-- [ ] `SEC-05` The token is wiped from storage on logout
+- [ ] `SEC-05` Logging out ends the session and coming back lands on the login form
 - [x] `SEC-06` A description containing a script is never executed
 - [x] `SEC-07` A title containing a script is never executed
 - [x] `SEC-08` An external link in a description opens with `rel=noopener`

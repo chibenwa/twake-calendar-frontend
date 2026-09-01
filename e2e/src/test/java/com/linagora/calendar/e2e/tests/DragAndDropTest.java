@@ -1,0 +1,343 @@
+package com.linagora.calendar.e2e.tests;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.UUID;
+
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
+import com.linagora.calendar.e2e.backend.CalendarProbe;
+import com.linagora.calendar.e2e.backend.E2EUser;
+import com.linagora.calendar.e2e.backend.E2EUserFactory;
+import com.linagora.calendar.e2e.backend.Ics;
+import com.linagora.calendar.e2e.docker.E2ESessions;
+import com.linagora.calendar.e2e.pages.CalendarPage;
+import com.linagora.calendar.e2e.pages.EventFormModal;
+import com.linagora.calendar.e2e.pages.LoginPage;
+import com.linagora.calendar.e2e.pages.RecurrenceSection;
+import com.linagora.calendar.e2e.pages.ScopeDialog;
+import com.microsoft.playwright.Locator;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
+import com.microsoft.playwright.options.WaitForSelectorState;
+
+/**
+ * Moving and resizing events with the mouse.
+ *
+ * <p>Every scenario asserts twice: what the form says once the event is reopened, and what
+ * CalDAV holds. A drag that only repaints the grid is a regression waiting to be noticed by a
+ * user on their next reload, and the grid alone would not catch it.
+ *
+ * <p>Positions are expressed as translations of the card, never as absolute drop points: the
+ * grid scrolls, its slot height depends on the viewport, and FullCalendar moves an event by the
+ * distance the mouse travelled.
+ */
+class DragAndDropTest extends TwakeCalendarE2ETest {
+
+    private static String uniqueTitle(String prefix) {
+        return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private void awaitAttached(Locator locator) {
+        locator.first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED));
+    }
+
+    /** Creates a timed event of the day and returns once its card is in the grid. */
+    private String anEventAt(CalendarPage calendar, String prefix, String from, String to) {
+        String title = uniqueTitle(prefix);
+        calendar.createEvent().title(title).expand().startTime(from).endTime(to).save();
+        awaitAttached(calendar.eventCard(title));
+        return title;
+    }
+
+    private String startTimeOf(CalendarPage calendar, String title) {
+        EventFormModal form = calendar.openEvent(title).edit().expand();
+        String start = form.startTime();
+        form.close();
+        return start;
+    }
+
+    private String endTimeOf(CalendarPage calendar, String title) {
+        EventFormModal form = calendar.openEvent(title).edit().expand();
+        String end = form.endTime();
+        form.close();
+        return end;
+    }
+
+    /** The DTSTART of the one event of the user, as written on the wire. */
+    private String dtStart(CalendarProbe probe, E2EUser user) {
+        return Ics.property(Ics.event(probe.singleEvent(user)), "DTSTART").orElseThrow();
+    }
+
+    @Test
+    @DisplayName("DND-01 Dragging an event changes its time")
+    void draggingAnEventChangesItsTime(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Dragged", "09:00", "10:00");
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "14:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+            assertThat(startTimeOf(calendar, title)).isEqualTo("14:00"));
+    }
+
+    @Test
+    @DisplayName("DND-02 The time reached by a drag is persisted in CalDAV")
+    void theTimeReachedByADragIsPersisted(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Persisted drag", "09:00", "10:00");
+        String before = dtStart(probe, user);
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "15:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(dtStart(probe, user)).isNotEqualTo(before);
+            assertThat(startTimeOf(calendar, title)).isEqualTo("15:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-03 Dragging an event to another column changes its date, not its time")
+    void draggingToAnotherColumnChangesTheDate(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Another day", "09:00", "10:00");
+        // any other column of the week on screen: plusDays would fall off the grid on its edge
+        LocalDate destination = calendar.visibleDates().stream()
+            .map(LocalDate::parse)
+            .filter(date -> !date.equals(LocalDate.now()))
+            .min(java.util.Comparator.comparingLong(
+                date -> Math.abs(date.toEpochDay() - LocalDate.now().toEpochDay())))
+            .orElseThrow();
+
+        calendar.dragEventToDay(title, destination);
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(dtStart(probe, user).replace("-", ""))
+                .contains(destination.toString().replace("-", ""));
+            assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-04 Resizing an event from the bottom lengthens it")
+    void resizingFromTheBottomLengthensTheEvent(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Stretched", "09:00", "10:00");
+
+        calendar.resizeEventEndTo(title, "12:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(endTimeOf(calendar, title)).isEqualTo("12:00");
+            assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-05 Resizing from the top moves the start time earlier")
+    void resizingFromTheTopMovesTheStartEarlier(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Started earlier", "10:00", "11:00");
+
+        calendar.resizeEventStartTo(title, "08:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(startTimeOf(calendar, title)).isEqualTo("08:00");
+            assertThat(endTimeOf(calendar, title)).isEqualTo("11:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-06 Resizing an event onto its own start never gives it a zero duration")
+    void resizingOntoTheStartNeverGivesAZeroDuration(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Squashed", "10:00", "11:00");
+
+        calendar.resizeEventEndTo(title, "10:00:00");
+
+        // Whatever the grid decided -- refuse the resize or clamp it to the smallest slot --
+        // the event must never end before or when it starts.
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+            assertThat(endTimeOf(calendar, title)).isGreaterThan(startTimeOf(calendar, title)));
+        String event = Ics.event(probe.singleEvent(user));
+        assertThat(Ics.property(event, "DTEND").orElseThrow())
+            .isNotEqualTo(Ics.property(event, "DTSTART").orElseThrow());
+    }
+
+    @Test
+    @DisplayName("DND-07 Dragging an occurrence of a series asks what it applies to")
+    void draggingAnOccurrenceAsksWhatItAppliesTo(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = uniqueTitle("Daily standup");
+        EventFormModal form = calendar.createEvent().title(title).expand()
+            .startTime("09:00").endTime("09:30");
+        form.repeat().frequency(RecurrenceSection.DAILY);
+        form.save();
+        awaitAttached(calendar.eventCard(title));
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "16:00:00");
+
+        ScopeDialog.waitFor(page).thisEvent();
+    }
+
+    @Test
+    @DisplayName("DND-08 Dragging one occurrence turns it into an exception of the series")
+    void draggingOneOccurrenceCreatesAnException(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = uniqueTitle("Weekly review");
+        EventFormModal form = calendar.createEvent().title(title).expand()
+            .startTime("09:00").endTime("10:00");
+        form.repeat().frequency(RecurrenceSection.DAILY);
+        form.save();
+        awaitAttached(calendar.eventCard(title));
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "17:00:00");
+        ScopeDialog.waitFor(page).thisEvent();
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String raw = probe.singleEvent(user);
+            assertThat(Ics.overrides(raw)).hasSize(1);
+            assertThat(Ics.property(Ics.master(raw), "RRULE")).isPresent();
+        });
+    }
+
+    @Test
+    @DisplayName("DND-09 Dragging a timed event onto the all day row makes it an all day event")
+    void draggingOntoTheAllDayRowConvertsTheEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Becomes all day", "09:00", "10:00");
+
+        calendar.dragEventToAllDayRow(title, LocalDate.now());
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("VALUE=DATE");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-10 Dragging an all day event onto a slot gives it a time")
+    void draggingAnAllDayEventOntoASlotGivesItATime(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = uniqueTitle("Was all day");
+        calendar.createEvent().title(title).expand().allDay().save();
+        awaitAttached(calendar.eventCard(title));
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "11:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).doesNotContain("VALUE=DATE");
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).contains("T");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-11 An event the user was only invited to cannot be dragged")
+    void anInvitationCannotBeDragged(Page page, E2EUser user, E2EUserFactory users,
+                                     E2ESessions sessions, CalendarProbe probe) {
+        E2EUser organiser = users.newUser("organiser");
+        CalendarPage organiserCalendar = sessions.openFor(organiser);
+        String title = uniqueTitle("Invited only");
+        organiserCalendar.createEvent().title(title).expand()
+            .startTime("09:00").endTime("10:00")
+            .addGuest(user.email())
+            .save();
+
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        awaitAttached(calendar.eventCard(title));
+        String before = Awaitility.await().atMost(Duration.ofSeconds(30))
+            .until(() -> dtStart(probe, user), java.util.Objects::nonNull);
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "18:00:00");
+
+        // no way to prove a negative in a hurry: give the app the time it would have needed
+        page.waitForTimeout(3000);
+        assertThat(dtStart(probe, user)).isEqualTo(before);
+    }
+
+    @Test
+    @DisplayName("DND-12 A drag by the organiser reaches the copy of the guest")
+    void aDragReachesTheGuestCopy(Page page, E2EUser user, E2EUserFactory users,
+                                  CalendarProbe probe) {
+        E2EUser guest = users.newUser("guest");
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = uniqueTitle("Moved for everyone");
+        calendar.createEvent().title(title).expand()
+            .startTime("09:00").endTime("10:00")
+            .addGuest(guest.email())
+            .save();
+        awaitAttached(calendar.eventCard(title));
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(guest)).contains(title));
+        String guestBefore = dtStart(probe, guest);
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "13:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(dtStart(probe, guest)).isNotEqualTo(guestBefore));
+    }
+
+    @Test
+    @DisplayName("DND-13 A drag the server refuses does not leave the event moved")
+    void aRefusedDragDoesNotLeaveTheEventMoved(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Refused move", "09:00", "10:00");
+        String before = dtStart(probe, user);
+
+        page.route("**/*", route -> {
+            if ("PUT".equals(route.request().method())) {
+                route.fulfill(new com.microsoft.playwright.Route.FulfillOptions()
+                    .setStatus(500).setBody("nope"));
+            } else {
+                route.resume();
+            }
+        });
+        calendar.dragEventToSlot(title, LocalDate.now(), "19:00:00");
+        page.waitForTimeout(3000);
+        page.unrouteAll();
+
+        assertThat(dtStart(probe, user)).isEqualTo(before);
+        page.reload();
+        calendar.waitUntilLoaded();
+        assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+    }
+
+    @Test
+    @DisplayName("DND-14 Dragging in the month view changes the date and keeps the time")
+    void draggingInTheMonthViewKeepsTheTime(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Month move", "09:00", "10:00");
+        LocalDate destination = LocalDate.now().plusDays(2);
+        calendar.switchView("Month");
+        awaitAttached(calendar.eventCard(title));
+
+        calendar.dragMonthEventToDay(title, destination);
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+            assertThat(dtStart(probe, user)).contains(destination.toString().replace("-", "")));
+        calendar.switchView("Week");
+        assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+    }
+
+    @Test
+    @DisplayName("DND-16 A dragged event is still where it was dropped after a reload")
+    void aDraggedEventSurvivesAReload(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = anEventAt(calendar, "Reloaded", "09:00", "10:00");
+
+        calendar.dragEventToSlot(title, LocalDate.now(), "16:00:00");
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() ->
+            assertThat(startTimeOf(calendar, title)).isEqualTo("16:00"));
+
+        page.reload();
+        calendar.waitUntilLoaded();
+
+        PlaywrightAssertions.assertThat(calendar.eventCard(title).first()).isAttached();
+        assertThat(startTimeOf(calendar, title)).isEqualTo("16:00");
+    }
+}
