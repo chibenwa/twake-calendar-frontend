@@ -30,6 +30,16 @@ public class E2ESessions {
         return new CalendarPage(pageFor(user)).waitUntilLoaded();
     }
 
+    /** A session whose browser sits in another timezone, to see the same data from elsewhere. */
+    public CalendarPage openFor(E2EUser user, String browserTimezone) {
+        BrowserContext context = browser.newContext(
+            TwakeCalendarE2EExtension.contextOptions().setTimezoneId(browserTimezone));
+        contexts.add(context);
+        Page page = context.newPage();
+        LoginPage.loginAs(page, user);
+        return new CalendarPage(page).waitUntilLoaded();
+    }
+
     /** Same, when the test needs the raw page rather than the calendar page object. */
     public Page pageFor(E2EUser user) {
         BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
