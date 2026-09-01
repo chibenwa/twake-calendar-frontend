@@ -21,8 +21,15 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
 /**
  * What the SPA does with changes it did not initiate: the websocket live updates and the
  * manual refresh. Both are frequent regression spots and invisible to unit tests.
+ *
+ * <p>The waits here are generous on purpose. A live delivery travels through Sabre, RabbitMQ,
+ * the side service and the socket before anything is painted, and the suite runs four classes
+ * against one backend: what takes a second alone can take half a minute under that load.
  */
 class BackendSyncTest extends TwakeCalendarE2ETest {
+    /** How long a change may take to travel from CalDAV to the screen. */
+    private static final double LIVE_DELIVERY_MS = 60_000;
+
 
     @Test
     @DisplayName("An event written on CalDAV pops up in the grid without a reload")
@@ -34,7 +41,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
             UUID.randomUUID().toString(), title, LocalDate.now(), 9));
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
-            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(30_000));
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(LIVE_DELIVERY_MS));
     }
 
     @Test
@@ -50,7 +57,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
         calendar.refresh();
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title))
-            .hasCount(0, new LocatorAssertions.HasCountOptions().setTimeout(30_000));
+            .hasCount(0, new LocatorAssertions.HasCountOptions().setTimeout(LIVE_DELIVERY_MS));
     }
 
     @Test
@@ -68,6 +75,6 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
         calendar.next();
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
-            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(30_000));
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(LIVE_DELIVERY_MS));
     }
 }

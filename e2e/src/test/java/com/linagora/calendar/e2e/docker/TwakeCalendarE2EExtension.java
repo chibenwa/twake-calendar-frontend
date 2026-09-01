@@ -3,7 +3,9 @@ package com.linagora.calendar.e2e.docker;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -25,8 +27,17 @@ import com.microsoft.playwright.Tracing;
 /**
  * Wires a Playwright {@link Page} onto the docker stack, one fresh browser context per test.
  *
- * <p>Injectable parameters: {@link Page}, {@link BrowserContext}, {@link TwakeCalendarStack} and
- * {@link CalendarProbe}.
+ * <p>Injectable parameters: {@link Page}, {@link BrowserContext}, {@link TwakeCalendarStack},
+ * {@link CalendarProbe}, {@link E2EUser}, {@link E2EUserFactory}, {@link E2ESessions} and
+ * {@link BrowserLog}.
+ *
+ * <p><b>Parallelism.</b> Test classes run four at a time against the single docker stack, see
+ * {@code junit-platform.properties}. Playwright is not thread safe and its objects belong to the
+ * thread that created them, so every worker thread gets its own engine and its own browser —
+ * nothing about Playwright is shared. What is shared is what can be: the docker stack, the
+ * directory the accounts are created in, and the CalDAV probe, all of which are thread safe.
+ * The state of a running test lives in a {@link ThreadLocal}, so it cannot leak from one class
+ * to another whatever JUnit does with extension instances.
  *
  * <p>Knobs, all through environment variables:
  * <ul>
@@ -34,41 +45,63 @@ import com.microsoft.playwright.Tracing;
  *   <li>{@code E2E_SLOWMO=<ms>} to slow every action down</li>
  *   <li>{@code E2E_TRACE=always} to always record a trace, not only on failure</li>
  * </ul>
- * Failures always leave a screenshot, the page HTML and a Playwright trace under
- * {@code target/e2e-artifacts/}. Open a trace with
- * {@code npx playwright show-trace target/e2e-artifacts/<test>/trace.zip}.
+ * Failures always leave a screenshot and a Playwright trace under {@code target/e2e-artifacts/}.
+ * Open a trace with {@code npx playwright show-trace target/e2e-artifacts/<test>/trace.zip}.
  */
 public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestExecutionCallback,
     AfterEachCallback, ParameterResolver {
 
     private static final Path ARTIFACTS = Paths.get("target", "e2e-artifacts");
-    private static final double DEFAULT_TIMEOUT_MS = 20_000;
+    /**
+     * Generous on purpose: four classes share one backend, so a response that takes an instant
+     * on an idle stack can take several seconds under load. Too tight a value here does not
+     * catch bugs, it manufactures flakes.
+     */
+    private static final double DEFAULT_TIMEOUT_MS = 30_000;
 
-    private static volatile Playwright playwright;
-    private static volatile Browser browser;
-
-    private BrowserContext context;
-    private Page page;
-    private E2EUser user;
-    private E2ESessions sessions;
-    private BrowserLog browserLog;
+    /** One engine per worker thread; closing an engine closes the browsers it launched. */
+    private static final ThreadLocal<Browser> BROWSER = new ThreadLocal<>();
+    private static final List<Playwright> ENGINES = Collections.synchronizedList(new ArrayList<>());
+    private static final AtomicBoolean CLOSING_REGISTERED = new AtomicBoolean();
 
     private static volatile CalendarProbe probe;
     private static volatile E2EUserFactory userFactory;
 
-    private static synchronized Browser browser(TwakeCalendarStack stack) {
-        if (browser == null) {
-            playwright = Playwright.create();
-            browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                .setHeadless(!"false".equals(System.getenv("E2E_HEADLESS")))
-                .setSlowMo(slowMo())
-                .setArgs(chromiumArgs(stack)));
+    /** Everything a running test owns, kept off any shared field. */
+    private static final ThreadLocal<TestState> STATE = new ThreadLocal<>();
+
+    private static final class TestState {
+        private BrowserContext context;
+        private Page page;
+        private E2EUser user;
+        private E2ESessions sessions;
+        private BrowserLog browserLog;
+    }
+
+    private static Browser browser() {
+        Browser existing = BROWSER.get();
+        if (existing != null) {
+            return existing;
+        }
+        Playwright playwright = Playwright.create();
+        ENGINES.add(playwright);
+        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+            .setHeadless(!"false".equals(System.getenv("E2E_HEADLESS")))
+            .setSlowMo(slowMo())
+            .setArgs(chromiumArgs(TwakeCalendarStack.singleton())));
+        BROWSER.set(browser);
+        registerClosing();
+        return browser;
+    }
+
+    private static void registerClosing() {
+        if (CLOSING_REGISTERED.compareAndSet(false, true)) {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                browser.close();
-                playwright.close();
+                synchronized (ENGINES) {
+                    ENGINES.forEach(Playwright::close);
+                }
             }));
         }
-        return browser;
     }
 
     /** Every session of the suite is opened the same way, primary or secondary. */
@@ -98,59 +131,61 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
 
     @Override
     public void beforeEach(ExtensionContext extensionContext) {
-        Browser browser = browser(TwakeCalendarStack.singleton());
-        context = browser.newContext(contextOptions());
-        context.setDefaultTimeout(DEFAULT_TIMEOUT_MS);
-        sessions = new E2ESessions(browser);
-        context.tracing().start(new Tracing.StartOptions()
+        Browser browser = browser();
+        TestState state = new TestState();
+        state.context = browser.newContext(contextOptions());
+        state.context.setDefaultTimeout(DEFAULT_TIMEOUT_MS);
+        state.sessions = new E2ESessions(browser);
+        state.browserLog = new BrowserLog();
+        state.context.tracing().start(new Tracing.StartOptions()
             .setScreenshots(true)
             .setSnapshots(true)
             .setSources(true));
 
-        browserLog = new BrowserLog();
-        page = context.newPage();
+        state.page = state.context.newPage();
         // Browser side errors are the usual suspects behind a flaky looking e2e failure:
         // surface them in the maven output rather than making people re-run with a debugger.
-        page.onConsoleMessage(message -> {
+        state.page.onConsoleMessage(message -> {
             if ("error".equals(message.type())) {
-                browserLog.recordConsoleError(message.text());
+                state.browserLog.recordConsoleError(message.text());
                 System.out.println("[browser console error] " + message.text());
             }
         });
-        page.onPageError(error -> {
-            browserLog.recordPageError(error);
+        state.page.onPageError(error -> {
+            state.browserLog.recordPageError(error);
             System.out.println("[browser page error] " + error);
         });
+        STATE.set(state);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext extensionContext) {
+        TestState state = STATE.get();
         boolean failed = extensionContext.getExecutionException().isPresent();
         Path directory = ARTIFACTS.resolve(testId(extensionContext));
 
         if (failed) {
-            page.screenshot(new Page.ScreenshotOptions()
+            state.page.screenshot(new Page.ScreenshotOptions()
                 .setPath(directory.resolve("failure.png"))
                 .setFullPage(true));
             System.out.println("[e2e] failure artifacts in " + directory.toAbsolutePath());
         }
 
         if (failed || "always".equals(System.getenv("E2E_TRACE"))) {
-            context.tracing().stop(new Tracing.StopOptions().setPath(directory.resolve("trace.zip")));
+            state.context.tracing().stop(new Tracing.StopOptions().setPath(directory.resolve("trace.zip")));
         } else {
-            context.tracing().stop();
+            state.context.tracing().stop();
         }
     }
 
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        if (sessions != null) {
-            sessions.closeAll();
+        TestState state = STATE.get();
+        if (state != null) {
+            state.sessions.closeAll();
+            state.context.close();
+            STATE.remove();
         }
-        if (context != null) {
-            context.close();
-        }
-        user = null;
     }
 
     /**
@@ -158,10 +193,11 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
      * because the stack is shared and the user is what isolates one test from the next.
      */
     private E2EUser user() {
-        if (user == null) {
-            user = userFactory().newUser();
+        TestState state = STATE.get();
+        if (state.user == null) {
+            state.user = userFactory().newUser();
         }
-        return user;
+        return state.user;
     }
 
     private static synchronized E2EUserFactory userFactory() {
@@ -199,11 +235,12 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         Class<?> type = parameterContext.getParameter().getType();
+        TestState state = STATE.get();
         if (type == Page.class) {
-            return page;
+            return state.page;
         }
         if (type == BrowserContext.class) {
-            return context;
+            return state.context;
         }
         if (type == TwakeCalendarStack.class) {
             return TwakeCalendarStack.singleton();
@@ -215,10 +252,10 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
             return userFactory();
         }
         if (type == E2ESessions.class) {
-            return sessions;
+            return state.sessions;
         }
         if (type == BrowserLog.class) {
-            return browserLog;
+            return state.browserLog;
         }
         return probe();
     }
