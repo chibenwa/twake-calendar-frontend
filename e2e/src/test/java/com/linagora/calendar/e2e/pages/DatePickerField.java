@@ -26,6 +26,9 @@ class DatePickerField {
     private static final int ATTEMPTS = 4;
 
     static void pick(Page page, Locator field, LocalDate date) {
+        // checking a radio re-renders the panel around this field: let it settle before reading
+        field.waitFor(new Locator.WaitForOptions()
+            .setState(com.microsoft.playwright.options.WaitForSelectorState.VISIBLE));
         String expected = date.format(FIELD_VALUE);
         for (int attempt = 1; attempt <= ATTEMPTS; attempt++) {
             if (expected.equals(field.inputValue())) {

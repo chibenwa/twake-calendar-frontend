@@ -76,6 +76,7 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         private E2EUser user;
         private E2ESessions sessions;
         private BrowserLog browserLog;
+        private RuntimeConfig runtimeConfig;
     }
 
     private static Browser browser() {
@@ -137,6 +138,7 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         state.context.setDefaultTimeout(DEFAULT_TIMEOUT_MS);
         state.sessions = new E2ESessions(browser);
         state.browserLog = new BrowserLog();
+        state.runtimeConfig = new RuntimeConfig(state.context);
         state.context.tracing().start(new Tracing.StartOptions()
             .setScreenshots(true)
             .setSnapshots(true)
@@ -229,7 +231,8 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
             || type == E2EUser.class
             || type == E2EUserFactory.class
             || type == E2ESessions.class
-            || type == BrowserLog.class;
+            || type == BrowserLog.class
+            || type == RuntimeConfig.class;
     }
 
     @Override
@@ -256,6 +259,9 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         }
         if (type == BrowserLog.class) {
             return state.browserLog;
+        }
+        if (type == RuntimeConfig.class) {
+            return state.runtimeConfig;
         }
         return probe();
     }

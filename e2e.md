@@ -386,6 +386,15 @@ Eight of the forty nine, each with what stands in the way.
 
 # Bonus (318)
 
+### Not asserted so far
+
+- `DEEP-04` and `DEEP-11` describe behaviour the application does not have, see
+  [ticket.md](ticket.md): a deep link does not reach an event outside the displayed week, and an
+  unknown route renders a blank page. Both are out of the suite until the behaviour changes.
+- `DEEP-02` and `DEEP-10` were reworded: neither `/events/<unknown>` nor `/error` shows a
+  message, both quietly redirect to the calendar. The tests assert that a dead link never breaks
+  the application, which is the part worth guarding.
+
 ## RES — Resources (18)
 
 - [ ] `RES-01` The Resources section lists the resources of the domain
