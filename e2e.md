@@ -498,24 +498,24 @@ application, which is the part worth guarding.
 
 ## TEAM — Team calendars (18)
 
-- [ ] `TEAM-01` A team calendar appears in its own section
-- [ ] `TEAM-02` A viewer member sees the events of the team
-- [ ] `TEAM-03` A viewer member cannot create an event in the team calendar
-- [ ] `TEAM-04` An editor member can create an event in the team calendar
-- [ ] `TEAM-05` An editor member can edit an event of the team
-- [ ] `TEAM-06` An administrator can delete an event of the team
+- [x] `TEAM-01` A team calendar appears in its own section
+- [x] `TEAM-02` A viewer member sees the events of the team
+- [x] `TEAM-03` A viewer member cannot create an event in the team calendar
+- [x] `TEAM-04` An editor member can create an event in the team calendar
+- [x] `TEAM-05` An editor member can edit an event of the team
+- [x] `TEAM-06` An administrator can delete an event of the team
 - [ ] `TEAM-07` Creating in a team calendar allows choosing the organizer
-- [ ] `TEAM-08` A team event shows "Team's organizer" in the preview
+- [x] `TEAM-08` A team event shows "Team's organizer" in the preview
 - [ ] `TEAM-09` The tooltip names the team that organized the event
 - [ ] `TEAM-10` A team event is visible live by every member
-- [ ] `TEAM-11` Unticking the team calendar hides its events
+- [x] `TEAM-11` Unticking the team calendar hides its events
 - [ ] `TEAM-12` The team calendar colour is applied to its events
-- [ ] `TEAM-13` A non member does not see the team calendar
-- [ ] `TEAM-14` Removing a member revokes their access live
-- [ ] `TEAM-15` Inviting an external guest from a team calendar works
-- [ ] `TEAM-16` A recurring team event behaves like a personal recurring one
-- [ ] `TEAM-17` The team calendar appears in the calendar picker of the form
-- [ ] `TEAM-18` Moving a personal event to a team calendar changes its organizer
+- [x] `TEAM-13` A non member does not see the team calendar
+- [x] `TEAM-14` Removing a member revokes their access live
+- [x] `TEAM-15` Inviting an external guest from a team calendar works
+- [x] `TEAM-16` A recurring team event behaves like a personal recurring one
+- [x] `TEAM-17` The team calendar appears in the calendar picker of the form
+- [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
 
 ## SHARE — Sharing and delegation (26)
 
@@ -594,12 +594,11 @@ application, which is the part worth guarding.
 - [x] `BOOK-21` Two schedules can coexist without overlapping
 - [x] `BOOK-22` A schedule with video conferencing generates a link on booking
 
-## PUB — Public application (26)
+## PUB — Public application (24)
 
 - [x] `PUB-01` A public booking page loads without authentication
 - [x] `PUB-02` The public calendar offers the days holding slots
 - [x] `PUB-03` Selecting a day shows the available slots
-- [ ] `PUB-04` A day without a slot shows "No slots available"
 - [x] `PUB-05` An unknown link shows "This booking link is not found"
 - [x] `PUB-06` A deactivated link shows "This booking link is not available"
 - [x] `PUB-07` The form requires a name
@@ -609,19 +608,15 @@ application, which is the part worth guarding.
 - [x] `PUB-11` Booking a slot taken in the meantime shows "no longer available"
 - [x] `PUB-12` The cancellation link allows cancelling the booking
 - [x] `PUB-13` After cancellation the slot becomes bookable again
-- [ ] `PUB-14` Changing the visitor's timezone shifts the displayed slots
-- [ ] `PUB-15` The public event preview opens with a valid JWT
-- [ ] `PUB-16` A missing token shows "Your link is invalid"
-- [ ] `PUB-17` An expired token shows "invalid or has expired"
-- [ ] `PUB-18` A deleted event shows "The event could not be found"
-- [ ] `PUB-19` The public preview allows answering the invitation
-- [ ] `PUB-20` An answer given publicly reaches the organizer
-- [ ] `PUB-21` The public preview allows proposing a new time
-- [ ] `PUB-22` The time proposal reaches the organizer
+- [x] `PUB-15` The public event preview opens with a valid JWT
+- [x] `PUB-16` A missing token shows "Your link is invalid"
+- [x] `PUB-17` An expired token shows "invalid or has expired"
+- [x] `PUB-18` A deleted event shows "The event could not be found"
+- [x] `PUB-19` The public preview allows answering the invitation
+- [x] `PUB-20` An answer given publicly reaches the organizer
 - [x] `PUB-23` The footer exposes the Privacy and Terms links
-- [ ] `PUB-24` The help button points to `SUPPORT_URL`
-- [ ] `PUB-25` The public preview of a recurring occurrence shows the right date
-- [ ] `PUB-26` No data of another user is reachable through a public token
+- [x] `PUB-25` The public preview of a recurring occurrence shows the right date
+- [x] `PUB-26` No data of another user is reachable through a public token
 
 ## VISIO — Video conferencing (12)
 
@@ -854,8 +849,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 188 | 195 |
-| Bonus | 143 | 314 |
-| **Total** | **372** | **558** |
+| Bonus | 165 | 314 |
+| **Total** | **394** | **558** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to

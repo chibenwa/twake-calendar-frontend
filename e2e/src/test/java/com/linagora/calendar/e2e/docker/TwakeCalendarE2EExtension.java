@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
+import com.linagora.calendar.e2e.backend.MailProbe;
+import com.linagora.calendar.e2e.backend.TeamCalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
@@ -231,6 +233,8 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
             || type == BrowserContext.class
             || type == TwakeCalendarStack.class
             || type == CalendarProbe.class
+            || type == TeamCalendarProbe.class
+            || type == MailProbe.class
             || type == E2EUser.class
             || type == E2EUserFactory.class
             || type == E2ESessions.class
@@ -265,6 +269,12 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         }
         if (type == RuntimeConfig.class) {
             return state.runtimeConfig;
+        }
+        if (type == MailProbe.class) {
+            return new MailProbe(TwakeCalendarStack.singleton());
+        }
+        if (type == TeamCalendarProbe.class) {
+            return new TeamCalendarProbe(TwakeCalendarStack.singleton());
         }
         return probe();
     }
