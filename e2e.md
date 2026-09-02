@@ -384,21 +384,23 @@ Four of the forty nine, each with what stands in the way.
 ## RES — Resources (18)
 
 - [x] `RES-01` The Resources section lists the resources of the domain
-- [ ] `RES-02` Browsing resources allows adding one to the sidebar
+- [x] `RES-02` Browsing resources allows adding one to the sidebar
 - [x] `RES-03` Booking a resource from the event form adds it as a participant
-- [ ] `RES-04` A booked resource shows up in the resource's own calendar
-- [ ] `RES-05` The resource administrator sees the booking request in resource calendar
-- [ ] `RES-06` The administrator can accept the booking in resource calendar
-- [ ] `RES-07` The administrator can decline the booking in resource calendar
-- [ ] `RES-08` The booking status reaches the organizer (in his calendar event copy)
-- [ ] `RES-09` A resource already booked on the slot is flagged as busy
-- [ ] `RES-10` Removing a resource from an event frees the slot
+- [x] `RES-04` A booked resource shows up in the resource's own calendar
+- [x] `RES-05` The resource administrator sees the booking request in resource calendar
+- [x] `RES-06` The administrator can accept the booking in resource calendar
+- [x] `RES-07` The administrator can decline the booking in resource calendar
+- [x] `RES-08` The booking status reaches the organizer (in his calendar event copy)
+- [ ] `RES-09` A resource already booked on the slot is flagged as busy — the form computes no
+  availability for a room: free/busy resolves an attendee through the directory, and a resource's
+  address is not a user, so it is dropped before any status is asked for. Same wall as `FB-10`.
+- [x] `RES-10` Removing a resource from an event frees the slot
 - [x] `RES-11` Deleting the event frees the resource
 - [x] `RES-12` The resource search filters by name
 - [x] `RES-13` A resource search with no match shows "No results"
-- [ ] `RES-14` The resource icon is displayed in the list
+- [x] `RES-14` The resource icon is displayed in the list
 - [x] `RES-15` Unticking a resource hides its bookings
-- [ ] `RES-16` Removing a resource from the sidebar does not delete its bookings
+- [x] `RES-16` Removing a resource from the sidebar does not delete its bookings
 - [x] `RES-17` A non administrator cannot edit the resource calendar
 - [x] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
 
@@ -732,8 +734,8 @@ Four of the forty nine, each with what stands in the way.
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
 | Essential | 189 | 194 |
-| Bonus | 224 | 286 |
-| **Total** | **458** | **529** |
+| Bonus | 233 | 286 |
+| **Total** | **467** | **529** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply
