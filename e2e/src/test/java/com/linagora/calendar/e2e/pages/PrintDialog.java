@@ -98,6 +98,9 @@ public class PrintDialog {
     public Page print() {
         Page printed = page.waitForPopup(() -> button("Print").click());
         printed.waitForLoadState();
+        // the window opens empty and is filled in afterwards: reading it too early reads nothing
+        printed.waitForFunction("() => (document.body.innerText || '').trim().length > 0",
+            null, new Page.WaitForFunctionOptions().setTimeout(30_000));
         return printed;
     }
 

@@ -243,11 +243,14 @@ class EventEditionTest extends TwakeCalendarE2ETest {
         var form = calendar.openEvent(title).edit().expand();
         form.calendar(other);
         form.save();
-        page.waitForTimeout(2500);
 
-        assertThat(cardColour(page, title))
-            .as("an event carries the colour of the calendar it lives in")
-            .isNotEqualTo(before);
+        // the card is redrawn once the move has gone through, and under load that is a good deal
+        // later than the save returning: watch for the colour to change rather than guess when
+        org.awaitility.Awaitility.await().atMost(Duration.ofSeconds(45))
+            .pollInterval(Duration.ofSeconds(1))
+            .untilAsserted(() -> assertThat(cardColour(page, title))
+                .as("an event carries the colour of the calendar it lives in")
+                .isNotEqualTo(before));
     }
 
     private static String cardColour(Page page, String title) {

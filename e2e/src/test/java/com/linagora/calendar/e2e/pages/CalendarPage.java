@@ -232,6 +232,26 @@ public class CalendarPage {
         return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(name));
     }
 
+    /** The reverse of {@link #longDate}: reads a date back out of a form field. */
+    public static java.time.LocalDate parseLongDate(String rendered) {
+        return java.time.LocalDate.parse(rendered, java.time.format.DateTimeFormatter
+            .ofPattern("EEEE, MMMM d, yyyy", java.util.Locale.ENGLISH));
+    }
+
+    /**
+     * Today according to the browser, which is the clock the application itself goes by.
+     *
+     * <p>A suite that runs for a quarter of an hour can straddle midnight, and a date the test
+     * recomputes in Java afterwards is then a day away from the one the page rendered.
+     */
+    public java.time.LocalDate browserToday() {
+        return java.time.LocalDate.parse(String.valueOf(page.evaluate("""
+            () => { const now = new Date();
+                    return now.getFullYear() + '-'
+                      + String(now.getMonth() + 1).padStart(2, '0') + '-'
+                      + String(now.getDate()).padStart(2, '0'); }""")));
+    }
+
     /** The first day the grid currently shows, read from the grid itself. */
     public java.time.LocalDate firstVisibleDate() {
         String date = String.valueOf(page.evaluate(
@@ -397,12 +417,21 @@ public class CalendarPage {
 
     /** Drags an event of the month grid onto another day cell. */
     public CalendarPage dragMonthEventToDay(String title, java.time.LocalDate day) {
-        BoundingBox card = requireBox(eventCard(title).first(), "the card of " + title);
         BoundingBox cell = requireBox(
             page.locator(".fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame").first(),
             "the cell of " + day);
-        drag(card.x + card.width / 2, card.y + card.height / 2,
-            cell.x + cell.width / 2, cell.y + cell.height / 2);
+        boolean moved = dragUntilMoved(
+            () -> {
+                BoundingBox now = boxOf(eventCard(title).first(), "the card of " + title);
+                drag(now.x + now.width / 2, now.y + now.height / 2,
+                    cell.x + cell.width / 2, cell.y + cell.height / 2);
+            },
+            () -> page.locator(".fc-daygrid-day[data-date='" + day + "'] "
+                + EVENT_CARD).filter(new Locator.FilterOptions().setHasText(title)).count() > 0);
+        if (!moved) {
+            throw new AssertionError("The grid never registered the gesture: move "
+                + title + " to " + day);
+        }
         return this;
     }
 

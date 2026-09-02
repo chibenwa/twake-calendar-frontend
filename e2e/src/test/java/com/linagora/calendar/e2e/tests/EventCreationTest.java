@@ -143,9 +143,14 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     void theDefaultDatesAreTheDisplayedDay(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
+        java.time.LocalDate today = calendar.browserToday();
         var form = calendar.createEvent().expand();
 
-        assertThat(form.startDate()).isEqualTo(CalendarPage.longDate(java.time.LocalDate.now()));
+        // The default is the next round hour, which late in the evening is already tomorrow --
+        // so the assertion is that the form opens on the day in view or the one it rolls into,
+        // never on some unrelated date.
+        assertThat(form.startDate())
+            .isIn(CalendarPage.longDate(today), CalendarPage.longDate(today.plusDays(1)));
         assertThat(form.startTime()).endsWith(":00");
         assertThat(form.endTime()).endsWith(":00");
     }

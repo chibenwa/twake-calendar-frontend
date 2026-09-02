@@ -51,6 +51,22 @@ public class E2ESessions {
     }
 
     /**
+     * A logged in session on a screen of another size, for the layouts that depend on it.
+     *
+     * <p>A context of its own rather than a resize of the current one: the application decides
+     * its layout as it starts, and a viewport changed afterwards is a different scenario -- the
+     * one {@code RESP-16} is about.
+     */
+    public CalendarPage openFor(E2EUser user, int width, int height) {
+        BrowserContext context = browser.newContext(
+            TwakeCalendarE2EExtension.contextOptions().setViewportSize(width, height));
+        contexts.add(context);
+        Page page = context.newPage();
+        LoginPage.loginAs(page, user);
+        return new CalendarPage(page).waitUntilLoaded();
+    }
+
+    /**
      * A session that never logs in, for the pages a stranger reaches.
      *
      * <p>Its own context, so it carries none of the tokens of the test user: a public page that
