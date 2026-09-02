@@ -126,7 +126,6 @@ class SharingTest extends TwakeCalendarE2ETest {
     void theAccessTabGrantsARight(Page page, E2EUser user, E2EUserFactory users,
                                   E2ESessions sessions) {
         E2EUser mate = users.newUser("mate");
-        sessions.openFor(mate);
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
         CalendarModal modal = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
@@ -178,7 +177,6 @@ class SharingTest extends TwakeCalendarE2ETest {
     void onlyTheThreeDocumentedRightsCanBeGranted(Page page, E2EUser user, E2EUserFactory users,
                                                   E2ESessions sessions) {
         E2EUser mate = users.newUser("mate");
-        sessions.openFor(mate);
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
         CalendarModal modal = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
@@ -280,7 +278,6 @@ class SharingTest extends TwakeCalendarE2ETest {
     void aShareOutlivesAFreshLogin(Page page, E2EUser user, E2EUserFactory users,
                                    E2ESessions sessions) {
         E2EUser mate = users.newUser("mate");
-        sessions.openFor(mate);
         CalendarPage calendar = LoginPage.loginAs(page, user);
         share(calendar, mate, "View all events");
 
@@ -366,7 +363,6 @@ class SharingTest extends TwakeCalendarE2ETest {
         java.util.List<E2EUser> grantees = new java.util.ArrayList<>();
         for (int index = 0; index < 13; index++) {
             E2EUser grantee = users.newUser("mate" + index);
-            sessions.openFor(grantee);
             grantees.add(grantee);
         }
         CalendarPage calendar = LoginPage.loginAs(page, user);

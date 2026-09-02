@@ -37,8 +37,14 @@ public class E2EUserFactory {
     private static final String ADMIN_PASSWORD = "admin";
 
     private final DirContext directory;
+    private final java.net.http.HttpClient httpClient;
+    private final String webAdminUri;
 
     public E2EUserFactory(TwakeCalendarStack stack) {
+        this.httpClient = java.net.http.HttpClient.newBuilder()
+            .connectTimeout(java.time.Duration.ofSeconds(10))
+            .build();
+        this.webAdminUri = stack.webAdminUri();
         Hashtable<String, Object> environment = new Hashtable<>();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put(Context.PROVIDER_URL, stack.ldapUrl());
@@ -74,7 +80,40 @@ public class E2EUserFactory {
         String email = uid + "@" + DOMAIN;
         String commonName = displayName == null ? uid : displayName;
         create(uid, email, commonName);
+        register(email, commonName);
         return new E2EUser(uid, email, PASSWORD, commonName);
+    }
+
+    /**
+     * Declares the account to the side service, which otherwise only learns of it when somebody
+     * signs in with it.
+     *
+     * <p>That matters for how long the suite takes: a test needing three people used to need
+     * three trips through the identity provider, one per person, purely so that the backend
+     * would know they exist. The directory entry and this call together are enough.
+     */
+    private void register(String email, String commonName) {
+        String body = "{\"email\":\"" + email + "\","
+            + "\"firstname\":\"" + commonName + "\","
+            + "\"lastname\":\"" + commonName + "\","
+            + "\"id\":\"" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 24)
+            + "\"}";
+        try {
+            java.net.http.HttpResponse<String> response = httpClient.send(
+                java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(webAdminUri + "/registeredUsers"))
+                    .header("Content-Type", "application/json")
+                    .timeout(java.time.Duration.ofSeconds(30))
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(body))
+                    .build(),
+                java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 300) {
+                throw new IllegalStateException("The side service refused to register " + email
+                    + ": " + response.statusCode() + " " + response.body());
+            }
+        } catch (java.io.IOException | InterruptedException e) {
+            throw new RuntimeException("Could not register " + email, e);
+        }
     }
 
     private synchronized void create(String uid, String email, String commonName) {
