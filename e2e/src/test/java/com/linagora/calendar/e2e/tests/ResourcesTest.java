@@ -263,7 +263,6 @@ class ResourcesTest extends TwakeCalendarE2ETest {
                                                   ResourceProbe resources) {
         // administered by somebody else, so it does not arrive in the sidebar on its own
         E2EUser keeper = users.newUser("keeper");
-        sessions.openFor(keeper);
         String room = unique("Browsable room");
         resources.create(room, "A room", keeper);
         CalendarPage calendar = LoginPage.loginAs(page, user);

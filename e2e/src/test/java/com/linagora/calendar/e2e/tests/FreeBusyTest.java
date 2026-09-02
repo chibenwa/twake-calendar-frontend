@@ -50,7 +50,6 @@ class FreeBusyTest extends TwakeCalendarE2ETest {
     private E2EUser somebodyBusyAt(E2EUserFactory users, E2ESessions sessions, CalendarProbe probe,
                                    LocalDate day, int utcHour) {
         E2EUser busy = users.newUser("busy");
-        sessions.openFor(busy);
         String uid = UUID.randomUUID().toString();
         probe.putEvent(busy, uid, Ical.event(uid, "Already taken", day, utcHour));
         return busy;
@@ -58,7 +57,6 @@ class FreeBusyTest extends TwakeCalendarE2ETest {
 
     private E2EUser somebodyFree(E2EUserFactory users, E2ESessions sessions) {
         E2EUser free = users.newUser("free");
-        sessions.openFor(free);
         return free;
     }
 

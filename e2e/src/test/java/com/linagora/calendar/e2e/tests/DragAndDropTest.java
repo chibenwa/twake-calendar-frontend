@@ -231,7 +231,6 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
                                   E2ESessions sessions, CalendarProbe probe) {
         E2EUser guest = users.newUser("guest");
         // the account only exists on the backend once it has signed in once
-        sessions.openFor(guest);
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Moved for everyone");
         calendar.createEvent().title(title)

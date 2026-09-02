@@ -278,7 +278,6 @@ class TeamCalendarsTest extends TwakeCalendarE2ETest {
         String name = unique("Inviting team");
         aTeamFor(teams, user, Right.READ_WRITE, name);
         E2EUser guest = users.newUser("guest");
-        sessions.openFor(guest);
         awaitTeamVisible(page, name);
         showTeam(calendar, name);
 

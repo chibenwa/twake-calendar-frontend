@@ -372,7 +372,6 @@ class PastRecurrenceTest extends TwakeCalendarE2ETest {
         E2EUser alice = users.newUser("alice");
         E2EUser cedric = users.newUser("cedric");
         CalendarPage aliceCalendar = sessions.openFor(alice);
-        sessions.openFor(cedric);
         CalendarPage calendar = LoginPage.loginAs(page, organizer);
 
         String title = title("Weekly with alice");

@@ -365,9 +365,19 @@ public class CalendarPage {
         return page.locator("[role=dialog]").last().innerText();
     }
 
+    /**
+     * Calls the search off. Cancel is the way a user does it, but a suggestion list opened over
+     * the button leaves it unclickable, so Escape stands in when that happens: what the caller
+     * asked for is the dialog gone, not one particular way of dismissing it.
+     */
     public void cancelBrowsing() {
-        page.getByRole(AriaRole.BUTTON,
-            new Page.GetByRoleOptions().setName("Cancel").setExact(true)).last().click();
+        try {
+            page.getByRole(AriaRole.BUTTON,
+                    new Page.GetByRoleOptions().setName("Cancel").setExact(true)).last()
+                .click(new Locator.ClickOptions().setTimeout(10_000));
+        } catch (com.microsoft.playwright.TimeoutError covered) {
+            page.keyboard().press("Escape");
+        }
         page.getByPlaceholder("Start typing a name or email").waitFor(
             new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
     }

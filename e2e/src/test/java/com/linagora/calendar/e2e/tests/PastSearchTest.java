@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
-import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Page;
@@ -38,12 +37,9 @@ class PastSearchTest extends TwakeCalendarE2ETest {
 
     @Test
     @DisplayName("PAST-38 (#998) A second keyword replaces the first, it does not add to it")
-    void aSecondKeywordReplacesTheFirst(Page page, E2EUser user, E2EUserFactory users,
-                                        E2ESessions sessions) {
+    void aSecondKeywordReplacesTheFirst(Page page, E2EUser user, E2EUserFactory users) {
         E2EUser first = users.newUser("alpha");
         E2EUser second = users.newUser("beta");
-        sessions.openFor(first);
-        sessions.openFor(second);
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
         calendar.browseOtherCalendars();
@@ -61,10 +57,8 @@ class PastSearchTest extends TwakeCalendarE2ETest {
 
     @Test
     @DisplayName("PAST-40 (#271) A search called off leaves no calendar behind")
-    void aSearchCalledOffLeavesNothingBehind(Page page, E2EUser user, E2EUserFactory users,
-                                             E2ESessions sessions) {
+    void aSearchCalledOffLeavesNothingBehind(Page page, E2EUser user, E2EUserFactory users) {
         E2EUser other = users.newUser("other");
-        sessions.openFor(other);
         CalendarPage calendar = LoginPage.loginAs(page, user);
         List<String> before = sidebarRows(page);
 
@@ -83,10 +77,8 @@ class PastSearchTest extends TwakeCalendarE2ETest {
 
     @Test
     @DisplayName("Picking somebody with nothing published says so, rather than staying blank")
-    void somebodyWithNothingPublishedSaysSo(Page page, E2EUser user, E2EUserFactory users,
-                                            E2ESessions sessions) {
+    void somebodyWithNothingPublishedSaysSo(Page page, E2EUser user, E2EUserFactory users) {
         E2EUser other = users.newUser("other");
-        sessions.openFor(other);
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
         calendar.browseOtherCalendars();
