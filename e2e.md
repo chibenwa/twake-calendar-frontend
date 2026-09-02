@@ -139,7 +139,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (195)
+# Essential (194)
 
 ## AUTH — Authentication and session (9)
 
@@ -186,7 +186,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `NAV-15` The time grid is scrolled to the current hour on opening
 - [x] `NAV-16` Browsing twelve weeks in a row does not duplicate any event
 
-## CRUD — Creating a simple event (22)
+## CRUD — Creating a simple event (21)
 
 - [x] `CRUD-01` An event created from the form shows up in the grid
 - [x] `CRUD-02` An event created from the form reaches CalDAV
@@ -199,7 +199,6 @@ Four of the forty nine, each with what stands in the way.
 - [x] `CRUD-09` Expanding the modal reveals dates, description, location, notification and visibility
 - [x] `CRUD-10` An event without a title is saved and displayed as "Untitled"
 - [x] `CRUD-11` Changing the start time shifts the end time accordingly
-- [ ] `CRUD-12` An empty start date blocks the save with an explicit message
 - [x] `CRUD-13` A malformed time shows "Invalid time format"
 - [x] `CRUD-14` A start date in the past warns without blocking
 - [x] `CRUD-15` An event spanning several days spreads over the matching columns
@@ -380,7 +379,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (314)
+# Bonus (286)
 
 ## RES — Resources (18)
 
@@ -732,14 +731,13 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 189 | 195 |
+| Essential | 189 | 194 |
 | Bonus | 224 | 286 |
-| **Total** | **458** | **530** |
+| **Total** | **458** | **529** |
 
-The essential batch is complete but for six scenarios. `CRUD-12` cannot be produced through the
-interface at all: the date fields are read only and driven by their picker, so a start date
-cannot be emptied. `SYNC-08` and `SYNC-09` need the websocket cut and restored under the
-application; `SEARCH-09`, `SET-07` and `SET-13` are simply not written.
+The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
+websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply
+not written.
 
 `AttendeesFullTest` shows the multi user pattern, `RecurrenceTest` the recurrence one, and
 `PastRecurrenceTest` how to back a UI assertion with a CalDAV one.
