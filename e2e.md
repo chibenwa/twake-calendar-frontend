@@ -756,62 +756,62 @@ application, which is the part worth guarding.
 
 ## A11Y — Accessibility and keyboard (14)
 
-- [ ] `A11Y-01` Every menubar button exposes an accessible name
-- [ ] `A11Y-02` The creation modal traps the focus
+- [x] `A11Y-01` Every menubar button exposes an accessible name
+- [x] `A11Y-02` The creation modal traps the focus
 - [ ] `A11Y-03` Escape closes the event preview
-- [ ] `A11Y-04` Tab walks through the form fields in visual order
+- [x] `A11Y-04` Tab walks through the form fields in visual order
 - [ ] `A11Y-05` Enter submits the form from the title field
 - [ ] `A11Y-06` Focus returns to the triggering element when a modal closes
-- [ ] `A11Y-07` Every form field has an associated label
-- [ ] `A11Y-08` Dropdowns are operable with the keyboard
-- [ ] `A11Y-09` Calendar checkboxes are operable with the keyboard
+- [x] `A11Y-07` Every form field has an associated label
+- [x] `A11Y-08` Dropdowns are operable with the keyboard
+- [x] `A11Y-09` Calendar checkboxes are operable with the keyboard
 - [ ] `A11Y-10` Events in the grid are reachable with the keyboard
-- [ ] `A11Y-11` Error messages are announced to screen readers
+- [x] `A11Y-11` Error messages are announced to screen readers
 - [ ] `A11Y-12` The contrast of the main text meets AA
 - [ ] `A11Y-13` Icon only controls carry alternative text
-- [ ] `A11Y-14` The page title changes to reflect the current view
+- [x] `A11Y-14` The page title changes to reflect the current view
 
 ## RESP — Responsive, mobile and tablet (18)
 
-- [ ] `RESP-01` On a mobile viewport, the default view is the day view
-- [ ] `RESP-02` On a tablet viewport, the tablet menubar is used
-- [ ] `RESP-03` The sidebar is collapsed by default on mobile
-- [ ] `RESP-04` The toggle button shows and hides the sidebar
-- [ ] `RESP-05` The creation modal is fullscreen on mobile
+- [x] `RESP-01` On a mobile viewport, the default view is the day view
+- [x] `RESP-02` On a tablet viewport, the tablet menubar is used
+- [x] `RESP-03` The sidebar is collapsed by default on mobile
+- [x] `RESP-04` The toggle button shows and hides the sidebar
+- [x] `RESP-05` The creation modal is fullscreen on mobile
 - [ ] `RESP-06` The booking management modal is fullscreen on mobile
 - [ ] `RESP-07` The Drive file picker is fullscreen on mobile
 - [ ] `RESP-08` Mobile search opens its dedicated dialog
 - [ ] `RESP-09` Swiping horizontally changes day
-- [ ] `RESP-10` Input fields use a font size that avoids the iOS zoom
-- [ ] `RESP-11` The event preview is readable without horizontal scrolling
+- [x] `RESP-10` Input fields use a font size that avoids the iOS zoom
+- [x] `RESP-11` The event preview is readable without horizontal scrolling
 - [ ] `RESP-12` The view picker stays reachable on a small screen
-- [ ] `RESP-13` The grid does not overflow horizontally at 320 px wide
-- [ ] `RESP-14` The mini calendar is hidden on mobile
+- [x] `RESP-13` The grid does not overflow horizontally at 320 px wide
+- [x] `RESP-14` The mini calendar is hidden on mobile
 - [ ] `RESP-15` The mobile search filter offers the same options as the desktop one
-- [ ] `RESP-16` Resizing from mobile to desktop switches the view back
+- [x] `RESP-16` Resizing from mobile to desktop switches the view back
 - [ ] `RESP-17` Guest lists stay usable on a small screen
-- [ ] `RESP-18` The recurrence form stays usable on a small screen
+- [x] `RESP-18` The recurrence form stays usable on a small screen
 
 ## ROBUST — Robustness and large volumes (18)
 
-- [ ] `ROBUST-01` A backend 500 shows the error banner rather than a blank screen
+- [x] `ROBUST-01` A backend 500 shows the error banner rather than a blank screen
 - [ ] `ROBUST-02` A backend 401 restarts the SSO flow
-- [ ] `ROBUST-03` A network drop while saving shows an actionable error
+- [x] `ROBUST-03` A network drop while saving shows an actionable error
 - [ ] `ROBUST-04` The typed event is restored after a failed save
 - [ ] `ROBUST-05` The automatic retry recovers from a transient error
-- [ ] `ROBUST-06` A slow backend (3 s) never shows an inconsistent state
-- [ ] `ROBUST-07` A week loaded with 200 events renders in under 5 seconds
+- [x] `ROBUST-06` A slow backend (3 s) never shows an inconsistent state
+- [x] `ROBUST-07` A week loaded with 200 events renders in under 5 seconds
 - [ ] `ROBUST-08` A month view loaded with 500 events stays navigable
-- [ ] `ROBUST-09` The "show more" link of a month cell expands the hidden events
+- [x] `ROBUST-09` The "show more" link of a month cell expands the hidden events
 - [ ] `ROBUST-10` A calendar holding 2000 events loads without freezing
 - [ ] `ROBUST-11` An event with a corrupted iCalendar is reported without breaking the grid
 - [ ] `ROBUST-12` Several failing events are grouped in a single message
 - [ ] `ROBUST-13` Reloading during a write does not lose the already acknowledged data
 - [ ] `ROBUST-14` Two concurrent edits of the same event are arbitrated cleanly
-- [ ] `ROBUST-15` Browsing quickly between weeks does not fire duplicate requests
+- [x] `ROBUST-15` Browsing quickly between weeks does not fire duplicate requests
 - [ ] `ROBUST-16` Closing the modal while saving does not create a duplicate
-- [ ] `ROBUST-17` A title with special characters and emojis is returned unchanged
-- [ ] `ROBUST-18` A description containing HTML is displayed escaped, never interpreted
+- [x] `ROBUST-17` A title with special characters and emojis is returned unchanged
+- [x] `ROBUST-18` A description containing HTML is displayed escaped, never interpreted
 
 ## DRIVE — Attachments (10)
 
@@ -849,8 +849,8 @@ application, which is the part worth guarding.
 | --- | --- | --- |
 | Past incidents | 41 | 49 |
 | Essential | 190 | 195 |
-| Bonus | 193 | 309 |
-| **Total** | **424** | **553** |
+| Bonus | 220 | 309 |
+| **Total** | **451** | **553** |
 
 The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
 the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to

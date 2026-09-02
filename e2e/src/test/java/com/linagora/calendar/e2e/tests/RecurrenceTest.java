@@ -156,11 +156,14 @@ class RecurrenceTest extends TwakeCalendarE2ETest {
     void switchingToWeeklyTicksTheStartWeekday(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
-        var repeat = calendar.createEvent().title(title("Weekly")).expand().repeat();
+        var form = calendar.createEvent().title(title("Weekly")).expand();
+        // the day the form really opens on, which late in the evening is already tomorrow
+        LocalDate startsOn = CalendarPage.parseLongDate(form.startDate());
+        var repeat = form.repeat();
         repeat.frequency(RecurrenceSection.DAILY);
         repeat.frequency(RecurrenceSection.WEEKLY);
 
-        String today = switch (LocalDate.now().getDayOfWeek()) {
+        String today = switch (startsOn.getDayOfWeek()) {
             case MONDAY -> "MO";
             case TUESDAY -> "TU";
             case WEDNESDAY -> "WE";
@@ -314,13 +317,20 @@ class RecurrenceTest extends TwakeCalendarE2ETest {
         String title = series(calendar,
             repeat -> repeat.frequency(RecurrenceSection.YEARLY).endsNever());
         assertThat(Ics.rulePart(rule(probe, user), "FREQ")).hasValue("YEARLY");
+        // the series starts on the day the form opened on, not necessarily on today
+        // the property value is already stripped of its parameters, so the date is its first
+        // eight characters: 20260902T090000
+        LocalDate startsOn = LocalDate.parse(
+            Ics.property(Ics.master(probe.singleEvent(user)), "DTSTART").orElseThrow()
+                .substring(0, 8),
+            java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
 
         calendar.switchView("Month");
-        calendar.goToMonth(YearMonth.now().plusYears(1));
+        calendar.goToMonth(YearMonth.from(startsOn).plusYears(1));
 
         Awaitility.await().atMost(Duration.ofSeconds(45)).untilAsserted(() ->
             assertThat(calendar.eventDates(title))
-                .contains(LocalDate.now().plusYears(1).toString()));
+                .contains(startsOn.plusYears(1).toString()));
     }
 
     @Test

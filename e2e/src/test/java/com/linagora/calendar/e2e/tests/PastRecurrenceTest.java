@@ -75,12 +75,15 @@ class PastRecurrenceTest extends TwakeCalendarE2ETest {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = title("Weekly sync");
         var form = calendar.createEvent().title(title).expand().startTime("17:45").endTime("18:30");
+        // the day the series really starts on, which late in the evening is not today: the form
+        // opens on the next round hour, and that one has already rolled over
+        LocalDate startsOn = CalendarPage.parseLongDate(form.startDate());
         form.repeat().frequency(RecurrenceSection.WEEKLY);
         form.save();
         awaitAttached(calendar.eventCard(title));
 
         calendar.next().next();
-        LocalDate twoWeeksLater = LocalDate.now().plusWeeks(2);
+        LocalDate twoWeeksLater = startsOn.plusWeeks(2);
         awaitAttached(calendar.eventCard(title));
 
         var edited = calendar.openEvent(title).edit(THIS_EVENT).expand();
