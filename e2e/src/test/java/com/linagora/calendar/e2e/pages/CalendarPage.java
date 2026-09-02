@@ -331,6 +331,47 @@ public class CalendarPage {
         return new CalendarModal(page).waitUntilOpen();
     }
 
+    // ------------------------------------------------- browsing other calendars
+
+    /**
+     * Opens the sidebar dialog that looks for the calendars of other people.
+     *
+     * <p>Not to be confused with the search of the menubar, which looks for events, nor with
+     * "Add resource", which is a dialog of its own searching the resources of the domain.
+     */
+    public CalendarPage browseOtherCalendars() {
+        page.getByLabel("Add shared calendar").click();
+        page.getByPlaceholder("Start typing a name or email").waitFor();
+        return this;
+    }
+
+    /** Types a query into that dialog and hands back what it ends up offering. */
+    public List<String> searchOtherCalendars(String query) {
+        Locator field = page.getByPlaceholder("Start typing a name or email");
+        field.click();
+        field.fill("");
+        field.pressSequentially(query, new Locator.PressSequentiallyOptions().setDelay(30));
+        page.waitForTimeout(3500);
+        return page.locator("li[role=option]").allInnerTexts().stream()
+            .map(option -> option.replace("\n", " ").trim())
+            .toList();
+    }
+
+    /** Picks somebody in that dialog and returns what it says about their calendars. */
+    public String pickInOtherCalendars(String query) {
+        searchOtherCalendars(query);
+        page.locator("li[role=option]").first().click();
+        page.waitForTimeout(3500);
+        return page.locator("[role=dialog]").last().innerText();
+    }
+
+    public void cancelBrowsing() {
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Cancel").setExact(true)).last().click();
+        page.getByPlaceholder("Start typing a name or email").waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+    }
+
     /** Opens the printable schedule dialog of a calendar, through its overflow menu. */
     public PrintDialog printCalendar(String calendarName) {
         openCalendarMenu(calendarName);
