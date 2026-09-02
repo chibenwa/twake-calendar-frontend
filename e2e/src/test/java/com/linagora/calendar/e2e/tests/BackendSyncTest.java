@@ -32,7 +32,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
 
 
     @Test
-    @DisplayName("An event written on CalDAV pops up in the grid without a reload")
+    @DisplayName("SYNC-01 An event written on CalDAV pops up in the grid without a reload")
     void eventCreatedOnCalDavShowsUpLive(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = "Pushed live " + UUID.randomUUID().toString().substring(0, 8);
@@ -45,7 +45,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("An event deleted on CalDAV is gone after a refresh")
+    @DisplayName("SYNC-02 An event deleted on CalDAV is gone after a refresh")
     void eventDeletedOnCalDavDisappearsAfterRefresh(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
         String title = "Deleted behind your back " + UUID.randomUUID().toString().substring(0, 8);
@@ -61,7 +61,7 @@ class BackendSyncTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Browsing to another week loads the events of that week")
+    @DisplayName("SYNC-03 Browsing to another week loads the events of that week")
     void eventsOfAnotherWeekAreLoadedWhenNavigating(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = "Next week " + UUID.randomUUID().toString().substring(0, 8);

@@ -30,7 +30,7 @@ class EventEditionTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Renaming an event updates both the grid and CalDAV")
+    @DisplayName("EDIT-01 Renaming an event updates both the grid and CalDAV")
     void renamingAnEventUpdatesTheGridAndCalDav(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String initial = uniqueTitle("Draft name");
@@ -46,7 +46,7 @@ class EventEditionTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Changing the start time of an event is persisted")
+    @DisplayName("EDIT-02 Changing the start time of an event is persisted")
     void changingTheStartTimeUpdatesTheEvent(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Moved");
@@ -67,7 +67,7 @@ class EventEditionTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Deleting an event removes it from the grid and from CalDAV")
+    @DisplayName("EDIT-03 Deleting an event removes it from the grid and from CalDAV")
     void deletingAnEventRemovesItEverywhere(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Cancelled");
@@ -81,7 +81,7 @@ class EventEditionTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Cancelling the edit form leaves the event untouched")
+    @DisplayName("EDIT-04 Cancelling the edit form leaves the event untouched")
     void cancellingTheFormLeavesTheEventUntouched(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Keep me");

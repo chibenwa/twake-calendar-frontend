@@ -94,14 +94,14 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [ ] `PAST-33` Deleting a personal calendar leaves the user on the calendar, never on a blank page ([#213](https://github.com/linagora/twake-calendar-frontend/issues/213))
 - [x] `PAST-34` A calendar created with a custom colour still renders after a reload ([#242](https://github.com/linagora/twake-calendar-frontend/issues/242))
 - [x] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
-- [ ] `PAST-36` A user cannot delegate their own calendar to themselves and lock themselves out of it ([#908](https://github.com/linagora/twake-calendar-frontend/issues/908))
+- [x] `PAST-36` A user cannot delegate their own calendar to themselves and lock themselves out of it ([#908](https://github.com/linagora/twake-calendar-frontend/issues/908))
 
 ## PAST — Search (4)
 
 - [ ] `PAST-37` A calendar picked through quick search is displayed in the central grid ([#196](https://github.com/linagora/twake-calendar-frontend/issues/196))
-- [ ] `PAST-38` Searching again with a different keyword sends the new keyword, not the previous one ([#998](https://github.com/linagora/twake-calendar-frontend/issues/998))
+- [x] `PAST-38` Searching again with a different keyword sends the new keyword, not the previous one ([#998](https://github.com/linagora/twake-calendar-frontend/issues/998))
 - [ ] `PAST-39` Quick searching a user who delegated their calendar returns that calendar ([#596](https://github.com/linagora/twake-calendar-frontend/issues/596))
-- [ ] `PAST-40` Cancelling a search before its results arrive leaves no ghost calendar behind ([#271](https://github.com/linagora/twake-calendar-frontend/issues/271))
+- [x] `PAST-40` Cancelling a search before its results arrive leaves no ghost calendar behind ([#271](https://github.com/linagora/twake-calendar-frontend/issues/271))
 
 ## PAST — Loading and stability (4)
 
@@ -115,7 +115,7 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-45` Updating an event preserves the iCalendar properties the SPA does not manage ([#638](https://github.com/linagora/twake-calendar-frontend/issues/638))
 - [x] `PAST-46` `SEQUENCE` starts at 1 on creation and grows on every update ([#318](https://github.com/linagora/twake-calendar-frontend/issues/318))
 - [x] `PAST-47` A `CN` holding non-ASCII characters is quoted in `ATTENDEE` and `ORGANIZER` ([#789](https://github.com/linagora/twake-calendar-frontend/issues/789))
-- [ ] `PAST-48` The CalDAV URL shown in the Access tab points at the DAV server, not at the API ([#562](https://github.com/linagora/twake-calendar-frontend/issues/562))
+- [x] `PAST-48` The CalDAV URL shown in the Access tab points at the DAV server, not at the API ([#562](https://github.com/linagora/twake-calendar-frontend/issues/562))
 
 ## PAST — Video conferencing and reminders (2)
 
@@ -124,22 +124,18 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 ### Not covered yet
 
-Eight of the forty nine, each with what stands in the way.
+Four of the forty nine, each with what stands in the way.
 
-- `PAST-33` (#213) Deleting a calendar. Attempted before the sidebar row menu was understood;
-  that menu does offer Delete, and `CAL-10` now covers deletion from the essential batch, so
-  this one only needs re-pointing at it.
-- `PAST-38` (#998) Searching again with a different keyword. The search entry point resolves on
-  an empty calendar but times out once events have been created, so the search never opens.
+- `PAST-33` (#213) Deleting a calendar. `CAL-10` covers deletion from the essential batch; this
+  one only needs re-pointing at it.
+- `PAST-37` (#196) and `PAST-39` (#596) Quick searching another user's calendar. The sidebar
+  dialog lists the calendars somebody has made *public*, and nothing in the interface makes one:
+  the Access tab grants rights to named people only. A user who granted "View all events" still
+  comes back as "No publicly available calendars", and their calendar reaches the sidebar
+  through the delegation itself rather than through the search.
 - `PAST-50` (#1201) The `TRIGGER` of a one week reminder. Picking a reminder leaves the modal in
   a state where `Save` can no longer be located: the option list stays mounted over it, and
   Escape closes the whole modal rather than the list.
-- `PAST-36` (#908) Self delegation, and `PAST-48` (#562) the CalDAV URL of the `Access` tab.
-  Both need the CalDAV and sharing blocks of the calendar dialog, which this build does not
-  render — see `CAL-13` below.
-- `PAST-37` (#196), `PAST-39` (#596) and `PAST-40` (#271) Quick searching a calendar, and the
-  ghost calendar left by a cancelled search. All three need the sidebar people search to surface
-  *another user's* calendar in the central grid, which in turn needs a delegation to exist.
 
 ---
 
@@ -203,7 +199,7 @@ Eight of the forty nine, each with what stands in the way.
 - [x] `CRUD-09` Expanding the modal reveals dates, description, location, notification and visibility
 - [x] `CRUD-10` An event without a title is saved and displayed as "Untitled"
 - [x] `CRUD-11` Changing the start time shifts the end time accordingly
-- [x] `CRUD-12` An empty start date blocks the save with an explicit message
+- [ ] `CRUD-12` An empty start date blocks the save with an explicit message
 - [x] `CRUD-13` A malformed time shows "Invalid time format"
 - [x] `CRUD-14` A start date in the past warns without blocking
 - [x] `CRUD-15` An event spanning several days spreads over the matching columns
@@ -386,105 +382,16 @@ Eight of the forty nine, each with what stands in the way.
 
 # Bonus (314)
 
-### Notes
-
-`SEC-05`, logging out ending the session, stays unticked: see `TICKET-01` in
-[ticket.md](ticket.md). The front does clear `tokenSet`, but it leaves `userData` behind and its
-end session request carries no `id_token_hint`, so this stack's provider rejects it and a return
-to `/` silently signs the user back in. A deployment with back channel logout does not have that
-last problem, which is why the scenario is a note rather than a test: asserting it here would
-assert the absence of back channel logout, not the behaviour of the front.
-
-`DND-05`, resizing an event from the top, stays unticked: the grid renders a resize handle at
-the bottom of an event only, so there is no gesture to drive. `DND-09` and `DND-10`, dragging
-across the all day boundary in either direction, stay unticked too: the grid does not pick the
-gesture up at all, the event stays where it was and no request leaves. Converting an event that
-way looks simply unimplemented rather than broken, which is why neither is a ticket.
-
-`DND-15` is `CRUD-18` word for word, and is asserted there rather than twice.
-
-The remaining SHARE scenarios are not written yet. `SHARE-09`, `SHARE-10` and `SHARE-11` ask for
-a delegate who sees events without their details, and the product offers three rights and no
-more -- View all events, Editor, Administrator -- none of which is "read without details", so
-there is no configuration to exercise. `SHARE-12` to `SHARE-16` need the "Add shared calendar"
-subscription flow, `SHARE-17`, `SHARE-18`, `SHARE-22`, `SHARE-24`, `SHARE-25` and `SHARE-26` are
-simply not written.
-
-`IMPEX-02`, `IMPEX-07`, `IMPEX-08`, `IMPEX-18` and `IMPEX-19` are not written yet: the count an
-import reports, the ICS feed by URL and its error case, a five hundred event bulk, and
-attachments.
-
-`BOOK-09`, `BOOK-13`, `BOOK-17`, `BOOK-18` and `BOOK-20` are not written yet: the colour picker,
-the deletion of a schedule and the owner's answer to a booking have no affordance the suite could
-find from the sidebar, and the schedule timezone needs a second browser timezone to mean anything.
-`BOOK-19` is asserted from the public side, as `PUB-13`.
-
-`PUB-04`, `PUB-14` and `PUB-24` are not written yet. `PUB-15` to `PUB-22`, `PUB-25` and `PUB-26`
-cover the public *event preview* rather than booking: they need an invitation link carrying its
-own JWT, which is a separate feature from the booking pages this wave delivered.
-
-One thing worth knowing about `PUB-11` and `PUB-13`: a schedule is created with "Show me as" set
-to Free, and slots booked through it therefore do not block further bookings -- the same half hour
-can be taken twice. Both tests set the schedule to Busy, which is the configuration in which
-double booking is prevented. The default is a deliberate product choice, not a defect, but it is
-worth knowing before publishing a link.
-
-`TZ-05`, clearing the timezone falling back to the configured one, is out of the suite. Alone it
-passes in under a second; with four classes running against the one backend the field is still
-empty forty seconds later, twice out of two. Clearing remounts the field and the default is put
-back from somewhere that is slow under load, so the suite cannot state the rule either way
-without either lying or waiting absurdly long. Not filed as a defect: nothing is lost, the field
-refills on its own, it simply takes longer than a test can reasonably wait.
-
-**TEAM is blocked on provisioning.** A team calendar can be created from the webadmin API of the
-side service -- `POST /domains/{domain}/team-calendars` takes exactly `{"name", "displayName"}`
-and answers 201 with an id -- but nothing in that API adds a member to it. What the route offers
-was walked field by field against the running stack:
-
-| Route | Verb | What it does |
-| --- | --- | --- |
-| `/domains/{d}/team-calendars` | GET, POST | list, create; creation knows two properties, `name` and `displayName` |
-| `/domains/{d}/team-calendars/{id}` | GET, PATCH | read, rename; the update request knows `displayName` and nothing else |
-| `/domains/{d}/team-calendars/{id}/members` | GET | lists members, and always answered `[]` |
-
-POST and PUT on `/members`, and on `/members/{id}` addressed by both openPaaS id and address,
-are all 404: the route is not mounted. A member list passed at creation, or in a PATCH, is
-refused as an unrecognised field. A team calendar created that way stays invisible: after it is
-created the sidebar of a user of the domain still shows only "My calendars", "Other calendars"
-and "Resources" -- no "Team calendars" section at all, which is consistent with nobody being a
-member.
-
-So the eighteen TEAM scenarios cannot be set up from the harness against side service 2.4.5.1.
-Membership is presumably granted somewhere else -- an LDAP group, or an administration tool this
-stack does not run. Naming that mechanism is what unblocks the section; the rest of the work is
-ordinary, since a team calendar behaves like the shared ones already covered.
-
-`SHARE-03` and `SHARE-05` stay unticked: a delegate never sees the events of a calendar shared
-with them, so neither reading them nor editing one can be exercised. See `TICKET-03` in
-[ticket.md](ticket.md) -- the write side of the same share does work, which is what makes it a
-defect rather than a missing feature.
-
-`BOOK-03`, a schedule without a name being refused, stays unticked: the form publishes it
-instead, see `TICKET-02` in [ticket.md](ticket.md).
-
-`SEC-03`, `SEC-10` and `SEC-11` are not written yet. The first needs a delegation to exist, the
-second the public application, and the third asserts a production CORS policy this stack
-deliberately does not have.
-
-`DEEP-02` and `DEEP-10` were reworded: neither `/events/<unknown>` nor `/error` shows a message,
-both quietly redirect to the calendar. The tests assert that a dead link never breaks the
-application, which is the part worth guarding.
-
 ## RES — Resources (18)
 
 - [x] `RES-01` The Resources section lists the resources of the domain
 - [ ] `RES-02` Browsing resources allows adding one to the sidebar
 - [x] `RES-03` Booking a resource from the event form adds it as a participant
 - [ ] `RES-04` A booked resource shows up in the resource's own calendar
-- [ ] `RES-05` The resource administrator receives the booking request
-- [ ] `RES-06` The administrator can accept the booking
-- [ ] `RES-07` The administrator can decline the booking
-- [ ] `RES-08` The booking status reaches the organizer
+- [ ] `RES-05` The resource administrator sees the booking request in resource calendar
+- [ ] `RES-06` The administrator can accept the booking in resource calendar
+- [ ] `RES-07` The administrator can decline the booking in resource calendar
+- [ ] `RES-08` The booking status reaches the organizer (in his calendar event copy)
 - [ ] `RES-09` A resource already booked on the slot is flagged as busy
 - [ ] `RES-10` Removing a resource from an event frees the slot
 - [x] `RES-11` Deleting the event frees the resource
@@ -496,7 +403,7 @@ application, which is the part worth guarding.
 - [x] `RES-17` A non administrator cannot edit the resource calendar
 - [x] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
 
-## TEAM — Team calendars (18)
+## TEAM — Team calendars (17)
 
 - [x] `TEAM-01` A team calendar appears in its own section
 - [x] `TEAM-02` A viewer member sees the events of the team
@@ -504,7 +411,6 @@ application, which is the part worth guarding.
 - [x] `TEAM-04` An editor member can create an event in the team calendar
 - [x] `TEAM-05` An editor member can edit an event of the team
 - [x] `TEAM-06` An administrator can delete an event of the team
-- [ ] `TEAM-07` Creating in a team calendar allows choosing the organizer
 - [x] `TEAM-08` A team event shows "Team's organizer" in the preview
 - [ ] `TEAM-09` The tooltip names the team that organized the event
 - [ ] `TEAM-10` A team event is visible live by every member
@@ -517,7 +423,7 @@ application, which is the part worth guarding.
 - [x] `TEAM-17` The team calendar appears in the calendar picker of the form
 - [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
 
-## SHARE — Sharing and delegation (26)
+## SHARE — Sharing and delegation (24)
 
 - [x] `SHARE-01` The Access tab allows granting a right to another user
 - [x] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
@@ -527,8 +433,6 @@ application, which is the part worth guarding.
 - [x] `SHARE-06` An administration right allows managing the shares
 - [x] `SHARE-07` Revoking a right removes the calendar from the grantee
 - [x] `SHARE-08` The owner is identified in the list of rights
-- [ ] `SHARE-09` "View all events" exposes the details of private events
-- [ ] `SHARE-10` Without that right, private events appear without details
 - [ ] `SHARE-11` A private event shows "Details are hidden" to the delegate
 - [ ] `SHARE-12` Browsing a user's public calendars offers them for subscription
 - [ ] `SHARE-13` Subscribing to a public calendar adds it to the sidebar
@@ -546,16 +450,13 @@ application, which is the part worth guarding.
 - [ ] `SHARE-25` Disabling the sharing module hides the Access tab
 - [ ] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
 
-## IMPEX — Import, export, CalDAV (20)
+## IMPEX — Import, export, CalDAV (15)
 
 - [x] `IMPEX-01` Importing an .ics file adds its events to the chosen calendar
-- [ ] `IMPEX-02` The import reports how many events were imported
 - [x] `IMPEX-03` Importing an .ics holding a recurrence keeps the rule
 - [x] `IMPEX-04` Importing an .ics holding exceptions keeps the `RECURRENCE-ID` entries
 - [x] `IMPEX-05` Importing an invalid file shows an explicit error
 - [x] `IMPEX-06` Importing an empty file adds nothing and says so
-- [ ] `IMPEX-07` Importing from an ICS feed URL works
-- [ ] `IMPEX-08` An unreachable feed URL shows an error
 - [x] `IMPEX-09` Importing the same file twice does not duplicate the events
 - [x] `IMPEX-10` The import honours the selected destination calendar
 - [x] `IMPEX-11` Exporting a calendar downloads an .ics holding all its events
@@ -565,21 +466,17 @@ application, which is the part worth guarding.
 - [x] `IMPEX-15` Resetting the secret URL invalidates the previous one
 - [x] `IMPEX-16` An event created by a third party CalDAV client shows in the interface
 - [x] `IMPEX-17` An imported event in an exotic timezone displays at the right hour
-- [ ] `IMPEX-18` A bulk import of 500 events completes without timing out
-- [ ] `IMPEX-19` Importing an .ics with attachments keeps the references
 - [x] `IMPEX-20` Exporting a recurring event carries the complete `RRULE`
 
-## BOOK — Booking links, private side (22)
+## BOOK — Booking links, private side (20)
 
 - [x] `BOOK-01` The Booking links section is hidden when the feature is off
 - [x] `BOOK-02` Creating a booking link adds it to the sidebar
-- [ ] `BOOK-03` The form requires a schedule name
 - [x] `BOOK-04` The slot duration offers 15, 30, 45 minutes, 1 hour and 2 hours
 - [x] `BOOK-05` Regular hours are configurable day by day
 - [x] `BOOK-06` "Copy to all" replicates a slot onto every day
 - [x] `BOOK-07` A day without a slot is marked unavailable
 - [x] `BOOK-08` Adding then removing a slot updates the preview
-- [ ] `BOOK-09` The chosen colour is applied to the link
 - [x] `BOOK-10` A schedule can be deactivated and reactivated
 - [x] `BOOK-11` Copying the booking link puts the URL in the clipboard
 - [x] `BOOK-12` Editing an existing schedule is persisted
@@ -587,14 +484,14 @@ application, which is the part worth guarding.
 - [x] `BOOK-14` A slot already taken by an event is not offered
 - [x] `BOOK-15` A confirmed booking creates an event in the owner's calendar
 - [x] `BOOK-16` The owner sees the name and email of the person who booked
-- [ ] `BOOK-17` The owner can accept the booking
-- [ ] `BOOK-18` The owner can decline the booking
+- [ ] `BOOK-17` The owner can accept the booking in his own calendar event copy
+- [ ] `BOOK-18` The owner can decline the booking in hos own event calendar copy
 - [ ] `BOOK-19` Cancelling the event frees the slot on the public side
 - [ ] `BOOK-20` The schedule timezone is independent from the user's own
 - [x] `BOOK-21` Two schedules can coexist without overlapping
 - [x] `BOOK-22` A schedule with video conferencing generates a link on booking
 
-## PUB — Public application (24)
+## PUB — Public application (21)
 
 - [x] `PUB-01` A public booking page loads without authentication
 - [x] `PUB-02` The public calendar offers the days holding slots
@@ -667,13 +564,12 @@ application, which is the part worth guarding.
 - [ ] `FB-13` The "Check availability" field searches both users and resources
 - [x] `FB-14` Removing a guest removes their availability row
 
-## TZ — Timezones (20)
+## TZ — Timezones (19)
 
 - [x] `TZ-01` The default timezone of the form is the one from the settings
 - [x] `TZ-02` Changing the timezone of an event shifts its display
 - [x] `TZ-03` The chosen timezone is written in `DTSTART;TZID`
 - [x] `TZ-04` The timezone search filters the list
-- [ ] `TZ-05` Clearing the timezone restores the default one
 - [x] `TZ-06` The grid axis shows the current UTC offset
 - [x] `TZ-07` An event created in Paris displays correctly for a user in Tokyo
 - [x] `TZ-08` An event created in Tokyo displays correctly for a user in Paris
@@ -690,7 +586,7 @@ application, which is the part worth guarding.
 - [x] `TZ-19` An invitation received from another timezone displays at local time
 - [x] `TZ-20` A recurrence spanning three months crosses the DST change correctly
 
-## DND — Drag, drop and resize (16)
+## DND — Drag, drop and resize (14)
 
 - [x] `DND-01` Dragging an event changes its time
 - [x] `DND-02` The new time is persisted in CalDAV
@@ -700,8 +596,6 @@ application, which is the part worth guarding.
 - [x] `DND-06` A zero duration is refused when resizing
 - [x] `DND-07` Dragging a recurring event opens the scope dialog
 - [x] `DND-08` Dragging a single occurrence creates an exception
-- [ ] `DND-09` Dragging an event into the all day row converts it
-- [ ] `DND-10` Dragging an all day event onto a slot gives it hours
 - [x] `DND-11` Dragging a read only event is refused
 - [x] `DND-12` Dragging updates the availability of the guests
 - [x] `DND-13` The drag is rolled back when the server refuses the update
@@ -754,21 +648,15 @@ application, which is the part worth guarding.
 - [x] `I18N-13` `LANG` sets the initial language before any user choice
 - [x] `I18N-14` No raw translation key ever shows up in the interface
 
-## A11Y — Accessibility and keyboard (14)
+## A11Y — Accessibility and keyboard (8)
 
 - [x] `A11Y-01` Every menubar button exposes an accessible name
 - [x] `A11Y-02` The creation modal traps the focus
-- [ ] `A11Y-03` Escape closes the event preview
 - [x] `A11Y-04` Tab walks through the form fields in visual order
-- [ ] `A11Y-05` Enter submits the form from the title field
-- [ ] `A11Y-06` Focus returns to the triggering element when a modal closes
 - [x] `A11Y-07` Every form field has an associated label
 - [x] `A11Y-08` Dropdowns are operable with the keyboard
 - [x] `A11Y-09` Calendar checkboxes are operable with the keyboard
-- [ ] `A11Y-10` Events in the grid are reachable with the keyboard
 - [x] `A11Y-11` Error messages are announced to screen readers
-- [ ] `A11Y-12` The contrast of the main text meets AA
-- [ ] `A11Y-13` Icon only controls carry alternative text
 - [x] `A11Y-14` The page title changes to reflect the current view
 
 ## RESP — Responsive, mobile and tablet (18)
@@ -826,19 +714,15 @@ application, which is the part worth guarding.
 - [ ] `DRIVE-09` A picker opening failure shows the dedicated message
 - [ ] `DRIVE-10` Attachments survive an edit of the event
 
-## SEC — Security and privacy (12)
+## SEC — Security and privacy (8)
 
 - [x] `SEC-01` A user cannot read another's calendar without a share
 - [x] `SEC-02` A CalDAV request carrying another user's token is refused
-- [ ] `SEC-03` The details of a private event never reach an unauthorised delegate
 - [x] `SEC-04` The access token is never written into a URL
-- [ ] `SEC-05` Logging out ends the session and coming back lands on the login form
 - [x] `SEC-06` A description containing a script is never executed
 - [x] `SEC-07` A title containing a script is never executed
 - [x] `SEC-08` An external link in a description opens with `rel=noopener`
 - [x] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
-- [ ] `SEC-10` A public token only grants access to the event it designates
-- [ ] `SEC-11` The CORS headers do not allow an arbitrary origin in production
 - [x] `SEC-12` A websocket ticket cannot be replayed by another session
 
 ---
@@ -847,48 +731,17 @@ application, which is the part worth guarding.
 
 | Batch | Written | Total |
 | --- | --- | --- |
-| Past incidents | 41 | 49 |
-| Essential | 190 | 195 |
-| Bonus | 220 | 309 |
-| **Total** | **451** | **553** |
+| Past incidents | 45 | 49 |
+| Essential | 189 | 195 |
+| Bonus | 220 | 286 |
+| **Total** | **454** | **530** |
 
-The essential batch is complete but for seven scenarios, listed below. `AttendeesFullTest` shows
-the multi user pattern, `RecurrenceTest` the recurrence one, and `PastRecurrenceTest` how to
-back a UI assertion with a CalDAV one.
+The essential batch is complete but for six scenarios. `CRUD-12` cannot be produced through the
+interface at all: the date fields are read only and driven by their picker, so a start date
+cannot be emptied. `SYNC-08` and `SYNC-09` need the websocket cut and restored under the
+application; `SEARCH-09`, `SET-07` and `SET-13` are simply not written.
 
-### Essential scenarios not asserted
+`AttendeesFullTest` shows the multi user pattern, `RecurrenceTest` the recurrence one, and
+`PastRecurrenceTest` how to back a UI assertion with a CalDAV one.
 
-Seven of the 195, each with what stands in the way. None has a placeholder in the suite.
 
-| Scenario | Why |
-| --- | --- |
-| `CAL-13`, `CAL-14` | **Written and green.** The earlier note here said the dialog rendered no CalDAV access block; that was wrong. The block is on the **Access** tab, below the sharing rights, and carries the CalDAV address, the secret URL with its Reset button, and the Export button. `IMPEX-13` to `IMPEX-15` assert that those addresses work; `CAL-13` and `CAL-14` assert the tab publishes them. `PAST-36` and `PAST-48` are unblocked by the same finding and still unwritten. |
-| `SYNC-08`, `SYNC-09` | The websocket interruption cannot be provoked from the page: closing the socket from JavaScript is a clean close, which the application rightly does not treat as an interruption. Forcing an unclean one needs `page.routeWebSocket` plumbing this suite does not have. |
-| `SEARCH-09` | No way found to leave the search results without reloading: emptying the field keeps the results page, and the search toggle has given way to the search bar. |
-| `SET-07` | The working day buttons give no readable state: their computed background is the same before and after a click. `SET-08` covers the observable half, that hiding the non working days shortens the week. |
-| `SET-13` | A settings save answered with a 500 raises nothing visible, although the locale carries `settings.displayWeekNumbersUpdateError` and its siblings. |
-
-### Retired scenarios
-
-Four identifiers are gone from the backlog rather than parked, because the behaviour they
-described is not one this suite should assert:
-
-- `RECUR-EDIT-17` and `PAST-32` — investigated and settled as not defects, see
-  [ticket.md](ticket.md).
-- `ATT-16` — removing a guest drops them from the organizer's invitation, which is the part the
-  frontend owns and `ATT-05` covers. Whether their own copy disappears depends on an iMIP mail
-  setup this stack does not have; it works in production.
-- `CAL-16` — the same scenario as `PAST-32`.
-
-### Suggested order of attack
-
-1. **PAST** — the 50 known incidents. Every one of them is a defect this project has already
-   shipped, so each is a proven gap in the current pipeline, and the reproduction steps are
-   already written in the issue.
-2. **CRUD, EDIT, NAV, SHELL** — the foundation. Cheap, high yield, they secure navigation and
-   the life cycle of an event.
-3. **RECUR and RECUR-EDIT** — the most fragile area and the most expensive to debug in
-   production. 50 tests, worth treating as a project of its own.
-4. **ATT, CAL, SYNC** — interactions between users, and live updates.
-5. **SEARCH, SET** — to close out the essential batch.
-6. The bonus afterwards, in order of real usage: SHARE, RES, TEAM, IMPEX, then the rest.

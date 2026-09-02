@@ -17,7 +17,7 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
 class CalendarNavigationTest extends TwakeCalendarE2ETest {
 
     @Test
-    @DisplayName("Next moves the week view to the following week")
+    @DisplayName("NAV-01 Next moves the week view to the following week")
     void nextMovesToTheFollowingWeek(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         List<String> currentWeek = calendar.visibleDayHeaders();
@@ -30,7 +30,7 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Today comes back to the current week after browsing away")
+    @DisplayName("NAV-02 Today comes back to the current week after browsing away")
     void todayComesBackToTheCurrentWeek(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         List<String> currentWeek = calendar.visibleDayHeaders();
@@ -45,7 +45,7 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Switching to the month view renders a month grid")
+    @DisplayName("NAV-03 Switching to the month view renders a month grid")
     void monthViewRendersAMonthGrid(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
@@ -55,7 +55,7 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Switching to the day view narrows the grid down to a single column")
+    @DisplayName("NAV-04 Switching to the day view narrows the grid down to a single column")
     void dayViewRendersASingleDay(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
@@ -211,4 +211,27 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
             .hasCount(1, new com.microsoft.playwright.assertions.LocatorAssertions.HasCountOptions()
                 .setTimeout(30_000));
     }
+
+    @Test
+    @DisplayName("NAV-11 The week number shown matches the ISO week of the displayed days")
+    void theWeekNumberMatchesTheDisplayedWeek(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        // both read from the grid: the ISO week of the days on screen, and the number the axis
+        // prints. Recomputing either from the clock would go wrong on a run crossing midnight.
+        java.time.LocalDate firstDay = calendar.firstVisibleDate();
+        int isoWeek = firstDay.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
+
+        assertThat(calendar.weekNumber().first().innerText())
+            .as("the number on the axis is the ISO week of the days it sits beside")
+            .contains(String.valueOf(isoWeek));
+
+        calendar.next();
+        int nextIsoWeek = calendar.firstVisibleDate()
+            .get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
+        assertThat(calendar.weekNumber().first().innerText())
+            .as("and it follows the grid when the grid moves on")
+            .contains(String.valueOf(nextIsoWeek));
+    }
+
 }

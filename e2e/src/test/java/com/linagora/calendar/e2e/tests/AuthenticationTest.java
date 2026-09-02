@@ -15,7 +15,7 @@ import com.microsoft.playwright.Page;
 class AuthenticationTest extends TwakeCalendarE2ETest {
 
     @Test
-    @DisplayName("An unauthenticated visitor is sent to the SSO and lands on their calendar")
+    @DisplayName("AUTH-01 An unauthenticated visitor is sent to the SSO and lands on their calendar")
     void loginLandsOnTheCalendar(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
@@ -25,7 +25,7 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Reloading the page keeps the session, no second trip to the SSO")
+    @DisplayName("AUTH-02 Reloading the page keeps the session, no second trip to the SSO")
     void reloadKeepsTheSession(Page page, E2EUser user) {
         LoginPage.loginAs(page, user);
 
@@ -114,7 +114,7 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Logging out hands the session over to the SSO end session endpoint")
+    @DisplayName("AUTH-03 Logging out hands the session over to the SSO end session endpoint")
     void logoutHandsOverToTheSso(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
