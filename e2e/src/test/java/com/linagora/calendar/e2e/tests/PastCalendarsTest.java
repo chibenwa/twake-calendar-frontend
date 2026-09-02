@@ -1,5 +1,7 @@
 package com.linagora.calendar.e2e.tests;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -10,6 +12,7 @@ import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.Ical;
+import com.linagora.calendar.e2e.pages.CalendarModal;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
@@ -70,4 +73,41 @@ class PastCalendarsTest extends TwakeCalendarE2ETest {
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
             .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(20_000));
     }
+
+    @Test
+    @DisplayName("PAST-36 (#908) A user is never offered to delegate their calendar to themselves")
+    void aUserIsNeverOfferedToDelegateToThemselves(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar("My calendar").tab("Access");
+        Locator search = page.getByPlaceholder("Start typing a name or email");
+        search.click();
+        search.pressSequentially(user.email(), new Locator.PressSequentiallyOptions().setDelay(30));
+        page.waitForTimeout(3000);
+
+        assertThat(page.locator("li[role=option]").allInnerTexts())
+            .as("granting oneself a right on one's own calendar can only end badly")
+            .noneMatch(option -> option.contains(user.email()));
+        // and the row the owner already has offers no right to change and no cross to remove
+        assertThat(modal.text()).contains("Owner");
+        modal.close();
+    }
+
+    @Test
+    @DisplayName("PAST-48 (#562) The CalDAV address of the Access tab points at the DAV server")
+    void theCaldavAddressPointsAtTheDavServer(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar("My calendar").tab("Access");
+
+        // the two addresses of the tab go to two different places on purpose: a CalDAV client
+        // talks to the DAV server, while the secret link is served by the API
+        assertThat(modal.caldavUrl())
+            .as("a CalDAV client pointed at the API finds nothing to talk to")
+            .startsWith("http://dav")
+            .contains("/calendars/");
+        assertThat(modal.secretUrl()).startsWith("http://api");
+        modal.close();
+    }
+
 }
