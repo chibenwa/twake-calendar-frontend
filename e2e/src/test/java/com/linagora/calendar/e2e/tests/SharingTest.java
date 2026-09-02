@@ -16,6 +16,9 @@ import com.linagora.calendar.e2e.backend.E2EUserFactory;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarModal;
 import com.linagora.calendar.e2e.pages.CalendarPage;
+import com.linagora.calendar.e2e.backend.Ics;
+import com.linagora.calendar.e2e.pages.EventFormModal;
+import com.linagora.calendar.e2e.pages.RecurrenceSection;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
@@ -288,4 +291,99 @@ class SharingTest extends TwakeCalendarE2ETest {
         assertThat(modal.rightOf(mate.email())).isEqualTo("View all events");
         modal.close();
     }
+
+    @Test
+    @DisplayName("SHARE-17 An event a delegate creates belongs to the owner of the calendar")
+    void anEventADelegateCreatesBelongsToTheOwner(Page page, E2EUser user, E2EUserFactory users,
+                                                  E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        share(calendar, mate, "Editor");
+        awaitSharedCalendar(matePage, user);
+
+        String title = uniqueTitle("Written for the owner");
+        new CalendarPage(matePage).createEvent().title(title).expand()
+            .calendar(user.email()).save();
+
+        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(user)).contains(title));
+        String event = Ics.event(probe.singleEvent(user));
+        assertThat(Ics.property(event, "ORGANIZER").orElseThrow())
+            .as("an event written into somebody's calendar is organised by them, "
+                + "not by the delegate who typed it")
+            .contains(user.email());
+    }
+
+    @Test
+    @DisplayName("SHARE-26 A series a delegate creates keeps its rule in the owner's calendar")
+    void aSeriesADelegateCreatesKeepsItsRule(Page page, E2EUser user, E2EUserFactory users,
+                                             E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        share(calendar, mate, "Editor");
+        awaitSharedCalendar(matePage, user);
+
+        String title = uniqueTitle("Delegated series");
+        EventFormModal form = new CalendarPage(matePage).createEvent().title(title).expand()
+            .calendar(user.email());
+        form.repeat().frequency(RecurrenceSection.DAILY).endsAfter(4);
+        form.save();
+
+        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(user)).contains(title));
+        String rule = Ics.property(Ics.master(probe.singleEvent(user)), "RRULE").orElseThrow();
+        assertThat(rule)
+            .as("a series written by a delegate is a series in the owner's calendar too")
+            .contains("FREQ=DAILY")
+            .contains("COUNT=4");
+    }
+
+    @Test
+    @DisplayName("SHARE-22 Somebody outside the domain is not offered a right")
+    void somebodyOutsideTheDomainIsNotOffered(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
+        Locator search = page.getByPlaceholder("Start typing a name or email");
+        search.click();
+        search.pressSequentially("outsider1@external.test",
+            new Locator.PressSequentiallyOptions().setDelay(30));
+        page.waitForTimeout(3000);
+
+        assertThat(page.locator("li[role=option]").allInnerTexts())
+            .as("a calendar is shared with the people of the instance, not with the internet")
+            .noneMatch(option -> option.contains("external.test"));
+        modal.close();
+    }
+
+
+    @Test
+    @DisplayName("SHARE-24 A long list of grantees stays complete and reachable")
+    void aLongListOfGranteesStaysReachable(Page page, E2EUser user, E2EUserFactory users,
+                                           E2ESessions sessions) {
+        java.util.List<E2EUser> grantees = new java.util.ArrayList<>();
+        for (int index = 0; index < 13; index++) {
+            E2EUser grantee = users.newUser("mate" + index);
+            sessions.openFor(grantee);
+            grantees.add(grantee);
+        }
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        CalendarModal modal = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
+        for (E2EUser grantee : grantees) {
+            modal.grantAccess(grantee.email(), "View all events");
+        }
+        modal.save();
+
+        CalendarModal reopened = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
+        assertThat(grantees)
+            .as("every right granted has to be findable again, however many there are")
+            .allSatisfy(grantee -> assertThat(reopened.hasAccessRow(grantee.email()))
+                .as("the row of %s", grantee.email())
+                .isTrue());
+        reopened.close();
+    }
+
 }

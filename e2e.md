@@ -439,16 +439,16 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `SHARE-14` Unsubscribing from a public calendar removes it without deleting it
 - [ ] `SHARE-15` A user with no public calendar shows the matching message
 - [ ] `SHARE-16` The colours of a shared calendar are per subscriber
-- [ ] `SHARE-17` Creating an event in a delegated calendar sets the right organizer
+- [x] `SHARE-17` Creating an event in a delegated calendar sets the right organizer
 - [ ] `SHARE-18` The preview offers "Edit in <calendar>" for a delegated event
 - [x] `SHARE-19` A delegate cannot delete the shared calendar
 - [x] `SHARE-20` The share survives a logout and login on both sides
 - [x] `SHARE-21` An edit made by the delegate is visible live to the owner
-- [ ] `SHARE-22` Sharing with an address outside the domain is refused
+- [x] `SHARE-22` Sharing with an address outside the domain is refused
 - [x] `SHARE-23` Sharing with oneself is refused
-- [ ] `SHARE-24` The list of rights is paginated beyond a dozen grantees
+- [x] `SHARE-24` The list of rights is paginated beyond a dozen grantees
 - [ ] `SHARE-25` Disabling the sharing module hides the Access tab
-- [ ] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
+- [x] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
 
 ## IMPEX — Import, export, CalDAV (15)
 
@@ -733,8 +733,8 @@ Four of the forty nine, each with what stands in the way.
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
 | Essential | 189 | 195 |
-| Bonus | 220 | 286 |
-| **Total** | **454** | **530** |
+| Bonus | 224 | 286 |
+| **Total** | **458** | **530** |
 
 The essential batch is complete but for six scenarios. `CRUD-12` cannot be produced through the
 interface at all: the date fields are read only and driven by their picker, so a start date
