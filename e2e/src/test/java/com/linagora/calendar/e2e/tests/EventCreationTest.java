@@ -23,7 +23,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("An event created from the form shows up in the grid")
+    @DisplayName("CRUD-01 An event created from the form shows up in the grid")
     void createdEventShowsUpInTheGrid(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Team sync");
@@ -36,7 +36,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("An event created from the form reaches CalDAV")
+    @DisplayName("CRUD-02 An event created from the form reaches CalDAV")
     void createdEventIsPersistedInCalDav(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Retrospective");
@@ -47,7 +47,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Description and location typed in the expanded form are persisted")
+    @DisplayName("CRUD-03 Description and location typed in the expanded form are persisted")
     void descriptionAndLocationArePersisted(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Onsite meeting");
@@ -70,7 +70,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("A created event is still there after a reload")
+    @DisplayName("CRUD-04 A created event is still there after a reload")
     void eventSurvivesAReload(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Persisted");
@@ -84,7 +84,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("An end time before the start time is refused")
+    @DisplayName("CRUD-05 An end time before the start time is refused")
     void endTimeBeforeStartTimeBlocksTheSave(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Backwards");
@@ -102,7 +102,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("An all day event lands in the all day row rather than in a time slot")
+    @DisplayName("CRUD-06 An all day event lands in the all day row rather than in a time slot")
     void allDayEventIsRenderedInTheAllDayRow(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = uniqueTitle("Company offsite");
@@ -337,7 +337,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("CRUD-18 Dragging a time range in the grid prefills the event times")
+    @DisplayName("CRUD-18 / DND-15 Dragging a time range in the grid prefills the event times")
     void draggingATimeRangePrefillsTheTimes(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 

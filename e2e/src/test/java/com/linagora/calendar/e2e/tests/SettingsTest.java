@@ -14,7 +14,7 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
 class SettingsTest extends TwakeCalendarE2ETest {
 
     @Test
-    @DisplayName("Switching the language to French relabels the interface")
+    @DisplayName("SET-01 Switching the language to French relabels the interface")
     void switchingToFrenchRelabelsTheUi(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
@@ -32,7 +32,7 @@ class SettingsTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("Turning the week number off removes it from the grid")
+    @DisplayName("SET-02 Turning the week number off removes it from the grid")
     void turningOffTheWeekNumberHidesIt(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         PlaywrightAssertions.assertThat(calendar.weekNumber().first()).containsText("Week");
