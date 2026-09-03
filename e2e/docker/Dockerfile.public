@@ -8,4 +8,6 @@ FROM ${PUBLIC_IMAGE}
 
 COPY src/test/resources/frontend/env.public.js /usr/share/nginx/html/.env.js
 # index.html asks for it like the private app does; without it the page 404s on every load
-COPY src/test/resources/frontend/appList.js /usr/share/nginx/html/appList.js
+# named .e2e.js because the repository ignores every appList.js, so a file under
+# that name would live on the machine that made it and nowhere else
+COPY src/test/resources/frontend/appList.e2e.js /usr/share/nginx/html/appList.js
