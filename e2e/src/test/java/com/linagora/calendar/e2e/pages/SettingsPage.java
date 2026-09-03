@@ -46,12 +46,25 @@ public class SettingsPage {
         if (autoDetect.isChecked()) {
             awaitPersisted(autoDetect::click);
         }
-        Locator picker = page.getByPlaceholder("Select timezone");
-        picker.click();
-        picker.fill("");
-        picker.pressSequentially(timezone, new Locator.PressSequentiallyOptions().setDelay(40));
-        awaitPersisted(() -> page.locator("li[role=option]").first().click());
-        return this;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            Locator picker = page.getByPlaceholder("Select timezone");
+            picker.click();
+            picker.fill("");
+            picker.pressSequentially(timezone, new Locator.PressSequentiallyOptions().setDelay(40));
+            // wait for the option that matches what was typed, never for whichever one happens
+            // to be first: the list answers keystroke by keystroke, and one that has not caught
+            // up still offers every zone on earth
+            Locator wanted = page.locator("li[role=option]")
+                .filter(new Locator.FilterOptions().setHasText(timezone));
+            try {
+                wanted.first().waitFor(new Locator.WaitForOptions().setTimeout(15_000));
+            } catch (com.microsoft.playwright.TimeoutError notFilteredYet) {
+                continue;
+            }
+            awaitPersisted(() -> wanted.first().click());
+            return this;
+        }
+        throw new AssertionError("The settings timezone list never settled on " + timezone);
     }
 
     /** One of the settings tabs: Settings, Notifications. */
