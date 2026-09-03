@@ -37,7 +37,9 @@ if [ "$FORCE_FRONTEND_BUILD" = "true" ] || [ ! -d "$REPO_DIR/apps/private/dist" 
       node:24 sh -c '[ -d node_modules ] || npm ci; npm run build:private'
   fi
 else
-  echo "Reusing existing apps/private/dist (FORCE_FRONTEND_BUILD=true to rebuild)"
+  echo "Reusing existing apps/private/dist, built $(find "$REPO_DIR/apps/private/dist" -name 'index.html' -printf '%TY-%Tm-%Td %TH:%TM\n' 2>/dev/null || echo 'at an unknown time')"
+  echo "    A stale bundle is the one way this suite can be green against code nobody ships:"
+  echo "    CI always rebuilds. Use FORCE_FRONTEND_BUILD=true before trusting a green run."
 fi
 
 echo "==> Building the public SPA bundle"
@@ -59,7 +61,7 @@ if [ "$FORCE_FRONTEND_BUILD" = "true" ] || [ ! -d "$REPO_DIR/apps/public/dist" ]
       node:24 sh -c '[ -d node_modules ] || npm ci; npm run build:public'
   fi
 else
-  echo "Reusing existing apps/public/dist (FORCE_FRONTEND_BUILD=true to rebuild)"
+  echo "Reusing existing apps/public/dist, built $(find "$REPO_DIR/apps/public/dist" -name 'index.html' -printf '%TY-%Tm-%Td %TH:%TM\n' 2>/dev/null || echo 'at an unknown time')"
 fi
 
 echo "==> Building the production frontend image"

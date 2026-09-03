@@ -62,7 +62,11 @@ class SharingTest extends TwakeCalendarE2ETest {
      * label of the shape a personal calendar has.
      */
     private Locator sharedCalendarRow(Page page, E2EUser owner) {
-        return page.locator("li").filter(new Locator.FilterOptions().setHasText(owner.email()));
+        // matched on the local part rather than the whole address: the row is named after the
+        // owner's display name, and that is the address in some builds and only its local part
+        // in others. The local part is in both.
+        return page.locator("li").filter(new Locator.FilterOptions()
+            .setHasText(owner.uid()));
     }
 
     /**
@@ -163,7 +167,7 @@ class SharingTest extends TwakeCalendarE2ETest {
         CalendarPage mateCalendar = new CalendarPage(matePage);
         String title = uniqueTitle("Written by the delegate");
         mateCalendar.createEvent().title(title).expand()
-            .calendar(user.email())
+            .calendar(user.uid())
             .save();
 
         Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
@@ -251,7 +255,7 @@ class SharingTest extends TwakeCalendarE2ETest {
         awaitSharedCalendar(matePage, user);
         CalendarPage mateCalendar = new CalendarPage(matePage);
         String title = uniqueTitle("Live from the delegate");
-        mateCalendar.createEvent().title(title).expand().calendar(user.email()).save();
+        mateCalendar.createEvent().title(title).expand().calendar(user.uid()).save();
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
             .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(PROPAGATION_MS));
@@ -301,7 +305,7 @@ class SharingTest extends TwakeCalendarE2ETest {
 
         String title = uniqueTitle("Written for the owner");
         new CalendarPage(matePage).createEvent().title(title).expand()
-            .calendar(user.email()).save();
+            .calendar(user.uid()).save();
 
         Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
             assertThat(probe.eventSummaries(user)).contains(title));
@@ -324,7 +328,7 @@ class SharingTest extends TwakeCalendarE2ETest {
 
         String title = uniqueTitle("Delegated series");
         EventFormModal form = new CalendarPage(matePage).createEvent().title(title).expand()
-            .calendar(user.email());
+            .calendar(user.uid());
         form.repeat().frequency(RecurrenceSection.DAILY).endsAfter(4);
         form.save();
 
