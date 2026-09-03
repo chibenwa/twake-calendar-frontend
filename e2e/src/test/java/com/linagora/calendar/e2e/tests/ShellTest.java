@@ -169,6 +169,8 @@ class ShellTest extends TwakeCalendarE2ETest {
         org.assertj.core.api.Assertions.assertThat(log.pageErrors())
             .as("an uncaught exception leaves the interface in an unknown state")
             .isEmpty();
-        org.assertj.core.api.Assertions.assertThat(log.consoleErrors()).isEmpty();
+        org.assertj.core.api.Assertions.assertThat(log.consoleErrors())
+            .as("the browser complained: %s", log.explain())
+            .isEmpty();
     }
 }

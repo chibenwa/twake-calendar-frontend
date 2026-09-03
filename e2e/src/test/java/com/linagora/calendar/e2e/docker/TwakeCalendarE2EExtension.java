@@ -159,6 +159,12 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
                 System.out.println("[browser console error] " + message.text());
             }
         });
+        state.page.onResponse(response -> {
+            if (response.status() >= 400) {
+                state.browserLog.recordFailedRequest(response.status(),
+                    response.request().method(), response.url());
+            }
+        });
         state.page.onPageError(error -> {
             state.browserLog.recordPageError(error);
             System.out.println("[browser page error] " + error);
