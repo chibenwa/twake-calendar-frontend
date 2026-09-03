@@ -7,4 +7,6 @@ ARG FRONTEND_IMAGE="twake-calendar-web-e2e-base"
 FROM ${FRONTEND_IMAGE}
 
 COPY src/test/resources/frontend/env.js /usr/share/nginx/html/.env.js
-COPY src/test/resources/frontend/appList.js /usr/share/nginx/html/appList.js
+# named .e2e.js because the repository ignores every appList.js, so a file under
+# that name would live on the machine that made it and nowhere else
+COPY src/test/resources/frontend/appList.e2e.js /usr/share/nginx/html/appList.js
