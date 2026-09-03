@@ -642,7 +642,14 @@ Four of the forty nine, each with what stands in the way.
 - [x] `I18N-06` The 24 hour format is honoured when configured
 - [x] `I18N-07` The long date format of the form follows the locale
 - [x] `I18N-08` Validation messages are translated
-- [x] `I18N-09` Network error messages are translated
+- [ ] `I18N-09` Network error messages are translated — they are not, or not always. With
+  the interface in French, a failed call for calendar data raises a snackbar reading
+  `Request failed with status code 500 Internal Server Error: REPORT http://api/dav/...`
+  with an `OK` button: the raw text of the HTTP client, in English, naming an internal
+  address. It is intermittent — the same scenario produced a translated banner five runs
+  in a row before producing this one, and CI needed five runs to catch it — so two paths
+  lead out of the same failure and only one of them uses the translations, which do exist
+  (`error.unknown`, `error.retry`).
 - [x] `I18N-10` The recurrence summary of the preview is translated
 - [x] `I18N-11` The default calendar is named in the user's language
 - [x] `I18N-12` `HIDE_LANGUAGE_SELECTOR` hides the language picker
