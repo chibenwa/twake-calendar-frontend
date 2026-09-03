@@ -99,13 +99,10 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         var form = calendar.createEvent().expand();
 
-        Locator picker = page.locator("[role=dialog]").last().getByPlaceholder("Select timezone");
-        picker.click();
-        picker.fill("");
-        picker.pressSequentially("Reykjav", new Locator.PressSequentiallyOptions().setDelay(40));
-        page.locator("li[role=option]").first().waitFor();
+        java.util.List<String> offered = form.timezoneOptions("Reykjav");
 
-        assertThat(page.locator("li[role=option]").allInnerTexts())
+        assertThat(offered).isNotEmpty();
+        assertThat(offered)
             .allSatisfy(option -> assertThat(option).containsIgnoringCase("reykjav"));
         assertThat(form.text()).isNotBlank();
     }

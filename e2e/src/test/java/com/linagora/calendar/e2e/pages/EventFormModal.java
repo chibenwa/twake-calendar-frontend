@@ -256,6 +256,37 @@ public class EventFormModal {
             + ", the field still reads " + timezoneInput().inputValue());
     }
 
+    /**
+     * What the timezone picker offers for a query.
+     *
+     * <p>Types the query and waits for the list to be filtered by it, rather than for any option
+     * at all: the MUI autocomplete answers keystroke by keystroke, and a list that has not caught
+     * up yet still holds the whole world.
+     */
+    public java.util.List<String> timezoneOptions(String query) {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            timezoneInput().click();
+            timezoneInput().fill("");
+            timezoneInput().pressSequentially(query,
+                new Locator.PressSequentiallyOptions().setDelay(40));
+            Locator options = page.locator("li[role=option]");
+            try {
+                options.filter(new Locator.FilterOptions().setHasText(query)).first()
+                    .waitFor(new Locator.WaitForOptions().setTimeout(15_000));
+            } catch (com.microsoft.playwright.TimeoutError notYet) {
+                continue;
+            }
+            java.util.List<String> offered = options.allInnerTexts().stream()
+                .map(String::trim).toList();
+            if (offered.stream().allMatch(option ->
+                    option.toLowerCase().contains(query.toLowerCase()))) {
+                return offered;
+            }
+        }
+        throw new AssertionError("The timezone list never settled on " + query
+            + ", it still offers " + page.locator("li[role=option]").count() + " options");
+    }
+
     /** The timezone field itself, for the assertions that watch it settle. */
     public Locator timezoneField() {
         return timezoneInput();

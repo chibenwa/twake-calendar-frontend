@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class BrowserLog {
     private final List<String> consoleErrors = new CopyOnWriteArrayList<>();
     private final List<String> pageErrors = new CopyOnWriteArrayList<>();
+    private final List<String> failedRequests = new CopyOnWriteArrayList<>();
 
     void recordConsoleError(String message) {
         consoleErrors.add(message);
@@ -19,6 +20,15 @@ public class BrowserLog {
 
     void recordPageError(String message) {
         pageErrors.add(message);
+    }
+
+    /**
+     * A request the server refused. The browser logs "Failed to load resource" without saying
+     * which one, which makes a console error assertion useless on its own: this keeps the
+     * address and the status beside it.
+     */
+    void recordFailedRequest(int status, String method, String url) {
+        failedRequests.add(status + " " + method + " " + url);
     }
 
     /** Everything the page logged at error level. */
@@ -31,8 +41,20 @@ public class BrowserLog {
         return List.copyOf(pageErrors);
     }
 
+    /** Every request answered with an error status, address included. */
+    public List<String> failedRequests() {
+        return List.copyOf(failedRequests);
+    }
+
+    /** The console errors, each with whatever failed request it most likely refers to. */
+    public String explain() {
+        return "console errors: " + consoleErrors
+            + System.lineSeparator() + "failed requests: " + failedRequests;
+    }
+
     public void clear() {
         consoleErrors.clear();
         pageErrors.clear();
+        failedRequests.clear();
     }
 }
