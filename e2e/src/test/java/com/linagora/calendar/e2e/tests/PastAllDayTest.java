@@ -87,7 +87,9 @@ class PastAllDayTest extends TwakeCalendarE2ETest {
     @DisplayName("PAST-25 (#942) Moving an all day event one day back moves it exactly one day back")
     void movingAnAllDayEventMovesItByOneDay(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
-        LocalDate start = LocalDate.now().plusDays(3);
+        // both days taken from the week on screen: three days from today lands in next week
+        // when the suite runs late in the week, and an event there is not on the grid at all
+        LocalDate start = calendar.firstVisibleDate().plusDays(3);
         LocalDate target = start.minusDays(1);
         String title = title("Travelling");
 

@@ -48,7 +48,12 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
         for (String guest : guests) {
             form.addGuest(guest);
         }
-        form.expand().startTime("09:00").endTime("10:00");
+        // The series starts on the first day the grid shows, never on "today": a daily series
+        // begun on a Friday runs into next week, and the occurrences that land there are simply
+        // not on screen to be counted. Anchoring it to the visible week keeps every occurrence
+        // of a week or less in view whatever day the suite runs.
+        LocalDate weekStart = calendar.firstVisibleDate();
+        form.expand().startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
         form.repeat().frequency(RecurrenceSection.DAILY).endsAfter(occurrences);
         form.save();
         awaitAttached(calendar.eventCard(title));
@@ -282,8 +287,12 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
     void pushingTheEndDateExtendsTheSeries(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = title("Bounded");
-        var creation = calendar.createEvent().title(title).expand().startTime("09:00").endTime("10:00");
-        creation.repeat().frequency(RecurrenceSection.DAILY).endsOn(LocalDate.now().plusDays(1));
+        // anchored to the week on screen so that both the short series and the extended one
+        // stay countable: bounds taken from today put half the occurrences in next week
+        LocalDate weekStart = calendar.firstVisibleDate();
+        var creation = calendar.createEvent().title(title).expand()
+            .startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+        creation.repeat().frequency(RecurrenceSection.DAILY).endsOn(weekStart.plusDays(1));
         creation.save();
         awaitAttached(calendar.eventCard(title));
         page.reload();
@@ -291,7 +300,7 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
         int before = calendar.eventCard(title).count();
 
         var form = calendar.openEvent(title).edit(ALL_EVENTS).expand();
-        form.repeat().endsOn(LocalDate.now().plusDays(4));
+        form.repeat().endsOn(weekStart.plusDays(4));
         form.save();
 
         Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->

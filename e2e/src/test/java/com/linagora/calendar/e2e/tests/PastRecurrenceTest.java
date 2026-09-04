@@ -122,8 +122,13 @@ class PastRecurrenceTest extends TwakeCalendarE2ETest {
     void editingAnOccurrenceOfAnUntilSeriesKeepsItVisible(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String title = title("Bounded");
-        var form = calendar.createEvent().title(title).expand().startTime("09:00").endTime("10:00");
-        form.repeat().frequency(RecurrenceSection.DAILY).endsOn(LocalDate.now().plusDays(4));
+        // both ends inside the week on screen. Moving only the end bound is not enough: with a
+        // start left on today, an end taken from the start of the week can land before it and
+        // leave the series with a single occurrence.
+        LocalDate weekStart = calendar.firstVisibleDate();
+        var form = calendar.createEvent().title(title).expand()
+            .startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+        form.repeat().frequency(RecurrenceSection.DAILY).endsOn(weekStart.plusDays(4));
         form.save();
         Awaitility.await().atMost(Duration.ofSeconds(30))
             .until(() -> calendar.eventCard(title).count() >= 2);
