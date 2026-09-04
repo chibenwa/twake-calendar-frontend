@@ -28,6 +28,7 @@ import {
 import { EventResizeDoneArg } from '@fullcalendar/interaction'
 import { User } from '@sentry/react'
 import moment from 'moment'
+import type { BookingLink } from '@common/features/booking/types/BookingTypes'
 
 export interface EventHandlersProps {
   setSelectedRange: (range: DateSelectArg | null) => void
@@ -50,6 +51,7 @@ export interface EventHandlersProps {
   tempUsers: User[]
   setTempEvent: (event: CalendarEvent) => void
   timezone: string
+  onEditBookingLink?: (link: BookingLink) => void
 }
 
 export const createEventHandlers = (
@@ -78,7 +80,8 @@ export const createEventHandlers = (
     setOpenEditModePopup,
     tempUsers,
     setTempEvent,
-    timezone
+    timezone,
+    onEditBookingLink
   } = props
 
   const handleDateSelect = (selectInfo: DateSelectArg | null): void => {
@@ -146,6 +149,18 @@ export const createEventHandlers = (
 
   const handleEventClick = (info: EventClickArg): void => {
     info.jsEvent.preventDefault()
+
+    const bookingLink = info.event.extendedProps.bookingLink as
+      | BookingLink
+      | undefined
+    if (
+      info.event.extendedProps.isBookingLink &&
+      bookingLink &&
+      onEditBookingLink
+    ) {
+      onEditBookingLink(bookingLink)
+      return
+    }
 
     setAnchorEl(getEventClickTarget(info.jsEvent, info.el))
 

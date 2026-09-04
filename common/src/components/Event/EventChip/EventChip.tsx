@@ -27,6 +27,7 @@ import {
 } from './EventChipUtils'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { EventDescriptionBuilder } from '@common/utils/EventDescriptionBuilder'
+import { BookingLinkEventChip } from './BookingLinkEventChip'
 
 const PRIVATE_CLASSIFICATIONS = ['PRIVATE', 'CONFIDENTIAL']
 
@@ -69,6 +70,21 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
     : ''
 
   try {
+    // Check if this is a booking link event
+    const isBookingLink = props.isBookingLink as boolean | undefined
+
+    // Delegate to BookingLinkEventChip for booking link events
+    if (isBookingLink) {
+      return (
+        <BookingLinkEventChip
+          arg={arg}
+          calendars={calendars}
+          tempcalendars={tempcalendars}
+          errorHandler={errorHandler}
+        />
+      )
+    }
+
     // Calendar validation
     const calendarsSource = temp ? tempcalendars : calendars
     const calendar = calendarsSource[calId as string]

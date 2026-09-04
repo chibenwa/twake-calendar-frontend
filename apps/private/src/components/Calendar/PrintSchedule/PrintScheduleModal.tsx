@@ -41,7 +41,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import { Dayjs } from 'dayjs'
 import { useState } from 'react'
 import { useI18n } from 'twake-i18n'
-import { useVisibleBookingLinks } from '../hooks/useVisibleBookingLinks'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 
 export interface PrintScheduleModalProps {
@@ -61,7 +60,6 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
   const { t, lang } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
   const dispatch = useAppDispatch()
-  const visibleBookingLinks = useVisibleBookingLinks()
   const userId = useAppSelector(state => state.user.userData?.openpaasId) ?? ''
   const hideDeclinedEvents = useAppSelector(
     state => state.settings.hideDeclinedEvents
@@ -215,8 +213,7 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
         heading: headingFor(calId),
         events: selectPrintEvents(
           extractEvents([calId], calendars, {
-            hideDeclinedEvents,
-            visibleBookingLinks
+            hideDeclinedEvents
           }),
           timezone,
           t('print.noTitle')

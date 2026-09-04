@@ -104,7 +104,8 @@ export const useCalendarEventHandlers = (
       props.setEventDisplayedCalId,
       props.setEventDisplayedTemp,
       props.calendars,
-      props.dispatch
+      props.dispatch,
+      props.onEditBookingLink
     ]),
     handleEventAllow: useCallback(eventHandlers.handleEventAllow, []),
     handleEventDrop: useCallback(eventHandlers.handleEventDrop, [

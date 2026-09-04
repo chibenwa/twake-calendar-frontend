@@ -17,10 +17,15 @@ export const useHiddenDays = (
 
 export const useFilteredCalendarEvents = (
   fullCalendarEvents: EventInput[],
+  bookingListEvents: EventInput[],
   currentView: string,
   timezone: string
 ): EventInput[] => {
   return useMemo(() => {
+    if (currentView === CALENDAR_VIEWS.dayGridMonth) {
+      return [...fullCalendarEvents, ...bookingListEvents]
+    }
+
     if (currentView !== CALENDAR_VIEWS.listWeek) {
       return fullCalendarEvents
     }
@@ -36,5 +41,5 @@ export const useFilteredCalendarEvents = (
         : moment.tz(event.start as moment.MomentInput, timezone)
       return eventEnd.isSameOrAfter(startOfToday, 'day')
     })
-  }, [fullCalendarEvents, currentView, timezone])
+  }, [fullCalendarEvents, bookingListEvents, currentView, timezone])
 }

@@ -5,6 +5,7 @@ import { useI18n } from 'twake-i18n'
 import { useCalendarViewHandlers } from './useCalendarViewHandlers'
 import { useFilteredCalendarEvents } from './useCalendarControllerHooks'
 import { useFindUpcommingEvent } from './useFindUpcommingEvent'
+import { useBookingLinksEvents } from './useBookingLinks'
 import {
   extractEvents,
   eventToFullCalendarFormat
@@ -27,12 +28,10 @@ const getFilteredEvents = (
   selectedCalendars: string[],
   calendars: RootState['calendars']['list'],
   email: string | undefined,
-  hideDeclinedEvents: boolean | undefined,
-  visibleBookingLinks?: string[]
+  hideDeclinedEvents: boolean | undefined
 ): CalendarEvent[] => {
   return extractEvents(selectedCalendars, calendars || {}, {
-    hideDeclinedEvents,
-    visibleBookingLinks
+    hideDeclinedEvents
   })
 }
 
@@ -47,6 +46,8 @@ export interface UseCalendarGridStateProps {
   onViewChange: (view: string) => void
   errorHandler: EventErrorHandler
   visibleBookingLinks?: string[]
+  rangeStart?: Date
+  rangeEnd?: Date
 }
 
 export interface CalendarGridState {
@@ -56,7 +57,7 @@ export interface CalendarGridState {
   upcomingEventId: string | undefined
 }
 
-interface UseCalendarEventsDataProps {
+export interface UseCalendarEventsDataProps {
   selectedCalendars: string[]
   calendars: RootState['calendars']['list']
   tempcalendars: RootState['calendars']['templist']
@@ -67,6 +68,8 @@ interface UseCalendarEventsDataProps {
   currentView: string
   timezone: string
   t: (key: string) => string
+  rangeStart?: Date
+  rangeEnd?: Date
 }
 
 export interface CalendarEventsData {
@@ -85,7 +88,6 @@ interface FullCalendarEventsProps {
   isPending: boolean
   hideDeclinedEvents: boolean
   t: (key: string) => string
-  visibleBookingLinks?: string[]
 }
 
 const useFullCalendarEvents = ({
@@ -96,8 +98,7 @@ const useFullCalendarEvents = ({
   userId,
   isPending,
   hideDeclinedEvents,
-  t,
-  visibleBookingLinks
+  t
 }: FullCalendarEventsProps): EventInput[] => {
   const tempCalendarIds = useMemo(
     () => getTempCalendarIds(tempcalendars),
@@ -111,16 +112,9 @@ const useFullCalendarEvents = ({
         selectedCalendars,
         calendars,
         email,
-        hideDeclinedEvents,
-        visibleBookingLinks
+        hideDeclinedEvents
       ),
-    [
-      selectedCalendars,
-      calendars,
-      email,
-      hideDeclinedEvents,
-      visibleBookingLinks
-    ]
+    [selectedCalendars, calendars, email, hideDeclinedEvents]
   )
 
   const filteredTempEvents = useMemo(
@@ -129,16 +123,9 @@ const useFullCalendarEvents = ({
         tempCalendarIds,
         tempcalendars,
         email,
-        hideDeclinedEvents,
-        visibleBookingLinks
+        hideDeclinedEvents
       ),
-    [
-      tempCalendarIds,
-      tempcalendars,
-      email,
-      hideDeclinedEvents,
-      visibleBookingLinks
-    ]
+    [tempCalendarIds, tempcalendars, email, hideDeclinedEvents]
   )
 
   return useMemo(() => {
@@ -173,7 +160,9 @@ export const useCalendarEventsData = ({
   currentView,
   timezone,
   t,
-  visibleBookingLinks
+  visibleBookingLinks,
+  rangeStart,
+  rangeEnd
 }: UseCalendarEventsDataProps & {
   visibleBookingLinks?: string[]
 }): CalendarEventsData => {
@@ -190,12 +179,18 @@ export const useCalendarEventsData = ({
     userId,
     isPending,
     hideDeclinedEvents,
-    t,
-    visibleBookingLinks
+    t
   })
+
+  const bookingListEvents = useBookingLinksEvents(
+    visibleBookingLinks,
+    rangeStart,
+    rangeEnd
+  )
 
   const filteredCalendarEvents = useFilteredCalendarEvents(
     fullCalendarEvents,
+    bookingListEvents,
     currentView,
     timezone
   )
@@ -252,7 +247,9 @@ export const useCalendarGridState = ({
   setSelectedMiniDate,
   onViewChange,
   errorHandler,
-  visibleBookingLinks
+  visibleBookingLinks,
+  rangeStart,
+  rangeEnd
 }: UseCalendarGridStateProps): CalendarGridState => {
   const { t } = useI18n()
   const {
@@ -283,7 +280,9 @@ export const useCalendarGridState = ({
     currentView,
     timezone,
     t,
-    visibleBookingLinks
+    visibleBookingLinks,
+    rangeStart,
+    rangeEnd
   })
 
   const viewHandlers = useCalendarViewHandlers({

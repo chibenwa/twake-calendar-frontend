@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import cx from 'classnames'
 import type { MutableRefObject, RefObject } from 'react'
 import FullCalendar from '@fullcalendar/react'
@@ -39,6 +39,8 @@ import { useSwipeNavigation } from './hooks/useSwipeNavigation'
 import { useAutoScrollToUpcommingEvent } from '../Event/hooks/useAutoScrollToUpcommingEvent'
 import { usePreserveScrollPositionInScheduleView } from './hooks/usePreserveScrollPositionInScheduleView'
 import { useDraftEvent } from './hooks/useDraftEvent'
+import { BookingLinkOverlay } from './BookingLinkOverlay'
+import type { BookingLink } from '@common/features/booking/types/BookingTypes'
 
 const localeMap: Record<string, LocaleInput | undefined> = {
   fr: frLocale,
@@ -73,6 +75,7 @@ export interface CalendarGridProps {
   visibleBookingLinks?: string[]
   selectedRange?: DateSelectArg | null
   draftCalendarId?: string | null
+  onEditBookingLink?: (link: BookingLink) => void
 }
 
 const CALENDAR_PLUGINS = [
@@ -115,11 +118,24 @@ const CALENDAR_DEFAULT_PROPS = {
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
   calendarRef,
   calendarWrapperRef,
+  datesSet,
   ...otherProps
 }) => {
   const { lang } = useI18n()
   const { isTooSmall: isMobile, isTablet } = useScreenSizeDetection()
   const isNotDesktop = isTablet || isMobile
+
+  const [dateRange, setDateRange] = useState<{ start: Date; end: Date } | null>(
+    null
+  )
+
+  const handleDatesSet = useCallback(
+    (arg: DatesSetArg) => {
+      setDateRange({ start: arg.start, end: arg.end })
+      datesSet(arg)
+    },
+    [datesSet]
+  )
 
   const { isPending, filteredCalendarEvents, viewHandlers, upcomingEventId } =
     useCalendarGridState({
@@ -132,7 +148,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
       setSelectedMiniDate: otherProps.setSelectedMiniDate,
       onViewChange: otherProps.onViewChange,
       errorHandler: otherProps.errorHandler,
-      visibleBookingLinks: otherProps.visibleBookingLinks
+      visibleBookingLinks: otherProps.visibleBookingLinks,
+      rangeStart: dateRange?.start,
+      rangeEnd: dateRange?.end
     })
 
   const { events } = useDraftEvent({
@@ -167,6 +185,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         }}
         {...(isNotDesktop ? swipeHandlers : {})}
       >
+        <BookingLinkOverlay
+          visibleBookingLinks={otherProps.visibleBookingLinks}
+          calendarRef={calendarRef}
+          timezone={otherProps.timezone}
+          currentView={otherProps.currentView}
+          onEditBookingLink={otherProps.onEditBookingLink}
+        />
         <FullCalendar
           {...CALENDAR_DEFAULT_PROPS}
           key={otherProps.hiddenDays.join(',')}
@@ -210,7 +235,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
               timezone={otherProps.timezone}
             />
           )}
-          datesSet={otherProps.datesSet}
+          datesSet={handleDatesSet}
           dayHeaderContent={viewHandlers.handleDayHeaderContent}
           dayHeaderDidMount={viewHandlers.handleDayHeaderDidMount}
           dayHeaderWillUnmount={viewHandlers.handleDayHeaderWillUnmount}
