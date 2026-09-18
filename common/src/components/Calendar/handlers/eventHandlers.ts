@@ -134,6 +134,15 @@ export const createEventHandlers = (
     )
   }
 
+  /**
+   * The grid is filled by an expanded REPORT, which returns occurrences without
+   * the RRULE of their master: a recurring instance therefore reaches the store
+   * with no repetition, and only that gap justifies fetching the whole event
+   * again. Every other field the preview shows is already in the store.
+   */
+  const lacksSeriesRepetition = (event: CalendarEvent): boolean =>
+    event.uid.includes('/') && event.repetition === undefined
+
   const dispatchGetEventIfPresent = (
     dispatch: AppDispatch,
     calendars: Record<string, Calendar>,
@@ -142,7 +151,7 @@ export const createEventHandlers = (
   ): void => {
     if (!calId || !uid) return
     const event = calendars[calId]?.events?.[uid]
-    if (event) {
+    if (event && lacksSeriesRepetition(event)) {
       void dispatch(getEvent(event))
     }
   }
