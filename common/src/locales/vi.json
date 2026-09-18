@@ -266,7 +266,8 @@
     "missingToken": "Liên kết của bạn không hợp lệ",
     "eventNotFound": "Không tìm thấy sự kiện. Sự kiện có thể đã bị xóa hoặc liên kết không hợp lệ.",
     "invalidOrExpiredToken": "Liên kết lời mời của bạn không hợp lệ hoặc đã hết hạn.",
-    "needHelp": "Cần giúp đỡ"
+    "needHelp": "Cần giúp đỡ",
+    "calendarsNotFound": "Không thể tải danh sách lịch của bạn. Một số lịch có thể đã bị xóa."
   },
   "editModeDialog": {
     "updateRecurrentEvent": "Cập nhật sự kiện lặp lại",

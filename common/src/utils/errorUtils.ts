@@ -17,10 +17,12 @@ export function formatReduxError(error: unknown): string {
   return 'Unexpected error occurred'
 }
 
+export function httpStatusOf(err: unknown): number | undefined {
+  return typeof err === 'object' && err !== null && 'response' in err
+    ? (err as { response?: { status?: number } }).response?.status
+    : undefined
+}
+
 export function toRejectedError(err: unknown): RejectedError {
-  const status =
-    typeof err === 'object' && err !== null && 'response' in err
-      ? (err as { response?: { status?: number } }).response?.status
-      : undefined
-  return { message: formatReduxError(err), status }
+  return { message: formatReduxError(err), status: httpStatusOf(err) }
 }

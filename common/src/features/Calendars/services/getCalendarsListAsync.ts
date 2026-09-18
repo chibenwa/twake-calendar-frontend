@@ -1,6 +1,9 @@
 import { type RootState } from '@common/app/store'
 import { fetchCalendars } from '@common/features/Calendars/CalendarDAO'
-import { CalendarData } from '@common/features/Calendars/types/CalendarData'
+import {
+  CalendarData,
+  CalendarList
+} from '@common/features/Calendars/types/CalendarData'
 import { RejectedError } from '@common/features/Calendars/types/RejectedError'
 import { normalizeCalendar } from '@common/features/Calendars/utils/normalizeCalendar'
 import { OpenPaasUserData } from '@common/features/User/type/OpenPaasUserData'
@@ -11,7 +14,11 @@ import {
   DelegationAccess
 } from '@common/types/CalendarTypes'
 import { defaultColors } from '@common/utils/defaultColors'
-import { formatReduxError, toRejectedError } from '@common/utils/errorUtils'
+import {
+  formatReduxError,
+  httpStatusOf,
+  toRejectedError
+} from '@common/utils/errorUtils'
 import { getAccessiblePair } from '@common/utils/getAccessiblePair'
 import { createTheme } from '@mui/material/styles'
 import { ReducerCreators } from '@reduxjs/toolkit'
@@ -19,6 +26,25 @@ import { CalendarState } from '../CalendarSlice'
 import { getOwnerOrResourceData } from './helpers'
 
 const theme = createTheme()
+
+const CALENDAR_HOME_NOT_FOUND_ERROR = 'TRANSLATION:error.calendarsNotFound'
+
+// A 404 on the calendar home (the calendar was hard deleted server side) must
+// not prevent the application from starting: report it as null so the caller
+// can keep the calendars it already has and only warn the user.
+async function fetchCalendarsOrNull(
+  userId: string
+): Promise<CalendarList | null> {
+  try {
+    return await fetchCalendars(userId)
+  } catch (err) {
+    if (httpStatusOf(err) === 404) {
+      console.error('Calendar home not found:', err)
+      return null
+    }
+    throw err
+  }
+}
 
 export const getCalendarsListThunk = (
   create: ReducerCreators<CalendarState>
@@ -44,8 +70,14 @@ export const getCalendarsListThunk = (
           return rejectWithValue(toRejectedError('User not found'))
         }
 
-        const calendars = await fetchCalendars(user.id)
-        const rawCalendars = calendars._embedded['dav:calendar']
+        const calendars = await fetchCalendarsOrNull(user.id)
+        if (!calendars) {
+          return {
+            importedCalendars: existingCalendars,
+            errors: CALENDAR_HOME_NOT_FOUND_ERROR
+          }
+        }
+        const rawCalendars = calendars._embedded?.['dav:calendar'] ?? []
 
         const errors: string[] = []
 

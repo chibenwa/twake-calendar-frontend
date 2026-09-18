@@ -119,7 +119,9 @@ export const CallbackResume: React.FC = () => {
   useEffect(() => {
     if (hasNavigated.current) return
     if (userData.loading || calendars.pending) return
-    if (userData.error || calendars.error) {
+    // Calendar loading failures are reported by a toast inside the calendar
+    // view: only a broken user session justifies the full error page.
+    if (userData.error) {
       dispatch(setAppLoading(false))
       dispatch(replace('/error'))
       return
@@ -143,7 +145,6 @@ export const CallbackResume: React.FC = () => {
     userData.tokens,
     userData.error,
     calendars.pending,
-    calendars.error,
     dispatch
   ])
 

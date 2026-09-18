@@ -164,4 +164,36 @@ describe('HandleLogin', () => {
       { timeout: 3000 }
     )
   })
+
+  test('goes to the calendar page when only the calendars failed to load', async () => {
+    const mockDispatch = jest.fn()
+    jest.spyOn(appHooks, 'useAppDispatch').mockReturnValue(mockDispatch)
+
+    renderWithProviders(<HandleLogin />, {
+      user: {
+        error: null,
+        loading: false,
+        userData: {
+          sub: 'test',
+          email: 'test@test.com',
+          sid: 'testSid',
+          openpaasId: 'testId'
+        },
+        tokens: { access_token: 'test' }
+      },
+      calendars: {
+        list: {},
+        pending: false,
+        error: 'TRANSLATION:error.calendarsNotFound'
+      }
+    })
+
+    await waitFor(
+      () => {
+        expect(mockDispatch).toHaveBeenCalledWith(push('/calendar'))
+      },
+      { timeout: 3000 }
+    )
+    expect(mockDispatch).not.toHaveBeenCalledWith(push('/error'))
+  })
 })

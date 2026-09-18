@@ -175,6 +175,34 @@ describe('getCalendarsList', () => {
     })
   })
 
+  it('should keep the existing calendars and warn the user when the calendar home is gone', async () => {
+    const existingCalendars = {
+      'cal-existing': { id: 'cal-existing', events: { 'event-1': {} } }
+    }
+    getState.mockReturnValue({
+      calendars: { list: existingCalendars },
+      user: { userData: { openpaasId: 'user-123' } }
+    })
+
+    mockedFetchCalendars.mockRejectedValue({
+      response: { status: 404 },
+      message: 'Not Found'
+    })
+
+    // httpStatusOf is imported from a mocked module; provide the expected return
+    const { httpStatusOf } = jest.requireMock('@common/utils/errorUtils')
+    httpStatusOf.mockReturnValueOnce(404)
+
+    const thunk = getCalendarsList()
+    const result = await thunk(dispatch, getState, undefined)
+
+    expect(result.type).toBe('calendars/getCalendarsList/fulfilled')
+    expect(result.payload).toEqual({
+      importedCalendars: existingCalendars,
+      errors: 'TRANSLATION:error.calendarsNotFound'
+    })
+  })
+
   it('should handle error when fetching owner data fails', async () => {
     getState.mockReturnValue({
       calendars: {},
