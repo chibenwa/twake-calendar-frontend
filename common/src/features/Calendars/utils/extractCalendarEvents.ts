@@ -7,6 +7,42 @@ import { parseCalendarEvent } from '@common/features/Events/utils'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { defaultColors } from '@common/utils/defaultColors'
+import { resolveTimezoneId } from '@common/utils/timezone'
+
+/**
+ * An expanded REPORT normalises every occurrence to UTC and leaves the zone the
+ * event was written in to a sibling VTIMEZONE. Reading that component back is
+ * the only way the grid learns an event created in Tokyo is a Tokyo event, and
+ * not one of the browser.
+ */
+function bundledTimezone(components: unknown[]): string | undefined {
+  const vtimezone = components.find(
+    component =>
+      Array.isArray(component) &&
+      typeof component[0] === 'string' &&
+      component[0].toLowerCase() === 'vtimezone'
+  ) as VCalComponent | undefined
+
+  const tzid = vtimezone?.[1].find(([key]) => key.toLowerCase() === 'tzid')?.[3]
+
+  return typeof tzid === 'string' ? resolveTimezoneId(tzid) : undefined
+}
+
+/**
+ * A zone stated on DTSTART itself is the one of that very occurrence, and wins
+ * over the one of the calendar object it belongs to. An event left without any
+ * is read back in full when opened, rather than guessed here.
+ */
+function withTimezone(
+  event: CalendarEvent,
+  fromVTimezone: string | undefined
+): CalendarEvent {
+  if (event.timezone || !fromVTimezone) {
+    return event
+  }
+
+  return { ...event, timezone: fromVTimezone }
+}
 
 export function extractCalendarEvents(
   item: CalDavItem,
@@ -31,6 +67,8 @@ export function extractCalendarEvents(
     return []
   }
 
+  const timezoneOfTheCalendarObject = bundledTimezone(vevents)
+
   return vevents
     .map(vevent => {
       if (!Array.isArray(vevent)) {
@@ -53,13 +91,16 @@ export function extractCalendarEvents(
 
       const valarms = extractValarms(vevent as VCalComponent)
 
-      return parseCalendarEvent({
-        data: eventProps,
-        color: options?.color ?? defaultColors[0],
-        calendar: options.cal,
-        eventURL,
-        valarms
-      })
+      return withTimezone(
+        parseCalendarEvent({
+          data: eventProps,
+          color: options?.color ?? defaultColors[0],
+          calendar: options.cal,
+          eventURL,
+          valarms
+        }),
+        timezoneOfTheCalendarObject
+      )
     })
     .filter(Boolean) as CalendarEvent[]
 }

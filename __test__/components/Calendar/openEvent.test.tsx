@@ -12,7 +12,7 @@ const calId = '667037022b752d0026472254/cal1'
 
 function storedEvent(
   uid: string,
-  repetition?: RepetitionObject
+  overrides: Partial<CalendarEvent> = {}
 ): CalendarEvent {
   const event = {
     uid,
@@ -21,8 +21,8 @@ function storedEvent(
     start: '2025-03-15T10:00:00.000Z',
     end: '2025-03-15T11:00:00.000Z',
     timezone: 'UTC',
-    repetition,
-    URL: `/calendars/${calId}/${uid.split('/')[0]}.ics`
+    URL: `/calendars/${calId}/${uid.split('/')[0]}.ics`,
+    ...overrides
   }
   return event as CalendarEvent
 }
@@ -35,8 +35,9 @@ const calendars: Record<string, Calendar> = {
       'series/20250315T100000': storedEvent('series/20250315T100000'),
       'known-series/20250315T100000': storedEvent(
         'known-series/20250315T100000',
-        new RepetitionObject({ freq: 'weekly', interval: 1 })
-      )
+        { repetition: new RepetitionObject({ freq: 'weekly', interval: 1 }) }
+      ),
+      zoneless: storedEvent('zoneless', { timezone: undefined })
     }
   } as unknown as Calendar
 }
@@ -71,8 +72,8 @@ function openEvent(uid: string): void {
 
 /**
  * Opening an event used to read the whole event back, every single time. The
- * grid is filled by an expanded REPORT, and the only thing that report leaves
- * out is the rule of a series.
+ * grid is filled by an expanded REPORT, and what that report leaves out is the
+ * rule of a series, and the zone an event was written in when it states none.
  */
 describe('Opening an event from the grid', () => {
   it('does not read a simple event again', () => {
@@ -98,6 +99,16 @@ describe('Opening an event from the grid', () => {
 
     expect(getEvent).toHaveBeenCalledWith(
       expect.objectContaining({ uid: 'series/20250315T100000' })
+    )
+  })
+
+  it('reads an event that came without the zone it was written in', () => {
+    const getEvent = jest.spyOn(eventThunks, 'getEvent')
+
+    openEvent('zoneless')
+
+    expect(getEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ uid: 'zoneless' })
     )
   })
 })
