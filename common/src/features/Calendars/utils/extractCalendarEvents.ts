@@ -28,22 +28,6 @@ function bundledTimezone(components: unknown[]): string | undefined {
   return typeof tzid === 'string' ? resolveTimezoneId(tzid) : undefined
 }
 
-/**
- * A zone stated on DTSTART itself is the one of that very occurrence, and wins
- * over the one of the calendar object it belongs to. An event left without any
- * is read back in full when opened, rather than guessed here.
- */
-function withTimezone(
-  event: CalendarEvent,
-  fromVTimezone: string | undefined
-): CalendarEvent {
-  if (event.timezone || !fromVTimezone) {
-    return event
-  }
-
-  return { ...event, timezone: fromVTimezone }
-}
-
 export function extractCalendarEvents(
   item: CalDavItem,
   options: {
@@ -91,16 +75,14 @@ export function extractCalendarEvents(
 
       const valarms = extractValarms(vevent as VCalComponent)
 
-      return withTimezone(
-        parseCalendarEvent({
-          data: eventProps,
-          color: options?.color ?? defaultColors[0],
-          calendar: options.cal,
-          eventURL,
-          valarms
-        }),
+      return parseCalendarEvent({
+        data: eventProps,
+        color: options?.color ?? defaultColors[0],
+        calendar: options.cal,
+        eventURL,
+        valarms,
         timezoneOfTheCalendarObject
-      )
+      })
     })
     .filter(Boolean) as CalendarEvent[]
 }
