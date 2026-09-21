@@ -424,7 +424,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `TEAM-17` The team calendar appears in the calendar picker of the form
 - [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
 
-## SHARE — Sharing and delegation (24)
+## SHARE — Sharing and delegation (26)
 
 - [x] `SHARE-01` The Access tab allows granting a right to another user
 - [x] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
@@ -450,6 +450,8 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHARE-24` The list of rights is paginated beyond a dozen grantees
 - [ ] `SHARE-25` Disabling the sharing module hides the Access tab
 - [x] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
+- [x] `SHARE-27` A write right opens the Import tab of the delegated calendar
+- [x] `SHARE-28` A read right does not open the Import tab of the delegated calendar
 
 ## IMPEX — Import, export, CalDAV (15)
 

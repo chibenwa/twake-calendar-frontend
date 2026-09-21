@@ -8,6 +8,7 @@ import {
   patchCalendar,
   updateDelegationCalendar
 } from '@common/features/Calendars/CalendarSlice'
+import { canWriteToCalendar } from '@common/features/Calendars/utils/calendarPermissions'
 import { Calendar } from '@common/types/CalendarTypes'
 import { accessRightToDavProp } from '@common/utils/accessRightToDavProp'
 import { defaultColors } from '@common/utils/defaultColors'
@@ -49,6 +50,10 @@ function CalendarPopover({
       const currentEmail = userData.email?.trim().toLowerCase()
       return inviteEmail === currentEmail && invite.access === 5
     })
+  // Importing writes events: any write right on the calendar is enough, whether
+  // it comes from owning it or from a delegation.
+  const canImport =
+    !calendar || canWriteToCalendar(calendar, userData.openpaasId ?? '')
 
   // existing calendar params
   const [name, setName] = useState('')
@@ -309,7 +314,7 @@ function CalendarPopover({
           {calendar && (
             <Tab value="access" label={t('calendarPopover.tabs.access')} />
           )}
-          {isOwn && (
+          {canImport && (
             <Tab value="import" label={t('calendarPopover.tabs.import')} />
           )}
         </Tabs>

@@ -331,6 +331,22 @@ public class CalendarPage {
         return new CalendarModal(page).waitUntilOpen();
     }
 
+    /**
+     * Opens that same dialog for a sidebar row merely containing the given text.
+     *
+     * <p>For a calendar somebody lent: it carries no name of its own, the sidebar builds one out
+     * of its owner's, and how much of that name shows depends on the directory. The owner's
+     * identifier is in it whatever the build, an exact name is not.
+     */
+    public CalendarModal modifyCalendarMatching(String rowFragment) {
+        Locator row = page.locator("li")
+            .filter(new Locator.FilterOptions().setHasText(rowFragment)).first();
+        row.hover();
+        row.locator("button").last().click();
+        page.getByRole(AriaRole.MENUITEM, new Page.GetByRoleOptions().setName("Modify")).click();
+        return new CalendarModal(page).waitUntilOpen();
+    }
+
     // ------------------------------------------------- browsing other calendars
 
     /**

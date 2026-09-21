@@ -342,6 +342,46 @@ class SharingTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("SHARE-27 A write right opens the Import tab of the borrowed calendar")
+    void aWriteRightOpensTheImportTab(Page page, E2EUser user, E2EUserFactory users,
+                                      E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        share(calendar, mate, "Editor");
+        awaitSharedCalendar(matePage, user);
+
+        CalendarModal borrowed = new CalendarPage(matePage).modifyCalendarMatching(user.uid());
+
+        assertThat(borrowed.tabs())
+            .as("a right to write into a calendar is a right to import into it")
+            .anyMatch(tab -> tab.contains("Import"));
+        borrowed.tab("Import").importFile(Ics.fixture("simple.ics")).startImport();
+        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(user))
+                .as("what the delegate imported belongs in the owner's calendar")
+                .contains("Imported simple one", "Imported simple two"));
+    }
+
+    @Test
+    @DisplayName("SHARE-28 A reading right does not open the Import tab")
+    void aReadingRightDoesNotOpenTheImportTab(Page page, E2EUser user, E2EUserFactory users,
+                                              E2ESessions sessions) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        share(calendar, mate, "View all events");
+        awaitSharedCalendar(matePage, user);
+
+        CalendarModal borrowed = new CalendarPage(matePage).modifyCalendarMatching(user.uid());
+
+        assertThat(borrowed.tabs())
+            .as("somebody who may only read a calendar may not write events into it")
+            .noneMatch(tab -> tab.contains("Import"));
+        borrowed.close();
+    }
+
+    @Test
     @DisplayName("SHARE-22 Somebody outside the domain is not offered a right")
     void somebodyOutsideTheDomainIsNotOffered(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);

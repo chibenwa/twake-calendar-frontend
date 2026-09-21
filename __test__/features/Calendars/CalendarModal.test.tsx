@@ -487,6 +487,98 @@ describe('CalendarPopover - Tabs Scenarios', () => {
     })
   })
 
+  describe('Import into a delegated calendar', () => {
+    const delegatedCalendar = (write: boolean): Calendar => ({
+      id: 'owner1/cal1',
+      link: '/calendars/user1/shared1.json',
+      name: 'Owner Calendar',
+      owner: { firstname: 'Owner', emails: ['owner@example.com'] },
+      visibility: 'public',
+      delegated: true,
+      access: {
+        freebusy: false,
+        read: true,
+        write,
+        'write-properties': write,
+        all: false
+      },
+      events: {}
+    })
+
+    it('offers the Import tab on a calendar delegated with a write right', () => {
+      renderWithProviders(
+        <CalendarPopover
+          open={true}
+          onClose={mockOnClose}
+          calendar={delegatedCalendar(true)}
+        />,
+        { user: baseUser }
+      )
+
+      expect(screen.getByRole('tab', { name: /Import/i })).toBeInTheDocument()
+    })
+
+    it('hides the Import tab on a calendar delegated read only', () => {
+      renderWithProviders(
+        <CalendarPopover
+          open={true}
+          onClose={mockOnClose}
+          calendar={delegatedCalendar(false)}
+        />,
+        { user: baseUser }
+      )
+
+      expect(
+        screen.queryByRole('tab', { name: /Import/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('offers the delegated calendar as an import destination', () => {
+      const calendar = delegatedCalendar(true)
+
+      renderWithProviders(
+        <CalendarPopover
+          open={true}
+          onClose={mockOnClose}
+          calendar={calendar}
+        />,
+        { user: baseUser, calendars: { list: { [calendar.id]: calendar } } }
+      )
+
+      fireEvent.click(screen.getByRole('tab', { name: /Import/i }))
+
+      expect(screen.getByText('Owner Calendar')).toBeInTheDocument()
+    })
+
+    it('imports into the calendar link the delegation exposes', async () => {
+      jest
+        .spyOn(eventThunks, 'importEventFromFile')
+        .mockImplementation(mockThunkWithUnwrap())
+      const calendar = delegatedCalendar(true)
+
+      renderWithProviders(
+        <CalendarPopover
+          open={true}
+          onClose={mockOnClose}
+          calendar={calendar}
+        />,
+        { user: baseUser, calendars: { list: { [calendar.id]: calendar } } }
+      )
+
+      fireEvent.click(screen.getByRole('tab', { name: /Import/i }))
+      fireEvent.change(screen.getByLabelText('common.select_file'), {
+        target: { files: [new File(['test'], 'events.ics')] }
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'actions.import' }))
+
+      await waitFor(() =>
+        expect(eventThunks.importEventFromFile).toHaveBeenCalledWith(
+          expect.objectContaining({ calLink: '/calendars/user1/shared1.json' })
+        )
+      )
+    })
+  })
+
   it('fetches and resets the secret link', async () => {
     window.DAV_BASE_URL = 'https://cal.example.org'
     ;(fetchSecretLink as jest.Mock)

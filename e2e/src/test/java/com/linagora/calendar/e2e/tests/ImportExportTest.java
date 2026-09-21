@@ -1,12 +1,12 @@
 package com.linagora.calendar.e2e.tests;
 
+import static com.linagora.calendar.e2e.backend.Ics.fixture;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.UUID;
@@ -35,14 +35,6 @@ import com.microsoft.playwright.Page;
 class ImportExportTest extends TwakeCalendarE2ETest {
     private static final String OWN_CALENDAR = "My calendar";
     private static final Duration IMPORT_MS = Duration.ofSeconds(60);
-
-    private static Path fixture(String name) {
-        try {
-            return Path.of(ImportExportTest.class.getResource("/ics/" + name).toURI());
-        } catch (Exception e) {
-            throw new IllegalStateException("Missing fixture " + name, e);
-        }
-    }
 
     private CalendarModal importTab(CalendarPage calendar) {
         return calendar.modifyCalendar(OWN_CALENDAR).tab("Import");

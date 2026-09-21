@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useAppSelector } from '@common/app/hooks'
-import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
+import { useUserPersonalCalendars } from '@common/features/Calendars/hooks/useUserPersonalCalendars'
 import { InputLabel, MenuItem, Select, Typography } from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { CalendarItemList } from './CalendarItemList'
@@ -19,12 +19,12 @@ export const CalendarSelector: React.FC<{
   const { t } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
   const calendars = useAppSelector(state => state.calendars.list)
-  const personalCalendars = Object.values(calendars).filter(
-    cal => extractEventBaseUuid(cal.id) === userId
-  )
+  // Every calendar the import may write into: the user's own ones and those
+  // delegated to them with a write right.
+  const writableCalendars = useUserPersonalCalendars(calendars, userId)
 
   const selectorRef = useRef<MobileSelectorHandle>(null)
-  const selectedCalendar = personalCalendars.find(
+  const selectedCalendar = writableCalendars.find(
     cal => cal.id === importTarget
   )
 
@@ -55,7 +55,7 @@ export const CalendarSelector: React.FC<{
           >
             {t('calendar.new_calendar')}
           </MenuItem>
-          {CalendarItemList(personalCalendars, handleMobileSelectCalendar)}
+          {CalendarItemList(writableCalendars, handleMobileSelectCalendar)}
         </MobileSelector>
       </>
     )
@@ -71,7 +71,7 @@ export const CalendarSelector: React.FC<{
         onChange={e => setImportTarget(e.target.value)}
       >
         <MenuItem value="new">{t('calendar.new_calendar')}</MenuItem>
-        {CalendarItemList(personalCalendars)}
+        {CalendarItemList(writableCalendars)}
       </Select>
     </>
   )

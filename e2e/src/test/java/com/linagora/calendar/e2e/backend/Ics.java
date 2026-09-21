@@ -1,5 +1,6 @@
 package com.linagora.calendar.e2e.backend;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,15 @@ import java.util.regex.Pattern;
  * `RECURRENCE-ID`. Most recurrence regressions are visible right here.
  */
 public class Ics {
+
+    /** One of the iCalendar files the suite imports, by name, out of {@code src/test/resources/ics}. */
+    public static Path fixture(String name) {
+        try {
+            return Path.of(Ics.class.getResource("/ics/" + name).toURI());
+        } catch (Exception e) {
+            throw new IllegalStateException("Missing fixture " + name, e);
+        }
+    }
 
     /** Unfolds the RFC 5545 line folding, so a property can be matched in one piece. */
     public static String unfold(String icalendar) {
