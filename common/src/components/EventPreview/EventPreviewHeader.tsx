@@ -7,6 +7,7 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useI18n } from 'twake-i18n'
 import { fetchEventIcs } from '@common/features/Events/EventDao'
+import { useDebugMode } from '@common/hooks/useDebugMode'
 import { CalendarEvent } from '@common/types/EventsTypes'
 
 interface EventPreviewHeaderProps {
@@ -40,6 +41,7 @@ export const EventPreviewHeader: React.FC<EventPreviewHeaderProps> = ({
   onDelete
 }: EventPreviewHeaderProps) => {
   const { t } = useI18n()
+  const debugMode = useDebugMode()
   const canSeeMore = isNotPrivate || isOwn
 
   const handleDownload = async (): Promise<void> => {
@@ -71,7 +73,7 @@ export const EventPreviewHeader: React.FC<EventPreviewHeaderProps> = ({
         width: '100%'
       }}
     >
-      {window.DEBUG && (
+      {debugMode && (
         <Tooltip title={t('tooltip.download')}>
           <IconButton
             size="small"

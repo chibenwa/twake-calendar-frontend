@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { history } from '@common/app/store'
 import { Error as ErrorPage } from '@common/components/Error/Error'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
+import { DebugModeToggle } from '@common/components/Debug/DebugModeToggle'
 import { EmbeddingProvider } from '@common/contexts/EmbeddingContext'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Loading } from '@common/components/Loading/Loading'
@@ -110,6 +111,7 @@ export default function App(): JSX.Element {
                 </Routes>
               </Router>
               <ErrorSnackbar error={error} type="user" />
+              <DebugModeToggle />
             </Suspense>
             {appLoading && <Loading />}
           </ErrorBoundary>

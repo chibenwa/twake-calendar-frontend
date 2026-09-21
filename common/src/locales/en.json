@@ -637,5 +637,9 @@
   },
   "attendees": {
     "sendMail": "Send mail"
+  },
+  "debug": {
+    "enabled": "Debug mode enabled.",
+    "disabled": "Debug mode disabled."
   }
 }

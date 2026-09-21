@@ -638,5 +638,9 @@
     "sendMail": "Gửi thư",
     "chat": "Trò chuyện",
     "createEvent": "Tạo sự kiện"
+  },
+  "debug": {
+    "enabled": "Đã bật chế độ gỡ lỗi.",
+    "disabled": "Đã tắt chế độ gỡ lỗi."
   }
 }

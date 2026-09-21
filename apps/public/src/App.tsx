@@ -6,6 +6,7 @@ import { HistoryRouter as Router } from 'redux-first-history/rr6'
 import { history } from '@common/app/store'
 import { Error as ErrorPage } from '@common/components/Error/Error'
 import { EmbeddingProvider } from '@common/contexts/EmbeddingContext'
+import { DebugModeToggle } from '@common/components/Debug/DebugModeToggle'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Loading } from '@common/components/Loading/Loading'
 import { PublicLayout } from './components/PublicLayout'
@@ -102,6 +103,7 @@ export default function App(): JSX.Element {
                     />
                   </Routes>
                 </Router>
+                <DebugModeToggle />
               </Suspense>
             </ErrorBoundary>
           </PublicLanguageContext.Provider>

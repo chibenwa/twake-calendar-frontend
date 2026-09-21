@@ -27,6 +27,8 @@ var SUPPORT_URL = 'https://twake.app/support/'
 var PRIVACY_URL = 'https://twake.app/privacy'
 var TERMS_URL = 'https://twake.app/terms'
 var LANDING_PAGE_URL = 'https://twake.app'
+// Keep DEBUG=false in production: CTRL + SHIFT + ALT + D turns debug mode on
+// for the current tab when diagnosing an issue, and off again on a second hit.
 var DEBUG = false
 var LANG = 'en'
 var WEBSOCKET_URL = 'wss://calendar.example.com'

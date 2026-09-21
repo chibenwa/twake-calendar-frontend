@@ -637,5 +637,9 @@
   },
   "attendees": {
     "sendMail": "Envoyer un e-mail"
+  },
+  "debug": {
+    "enabled": "Mode debug activé.",
+    "disabled": "Mode debug désactivé."
   }
 }

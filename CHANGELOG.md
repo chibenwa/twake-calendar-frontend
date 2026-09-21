@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 - Attached TDrive files to events
 - Added support for Team Calendars
+- Toggle debug mode at runtime with CTRL + SHIFT + ALT + D, without redeploying `.env.js`
 
 ### Changed
 
