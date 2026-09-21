@@ -7,6 +7,7 @@ import { toggleDebugMode } from '@common/utils/debugMode'
  */
 const isDebugModeShortcut = (event: KeyboardEvent): boolean =>
   event.code === 'KeyD' &&
+  !event.repeat &&
   event.ctrlKey &&
   event.shiftKey &&
   event.altKey &&

@@ -66,6 +66,17 @@ describe('DebugModeToggle', () => {
     expect(screen.queryByText('debug.enabled')).not.toBeInTheDocument()
   })
 
+  it('ignores the auto repeat of a held down key', () => {
+    renderWithProviders(<DebugModeToggle />)
+
+    pressShortcut()
+    pressShortcut({ repeat: true })
+    pressShortcut({ repeat: true })
+
+    expect(isDebugModeEnabled()).toBe(true)
+    expect(screen.getByText('debug.enabled')).toBeInTheDocument()
+  })
+
   it('stops listening once unmounted', () => {
     const { unmount } = renderWithProviders(<DebugModeToggle />)
 
