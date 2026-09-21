@@ -18,6 +18,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 export interface EventPreviewAttendeesProps {
   attendees: userAttendee[]
   organizer: userAttendee | undefined
+  organizerSentBy?: string
   allAttendees: userAttendee[]
   start?: string
   end?: string
@@ -27,7 +28,8 @@ export interface EventPreviewAttendeesProps {
 
 export function EventPreviewAttendees({
   allAttendees,
-  organizer
+  organizer,
+  organizerSentBy
 }: EventPreviewAttendeesProps): JSX.Element {
   const { t } = useI18n()
   const theme = useTheme()
@@ -111,7 +113,8 @@ export function EventPreviewAttendees({
           key: 'organizer',
           t,
           isFull: true,
-          isOrganizer: true
+          isOrganizer: true,
+          sentBy: organizerSentBy
         })}
       {attendeesWithoutOrganizer.map((a, idx) =>
         renderAttendeeBadge({

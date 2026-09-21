@@ -27,13 +27,23 @@ export type NotificationSettingsExtended = NotificationSettings & {
   [key: string]: unknown
 }
 
+export interface UserOrganiserOptions {
+  cn?: string
+  cal_address?: string
+  sentBy?: string
+}
+
 export class userOrganiser {
   cn: string
   cal_address: string
+  // Set when a delegate scheduled on the organizer's behalf (SENT-BY), which
+  // the user must be told about: the sender is not the stated organizer.
+  sentBy?: string
 
-  constructor({ cn, cal_address }: { cn?: string; cal_address?: string } = {}) {
+  constructor({ cn, cal_address, sentBy }: UserOrganiserOptions = {}) {
     this.cn = cn ?? ''
     this.cal_address = cal_address ?? ''
+    this.sentBy = sentBy ? stripMailto(sentBy) : undefined
   }
 
   asMailto(): string {
@@ -41,12 +51,17 @@ export class userOrganiser {
   }
 
   asJcal(): VObjectProperty {
-    return [
-      'organizer',
-      this.cn ? { cn: this.cn } : {},
-      'cal-address',
-      this.asMailto()
-    ]
+    const params: Record<string, string> = {}
+
+    if (this.cn) {
+      params.cn = this.cn
+    }
+
+    if (this.sentBy) {
+      params['sent-by'] = `mailto:${this.sentBy}`
+    }
+
+    return ['organizer', params, 'cal-address', this.asMailto()]
   }
 }
 // Type for configuration item

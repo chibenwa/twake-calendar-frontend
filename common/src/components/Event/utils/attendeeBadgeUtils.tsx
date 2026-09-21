@@ -9,6 +9,43 @@ import Tooltip from '@common/components/Tooltip'
 import GroupsIcon from '@mui/icons-material/Groups'
 import { stringAvatar } from './eventUtils'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import { stripMailto } from '@common/utils/normalizeIdentity'
+
+type Translate = (key: string, options?: Record<string, string>) => string
+
+const clickableCaptionSx = {
+  color: 'text.secondary',
+  cursor: 'pointer',
+  '&:hover': {
+    color: 'primary.main'
+  },
+  '&:active': {
+    color: 'primary.dark'
+  }
+}
+
+/**
+ * The organizer stated by the event and the delegate who actually sent it may
+ * differ, which is exactly what a phishing attempt exploits: spelling the
+ * sender out, and letting the user inspect their contact, is the disclosure.
+ */
+function OrganizerSentBy({
+  sentBy,
+  t
+}: {
+  sentBy: string
+  t: Translate
+}): JSX.Element {
+  const email = stripMailto(sentBy)
+
+  return (
+    <AttendeePopover attendee={new userAttendee({ cal_address: email })}>
+      <Typography variant="caption" sx={clickableCaptionSx}>
+        {t('event.sentBy', { email })}
+      </Typography>
+    </AttendeePopover>
+  )
+}
 
 export const classIcon = (
   partStat?: PartStat,
@@ -65,12 +102,14 @@ function renderTeamOrganizerFullBadge({
   a,
   key,
   t,
-  originalOrganizer
+  originalOrganizer,
+  sentBy
 }: {
   a: userAttendee
   key: string
-  t: (key: string, options?: Record<string, string>) => string
+  t: Translate
   originalOrganizer: userAttendee
+  sentBy?: string
 }): JSX.Element {
   const icon = classIcon(a.partstat)
   const displayName = a.cn || a.cal_address
@@ -138,22 +177,11 @@ function renderTeamOrganizerFullBadge({
           </Tooltip>
         </Box>
         <AttendeePopover attendee={originalOrganizer}>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-              cursor: 'pointer',
-              '&:hover': {
-                color: 'primary.main'
-              },
-              '&:active': {
-                color: 'primary.dark'
-              }
-            }}
-          >
+          <Typography variant="caption" sx={clickableCaptionSx}>
             {translatedStr}
           </Typography>
         </AttendeePopover>
+        {sentBy && <OrganizerSentBy sentBy={sentBy} t={t} />}
       </Box>
     </Box>
   )
@@ -165,91 +193,106 @@ function renderFullAttendeeBadge({
   t,
   isOrganizer,
   isTeamCalendar,
-  caption
+  caption,
+  sentBy
 }: {
   a: userAttendee
   key: string
-  t: (key: string, options?: Record<string, string>) => string
+  t: Translate
   isOrganizer?: boolean
   isTeamCalendar?: boolean
   caption?: string
+  sentBy?: string
 }): JSX.Element {
   const icon = classIcon(a.partstat)
   const displayName = a.cn || a.cal_address
+  const nameText = (
+    <Typography variant="body2" noWrap>
+      {displayName}
+    </Typography>
+  )
+  // Nesting a popover inside another one would open both at once: the sender's
+  // contact card takes the whole-badge one's place, the name keeping its own.
+  const name = sentBy ? (
+    <AttendeePopover attendee={a}>{nameText}</AttendeePopover>
+  ) : (
+    nameText
+  )
+
+  const badge = (
+    <Box
+      key={key}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        marginBottom: 0.5,
+        padding: 0.5,
+        borderRadius: 1
+      }}
+    >
+      {a.cutype === 'RESOURCE' ? (
+        <Box sx={{ marginRight: 2 }}>
+          <ResourceIcon />
+        </Box>
+      ) : (
+        <Badge
+          overlap="circular"
+          sx={{ marginRight: 2 }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          badgeContent={
+            icon && (
+              <Box
+                style={{
+                  fontSize: 14,
+                  lineHeight: 0,
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  padding: '1px'
+                }}
+              >
+                {icon}
+              </Box>
+            )
+          }
+        >
+          <Avatar {...stringAvatar(displayName)} />
+        </Badge>
+      )}
+      <Box style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {name}
+        {isOrganizer && (
+          <Tooltip
+            title={
+              isTeamCalendar ? t('tooltip.teamOrganizer', { displayName }) : ''
+            }
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                cursor: isTeamCalendar ? 'pointer' : 'default'
+              }}
+            >
+              {isTeamCalendar ? t('event.teamOrganizer') : t('event.organizer')}
+            </Typography>
+          </Tooltip>
+        )}
+        {caption && (
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {caption}
+          </Typography>
+        )}
+        {sentBy && <OrganizerSentBy sentBy={sentBy} t={t} />}
+      </Box>
+    </Box>
+  )
+
+  if (sentBy) return badge
 
   return (
     <AttendeePopover attendee={a} key={key}>
-      <Box
-        key={key}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          marginBottom: 0.5,
-          padding: 0.5,
-          borderRadius: 1
-        }}
-      >
-        {a.cutype === 'RESOURCE' ? (
-          <Box sx={{ marginRight: 2 }}>
-            <ResourceIcon />
-          </Box>
-        ) : (
-          <Badge
-            overlap="circular"
-            sx={{ marginRight: 2 }}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            badgeContent={
-              icon && (
-                <Box
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 0,
-                    backgroundColor: 'white',
-                    borderRadius: '50%',
-                    padding: '1px'
-                  }}
-                >
-                  {icon}
-                </Box>
-              )
-            }
-          >
-            <Avatar {...stringAvatar(displayName)} />
-          </Badge>
-        )}
-        <Box style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <Typography variant="body2" noWrap>
-            {displayName}
-          </Typography>
-          {isOrganizer && (
-            <Tooltip
-              title={
-                isTeamCalendar
-                  ? t('tooltip.teamOrganizer', { displayName })
-                  : ''
-              }
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                  cursor: isTeamCalendar ? 'pointer' : 'default'
-                }}
-              >
-                {isTeamCalendar
-                  ? t('event.teamOrganizer')
-                  : t('event.organizer')}
-              </Typography>
-            </Tooltip>
-          )}
-          {caption && (
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {caption}
-            </Typography>
-          )}
-        </Box>
-      </Box>
+      {badge}
     </AttendeePopover>
   )
 }
@@ -263,17 +306,19 @@ export function renderAttendeeBadge({
   isTeamCalendar,
   caption,
   isTeamOverride,
-  originalOrganizer
+  originalOrganizer,
+  sentBy
 }: {
   a: userAttendee
   key: string
-  t: (key: string, options?: Record<string, string>) => string
+  t: Translate
   isFull?: boolean
   isOrganizer?: boolean
   isTeamCalendar?: boolean
   caption?: string
   isTeamOverride?: boolean
   originalOrganizer?: userAttendee
+  sentBy?: string
 }): JSX.Element {
   if (!a) return <></>
 
@@ -289,7 +334,8 @@ export function renderAttendeeBadge({
       a,
       key,
       t,
-      originalOrganizer
+      originalOrganizer,
+      sentBy
     })
   }
 
@@ -299,6 +345,7 @@ export function renderAttendeeBadge({
     t,
     isOrganizer,
     isTeamCalendar,
-    caption
+    caption,
+    sentBy
   })
 }

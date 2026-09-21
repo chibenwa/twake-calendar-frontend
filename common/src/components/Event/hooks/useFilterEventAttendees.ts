@@ -1,5 +1,6 @@
 import { userAttendee } from '@common/features/User/models/attendee'
 import { CalendarEvent } from '@common/types/EventsTypes'
+import { normalizeIdentity } from '@common/utils/normalizeIdentity'
 import { useMemo } from 'react'
 
 const isResourceAttendee = (attendee: userAttendee): boolean =>
@@ -26,6 +27,7 @@ export const useFilterEventAttendees = ({
   eventAttendees: userAttendee[]
   attendees: userAttendee[]
   organizer: userAttendee
+  organizerSentBy: string | undefined
 } => {
   const rawAttendees = useMemo(() => event.attendee ?? [], [event.attendee])
 
@@ -60,5 +62,18 @@ export const useFilterEventAttendees = ({
     [eventAttendees, event.organizer]
   )
 
-  return { resources, eventAttendees, attendees, organizer }
+  // A delegate scheduling for themselves tells the user nothing, so only a
+  // sender distinct from the organizer is worth disclosing.
+  const organizerSentBy = useMemo(() => {
+    const eventOrganizer = event.organizer
+    if (!eventOrganizer?.sentBy) return undefined
+
+    const sentByOrganizerThemselves =
+      normalizeIdentity(eventOrganizer.sentBy) ===
+      normalizeIdentity(eventOrganizer.cal_address)
+
+    return sentByOrganizerThemselves ? undefined : eventOrganizer.sentBy
+  }, [event.organizer])
+
+  return { resources, eventAttendees, attendees, organizer, organizerSentBy }
 }

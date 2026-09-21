@@ -124,6 +124,7 @@
     "organizer": "Organizer",
     "teamOrganizerWithName": "Team's organizer: %{organizerName}",
     "teamOrganizer": "Team's organizer",
+    "sentBy": "Sent by: %{email}",
     "untitled": "Untitled",
     "noEventsToDisplay": "No events to display",
     "list": {

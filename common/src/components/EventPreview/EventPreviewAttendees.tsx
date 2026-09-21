@@ -21,6 +21,7 @@ import { useTeamOrganizer } from './useTeamOrganizer'
 interface EventPreviewAttendeesProps {
   attendees: userAttendee[]
   organizer: userAttendee | undefined
+  organizerSentBy?: string
   allAttendees: userAttendee[]
   start?: string
   end?: string
@@ -35,6 +36,7 @@ const ATTENDEE_DISPLAY_LIMIT = 3
 export function EventPreviewAttendees({
   attendees,
   organizer,
+  organizerSentBy,
   allAttendees,
   start,
   end,
@@ -167,7 +169,8 @@ export function EventPreviewAttendees({
                     isTeamCalendar,
                     caption: organizerCaption,
                     isTeamOverride,
-                    originalOrganizer: organizer
+                    originalOrganizer: organizer,
+                    sentBy: organizerSentBy
                   })}
                 {attendees.map((a, idx) =>
                   renderAttendeeBadge({
@@ -221,7 +224,8 @@ export function EventPreviewAttendees({
           isTeamCalendar,
           caption: organizerCaption,
           isTeamOverride,
-          originalOrganizer: organizer
+          originalOrganizer: organizer,
+          sentBy: organizerSentBy
         })}
       {showAllAttendees &&
         attendees.map((a, idx) =>

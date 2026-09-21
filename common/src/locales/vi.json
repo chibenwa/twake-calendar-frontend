@@ -124,6 +124,7 @@
     "organizer": "Người tổ chức",
     "teamOrganizerWithName": "Người tổ chức của nhóm: %{organizerName}",
     "teamOrganizer": "Người tổ chức của nhóm",
+    "sentBy": "Được gửi bởi: %{email}",
     "untitled": "Không có tiêu đề",
     "noEventsToDisplay": "Không có sự kiện để hiển thị",
     "list": {

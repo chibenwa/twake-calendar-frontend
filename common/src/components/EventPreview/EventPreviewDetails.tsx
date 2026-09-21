@@ -45,7 +45,7 @@ export const EventPreviewDetails: React.FC<EventPreviewDetailsProps> = ({
   isTeamCalendar
 }) => {
   const { t } = useI18n()
-  const { resources, eventAttendees, attendees, organizer } =
+  const { resources, eventAttendees, attendees, organizer, organizerSentBy } =
     useFilterEventAttendees({
       event,
       isResourceEventPreview,
@@ -80,13 +80,15 @@ export const EventPreviewDetails: React.FC<EventPreviewDetailsProps> = ({
           t,
           isFull: true,
           isOrganizer: true,
-          isTeamCalendar
+          isTeamCalendar,
+          sentBy: organizerSentBy
         })}
 
       {shouldShowAttendeesSection && (
         <EventPreviewAttendees
           attendees={attendees}
           organizer={organizer}
+          organizerSentBy={organizerSentBy}
           allAttendees={eventAttendees ?? []}
           start={event.start}
           end={event.end}

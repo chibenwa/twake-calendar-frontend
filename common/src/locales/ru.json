@@ -124,6 +124,7 @@
     "organizer": "Организатор",
     "teamOrganizerWithName": "Организатор команды: %{organizerName}",
     "teamOrganizer": "Организатор команды",
+    "sentBy": "Отправлено: %{email}",
     "untitled": "Без названия",
     "noEventsToDisplay": "Нет событий для отображения",
     "list": {
