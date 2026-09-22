@@ -4,12 +4,12 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
 - **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
-- **Essential — 198 tests**: every basic feature working as intended. Until they are all green,
+- **Essential — 200 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
-- **Bonus — 291 tests**: the peripheral features, the edge cases, accessibility, responsive
+- **Bonus — 294 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
 
-Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 538 tests
+Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 543 tests
 of this document therefore amount to roughly **40 minutes** of CI. See
 [`e2e/README.md`](e2e/README.md) for how to write one, and its Isolation section for how
 accounts are handed out.
@@ -139,7 +139,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (198)
+# Essential (200)
 
 ## AUTH — Authentication and session (9)
 
@@ -364,7 +364,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `SEARCH-09` Clearing the search restores the calendar view
 - [x] `SEARCH-10` An empty search invites the user to type keywords
 
-## SET — Settings (15)
+## SET — Settings (16)
 
 - [x] `SET-01` Switching the interface to French relabels the menubar
 - [x] `SET-02` Turning the week number off removes it from the grid
@@ -381,10 +381,11 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `SET-13` A failed save shows the matching error message
 - [x] `SET-14` One user's settings do not affect another's
 - [x] `SET-15` Automatic timezone detection is on for a fresh user
+- [x] `SET-16` A timezone update, manual or detected, leaves the other server stored settings alone
 
 ---
 
-# Bonus (291)
+# Bonus (294)
 
 ## RES — Resources (18)
 
@@ -573,7 +574,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `FB-13` The "Check availability" field searches both users and resources
 - [x] `FB-14` Removing a guest removes their availability row
 
-## TZ — Timezones (21)
+## TZ — Timezones (22)
 
 - [x] `TZ-01` The default timezone of the form is the one from the settings
 - [x] `TZ-02` Changing the timezone of an event shifts its display
@@ -596,6 +597,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `TZ-20` A recurrence spanning three months crosses the DST change correctly
 - [x] `TZ-21` A range selected in a grid far ahead of the browser (UTC+13) is created where it was selected ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
 - [x] `TZ-22` Editing the end of such a selection keeps the draft of the grid on the edited slot ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
+- [x] `TZ-23` A browser sitting elsewhere runs the calendar, and writes its events, in the detected timezone
 
 ## DND — Drag, drop and resize (14)
 
