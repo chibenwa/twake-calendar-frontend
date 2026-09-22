@@ -39,6 +39,15 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         locator.first().waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.ATTACHED));
     }
 
+    /**
+     * The form closes as soon as it is submitted, so the PUT may still be in flight: a test that
+     * reads the store straight away sees an empty calendar. Waits until the event is there.
+     */
+    private void awaitStored(CalendarProbe probe, E2EUser user, String title) {
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(user)).containsExactly(title));
+    }
+
     /** The last Sunday of a month, when Europe shifts its clocks. */
     private static LocalDate clockChange(Month month) {
         LocalDate last = LocalDate.of(Year.now().getValue(), month, 1)
@@ -229,10 +238,10 @@ class TimezonesTest extends TwakeCalendarE2ETest {
             .startDate(change).startTime("02:30").endTime("03:30").save();
 
         // Europe/Paris has no 02:30 that morning; whatever the application resolves it to, it
-        // must store something valid and show the event rather than lose it
+        // must store something valid and keep the event rather than lose it
+        awaitStored(probe, user, title);
         assertThat(Ics.property(Ics.event(probe.singleEvent(user)), "DTSTART").orElseThrow())
             .matches("\\d{8}T\\d{6}Z?");
-        assertThat(probe.eventSummaries(user)).containsExactly(title);
     }
 
     @Test
@@ -245,9 +254,9 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         calendar.createEvent().title(title).expand()
             .startDate(change).startTime("02:30").endTime("03:30").save();
 
+        awaitStored(probe, user, title);
         assertThat(Ics.property(Ics.event(probe.singleEvent(user)), "DTSTART").orElseThrow())
             .startsWith(change.toString().replace("-", ""));
-        assertThat(probe.eventSummaries(user)).containsExactly(title);
     }
 
     @Test
