@@ -1,7 +1,9 @@
 import { useDetectedTimeZoneSync } from '@common/components/Timezone/hooks/useDetectedTimeZoneSync'
+import { setIsBrowserDefaultTimeZone } from '@common/features/Settings/SettingsSlice'
 import { patchConfigurations } from '@common/features/User/UserDao'
+import { setTimezone as setUserTimeZone } from '@common/features/User/UserSlice'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
-import { waitFor } from '@testing-library/react'
+import { act, waitFor } from '@testing-library/react'
 import React from 'react'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
 
@@ -87,6 +89,32 @@ describe('useDetectedTimeZoneSync', () => {
     )
 
     expect(patchConfigurations).not.toHaveBeenCalled()
+  })
+
+  it('leaves a zone the user pinned while it was in flight alone', async () => {
+    let answerPatch: () => void = () => undefined
+    ;(patchConfigurations as jest.Mock).mockReturnValue(
+      new Promise(resolve => {
+        answerPatch = () => resolve({ status: 204 })
+      })
+    )
+
+    const { store } = renderWithProviders(
+      <Probe />,
+      stateWith({ timeZone: elsewhere, autoDetect: true }, true)
+    )
+
+    await waitFor(() => expect(patchConfigurations).toHaveBeenCalled())
+
+    act(() => {
+      store.dispatch(setIsBrowserDefaultTimeZone(false))
+      store.dispatch(setUserTimeZone(elsewhere))
+    })
+    await act(async () => {
+      answerPatch()
+    })
+
+    expect(store.getState().user.coreConfig.datetime.timeZone).toBe(elsewhere)
   })
 
   it('leaves a backend that does not know about the flag alone', () => {

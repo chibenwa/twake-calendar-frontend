@@ -4,7 +4,7 @@ import { patchConfigurations } from '@common/features/User/UserDao'
 import { makeConfigurationBody } from '@common/features/User/transformers'
 import { setTimezone as setUserTimeZone } from '@common/features/User/UserSlice'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 const selectCoreConfig = (state: RootState) => state.user?.coreConfig
 
@@ -23,7 +23,8 @@ type CoreConfig = ReturnType<typeof selectCoreConfig>
 
 const pushDetectedTimeZone = (
   coreConfig: CoreConfig,
-  dispatch: AppDispatch
+  dispatch: AppDispatch,
+  isStillAutoDetecting: () => boolean
 ): void => {
   const body = makeConfigurationBody({
     timezone: browserDefaultTimeZone,
@@ -35,7 +36,13 @@ const pushDetectedTimeZone = (
   // failures land on the error page: the calendar runs on the detected zone
   // either way, so a backend that did not take it waits for the next visit.
   void patchConfigurations(body.modules)
-    .then(() => dispatch(setUserTimeZone(browserDefaultTimeZone)))
+    .then(() => {
+      // The user may have turned the detection off, and pinned a zone of
+      // their own, while this was in flight: that choice is the newer one.
+      if (isStillAutoDetecting()) {
+        dispatch(setUserTimeZone(browserDefaultTimeZone))
+      }
+    })
     .catch(() => undefined)
 }
 
@@ -54,13 +61,22 @@ export const useDetectedTimeZoneSync = (): void => {
   const isAutoDetected = useAppSelector(selectIsAutoDetected)
   const storedTimeZone = useAppSelector(selectStoredTimeZone)
   const backendTracksAutoDetect = useAppSelector(selectBackendTracksAutoDetect)
+  const isAutoDetectedRef = useRef(isAutoDetected)
 
   useEffect(() => {
+    isAutoDetectedRef.current = isAutoDetected
+
     const isAlreadyStored = storedTimeZone === browserDefaultTimeZone
     const shouldPush =
       isAutoDetected && backendTracksAutoDetect && !isAlreadyStored
 
-    if (shouldPush) pushDetectedTimeZone(coreConfig, dispatch)
+    if (shouldPush) {
+      pushDetectedTimeZone(
+        coreConfig,
+        dispatch,
+        () => isAutoDetectedRef.current
+      )
+    }
   }, [
     dispatch,
     isAutoDetected,

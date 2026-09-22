@@ -48,10 +48,22 @@ export async function searchPeople(
   return response.map(item => new SearchResponseItem(item))
 }
 
+// Configuration writes are queued rather than raced: the timezone detection
+// saves in the background while the settings page saves on a click, and two
+// of them in flight together could reach the backend in the wrong order and
+// leave it holding the older choice.
+let pendingConfigurationPatch: Promise<unknown> = Promise.resolve()
+
 export async function patchConfigurations(
   modules: ModuleConfiguration[]
 ): Promise<Response> {
-  return await api.patch(`api/configurations?scope=user`, {
-    json: modules
-  })
+  const patch = pendingConfigurationPatch.then(() =>
+    api.patch(`api/configurations?scope=user`, {
+      json: modules
+    })
+  )
+  // A write that failed must not hold the next one back, nor reject it.
+  pendingConfigurationPatch = patch.catch(() => undefined)
+
+  return await patch
 }
