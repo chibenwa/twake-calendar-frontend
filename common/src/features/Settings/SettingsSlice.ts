@@ -48,15 +48,31 @@ function rememberAutoDetectTimeZone(enabled: boolean): void {
   localStorage.setItem(AUTO_DETECT_TIME_ZONE_KEY, String(enabled))
 }
 
+interface DatetimeConfiguration {
+  timeZone?: string
+  autoDetect?: boolean
+}
+
+// The backend tells whether the user opted out of the automatic detection, and
+// is then the one to be believed: the opt out follows the user across
+// browsers. Deployments that predate the setting answer without it, and there
+// the opt out remembered locally keeps deciding.
+//
 // A timezone coming back only wins over the browser one when the user opted
 // out of the automatic detection: otherwise it may well be the deployment wide
-// fallback the backend serves to unconfigured users.
+// fallback the backend serves to unconfigured users, or the very zone a
+// browser of theirs detected.
 const applyServerTimeZone = (
   state: SettingsState,
-  serverTimeZone: string | undefined
+  datetime: DatetimeConfiguration | undefined
 ) => {
-  if (serverTimeZone && !state.isBrowserDefaultTimeZone) {
-    state.timeZone = serverTimeZone
+  const autoDetect =
+    typeof datetime?.autoDetect === 'boolean'
+      ? datetime.autoDetect
+      : state.isBrowserDefaultTimeZone
+
+  if (datetime?.timeZone && !autoDetect) {
+    state.timeZone = datetime.timeZone
     state.isBrowserDefaultTimeZone = false
     rememberAutoDetectTimeZone(false)
   } else {
@@ -135,14 +151,13 @@ const SettingsSlice = createAppSlice({
         (config: ConfigurationItem) => config.name === 'datetime'
       )
       const datetimeValue = datetimeConfig?.value as
-        | { timeZone?: string }
+        | DatetimeConfiguration
         | undefined
-      const timeZone = datetimeValue?.timeZone
 
       // a zone the user picked while this fetch was in flight must not be
       // clobbered by the (now stale) server value
       if (!state.timeZonePickedDuringUserDataFetch) {
-        applyServerTimeZone(state, timeZone)
+        applyServerTimeZone(state, datetimeValue)
       }
       const esnCalendarModule = action.payload.configurations?.modules?.find(
         (module: ModuleConfiguration) => module.name === 'linagora.esn.calendar'

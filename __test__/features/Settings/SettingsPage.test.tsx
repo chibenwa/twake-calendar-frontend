@@ -418,7 +418,7 @@ describe('SettingsPage', () => {
       })
     })
 
-    it('enables browser default timezone and calls API with null', async () => {
+    it('enables browser default timezone and hands the detected zone over', async () => {
       const { store } = renderWithProviders(<SettingsPage />, preloadedState)
 
       const browserDefaultSwitch = screen.getByRole('switch', {
@@ -438,9 +438,12 @@ describe('SettingsPage', () => {
         expect(state.settings.isBrowserDefaultTimeZone).toBe(true)
       })
 
+      // the backend renders invitation mails with the zone it stores and has
+      // no browser to detect one, so it is handed the detected zone, with
+      // `autoDetect` telling it apart from a zone the user pinned
       await waitFor(() => {
         const state = store.getState()
-        expect(state.user?.coreConfig.datetime.timeZone).toBeNull()
+        expect(state.user?.coreConfig.datetime.timeZone).toBe('UTC')
       })
 
       await waitFor(() => {
@@ -454,7 +457,8 @@ describe('SettingsPage', () => {
                   expect.objectContaining({
                     name: 'datetime',
                     value: expect.objectContaining({
-                      timeZone: null
+                      timeZone: 'UTC',
+                      autoDetect: true
                     })
                   })
                 ])

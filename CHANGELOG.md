@@ -14,7 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 
-- Automatic timezone detection is now on by default, and staying off is remembered
+- Automatic timezone detection is now on by default, remembered server side through the
+  `core.datetime` `autoDetect` setting, and locally on deployments that do not serve it yet
 - Fixed rich text formatting (e.g., bold, italic) in event preview descriptions
 - Fixed the participation status of a single occurrence of a recurring event, which the DAV
   read could leave unchanged

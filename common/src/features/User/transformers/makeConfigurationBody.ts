@@ -2,10 +2,16 @@ import { BusinessHour } from '@common/features/Settings/SettingsSlice'
 import { businessHoursToIso } from '@common/features/Settings/businessHoursDays'
 import { ConfigurationItem, ModuleConfiguration } from '../userDataTypes'
 
+export interface DatetimeConfiguration {
+  timeZone?: string | null
+  autoDetect?: boolean
+}
+
 export interface ConfigurationUpdatesInput {
   language?: string
   notifications?: Record<string, unknown>
   timezone?: string | null
+  autoDetectTimezone?: boolean
   displayWeekNumbers?: boolean
   previousConfig?: Record<string, unknown>
   alarmEmails?: boolean
@@ -28,6 +34,25 @@ function pushIfDefined(
   }
 }
 
+// The backend merges the datetime configuration as a whole and not sub field
+// by sub field: whatever is left out falls back to its default, so the known
+// configuration is carried over and only the updated fields overwrite it.
+function buildDatetimeValue(
+  updates: ConfigurationUpdatesInput
+): DatetimeConfiguration {
+  const previousDatetime = updates.previousConfig?.datetime as
+    | DatetimeConfiguration
+    | undefined
+
+  return {
+    ...previousDatetime,
+    ...(updates.timezone !== undefined ? { timeZone: updates.timezone } : {}),
+    ...(updates.autoDetectTimezone !== undefined
+      ? { autoDetect: updates.autoDetectTimezone }
+      : {})
+  }
+}
+
 function buildCoreConfigs(
   updates: ConfigurationUpdatesInput
 ): ConfigurationItem[] {
@@ -42,14 +67,11 @@ function buildCoreConfigs(
       : updates.businessHours
   )
 
-  if (updates.timezone !== undefined) {
-    const previousDatetime = updates.previousConfig?.datetime as
-      | { timeZone?: string }
-      | undefined
-    configs.push({
-      name: 'datetime',
-      value: { ...previousDatetime, timeZone: updates.timezone }
-    })
+  if (
+    updates.timezone !== undefined ||
+    updates.autoDetectTimezone !== undefined
+  ) {
+    configs.push({ name: 'datetime', value: buildDatetimeValue(updates) })
   }
 
   return configs

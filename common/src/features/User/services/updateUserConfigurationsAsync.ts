@@ -40,6 +40,16 @@ const stateUpdaters: Array<{
     }
   },
   {
+    key: 'autoDetectTimezone',
+    updater: (state, payload): void => {
+      if (payload.autoDetectTimezone === undefined) return
+      if (!state.coreConfig.datetime) {
+        state.coreConfig.datetime = { timeZone: null }
+      }
+      state.coreConfig.datetime.autoDetect = payload.autoDetectTimezone
+    }
+  },
+  {
     key: 'alarmEmails',
     updater: (state, payload): void => {
       if (payload.alarmEmails === undefined) return
@@ -52,8 +62,10 @@ function applyUpdates(
   state: UserState,
   payload: ConfigurationUpdatesInput
 ): void {
+  // `undefined` alone means "not part of this update": `false` and `null` are
+  // values of their own, and turning the automatic detection off is one.
   stateUpdaters.forEach(({ key, updater }) => {
-    if (payload[key]) {
+    if (payload[key] !== undefined) {
       updater(state, payload)
     }
   })

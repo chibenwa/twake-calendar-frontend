@@ -15,10 +15,14 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { getTimezoneOffset } from '@common/utils/timezone'
+import { useDetectedTimeZoneSync } from './hooks/useDetectedTimeZoneSync'
 
 export const TimezoneChangeAlert: React.FC = () => {
   const dispatch = useAppDispatch()
   const { t } = useI18n()
+
+  // The detection never prompts: it keeps the backend in step on its own.
+  useDetectedTimeZoneSync()
 
   // While the detection is on the settings already follow the browser, so the
   // stored configuration must not be read back: it may hold a zone the user
