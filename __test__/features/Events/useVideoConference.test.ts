@@ -20,8 +20,8 @@ describe('useVideoConference', () => {
   const originalBaseUrl = window.VIDEO_CONFERENCE_BASE_URL
   const originalIntegration = window.MEET_BACKEND_INTEGRATION
 
-  const addVideoConference = async (): Promise<void> => {
-    const { result } = renderHook(() =>
+  const renderVideoConferenceHook = () =>
+    renderHook(() =>
       useVideoConference({
         description: '',
         setDescription: jest.fn(),
@@ -31,6 +31,9 @@ describe('useVideoConference', () => {
         setShowDescription
       })
     )
+
+  const addVideoConference = async (): Promise<void> => {
+    const { result } = renderVideoConferenceHook()
     await act(async () => {
       result.current.handleAddVideoConference()
     })
@@ -98,5 +101,25 @@ describe('useVideoConference', () => {
     expect(setHasVideoConference).not.toHaveBeenCalled()
     expect(setMeetingLink).not.toHaveBeenCalled()
     consoleError.mockRestore()
+  })
+
+  it('creates a single room when adding twice while the request is pending', async () => {
+    window.MEET_BACKEND_INTEGRATION = true
+    let resolveRoom: (url: string) => void = () => {}
+    ;(createVideoConferenceRoom as jest.Mock).mockReturnValue(
+      new Promise<string>(resolve => {
+        resolveRoom = resolve
+      })
+    )
+    const { result } = renderVideoConferenceHook()
+
+    await act(async () => {
+      result.current.handleAddVideoConference()
+      result.current.handleAddVideoConference()
+      resolveRoom('https://meet.example.com/vep-txbc-trh')
+    })
+
+    expect(createVideoConferenceRoom).toHaveBeenCalledTimes(1)
+    expect(setMeetingLink).toHaveBeenCalledTimes(1)
   })
 })
