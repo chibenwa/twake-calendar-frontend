@@ -1,9 +1,12 @@
 import {
   deleteEvent,
+  fetchAllRecurrentVevents,
+  fetchEventJCal,
   importEvent,
   moveEvent,
   putEvent
 } from '@common/features/Events/EventDao'
+import { VCalComponent } from '@common/features/Calendars/types/CalendarData'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { RepetitionObject } from '@common/types/Repetition'
 import { calendarEventToJCal } from '@common/features/Events/utils'
@@ -133,6 +136,80 @@ describe('eventDAO', () => {
 
     expect(api).toHaveBeenCalledWith('dav/calendars/test.ics', {
       method: 'DELETE'
+    })
+  })
+
+  describe('reading a calendar object', () => {
+    // What the DAV proxy answers on the event URL: jCal, not ICS. Feeding such
+    // a payload to the ICS parser used to throw "Cannot read properties of
+    // undefined (reading 'propertyGroups')" and abort the RSVP (#1375).
+    const STORED_JCAL: VCalComponent = [
+      'vcalendar',
+      [['prodid', {}, 'text', '-//Linagora//Twake-Calendar//EN']],
+      [
+        ['vtimezone', [['tzid', {}, 'text', 'Europe/Paris']], []],
+        [
+          'vevent',
+          [
+            ['uid', {}, 'text', 'event1'],
+            [
+              'dtstart',
+              { tzid: 'Europe/Paris' },
+              'date-time',
+              '2026-09-14T11:00:00'
+            ],
+            ['rrule', {}, 'recur', { freq: 'WEEKLY', interval: 1, wkst: 2 }]
+          ],
+          []
+        ],
+        [
+          'vevent',
+          [
+            ['uid', {}, 'text', 'event1'],
+            [
+              'recurrence-id',
+              { tzid: 'Europe/Paris' },
+              'date-time',
+              '2026-09-21T11:00:00'
+            ]
+          ],
+          []
+        ]
+      ]
+    ]
+
+    beforeEach(() => {
+      ;(api.get as jest.Mock).mockResolvedValue({
+        json: jest.fn().mockResolvedValue(STORED_JCAL)
+      })
+    })
+
+    it('fetchEventJCal asks the DAV proxy for jCal', async () => {
+      await fetchEventJCal(mockEvent)
+
+      expect(api.get).toHaveBeenCalledWith(
+        'dav/calendars/667037022b752d0026472254/667037022b752d0026472254/cal1.ics',
+        { headers: { Accept: 'application/calendar+json' } }
+      )
+    })
+
+    it('fetchEventJCal returns the stored VCALENDAR untouched', async () => {
+      expect(await fetchEventJCal(mockEvent)).toEqual(STORED_JCAL)
+    })
+
+    it('fetchAllRecurrentVevents keeps the master and its overrides', async () => {
+      const vevents = await fetchAllRecurrentVevents(mockEvent)
+
+      expect(vevents).toHaveLength(2)
+      expect(vevents.map(([name]) => name)).toEqual(['vevent', 'vevent'])
+    })
+
+    it('fetchAllRecurrentVevents spells the numeric RRULE wkst back as a weekday', async () => {
+      const [master] = await fetchAllRecurrentVevents(mockEvent)
+
+      const rrule = master[1].find(([name]) => name === 'rrule')
+
+      expect(rrule?.[3]).toEqual({ freq: 'WEEKLY', interval: 1, wkst: 'MO' })
     })
   })
 

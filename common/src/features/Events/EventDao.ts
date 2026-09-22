@@ -1,5 +1,4 @@
 import { api } from '@common/utils/apiUtils'
-import ICAL from 'ical.js'
 import { CalDavItem } from '@common/features/Calendars/types/CalendarApiTypes'
 import {
   VCalComponent,
@@ -35,6 +34,12 @@ export async function reportEvent(
 /**
  * Fetches an event as jCal: the DAV proxy serves `text/calendar` by default, so
  * without this Accept header the client has to parse a raw ICS payload itself.
+ *
+ * Every read of a calendar object goes through here, on purpose: the same URL
+ * used to be GETted both with and without that header, and a jCal answer
+ * reaching the ICS parser blew up with "Cannot read properties of undefined
+ * (reading 'propertyGroups')" — an RSVP on a recurring occurrence then silently
+ * did nothing. See #1375.
  */
 export async function fetchEvent(event: CalendarEvent): Promise<VCalComponent> {
   const response = await api.get(`dav${event.URL}`, {
@@ -133,9 +138,7 @@ function normalizeVeventRrule(vevents: VCalComponent[]): VCalComponent[] {
 export async function fetchAllRecurrentVevents(
   event: CalendarEvent
 ): Promise<VCalComponent[]> {
-  const response = await api.get(`dav${event.URL}`)
-  const eventData = await response.text()
-  const jcal = ICAL.parse(eventData) as VCalComponent
+  const jcal = await fetchEvent(event)
   const vevents = (jcal[2] ?? []).filter(([name]) => name === 'vevent')
   return normalizeVeventRrule(vevents)
 }
@@ -145,17 +148,8 @@ export async function fetchAllRecurrentVevents(
  * Used to update an event in place without regenerating it from the parsed
  * model, so that properties like DTSTART/VTIMEZONE are preserved byte-for-byte.
  */
-export async function fetchEventJCal(
-  event: CalendarEvent
-): Promise<VCalComponent> {
-  const response = await api.get(`dav${event.URL}`)
-  if (!response.ok) {
-    throw new Error(
-      `fetchEventJCal failed for ${event.URL} with status ${response.status}`
-    )
-  }
-  const eventData = await response.text()
-  return ICAL.parse(eventData) as VCalComponent
+export function fetchEventJCal(event: CalendarEvent): Promise<VCalComponent> {
+  return fetchEvent(event)
 }
 
 /**

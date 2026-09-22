@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Changed
 
 - Fixed rich text formatting (e.g., bold, italic) in event preview descriptions
+- Fixed the participation status of a single occurrence of a recurring event, which the DAV
+  read could leave unchanged
 - Expanded booking links to include attendee, location, resource, alert, free/busy, and visibility options
 
 ## [1.0.0] - Unreleased
