@@ -732,6 +732,23 @@ describe('The backend carries the automatic detection flag', () => {
     expect(settingsState.timeZone).toBe(browserDefaultTimeZone)
   })
 
+  test('An opt out without a zone attached pins the one in use', async () => {
+    const store = freshStore()
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(
+        backendAnswering({ timeZone: null, autoDetect: false }),
+        '',
+        undefined
+      )
+    )
+
+    const settingsState = store.getState().settings
+    expect(settingsState.isBrowserDefaultTimeZone).toBe(false)
+    expect(settingsState.timeZone).toBe(browserDefaultTimeZone)
+    expect(localStorage.getItem('autoDetectTimeZone')).toBe('false')
+  })
+
   test('A backend answering without the flag leaves the opt out to the browser', async () => {
     const store = freshStore()
     store.dispatch(setIsBrowserDefaultTimeZone(false))

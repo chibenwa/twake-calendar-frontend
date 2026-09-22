@@ -49,30 +49,39 @@ function rememberAutoDetectTimeZone(enabled: boolean): void {
 }
 
 interface DatetimeConfiguration {
-  timeZone?: string
+  timeZone?: string | null
   autoDetect?: boolean
 }
 
 // The backend tells whether the user opted out of the automatic detection, and
 // is then the one to be believed: the opt out follows the user across
-// browsers. Deployments that predate the setting answer without it, and there
-// the opt out remembered locally keeps deciding.
-//
+// browsers, whether or not a zone comes attached to it. Deployments that
+// predate the flag answer without it, and there only a stored zone can carry
+// the opt out this browser remembers.
+const isOptedOut = (
+  datetime: DatetimeConfiguration | undefined,
+  isOptedOutLocally: boolean
+): boolean =>
+  typeof datetime?.autoDetect === 'boolean'
+    ? !datetime.autoDetect
+    : isOptedOutLocally && Boolean(datetime?.timeZone)
+
 // A timezone coming back only wins over the browser one when the user opted
 // out of the automatic detection: otherwise it may well be the deployment wide
 // fallback the backend serves to unconfigured users, or the very zone a
-// browser of theirs detected.
+// browser of theirs detected. An opt out reaching us without a zone pins the
+// one the calendar already runs on rather than that fallback.
+const optedOutTimeZone = (
+  datetime: DatetimeConfiguration | undefined,
+  timeZoneInUse: string | null
+): string => datetime?.timeZone ?? timeZoneInUse ?? browserDefaultTimeZone
+
 const applyServerTimeZone = (
   state: SettingsState,
   datetime: DatetimeConfiguration | undefined
-) => {
-  const autoDetect =
-    typeof datetime?.autoDetect === 'boolean'
-      ? datetime.autoDetect
-      : state.isBrowserDefaultTimeZone
-
-  if (datetime?.timeZone && !autoDetect) {
-    state.timeZone = datetime.timeZone
+): void => {
+  if (isOptedOut(datetime, !state.isBrowserDefaultTimeZone)) {
+    state.timeZone = optedOutTimeZone(datetime, state.timeZone)
     state.isBrowserDefaultTimeZone = false
     rememberAutoDetectTimeZone(false)
   } else {
