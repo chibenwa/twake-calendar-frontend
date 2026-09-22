@@ -174,6 +174,11 @@ public class CalendarPage {
     public CalendarPage switchView(String view) {
         page.getByLabel("Select view").click();
         page.getByRole(AriaRole.OPTION, new Page.GetByRoleOptions().setName(view).setExact(true)).click();
+        // the picked option closes the menu, but its backdrop lingers for the whole fade out and
+        // swallows every click meanwhile: return only once the popover is gone for good, or the
+        // navigation that follows would click into the void until it times out
+        page.getByRole(AriaRole.LISTBOX).first().waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
         return this;
     }
 
