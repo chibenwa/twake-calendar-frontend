@@ -4,13 +4,13 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
 - **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
-- **Essential — 196 tests**: every basic feature working as intended. Until they are all green,
+- **Essential — 198 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
-- **Bonus — 314 tests**: the peripheral features, the edge cases, accessibility, responsive
+- **Bonus — 291 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
 
-Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 558 tests
-of this document therefore amount to roughly **45 minutes** of CI. See
+Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 538 tests
+of this document therefore amount to roughly **40 minutes** of CI. See
 [`e2e/README.md`](e2e/README.md) for how to write one, and its Isolation section for how
 accounts are handed out.
 
@@ -139,7 +139,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (196)
+# Essential (198)
 
 ## AUTH — Authentication and session (9)
 
@@ -153,7 +153,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `AUTH-09` Opening `/calendar` without a session redirects to the SSO and back to `/calendar`
 - [x] `AUTH-10` An expired token triggers a silent re-authentication without losing the current view
 
-## SHELL — Application shell (12)
+## SHELL — Application shell (15)
 
 - [x] `SHELL-01` The menubar exposes Today, Previous, Next, Search, Refresh and the profile
 - [x] `SHELL-02` The Create button opens the event creation modal
@@ -167,6 +167,9 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHELL-10` The page title is "Twake Calendar"
 - [x] `SHELL-11` The application version is displayed in the settings
 - [x] `SHELL-12` No console error is emitted on the initial calendar load
+- [x] `SHELL-13` Collapsing a full screen event form gives the menubar its actions back
+- [x] `SHELL-14` Saving a full screen event edit gives the menubar its actions back
+- [x] `SHELL-15` Saving a full screen event creation gives the menubar its actions back
 
 ## NAV — Navigation and views (15)
 
@@ -380,7 +383,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (286)
+# Bonus (291)
 
 ## RES — Resources (18)
 
@@ -746,9 +749,9 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 191 | 196 |
-| Bonus | 235 | 288 |
-| **Total** | **471** | **533** |
+| Essential | 193 | 198 |
+| Bonus | 237 | 291 |
+| **Total** | **475** | **538** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

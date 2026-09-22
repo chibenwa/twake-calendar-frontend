@@ -410,4 +410,65 @@ describe('ResponsiveDialog', () => {
     expect(screen.getByText('Custom Right Action')).toBeInTheDocument()
     expect(screen.getByLabelText('show less')).toBeInTheDocument()
   })
+
+  describe('fullscreen-view body class', () => {
+    const expandableDialog = (props: {
+      open: boolean
+      isExpanded: boolean
+    }) => (
+      <TwakeMuiThemeProvider>
+        <ResponsiveDialog
+          onClose={mockOnClose}
+          title="Test"
+          onExpandToggle={mockOnExpandToggle}
+          {...props}
+        >
+          <div>Content</div>
+        </ResponsiveDialog>
+      </TwakeMuiThemeProvider>
+    )
+
+    afterEach(() => {
+      document.body.classList.remove('fullscreen-view')
+    })
+
+    it('is set while the dialog is expanded', () => {
+      render(expandableDialog({ open: true, isExpanded: true }))
+
+      expect(document.body).toHaveClass('fullscreen-view')
+    })
+
+    it('is released when the dialog collapses', () => {
+      const { rerender } = render(
+        expandableDialog({ open: true, isExpanded: true })
+      )
+
+      rerender(expandableDialog({ open: true, isExpanded: false }))
+
+      expect(document.body).not.toHaveClass('fullscreen-view')
+    })
+
+    it('is released when the expanded dialog is unmounted', () => {
+      const { unmount } = render(
+        expandableDialog({ open: true, isExpanded: true })
+      )
+
+      unmount()
+
+      expect(document.body).not.toHaveClass('fullscreen-view')
+    })
+
+    it('is not set by a closed dialog left expanded', () => {
+      render(expandableDialog({ open: false, isExpanded: true }))
+
+      expect(document.body).not.toHaveClass('fullscreen-view')
+    })
+
+    it('is not dropped by a collapsed dialog mounting alongside', () => {
+      render(expandableDialog({ open: true, isExpanded: true }))
+      render(expandableDialog({ open: true, isExpanded: false }))
+
+      expect(document.body).toHaveClass('fullscreen-view')
+    })
+  })
 })

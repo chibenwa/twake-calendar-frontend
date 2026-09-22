@@ -333,13 +333,17 @@ function ResponsiveDialog({
     width: '100%'
   }
 
+  // The menubar hides its controls while an expanded dialog covers the page.
+  // Release them through the cleanup: an expanded dialog is often closed by
+  // unmounting it (save, close all), and would otherwise leave them hidden.
   React.useEffect(() => {
-    if (isExpanded) {
-      document.body.classList.add('fullscreen-view')
-    } else {
+    if (!open || !isExpanded) return
+
+    document.body.classList.add('fullscreen-view')
+    return (): void => {
       document.body.classList.remove('fullscreen-view')
     }
-  }, [isExpanded])
+  }, [open, isExpanded])
 
   const handleClose = (
     event: unknown,
