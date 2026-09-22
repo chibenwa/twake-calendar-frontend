@@ -65,19 +65,22 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
 
   const handleTimeZoneDefaultChange = (isDefault: boolean): void => {
     const previousTimeZone = currentTimeZone
+    // Turning the detection off pins down the zone the picker already offers,
+    // so that the choice reads as deliberate rather than as the fallback the
+    // backend hands out to users who configured none.
+    const pinned = isDefault ? null : currentTimeZone
+
     dispatch(setIsBrowserDefaultTimeZone(isDefault))
-    if (isDefault) {
-      dispatch(setUserTimeZone(null))
-      dispatch(setSettingsTimeZone(browserDefaultTimeZone))
-      dispatch(updateUserConfigurations({ timezone: null, previousConfig }))
-        .unwrap()
-        .catch(() => {
-          dispatch(setUserTimeZone(previousTimeZone))
-          dispatch(setSettingsTimeZone(previousTimeZone))
-          dispatch(setIsBrowserDefaultTimeZone(!isDefault))
-          onTimeZoneError()
-        })
-    }
+    dispatch(setUserTimeZone(pinned))
+    dispatch(setSettingsTimeZone(pinned ?? browserDefaultTimeZone))
+    dispatch(updateUserConfigurations({ timezone: pinned, previousConfig }))
+      .unwrap()
+      .catch(() => {
+        dispatch(setUserTimeZone(previousTimeZone))
+        dispatch(setSettingsTimeZone(previousTimeZone))
+        dispatch(setIsBrowserDefaultTimeZone(!isDefault))
+        onTimeZoneError()
+      })
   }
 
   const inputMinWidth = isMobile ? '100%' : 500

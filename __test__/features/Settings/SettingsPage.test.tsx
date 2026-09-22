@@ -500,6 +500,27 @@ describe('SettingsPage', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('combobox')).toHaveLength(2)
       })
+
+      // the zone on display is written down, so that it no longer reads as the
+      // fallback the backend serves to users who configured none
+      await waitFor(() => {
+        expect(api.patch).toHaveBeenCalledWith(
+          'api/configurations?scope=user',
+          expect.objectContaining({
+            json: expect.arrayContaining([
+              expect.objectContaining({
+                name: 'core',
+                configurations: expect.arrayContaining([
+                  expect.objectContaining({
+                    name: 'datetime',
+                    value: expect.objectContaining({ timeZone: 'UTC' })
+                  })
+                ])
+              })
+            ])
+          })
+        )
+      })
     })
 
     it('rolls back timezone change if API call fails', async () => {

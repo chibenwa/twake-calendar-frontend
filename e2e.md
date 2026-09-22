@@ -364,7 +364,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `SEARCH-09` Clearing the search restores the calendar view
 - [x] `SEARCH-10` An empty search invites the user to type keywords
 
-## SET — Settings (14)
+## SET — Settings (15)
 
 - [x] `SET-01` Switching the interface to French relabels the menubar
 - [x] `SET-02` Turning the week number off removes it from the grid
@@ -380,6 +380,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SET-12` The back button returns to the previous calendar view
 - [ ] `SET-13` A failed save shows the matching error message
 - [x] `SET-14` One user's settings do not affect another's
+- [x] `SET-15` Automatic timezone detection is on for a fresh user
 
 ---
 

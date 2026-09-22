@@ -515,3 +515,84 @@ describe('Timezone Logic - Backend to Frontend Flow', () => {
     expect(store.getState().user.coreConfig.datetime.timeZone).toBe(null)
   })
 })
+
+describe('Automatic timezone detection is the default', () => {
+  const backendAnswering = (timeZone: string | null) => ({
+    firstname: 'Ada',
+    lastname: 'Lovelace',
+    id: '1378',
+    preferredEmail: 'ada@example.com',
+    configurations: {
+      modules: [
+        {
+          name: 'core',
+          configurations: [{ name: 'datetime', value: { timeZone } }]
+        }
+      ]
+    }
+  })
+
+  const freshStore = () =>
+    configureStore({
+      reducer: { settings: settingsReducer, user: userReducer }
+    })
+
+  beforeEach(() => {
+    localStorageMock.clear()
+  })
+
+  test('Detection is on before anything was fetched', () => {
+    const settingsState = freshStore().getState().settings
+
+    expect(settingsState.isBrowserDefaultTimeZone).toBe(true)
+    expect(settingsState.timeZone).toBe(browserDefaultTimeZone)
+  })
+
+  test('The backend fallback does not turn detection off', async () => {
+    const store = freshStore()
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(
+        backendAnswering('Europe/Paris'),
+        '',
+        undefined
+      )
+    )
+
+    const settingsState = store.getState().settings
+    expect(settingsState.isBrowserDefaultTimeZone).toBe(true)
+    expect(settingsState.timeZone).toBe(browserDefaultTimeZone)
+  })
+
+  test('Opting out is remembered and the backend timezone wins', async () => {
+    const store = freshStore()
+    store.dispatch(setIsBrowserDefaultTimeZone(false))
+    store.dispatch(getOpenPaasUserData.pending('', undefined))
+    expect(localStorage.getItem('autoDetectTimeZone')).toBe('false')
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(
+        backendAnswering('America/New_York'),
+        '',
+        undefined
+      )
+    )
+
+    const settingsState = store.getState().settings
+    expect(settingsState.isBrowserDefaultTimeZone).toBe(false)
+    expect(settingsState.timeZone).toBe('America/New_York')
+  })
+
+  test('Detection returns when the backend holds no timezone', async () => {
+    const store = freshStore()
+    store.dispatch(setIsBrowserDefaultTimeZone(false))
+    store.dispatch(getOpenPaasUserData.pending('', undefined))
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(backendAnswering(null), '', undefined)
+    )
+
+    expect(store.getState().settings.isBrowserDefaultTimeZone).toBe(true)
+    expect(localStorage.getItem('autoDetectTimeZone')).toBe('true')
+  })
+})

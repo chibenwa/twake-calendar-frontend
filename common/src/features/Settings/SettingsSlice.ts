@@ -35,12 +35,35 @@ const savedTimeZone = localStorage.getItem('timeZone')
 const defaultTimeZone =
   savedTimeZone === 'null' || !savedTimeZone ? null : savedTimeZone
 
+const AUTO_DETECT_TIME_ZONE_KEY = 'autoDetectTimeZone'
+
+// Automatic detection is the default. The backend answers with a deployment
+// wide fallback timezone for users who never configured one, so its answer
+// cannot tell a deliberate choice apart from that fallback: only an explicit
+// opt out, remembered here, turns the detection off.
+const autoDetectTimeZone =
+  localStorage.getItem(AUTO_DETECT_TIME_ZONE_KEY) !== 'false'
+
+function rememberAutoDetectTimeZone(enabled: boolean): void {
+  localStorage.setItem(AUTO_DETECT_TIME_ZONE_KEY, String(enabled))
+}
+
+// A timezone coming back only wins over the browser one when the user opted
+// out of the automatic detection: otherwise it may well be the deployment wide
+// fallback the backend serves to unconfigured users.
 const applyServerTimeZone = (
   state: SettingsState,
   serverTimeZone: string | undefined
 ) => {
-  state.timeZone = serverTimeZone || browserDefaultTimeZone
-  state.isBrowserDefaultTimeZone = !serverTimeZone
+  if (serverTimeZone && !state.isBrowserDefaultTimeZone) {
+    state.timeZone = serverTimeZone
+    state.isBrowserDefaultTimeZone = false
+    rememberAutoDetectTimeZone(false)
+  } else {
+    state.timeZone = browserDefaultTimeZone
+    state.isBrowserDefaultTimeZone = true
+    rememberAutoDetectTimeZone(true)
+  }
   localStorage.setItem('timeZone', state.timeZone)
 }
 
@@ -48,8 +71,8 @@ const SettingsSlice = createAppSlice({
   name: 'settings',
   initialState: {
     language: defaultLang,
-    timeZone: defaultTimeZone,
-    isBrowserDefaultTimeZone: defaultTimeZone === null,
+    timeZone: autoDetectTimeZone ? browserDefaultTimeZone : defaultTimeZone,
+    isBrowserDefaultTimeZone: autoDetectTimeZone,
     timeZonePickedDuringUserDataFetch: false,
     hideDeclinedEvents: null,
     displayWeekNumbers: true,
@@ -69,6 +92,7 @@ const SettingsSlice = createAppSlice({
     }),
     setIsBrowserDefaultTimeZone: create.reducer(
       (state, action: PayloadAction<boolean>) => {
+        rememberAutoDetectTimeZone(action.payload)
         state.isBrowserDefaultTimeZone = action.payload
         state.timeZonePickedDuringUserDataFetch = true
       }
