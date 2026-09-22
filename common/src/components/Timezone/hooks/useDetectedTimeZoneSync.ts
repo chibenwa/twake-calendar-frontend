@@ -21,29 +21,29 @@ const selectBackendTracksAutoDetect = (state: RootState) =>
 
 type CoreConfig = ReturnType<typeof selectCoreConfig>
 
-const pushDetectedTimeZone = (
+const pushDetectedTimeZone = async (
   coreConfig: CoreConfig,
   dispatch: AppDispatch,
   isStillAutoDetecting: () => boolean
-): void => {
+): Promise<void> => {
   const body = makeConfigurationBody({
     timezone: browserDefaultTimeZone,
     autoDetectTimezone: true,
     previousConfig: coreConfig
   })
 
-  // Saved straight rather than through `updateUserConfigurations`, whose
-  // failures land on the error page: the calendar runs on the detected zone
-  // either way, so a backend that did not take it waits for the next visit.
-  void patchConfigurations(body.modules)
-    .then(() => {
-      // The user may have turned the detection off, and pinned a zone of
-      // their own, while this was in flight: that choice is the newer one.
-      if (isStillAutoDetecting()) {
-        dispatch(setUserTimeZone(browserDefaultTimeZone))
-      }
-    })
-    .catch(() => undefined)
+  try {
+    await patchConfigurations(body.modules)
+    // The user may have turned the detection off, and pinned a zone of their
+    // own, while this was in flight: that choice is the newer one.
+    if (isStillAutoDetecting()) {
+      dispatch(setUserTimeZone(browserDefaultTimeZone))
+    }
+  } catch {
+    // Saved straight rather than through `updateUserConfigurations`, whose
+    // failures land on the error page: the calendar runs on the detected zone
+    // either way, so a backend that did not take it waits for the next visit.
+  }
 }
 
 /**
@@ -71,7 +71,7 @@ export const useDetectedTimeZoneSync = (): void => {
       isAutoDetected && backendTracksAutoDetect && !isAlreadyStored
 
     if (shouldPush) {
-      pushDetectedTimeZone(
+      void pushDetectedTimeZone(
         coreConfig,
         dispatch,
         () => isAutoDetectedRef.current
