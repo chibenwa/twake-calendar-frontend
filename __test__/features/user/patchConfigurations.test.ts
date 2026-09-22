@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { patchConfigurations } from '@common/features/User/UserDao'
 import { ModuleConfiguration } from '@common/features/User/userDataTypes'
 import { api } from '@common/utils/apiUtils'
