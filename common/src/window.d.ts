@@ -20,6 +20,7 @@ declare global {
     MAIL_SPA_URL: string
     CHAT_SPA_URL: string
     VIDEO_CONFERENCE_BASE_URL: string
+    MEET_BACKEND_INTEGRATION: boolean | undefined
     TDRIVE_ENABLED: boolean | undefined
     TDRIVE_INTENT_URL: string | undefined
     WORKPLACE_FQDN_FALLBACK: string | undefined
