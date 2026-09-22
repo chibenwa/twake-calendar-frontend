@@ -139,7 +139,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (194)
+# Essential (195)
 
 ## AUTH — Authentication and session (9)
 
@@ -265,7 +265,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `RECUR-25` A recurrence on an all day event is accepted and rendered in the all day row
 - [x] `RECUR-26` The preview of an occurrence spells the rule out ("Every 2 weeks on monday, wednesday")
 
-## RECUR-EDIT — Recurrence, editing and deleting (23)
+## RECUR-EDIT — Recurrence, editing and deleting (24)
 
 > Where a regression costs the most: a badly written exception silently corrupts a whole
 > series. Always check `RECURRENCE-ID` and `EXDATE` on the CalDAV side.
@@ -293,6 +293,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `RECUR-EDIT-22` Answering for the whole series applies the status everywhere
 - [x] `RECUR-EDIT-23` The preview of an occurrence carries the "Recurrent Event" badge
 - [x] `RECUR-EDIT-24` Moving a recurring series to another calendar keeps its rule
+- [x] `RECUR-EDIT-25` Answering on a single occurrence writes that answer as an exception ([#1375](https://github.com/linagora/twake-calendar-frontend/issues/1375))
 
 ## ATT — Guests and invitations (17)
 
@@ -744,9 +745,9 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 189 | 194 |
+| Essential | 190 | 195 |
 | Bonus | 235 | 288 |
-| **Total** | **469** | **531** |
+| **Total** | **470** | **532** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

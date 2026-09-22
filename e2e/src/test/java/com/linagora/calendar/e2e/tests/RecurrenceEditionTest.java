@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -483,6 +484,43 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
             assertThat(cardColour(page, title))
                 .as("the whole series moved to %s", other)
                 .isNotEqualTo(colourBefore));
+    }
+
+    @Test
+    @DisplayName("RECUR-EDIT-25 Answering on a single occurrence writes that answer as an exception")
+    void answeringOnOneOccurrenceWritesAnException(Page page, E2EUser organizer, E2EUserFactory users,
+                                                   E2ESessions sessions, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        E2EUser guest = users.newUser();
+        CalendarPage guestCalendar = sessions.openFor(guest);
+        String title = dailySeries(calendar, 4, guest.email());
+
+        guestCalendar.page().reload();
+        guestCalendar.waitUntilLoaded();
+        awaitAttached(guestCalendar.eventCard(title));
+        guestCalendar.openEvent(title).answer("Yes", THIS_EVENT);
+
+        // answering a single occurrence reads the calendar object back before writing the
+        // exception: reading it as ICS while the DAV proxy answers jCal threw, and the answer
+        // was then dropped without a word. See #1375.
+        Awaitility.await().atMost(Duration.ofSeconds(60)).untilAsserted(() -> {
+            List<String> overrides = Ics.overrides(probe.singleEvent(guest));
+            assertThat(overrides).hasSize(1);
+            assertThat(Ics.property(overrides.getFirst(), "RECURRENCE-ID")).isPresent();
+            assertThat(attendeeLine(overrides.getFirst(), guest.email()))
+                .contains("PARTSTAT=ACCEPTED");
+        });
+        assertThat(attendeeLine(Ics.master(probe.singleEvent(guest)), guest.email()))
+            .as("only the clicked occurrence was answered, the series itself is still waiting")
+            .doesNotContain("PARTSTAT=ACCEPTED");
+    }
+
+    /** The ATTENDEE line of one participant inside a VEVENT, folding already undone. */
+    private static String attendeeLine(String vevent, String email) {
+        return Arrays.stream(vevent.split("\r?\n"))
+            .filter(line -> line.startsWith("ATTENDEE") && line.contains(email))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError(email + " is not an attendee of:\n" + vevent));
     }
 
     private static String cardColour(Page page, String title) {
