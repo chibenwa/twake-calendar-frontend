@@ -450,6 +450,54 @@ describe('Timezone Logic - Backend to Frontend Flow', () => {
         expect(state.user.coreConfig.datetime.timeZone).toBe('Australia/Sydney')
       })
     })
+
+    test('User disables browser default => the detected TZ wins over the backend fallback', async () => {
+      const backendFallback =
+        browserDefaultTimeZone === 'Europe/Paris'
+          ? 'America/Los_Angeles'
+          : 'Europe/Paris'
+
+      const { store } = renderWithProviders(<SettingsPage />, {
+        user: {
+          userData: { sub: 'test' },
+          organiserData: null,
+          tokens: null,
+          coreConfig: {
+            language: 'en',
+            datetime: { timeZone: backendFallback }
+          },
+          loading: false,
+          error: null
+        },
+        settings: {
+          language: 'en',
+          timeZone: browserDefaultTimeZone,
+          isBrowserDefaultTimeZone: true,
+          view: 'settings'
+        }
+      })
+
+      const browserDefaultSwitch = screen.getAllByLabelText(
+        'settings.timeZoneBrowserDefault'
+      )[0]
+
+      fireEvent.click(browserDefaultSwitch)
+
+      await waitFor(() => {
+        const state = store.getState()
+        expect(state.settings.isBrowserDefaultTimeZone).toBe(false)
+      })
+      await waitFor(() => {
+        const state = store.getState()
+        expect(state.settings.timeZone).toBe(browserDefaultTimeZone)
+      })
+      await waitFor(() => {
+        const state = store.getState()
+        expect(state.user.coreConfig.datetime.timeZone).toBe(
+          browserDefaultTimeZone
+        )
+      })
+    })
   })
 
   describe('LocalStorage Persistence', () => {

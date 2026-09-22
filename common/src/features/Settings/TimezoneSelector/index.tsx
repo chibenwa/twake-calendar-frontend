@@ -64,11 +64,12 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
   }
 
   const handleTimeZoneDefaultChange = (isDefault: boolean): void => {
-    const previousTimeZone = currentTimeZone
-    // Turning the detection off pins down the zone the picker already offers,
-    // so that the choice reads as deliberate rather than as the fallback the
-    // backend hands out to users who configured none.
-    const pinned = isDefault ? null : currentTimeZone
+    const previousUserTimeZone = userTimeZone ?? null
+    const previousSettingTimeZone = settingTimeZone ?? browserDefaultTimeZone
+    // Turning the detection off pins down the zone the calendar already runs
+    // on, so that the choice reads as deliberate rather than as the fallback
+    // the backend hands out to users who configured none.
+    const pinned = isDefault ? null : previousSettingTimeZone
 
     dispatch(setIsBrowserDefaultTimeZone(isDefault))
     dispatch(setUserTimeZone(pinned))
@@ -76,8 +77,8 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
     dispatch(updateUserConfigurations({ timezone: pinned, previousConfig }))
       .unwrap()
       .catch(() => {
-        dispatch(setUserTimeZone(previousTimeZone))
-        dispatch(setSettingsTimeZone(previousTimeZone))
+        dispatch(setUserTimeZone(previousUserTimeZone))
+        dispatch(setSettingsTimeZone(previousSettingTimeZone))
         dispatch(setIsBrowserDefaultTimeZone(!isDefault))
         onTimeZoneError()
       })
