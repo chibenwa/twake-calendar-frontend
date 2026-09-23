@@ -569,7 +569,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `FB-13` The "Check availability" field searches both users and resources
 - [x] `FB-14` Removing a guest removes their availability row
 
-## TZ — Timezones (19)
+## TZ — Timezones (21)
 
 - [x] `TZ-01` The default timezone of the form is the one from the settings
 - [x] `TZ-02` Changing the timezone of an event shifts its display
@@ -585,11 +585,13 @@ Four of the forty nine, each with what stands in the way.
 - [x] `TZ-13` An event placed in the doubled autumn hour is handled
 - [x] `TZ-14` Changing the timezone in the settings redraws the whole grid
 - [x] `TZ-15` Automatic detection picks up the browser timezone
-- [x] `TZ-16` The banner offers to switch when the detected timezone differs from the configured one
+- [x] `TZ-16` The modal offers to switch when the detected timezone differs from the configured one
 - [x] `TZ-17` Declining the switch keeps the configured timezone
 - [x] `TZ-18` `ASK_FOR_TZ_UPDATE=false` hides the banner
 - [x] `TZ-19` An invitation received from another timezone displays at local time
 - [x] `TZ-20` A recurrence spanning three months crosses the DST change correctly
+- [x] `TZ-21` A range selected in a grid far ahead of the browser (UTC+13) is created where it was selected ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
+- [x] `TZ-22` Editing the end of such a selection keeps the draft of the grid on the edited slot ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
 
 ## DND — Drag, drop and resize (14)
 

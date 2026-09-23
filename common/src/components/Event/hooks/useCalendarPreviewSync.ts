@@ -1,6 +1,8 @@
 import React, { useCallback, startTransition } from 'react'
 import { CalendarApi, DateSelectArg } from '@fullcalendar/core'
+import moment from 'moment-timezone'
 import type { EventFormHandle } from '@common/components/Event/EventFormFields.types'
+import { browserDefaultTimeZone } from '@common/utils/timezone'
 
 interface UseCalendarPreviewSyncProps {
   formRef: React.RefObject<EventFormHandle | null>
@@ -21,13 +23,23 @@ function syncCalendarSelection(
 }
 
 /**
+ * The form holds wall clock times in the zone of the event, without offset.
+ * Reading them with `new Date()` would place them in the zone of the browser,
+ * and the grid would highlight a slot shifted by the gap between both zones.
+ */
+function toInstant(wallClock: string, timezone?: string): Date {
+  return moment.tz(wallClock, timezone || browserDefaultTimeZone).toDate()
+}
+
+/**
  * Pure helper to calculate the new date range when toggling all-day mode.
  */
 function calculateAllDayRange(
   prev: DateSelectArg | null,
   newAllDay: boolean,
   newStart: string,
-  newEnd: string
+  newEnd: string,
+  timezone?: string
 ): DateSelectArg {
   const startStr = newAllDay ? newStart.split('T')[0] : newStart
   const endStr = newAllDay ? newEnd.split('T')[0] : newEnd
@@ -36,8 +48,8 @@ function calculateAllDayRange(
     ...prev,
     startStr,
     endStr,
-    start: new Date(newAllDay ? `${startStr}T00:00:00` : newStart),
-    end: new Date(newAllDay ? `${endStr}T00:00:00` : newEnd),
+    start: toInstant(newAllDay ? `${startStr}T00:00:00` : newStart, timezone),
+    end: toInstant(newAllDay ? `${endStr}T00:00:00` : newEnd, timezone),
     allDay: newAllDay
   } as DateSelectArg
 }
@@ -59,12 +71,13 @@ export function useCalendarPreviewSync({
 }: UseCalendarPreviewSyncProps): UseCalendarPreviewSyncReturn {
   const handleStartChange = useCallback(
     (newStart: string) => {
-      const allday = formRef.current?.getValues().allday ?? false
+      const values = formRef.current?.getValues()
+      const allday = values?.allday ?? false
       startTransition(() => {
         setSelectedRange(prev => {
           const newRange = {
             ...prev,
-            start: new Date(newStart),
+            start: toInstant(newStart, values?.timezone),
             startStr: newStart,
             allDay: allday
           } as DateSelectArg
@@ -78,12 +91,13 @@ export function useCalendarPreviewSync({
 
   const handleEndChange = useCallback(
     (newEnd: string) => {
-      const allday = formRef.current?.getValues().allday ?? false
+      const values = formRef.current?.getValues()
+      const allday = values?.allday ?? false
       startTransition(() => {
         setSelectedRange(prev => {
           const newRange = {
             ...prev,
-            end: new Date(newEnd),
+            end: toInstant(newEnd, values?.timezone),
             endStr: newEnd,
             allDay: allday
           } as DateSelectArg
@@ -97,20 +111,22 @@ export function useCalendarPreviewSync({
 
   const handleAllDayChange = useCallback(
     (newAllDay: boolean, newStart: string, newEnd: string) => {
+      const timezone = formRef.current?.getValues().timezone
       startTransition(() => {
         setSelectedRange(prev => {
           const newRange = calculateAllDayRange(
             prev,
             newAllDay,
             newStart,
-            newEnd
+            newEnd,
+            timezone
           )
           syncCalendarSelection(calendarRef, newRange)
           return newRange
         })
       })
     },
-    [setSelectedRange, calendarRef]
+    [formRef, setSelectedRange, calendarRef]
   )
 
   return {

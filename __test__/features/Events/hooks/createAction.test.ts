@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 
+import { buildFromSelectedRange } from '@common/components/Event/utils/initialValues/dateResolvers'
 import { buildNewEvent } from '@common/features/Events/hooks/submitCreateHelpers/createAction'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { userOrganiser } from '@common/features/User/userDataTypes'
@@ -9,6 +10,7 @@ import { Calendar } from '@common/types/CalendarTypes'
 import { RepetitionObject } from '@common/types/Repetition'
 import { VAlarm } from '@common/types/VAlarm'
 import { Valarms } from '@common/types/Valarms'
+import type { DateSelectArg } from '@fullcalendar/core'
 
 jest.mock('p-map', () => jest.fn())
 
@@ -187,5 +189,36 @@ describe('handleCreateEvent - team calendar organizer handling', () => {
 
     // Organizer should be set when there are attendees, even in team calendar
     expect(newEvent.organizer).toBeDefined()
+  })
+})
+
+describe('buildNewEvent - from a grid selection in another zone (#1398)', () => {
+  it('keeps the selected slot when the grid is thirteen hours ahead of UTC', () => {
+    // what FullCalendar hands over for 5am-6am in a Pacific/Tongatapu grid
+    const selection = {
+      start: new Date('2026-09-23T16:00:00Z'),
+      end: new Date('2026-09-23T17:00:00Z'),
+      startStr: '2026-09-24T05:00:00+13:00',
+      endStr: '2026-09-24T06:00:00+13:00',
+      allDay: false
+    } as DateSelectArg
+
+    const selected = buildFromSelectedRange(selection, {
+      timezone: 'Pacific/Tongatapu'
+    })
+
+    const newEvent = buildNewEvent({
+      values: { ...baseValues, ...selected } as typeof baseValues,
+      targetCalendar: baseCalendar,
+      showMore: false,
+      newEventUID: 'uid',
+      t: (key: string) => key
+    })
+
+    expect(selected.start).toBe('2026-09-24T05:00')
+    expect(selected.end).toBe('2026-09-24T06:00')
+    expect(newEvent.timezone).toBe('Pacific/Tongatapu')
+    expect(newEvent.start).toBe('2026-09-23T16:00:00.000Z')
+    expect(newEvent.end).toBe('2026-09-23T17:00:00.000Z')
   })
 })
