@@ -23,6 +23,11 @@ var MAIL_SPA_URL = 'https://mail.example.com'
 //   'https://visio-{localpart}.twake.app/#/bridge'
 //   'https://{workplaceFqdn.localpart}-visio.{workplaceFqdn.domain}/#/bridge'
 var VIDEO_CONFERENCE_BASE_URL = 'https://meet.linagora.com'
+// Asks the side service (POST /api/videoconference) to create the Meet room
+// instead of appending a random code to VIDEO_CONFERENCE_BASE_URL, which stays
+// required: it enables the video conference field and serves as the fallback
+// when the side service has no Meet integration. Defaults to false.
+var MEET_BACKEND_INTEGRATION = false
 var SUPPORT_URL = 'https://twake.app/support/'
 var PRIVACY_URL = 'https://twake.app/privacy'
 var TERMS_URL = 'https://twake.app/terms'
