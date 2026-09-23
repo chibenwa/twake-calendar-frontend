@@ -642,6 +642,26 @@ public class CalendarPage {
         return new AppointmentModal(page).waitUntilOpen();
     }
 
+    /** The help button next to the title of the Booking links section. */
+    public Locator bookingLinksExplanationButton() {
+        return page.getByLabel("What are booking links?");
+    }
+
+    /** Clicks the help button of the Booking links section and returns the explanation shown. */
+    public String explainBookingLinks() {
+        bookingLinksExplanationButton().first().click();
+        Locator explanation = page.locator(".MuiPopover-paper").last();
+        explanation.waitFor();
+        return explanation.innerText();
+    }
+
+    /** Opts out of feature explanations from within the explanation currently shown. */
+    public CalendarPage stopShowingExplanations() {
+        page.getByRole(AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Stop showing explanations")).click();
+        return this;
+    }
+
     /** The sidebar entry of a booking link, which carries its name as accessible name. */
     public Locator bookingLinkChip(String name) {
         return page.locator("[aria-label='" + name + "']");
