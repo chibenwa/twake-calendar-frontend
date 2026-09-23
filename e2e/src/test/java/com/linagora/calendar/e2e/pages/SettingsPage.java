@@ -50,18 +50,17 @@ public class SettingsPage {
 
     /**
      * Pins the application timezone. Automatic detection has to go first, otherwise the
-     * browser timezone wins straight back. Turning it off only reveals the picker: nothing is
-     * written until a zone is chosen, so there is no request to wait for.
+     * browser timezone wins straight back. Turning it off pins the zone the browser runs in.
      */
     public SettingsPage selectTimezone(String timezone) {
         Locator autoDetect = page.getByLabel("Detect time zone automatically").first();
         if (autoDetect.isChecked()) {
-            autoDetect.click();
-            com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(autoDetect).not().isChecked();
+            awaitPersisted(autoDetect::click);
         }
         Locator picker = page.getByPlaceholder("Select timezone");
         if (isSelected(picker, timezone)) {
-            // picking the zone already shown changes nothing, hence writes nothing
+            // turning the detection off pinned the zone the browser runs in, and picking the
+            // zone already shown changes nothing, hence writes nothing
             return this;
         }
         for (int attempt = 1; attempt <= 3; attempt++) {
