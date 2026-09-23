@@ -104,8 +104,9 @@ beforeAll(() => {
 // The calendar grid restores the last displayed date from sessionStorage:
 // keep tests independent from the period a previous test navigated to.
 afterEach(() => {
+  // Some node-environment tests replace window with a bare mock object.
   if (typeof window !== 'undefined') {
-    window.sessionStorage.removeItem('displayedDate')
+    window.sessionStorage?.removeItem('displayedDate')
   }
 })
 jest.setTimeout(30000)
