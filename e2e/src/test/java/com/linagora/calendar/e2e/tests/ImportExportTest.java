@@ -22,7 +22,11 @@ import com.linagora.calendar.e2e.backend.Ics;
 import com.linagora.calendar.e2e.pages.CalendarModal;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
+import com.microsoft.playwright.options.AriaRole;
 
 /**
  * Getting events in and out: the Import tab, the export button, and the two addresses the
@@ -299,5 +303,18 @@ class ImportExportTest extends TwakeCalendarE2ETest {
         assertThat(exported)
             .as("an export that loses the exceptions is not a backup")
             .contains("RECURRENCE-ID");
+    }
+
+    @Test
+    @DisplayName("IMPEX-21 A completed import is announced with its counts")
+    void aCompletedImportIsAnnounced(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        importInto(calendar, "simple.ics");
+
+        PlaywrightAssertions.assertThat(page.getByRole(AriaRole.ALERT)
+                .filter(new Locator.FilterOptions().setHasText("Your import completed")))
+            .containsText("2 item(s) imported, 0 error(s)",
+                new LocatorAssertions.ContainsTextOptions().setTimeout(IMPORT_MS.toMillis()));
     }
 }

@@ -1,3 +1,5 @@
 export { parseMessage } from './parseMessage'
 export { updateCalendars } from './updateCalendars'
 export { parseCalendarPath } from './parseCalendarPath'
+export { parseImportResults } from './parseImportResults'
+export type { ImportResult } from './parseImportResults'
