@@ -66,6 +66,13 @@ public class EventFormModal {
         return this;
     }
 
+    /** Leaves the full screen layout for the compact modal, keeping the form open. */
+    public EventFormModal collapse() {
+        page.getByLabel("show less").click();
+        page.getByLabel("expand").waitFor();
+        return this;
+    }
+
     public EventFormModal startTime(String hhmm) {
         return fillTime("start-time-input", hhmm);
     }

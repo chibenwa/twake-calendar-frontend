@@ -173,4 +173,45 @@ class ShellTest extends TwakeCalendarE2ETest {
             .as("the browser complained: %s", log.explain())
             .isEmpty();
     }
+
+    @Test
+    @DisplayName("SHELL-13 Collapsing a full screen event form gives the menubar its actions back")
+    void collapsingAFullScreenFormRestoresTheMenubar(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = "Collapsed " + UUID.randomUUID().toString().substring(0, 8);
+        calendar.createEvent(title);
+
+        calendar.openEvent(title).edit().expand().collapse();
+
+        assertTheMenubarNavigationIsVisible(page);
+    }
+
+    @Test
+    @DisplayName("SHELL-14 Saving a full screen event edit gives the menubar its actions back")
+    void savingAFullScreenEditRestoresTheMenubar(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = "Saved " + UUID.randomUUID().toString().substring(0, 8);
+        calendar.createEvent(title);
+
+        calendar.openEvent(title).edit().expand().title(title + " edited").save();
+
+        assertTheMenubarNavigationIsVisible(page);
+    }
+
+    @Test
+    @DisplayName("SHELL-15 Saving a full screen event creation gives the menubar its actions back")
+    void savingAFullScreenCreationRestoresTheMenubar(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        calendar.createEvent().title("Created " + UUID.randomUUID().toString().substring(0, 8))
+            .expand().save();
+
+        assertTheMenubarNavigationIsVisible(page);
+    }
+
+    private static void assertTheMenubarNavigationIsVisible(Page page) {
+        List.of("Today", "Previous", "Next", "Search for events or calendars", "Refresh")
+            .forEach(action -> assertThat(
+                page.getByLabel(action, new Page.GetByLabelOptions().setExact(true))).isVisible());
+    }
 }
