@@ -585,7 +585,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `TZ-13` An event placed in the doubled autumn hour is handled
 - [x] `TZ-14` Changing the timezone in the settings redraws the whole grid
 - [x] `TZ-15` Automatic detection picks up the browser timezone
-- [x] `TZ-16` The banner offers to switch when the detected timezone differs from the configured one
+- [x] `TZ-16` The modal offers to switch when the detected timezone differs from the configured one
 - [x] `TZ-17` Declining the switch keeps the configured timezone
 - [x] `TZ-18` `ASK_FOR_TZ_UPDATE=false` hides the banner
 - [x] `TZ-19` An invitation received from another timezone displays at local time

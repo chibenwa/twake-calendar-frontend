@@ -45,7 +45,8 @@
     "exporting": "Exporting...",
     "hide": "Hide",
     "show": "Show",
-    "close": "Close"
+    "close": "Close",
+    "update": "Update"
   },
   "common": {
     "cancel": "Cancel",
@@ -321,8 +322,8 @@
     "timeZoneBrowserDefault": "Detect time zone automatically",
     "timeZoneUpdateError": "Failed to update time zone",
     "tzPrompt": {
-      "detected": "We detected you are in %{browserTZ} instead of your %{configuredTZ} configured TZ",
-      "askSwitch": "Do you want to switch the app to %{browserTZ} TZ?"
+      "title": "Update time zone?",
+      "detected": "Your browser indicates that you’re in the %{browserTZ} time zone. Would you like to update your time zone? You can change it later in Settings."
     },
     "notifications.empty": "Notifications settings coming soon",
     "notifications.email": "Email",

@@ -303,7 +303,7 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         calendar.waitUntilLoaded();
 
         PlaywrightAssertions.assertThat(page.getByText(
-                java.util.regex.Pattern.compile("detected you are in", java.util.regex.Pattern.CASE_INSENSITIVE))
+                java.util.regex.Pattern.compile("Your browser indicates", java.util.regex.Pattern.CASE_INSENSITIVE))
                 .first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
     }
@@ -318,7 +318,7 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         page.reload();
         calendar.waitUntilLoaded();
         PlaywrightAssertions.assertThat(page.getByText(
-                java.util.regex.Pattern.compile("detected you are in", java.util.regex.Pattern.CASE_INSENSITIVE))
+                java.util.regex.Pattern.compile("Your browser indicates", java.util.regex.Pattern.CASE_INSENSITIVE))
                 .first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
 
@@ -347,7 +347,7 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         page.waitForTimeout(4000);
 
         PlaywrightAssertions.assertThat(page.getByText(
-            java.util.regex.Pattern.compile("detected you are in", java.util.regex.Pattern.CASE_INSENSITIVE)))
+            java.util.regex.Pattern.compile("Your browser indicates", java.util.regex.Pattern.CASE_INSENSITIVE)))
             .hasCount(0);
     }
 

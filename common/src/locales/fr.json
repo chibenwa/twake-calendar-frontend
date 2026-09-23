@@ -45,7 +45,8 @@
     "exporting": "En cours d'exportation...",
     "hide": "Masquer",
     "show": "Afficher",
-    "close": "Fermer"
+    "close": "Fermer",
+    "update": "Mettre à jour"
   },
   "common": {
     "cancel": "Annuler",
@@ -321,8 +322,8 @@
     "timeZoneBrowserDefault": "Détection automatique du fuseau horaire",
     "timeZoneUpdateError": "Échec de la mise à jour du fuseau horaire",
     "tzPrompt": {
-      "detected": "Nous avons détecté que vous êtes actuellement situé dans le fuseau horaire %{browserTZ} au lieu de votre fuseau horaire configuré %{configuredTZ}",
-      "askSwitch": "Voulez-vous basculer l'application vers le fuseau horaire %{browserTZ} ?"
+      "title": "Mettre à jour le fuseau horaire ?",
+      "detected": "Votre navigateur indique que vous êtes dans le fuseau horaire %{browserTZ}. Souhaitez-vous mettre à jour votre fuseau horaire ? Vous pourrez le modifier ultérieurement dans les Paramètres."
     },
     "notifications.empty": "Paramètres de notifications à venir",
     "notifications.email": "Email",
