@@ -27,4 +27,10 @@ describe('displayedDate storage', () => {
 
     expect(getDisplayedDate()).toEqual(new Date('2026-09-23T10:00:00Z'))
   })
+
+  it('falls back to now when the stored date is in the past', () => {
+    setDisplayedDate(new Date('2026-09-16T10:00:00Z'))
+
+    expect(getDisplayedDate()).toEqual(new Date('2026-09-23T10:00:00Z'))
+  })
 })
