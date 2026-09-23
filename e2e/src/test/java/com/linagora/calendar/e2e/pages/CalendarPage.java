@@ -426,6 +426,8 @@ public class CalendarPage {
      * creation modal prefilled with the range.
      */
     public EventFormModal selectTimeRange(java.time.LocalDate day, String fromSlot, String toSlot) {
+        // the grid opens scrolled to 6am or later: an earlier slot is out of sight until scrolled to
+        page.locator(".fc-timegrid-slot[data-time='" + fromSlot + "']").first().scrollIntoViewIfNeeded();
         var column = page.locator(".fc-timegrid-col[data-date='" + day + "']").last().boundingBox();
         var from = page.locator(".fc-timegrid-slot[data-time='" + fromSlot + "']").first().boundingBox();
         var to = page.locator(".fc-timegrid-slot[data-time='" + toSlot + "']").first().boundingBox();

@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -30,6 +31,9 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 
 /** Timezones: what the form writes, and what each viewer sees. */
 class TimezonesTest extends TwakeCalendarE2ETest {
+
+    /** Thirteen hours ahead of UTC, eleven ahead of the Paris browser of the suite: the day differs too. */
+    private static final String TONGATAPU = "Pacific/Tongatapu";
 
     private static String title(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
@@ -392,5 +396,48 @@ class TimezonesTest extends TwakeCalendarE2ETest {
             .contains("BEGIN:VTIMEZONE")
             .contains("BEGIN:DAYLIGHT")
             .contains("BEGIN:STANDARD");
+    }
+
+    @Test
+    @DisplayName("TZ-21 A range selected in a grid far ahead of the browser is created where it was selected")
+    void aRangeSelectedFarAheadOfTheBrowserIsCreatedWhereSelected(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = inTimezone(LoginPage.loginAs(page, user), TONGATAPU);
+        String title = title("Early in Tonga");
+
+        var form = calendar.selectTimeRange(LocalDate.now(ZoneId.of(TONGATAPU)), "05:00:00", "05:30:00")
+            .title(title).expand();
+        assertThat(form.startTime()).isEqualTo("05:00");
+        assertThat(form.endTime()).isEqualTo("06:00");
+        form.save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=" + TONGATAPU);
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T050000");
+            assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T060000");
+        });
+        PlaywrightAssertions.assertThat(calendar.eventCard(title).first())
+            .containsText("05:00", new LocatorAssertions.ContainsTextOptions().setTimeout(30_000));
+    }
+
+    @Test
+    @DisplayName("TZ-22 Editing the end of a range selected far ahead of the browser keeps the preview on the grid")
+    void editingASelectionFarAheadOfTheBrowserKeepsThePreview(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = inTimezone(LoginPage.loginAs(page, user), TONGATAPU);
+        String title = title("Longer in Tonga");
+
+        var form = calendar.selectTimeRange(LocalDate.now(ZoneId.of(TONGATAPU)), "05:00:00", "05:30:00")
+            .title(title).expand().endTime("07:00");
+
+        // the draft of the grid used to read 07:00 in the zone of the browser, eleven hours earlier
+        PlaywrightAssertions.assertThat(page.locator("[data-event-id='twake-draft-event']").first())
+            .containsText("07:00");
+        form.save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T050000");
+            assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T070000");
+        });
     }
 }

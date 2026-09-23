@@ -1,5 +1,6 @@
 import { DateSelectArg } from '@fullcalendar/core'
 import { endOfDay } from 'date-fns'
+import moment from 'moment-timezone'
 import { RefObject, useEffect } from 'react'
 
 const MOVE_THRESHOLD = 10
@@ -25,10 +26,24 @@ function getDateAtPoint(x: number): string | null {
   return col?.getAttribute('data-date') ?? null
 }
 
-function buildSelectArg(date: string, time: string): DateSelectArg {
-  const start = new Date(`${date}T${time}`)
-  const end = new Date(start.getTime() + 30 * 60 * 1000)
-  return { start, end, allDay: false } as DateSelectArg
+/**
+ * The tapped slot is a wall clock time of the grid: it is read in the zone of
+ * the grid, not in the one of the browser.
+ */
+export function buildSelectArg(
+  date: string,
+  time: string,
+  timezone: string
+): DateSelectArg {
+  const start = moment.tz(`${date}T${time}`, timezone)
+  const end = start.clone().add(30, 'minutes')
+  return {
+    start: start.toDate(),
+    end: end.toDate(),
+    startStr: start.format(),
+    endStr: end.format(),
+    allDay: false
+  } as DateSelectArg
 }
 
 function isAllDayTap(x: number, y: number): string | null {
@@ -47,7 +62,8 @@ function isAllDayTap(x: number, y: number): string | null {
 export function useTouchListener(
   handleDateSelect: (selectInfo: DateSelectArg | null) => void,
   isTouch: boolean,
-  wrapperRef: RefObject<HTMLDivElement>
+  wrapperRef: RefObject<HTMLDivElement>,
+  timezone: string
 ): void {
   useEffect(() => {
     const el = wrapperRef.current
@@ -74,7 +90,7 @@ export function useTouchListener(
       const date = getDateAtPoint(touch.clientX)
 
       if (time && date) {
-        handleDateSelect(buildSelectArg(date, time))
+        handleDateSelect(buildSelectArg(date, time, timezone))
         return
       }
 
@@ -97,5 +113,5 @@ export function useTouchListener(
       el.removeEventListener('touchstart', onTouchStart)
       el.removeEventListener('touchend', onTouchEnd)
     }
-  }, [handleDateSelect, isTouch, wrapperRef])
+  }, [handleDateSelect, isTouch, wrapperRef, timezone])
 }
