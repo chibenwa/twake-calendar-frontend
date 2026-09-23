@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -38,6 +39,8 @@ import com.microsoft.playwright.options.WaitForSelectorState;
  * distance the mouse travelled.
  */
 class DragAndDropTest extends TwakeCalendarE2ETest {
+
+    private static final String SHANGHAI = "Asia/Shanghai";
 
     private static String uniqueTitle(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
@@ -314,5 +317,42 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
 
         PlaywrightAssertions.assertThat(calendar.eventCard(title).first()).isAttached();
         assertThat(startTimeOf(calendar, title)).isEqualTo("16:00");
+    }
+
+    /** Puts the grid eight hours ahead of UTC, while the browser of the suite sits in Paris. */
+    private CalendarPage inShanghai(CalendarPage calendar) {
+        return calendar.openSettings().selectTimezone(SHANGHAI).backToCalendar();
+    }
+
+    @Test
+    @DisplayName("DND-17 A drag lands on the aimed slot when the grid is in another zone than the browser")
+    void aDragInAnotherZoneLandsOnTheAimedSlot(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = inShanghai(LoginPage.loginAs(page, user));
+        String title = anEventAt(calendar, "Shanghai drag", "09:00", "10:00");
+
+        calendar.dragEventToSlot(title, LocalDate.now(ZoneId.of(SHANGHAI)), "14:00:00");
+
+        // the dropped time used to be read back in the zone of the browser, six hours later
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(dtStart(probe, user)).endsWith("T140000");
+            assertThat(startTimeOf(calendar, title)).isEqualTo("14:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-18 A resize reaches the aimed end when the grid is in another zone than the browser")
+    void aResizeInAnotherZoneReachesTheAimedEnd(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = inShanghai(LoginPage.loginAs(page, user));
+        String title = anEventAt(calendar, "Shanghai resize", "09:00", "10:00");
+
+        calendar.resizeEventEndTo(title, "12:00:00");
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T090000");
+            assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T120000");
+            assertThat(endTimeOf(calendar, title)).isEqualTo("12:00");
+            assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+        });
     }
 }
