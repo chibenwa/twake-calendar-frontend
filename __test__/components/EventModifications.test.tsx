@@ -646,5 +646,71 @@ describe('CalendarApp integration', () => {
       // Verify SEQUENCE is incremented
       expect(updatedEvent?.sequence).toBe(3) // 2 + 1
     })
+
+    it('hands the dropped time over as an instant, whatever the zone of the event', async () => {
+      const mockDispatch = jest.fn().mockReturnValue(
+        Object.assign(Promise.resolve({}), {
+          unwrap: () => Promise.resolve({})
+        })
+      ) as unknown as AppDispatch
+
+      const updateSpy = jest
+        .spyOn(eventThunks, 'putEvent')
+        .mockImplementation(payload => {
+          const promise = Promise.resolve(payload)
+          ;(promise as any).unwrap = () => promise
+          return () => promise as any
+        })
+
+      jest
+        .spyOn(EventDao, 'fetchEvent')
+        .mockImplementation(async event =>
+          jCalFromIcs(
+            [
+              'BEGIN:VCALENDAR',
+              'VERSION:2.0',
+              'BEGIN:VEVENT',
+              `UID:${event.uid}`,
+              'SUMMARY:Shanghai',
+              'DTSTART;TZID=Asia/Shanghai:20251114T183100',
+              'DTEND;TZID=Asia/Shanghai:20251114T193100',
+              'END:VEVENT',
+              'END:VCALENDAR'
+            ].join('\r\n')
+          )
+        )
+
+      const eventHandlers = createEventHandlers({
+        setSelectedRange: jest.fn(),
+        setOpenEventDisplay: jest.fn(),
+        dispatch: mockDispatch,
+        setEventDisplayedId: jest.fn(),
+        setEventDisplayedCalId: jest.fn(),
+        setEventDisplayedTemp: jest.fn(),
+        calendars: preloadedState.calendars.list,
+        setSelectedEvent: jest.fn(),
+        setAfterChoiceFunc: jest.fn(),
+        setOpenEditModePopup: jest.fn(),
+        timezone: 'Asia/Shanghai'
+      } as unknown as EventHandlersProps)
+
+      await eventHandlers.handleEventDrop({
+        event: {
+          extendedProps: {
+            uid: 'event1',
+            calId: '667037022b752d0026472254/cal1'
+          }
+        },
+        // 10:31Z is 18:31 in Shanghai: moved five hours later
+        delta: { years: 0, months: 0, days: 0, milliseconds: 5 * 3600000 }
+      } as any)
+
+      const updatedEvent = updateSpy.mock.calls[0][0].newEvent
+      // a wall clock time without offset would be read back in the zone of
+      // the browser once serialized, not in the one of the event
+      expect(updatedEvent.start).toBe('2025-11-14T15:31:00.000Z')
+      expect(updatedEvent.end).toBe('2025-11-14T16:31:00.000Z')
+      expect(updatedEvent.timezone).toBe('Asia/Shanghai')
+    })
   })
 })

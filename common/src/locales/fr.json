@@ -45,7 +45,8 @@
     "exporting": "En cours d'exportation...",
     "hide": "Masquer",
     "show": "Afficher",
-    "close": "Fermer"
+    "close": "Fermer",
+    "update": "Mettre à jour"
   },
   "common": {
     "cancel": "Annuler",
@@ -321,8 +322,8 @@
     "timeZoneBrowserDefault": "Détection automatique du fuseau horaire",
     "timeZoneUpdateError": "Échec de la mise à jour du fuseau horaire",
     "tzPrompt": {
-      "detected": "Nous avons détecté que vous êtes actuellement situé dans le fuseau horaire %{browserTZ} au lieu de votre fuseau horaire configuré %{configuredTZ}",
-      "askSwitch": "Voulez-vous basculer l'application vers le fuseau horaire %{browserTZ} ?"
+      "title": "Mettre à jour le fuseau horaire ?",
+      "detected": "Votre navigateur indique que vous êtes dans le fuseau horaire %{browserTZ}. Souhaitez-vous mettre à jour votre fuseau horaire ? Vous pourrez le modifier ultérieurement dans les Paramètres."
     },
     "notifications.empty": "Paramètres de notifications à venir",
     "notifications.email": "Email",
@@ -437,7 +438,9 @@
     "browserOffline": "Vous êtes hors ligne. Les mises à jour en temps réel sont mises en pause jusqu’au rétablissement de la connexion.",
     "reconnected": "Les mises à jour en temps réel sont de nouveau actives.",
     "error": "Un problème est survenu avec les mises à jour en temps réel : %{error}",
-    "closedUnexpectedly": "Les mises à jour en temps réel ont été interrompues. Tentative de reconnexion…"
+    "closedUnexpectedly": "Les mises à jour en temps réel ont été interrompues. Tentative de reconnexion…",
+    "importCompleted": "Votre import est terminé. %{succeedCount} élément(s) importé(s), %{failedCount} erreur(s)",
+    "importFailed": "Votre import a échoué."
   },
   "months": {
     "standalone": {

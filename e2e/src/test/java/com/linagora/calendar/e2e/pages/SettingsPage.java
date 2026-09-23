@@ -16,7 +16,18 @@ public class SettingsPage {
 
     SettingsPage waitUntilOpen() {
         languageSelector().waitFor();
+        awaitUserConfigurationLoaded();
         return this;
+    }
+
+    /**
+     * The grid shows up before the user configuration is fetched. A setting changed in between
+     * is overwritten by the backend defaults once they land: the language flips back to English,
+     * the timezone to the deployment one. The configuration load is the only thing that writes
+     * the timezone into a fresh local storage, so its presence tells the load is over.
+     */
+    private void awaitUserConfigurationLoaded() {
+        page.waitForFunction("() => localStorage.getItem('timeZone') !== null");
     }
 
     /**
@@ -41,15 +52,21 @@ public class SettingsPage {
 
     /**
      * Pins the application timezone. Automatic detection has to go first, otherwise the
-     * browser timezone wins straight back.
+     * browser timezone wins straight back. Turning it off only reveals the picker: nothing is
+     * written until a zone is chosen, so there is no request to wait for.
      */
     public SettingsPage selectTimezone(String timezone) {
         Locator autoDetect = page.getByLabel("Detect time zone automatically").first();
         if (autoDetect.isChecked()) {
-            awaitPersisted(autoDetect::click);
+            autoDetect.click();
+            com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(autoDetect).not().isChecked();
+        }
+        Locator picker = page.getByPlaceholder("Select timezone");
+        if (isSelected(picker, timezone)) {
+            // picking the zone already shown changes nothing, hence writes nothing
+            return this;
         }
         for (int attempt = 1; attempt <= 3; attempt++) {
-            Locator picker = page.getByPlaceholder("Select timezone");
             picker.click();
             picker.fill("");
             picker.pressSequentially(timezone, new Locator.PressSequentiallyOptions().setDelay(40));
@@ -67,6 +84,11 @@ public class SettingsPage {
             return this;
         }
         throw new AssertionError("The settings timezone list never settled on " + timezone);
+    }
+
+    /** The picker reads "Asia/Tokyo (UTC+9)", underscores turned into spaces. */
+    private static boolean isSelected(Locator picker, String timezone) {
+        return picker.inputValue().startsWith(timezone.replace('_', ' ') + " (");
     }
 
     /** One of the settings tabs: Settings, Notifications. */

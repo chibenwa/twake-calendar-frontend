@@ -58,7 +58,7 @@ describe('TimezoneChangeAlert', () => {
     user: { coreConfig: { datetime: { timeZone: 'Europe/Paris' } } }
   }
 
-  it('shows snackbar when browser TZ differs from configured TZ', () => {
+  it('shows modal when browser TZ differs from configured TZ', () => {
     mockBrowserTZ('Asia/Ho_Chi_Minh')
 
     const state = baseState
@@ -68,7 +68,7 @@ describe('TimezoneChangeAlert', () => {
     expect(screen.getByText(/settings\.tzPrompt\.detected/)).toBeInTheDocument()
   })
 
-  it('does not show snackbar when browser TZ matches configured TZ', () => {
+  it('does not show modal when browser TZ matches configured TZ', () => {
     mockBrowserTZ('Europe/Paris')
 
     const state = baseState
@@ -78,7 +78,7 @@ describe('TimezoneChangeAlert', () => {
     expect(screen.queryByText(/We detected you are in/)).not.toBeInTheDocument()
   })
 
-  it('does not show snackbar when browser TZ has different name but same offset as configured TZ', () => {
+  it('does not show modal when browser TZ has different name but same offset as configured TZ', () => {
     mockBrowserTZ('Europe/Brussels')
     const state = baseState
     renderWithProviders(<TimezoneChangeAlert />, state)
@@ -87,7 +87,7 @@ describe('TimezoneChangeAlert', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('does not show snackbar when ASK_FOR_TZ_UPDATE is false', () => {
+  it('does not show modal when ASK_FOR_TZ_UPDATE is false', () => {
     window.ASK_FOR_TZ_UPDATE = false
     mockBrowserTZ('Asia/Ho_Chi_Minh')
 
@@ -98,7 +98,7 @@ describe('TimezoneChangeAlert', () => {
     expect(screen.queryByText(/We detected you are in/)).not.toBeInTheDocument()
   })
 
-  it('shows snackbar when auto-detect is enabled and browser TZ differs from last checked TZ', () => {
+  it('shows modal when auto-detect is enabled and browser TZ differs from last checked TZ', () => {
     mockBrowserTZ('Asia/Ho_Chi_Minh')
     jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('Europe/Paris')
 
@@ -115,7 +115,7 @@ describe('TimezoneChangeAlert', () => {
     expect(screen.getByText(/settings\.tzPrompt\.detected/)).toBeInTheDocument()
   })
 
-  it('does not show snackbar when same TZ was already checked', () => {
+  it('does not show modal when same TZ was already checked', () => {
     mockBrowserTZ('Asia/Ho_Chi_Minh')
     jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('Asia/Ho_Chi_Minh')
 
@@ -153,7 +153,7 @@ describe('TimezoneChangeAlert', () => {
 
     const { store } = renderWithProviders(<TimezoneChangeAlert />, state)
 
-    const yesButton = screen.getByRole('button', { name: /ok|yes/i })
+    const yesButton = screen.getByRole('button', { name: /update/i })
 
     await act(async () => {
       fireEvent.click(yesButton)
