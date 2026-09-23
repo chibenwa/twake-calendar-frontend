@@ -289,8 +289,8 @@ export const createEventHandlers = (
     const shiftedMasterEvent = updateAttendeesAfterTimeChange(
       {
         ...master,
-        start: formatLocalDateTime(masterStart.toDate(), masterTz),
-        end: formatLocalDateTime(masterEnd.toDate(), masterTz)
+        start: masterStart.toISOString(),
+        end: masterEnd.toISOString()
       },
       true
     )
@@ -332,11 +332,15 @@ export const createEventHandlers = (
   }): Promise<void> => {
     const isRecurring = event.uid.includes('/')
 
+    // The instants are handed over as UTC ISO strings, like the event form
+    // does: a wall clock time in the zone of the event carries no offset, and
+    // serializing it into DTSTART would read it back in the zone of the
+    // browser, shifting the event by the gap between both zones.
     const newEvent = updateAttendeesAfterTimeChange(
       {
         ...event,
-        start: formatLocalDateTime(computedNewStart, event.timezone),
-        end: formatLocalDateTime(computedNewEnd, event.timezone),
+        start: computedNewStart.toISOString(),
+        end: computedNewEnd.toISOString(),
         sequence: (event.sequence ?? 1) + 1
       } as CalendarEvent,
       true
