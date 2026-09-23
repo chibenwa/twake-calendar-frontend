@@ -308,7 +308,7 @@ class ImportExportTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("IMPEX-21 A completed import is announced with its counts")
     void aCompletedImportIsAnnounced(Page page, E2EUser user) {
-        CalendarPage calendar = LoginPage.loginAs(page, user);
+        CalendarPage calendar = LoginPage.loginAs(page, user).waitUntilLiveConnected();
 
         importInto(calendar, "simple.ics");
 

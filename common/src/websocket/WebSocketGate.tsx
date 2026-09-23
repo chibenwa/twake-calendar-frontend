@@ -41,7 +41,9 @@ export function WebSocketGate(): JSX.Element | null {
   const [websocketStatusSerity, setWebSocketStatusSerity] = useState<
     'success' | 'info' | 'warning' | 'error' | undefined
   >()
-  const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const [pendingImportResults, setPendingImportResults] = useState<
+    ImportResult[]
+  >([])
 
   const { t } = useI18n()
 
@@ -96,7 +98,7 @@ export function WebSocketGate(): JSX.Element | null {
       updateCalendars(message, dispatch, accumulators)
       const importResults = parseImportResults(message)
       if (importResults.length > 0) {
-        setImportResult(importResults[importResults.length - 1])
+        setPendingImportResults(previous => [...previous, ...importResults])
       }
       // Persist any mutations back to refs
       debouncedListUpdateFnRef.current = accumulators.debouncedListUpdateFn
@@ -395,11 +397,11 @@ export function WebSocketGate(): JSX.Element | null {
           }}
         />
       )}
-      {importResult && (
+      {pendingImportResults.length > 0 && (
         <WebSocketStatusSnackbar
-          message={importResultMessage(importResult, t)}
-          severity={importResultSeverity(importResult)}
-          onClose={() => setImportResult(null)}
+          message={importResultMessage(pendingImportResults[0], t)}
+          severity={importResultSeverity(pendingImportResults[0])}
+          onClose={() => setPendingImportResults(previous => previous.slice(1))}
         />
       )}
     </>
