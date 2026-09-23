@@ -268,7 +268,8 @@ const CalendarController: React.FC<CalendarControllerProps> = ({
   useTouchListener(
     eventHandlers.handleDateSelect,
     isTablet || isMobile,
-    calendarWrapperRef
+    calendarWrapperRef,
+    timezone
   )
 
   // Expose handleCreateEvent through controllerRef
