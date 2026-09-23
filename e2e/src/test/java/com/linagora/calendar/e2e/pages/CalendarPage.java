@@ -232,9 +232,12 @@ public class CalendarPage {
         return this;
     }
 
-    /** The expandable sidebar sections: My calendars, Other calendars, Resources... */
+    /**
+     * The expandable sidebar sections: My calendars, Other calendars, Resources...
+     * Anchored on the header id, as a header may nest its own help button whose name repeats the section's.
+     */
     public Locator sidebarSection(String name) {
-        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(name));
+        return page.locator("[id='" + name + "-header']");
     }
 
     /** The reverse of {@link #longDate}: reads a date back out of a form field. */
