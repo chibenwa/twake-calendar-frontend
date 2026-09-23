@@ -101,4 +101,11 @@ beforeAll(() => {
     originalWarn(...args)
   }
 })
+// The calendar grid restores the last displayed date from sessionStorage:
+// keep tests independent from the period a previous test navigated to.
+afterEach(() => {
+  if (typeof window !== 'undefined') {
+    window.sessionStorage.removeItem('displayedDate')
+  }
+})
 jest.setTimeout(30000)
