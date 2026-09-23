@@ -76,7 +76,7 @@ describe('useEventOrganizer', () => {
     expect(result.current.isOrganizer).toBe(false)
   })
 
-  it('returns user cal_address for team delegated calendar', () => {
+  it('returns the current user for team delegated calendar', () => {
     const teamCalendar: Calendar = {
       ...baseCalendar,
       id: 'team-cal',
@@ -97,7 +97,6 @@ describe('useEventOrganizer', () => {
       })
     )
 
-    expect(result.current.organizer.cn).toBe('Team Calendar')
-    expect(result.current.organizer.cal_address).toBe('team@example.com')
+    expect(result.current.organizer).toBe(defaultUserOrganizer)
   })
 })

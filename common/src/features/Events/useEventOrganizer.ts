@@ -6,12 +6,17 @@ import { normalizeIdentity } from '@common/utils/normalizeIdentity'
 
 /**
  * Calculates the event organizer based on delegated calendar status.
+ * Team calendars have no mailbox of their own: the current user organizes.
  */
 function getDelegatedOrganizer(
   selectedCalendar: Calendar | undefined,
   userOrganizer: userOrganiser
 ): userOrganiser {
-  if (!selectedCalendar?.delegated || !selectedCalendar?.owner) {
+  if (
+    !selectedCalendar?.delegated ||
+    !selectedCalendar?.owner ||
+    selectedCalendar.owner.teamCalendar
+  ) {
     return userOrganizer
   }
 
