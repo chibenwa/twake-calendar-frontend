@@ -334,6 +334,8 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
 
         // the dropped time used to be read back in the zone of the browser, six hours later
         Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            assertThat(Ics.parameters(Ics.event(probe.singleEvent(user)), "DTSTART"))
+                .contains("TZID=" + SHANGHAI);
             assertThat(dtStart(probe, user)).endsWith("T140000");
             assertThat(startTimeOf(calendar, title)).isEqualTo("14:00");
         });
@@ -349,6 +351,8 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
 
         Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
             String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=" + SHANGHAI);
+            assertThat(Ics.parameters(event, "DTEND")).contains("TZID=" + SHANGHAI);
             assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T090000");
             assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T120000");
             assertThat(endTimeOf(calendar, title)).isEqualTo("12:00");
