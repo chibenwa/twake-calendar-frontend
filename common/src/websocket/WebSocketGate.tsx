@@ -17,6 +17,7 @@ import {
   registerWebSocketState,
   setWebSocketConnecting
 } from './connection/webSocketState'
+import { parseImportResults, type ImportResult } from './messaging'
 import { updateCalendars } from './messaging/updateCalendars'
 import { syncCalendarRegistrations } from './operations'
 import { WebSocketStatusSnackbar } from './WebSocketStatusSnackbar'
@@ -40,6 +41,9 @@ export function WebSocketGate(): JSX.Element | null {
   const [websocketStatusSerity, setWebSocketStatusSerity] = useState<
     'success' | 'info' | 'warning' | 'error' | undefined
   >()
+  const [pendingImportResults, setPendingImportResults] = useState<
+    ImportResult[]
+  >([])
 
   const { t } = useI18n()
 
@@ -92,6 +96,10 @@ export function WebSocketGate(): JSX.Element | null {
         delayedRefreshTimers: delayedRefreshTimersRef.current
       }
       updateCalendars(message, dispatch, accumulators)
+      const importResults = parseImportResults(message)
+      if (importResults.length > 0) {
+        setPendingImportResults(previous => [...previous, ...importResults])
+      }
       // Persist any mutations back to refs
       debouncedListUpdateFnRef.current = accumulators.debouncedListUpdateFn
       debouncedBookingLinksUpdateFnRef.current =
@@ -377,14 +385,45 @@ export function WebSocketGate(): JSX.Element | null {
     }
   }, [])
 
-  return websocketStatus ? (
-    <WebSocketStatusSnackbar
-      message={websocketStatus}
-      severity={websocketStatusSerity}
-      onClose={() => {
-        setWebSocketStatus('')
-        setWebSocketStatusSerity(undefined)
-      }}
-    />
-  ) : null
+  return (
+    <>
+      {websocketStatus && (
+        <WebSocketStatusSnackbar
+          message={websocketStatus}
+          severity={websocketStatusSerity}
+          onClose={() => {
+            setWebSocketStatus('')
+            setWebSocketStatusSerity(undefined)
+          }}
+        />
+      )}
+      {pendingImportResults.length > 0 && (
+        <WebSocketStatusSnackbar
+          message={importResultMessage(pendingImportResults[0], t)}
+          severity={importResultSeverity(pendingImportResults[0])}
+          onClose={() => setPendingImportResults(previous => previous.slice(1))}
+        />
+      )}
+    </>
+  )
+}
+
+function importResultMessage(
+  result: ImportResult,
+  t: (key: string, options?: Record<string, unknown>) => string
+): string {
+  if (result.status === 'failed') {
+    return t('websocket.importFailed')
+  }
+  return t('websocket.importCompleted', {
+    succeedCount: result.succeedCount,
+    failedCount: result.failedCount
+  })
+}
+
+function importResultSeverity(
+  result: ImportResult
+): 'success' | 'warning' | 'error' {
+  if (result.status === 'failed') return 'error'
+  return result.failedCount > 0 ? 'warning' : 'success'
 }

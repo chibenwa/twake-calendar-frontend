@@ -4,7 +4,7 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
 - **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
-- **Essential — 195 tests**: every basic feature working as intended. Until they are all green,
+- **Essential — 196 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
 - **Bonus — 314 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
@@ -139,7 +139,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (195)
+# Essential (196)
 
 ## AUTH — Authentication and session (9)
 
@@ -454,7 +454,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHARE-27` A write right opens the Import tab of the delegated calendar
 - [x] `SHARE-28` A read right does not open the Import tab of the delegated calendar
 
-## IMPEX — Import, export, CalDAV (15)
+## IMPEX — Import, export, CalDAV (16)
 
 - [x] `IMPEX-01` Importing an .ics file adds its events to the chosen calendar
 - [x] `IMPEX-03` Importing an .ics holding a recurrence keeps the rule
@@ -471,6 +471,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `IMPEX-16` An event created by a third party CalDAV client shows in the interface
 - [x] `IMPEX-17` An imported event in an exotic timezone displays at the right hour
 - [x] `IMPEX-20` Exporting a recurring event carries the complete `RRULE`
+- [x] `IMPEX-21` A completed import is announced with the number of items imported and in error ([#1386](https://github.com/linagora/twake-calendar-frontend/issues/1386))
 
 ## BOOK — Booking links, private side (20)
 
@@ -745,9 +746,9 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 190 | 195 |
+| Essential | 191 | 196 |
 | Bonus | 235 | 288 |
-| **Total** | **470** | **532** |
+| **Total** | **471** | **533** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply
