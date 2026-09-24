@@ -6,7 +6,7 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
   least once. They are the cheapest tests to justify and the most likely to fire again.
 - **Essential — 200 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
-- **Bonus — 294 tests**: the peripheral features, the edge cases, accessibility, responsive
+- **Bonus — 304 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
 
 Measured cost: **~4.5 s per test** once the stack is up (~20 s, once per run). The 543 tests
@@ -385,7 +385,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (294)
+# Bonus (304)
 
 ## RES — Resources (18)
 
@@ -430,7 +430,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `TEAM-17` The team calendar appears in the calendar picker of the form
 - [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
 
-## SHARE — Sharing and delegation (26)
+## SHARE — Sharing and delegation (29)
 
 - [x] `SHARE-01` The Access tab allows granting a right to another user
 - [x] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
@@ -461,6 +461,9 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHARE-29` Every right, on a private, public read and public read-write calendar, shows the owner's events and allows exactly what it says
 - [x] `SHARE-30` A private calendar nobody shared cannot be added by another user of the domain
 - [x] `SHARE-31` An event the owner adds reaches the grantee live
+
+## ADMIN — Administering a calendar one does not own (7)
+
 - [x] `ADMIN-01` An administrator of a team calendar grants a right on it from the calendar dialog
 - [x] `ADMIN-02` An administrator of somebody else's calendar grants a right on it from the calendar dialog
 - [x] `ADMIN-03` An administrator of a resource grants a right on it from the calendar dialog
@@ -764,9 +767,9 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 193 | 198 |
-| Bonus | 237 | 291 |
-| **Total** | **475** | **538** |
+| Essential | 195 | 200 |
+| Bonus | 253 | 304 |
+| **Total** | **493** | **553** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply
