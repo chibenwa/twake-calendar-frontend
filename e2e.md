@@ -464,6 +464,10 @@ Four of the forty nine, each with what stands in the way.
 - [x] `ADMIN-01` An administrator of a team calendar grants a right on it from the calendar dialog
 - [x] `ADMIN-02` An administrator of somebody else's calendar grants a right on it from the calendar dialog
 - [x] `ADMIN-03` An administrator of a resource grants a right on it from the calendar dialog
+- [x] `ADMIN-04` An administrator of a team calendar manages its public visibility
+- [x] `ADMIN-05` An administrator of a resource manages its public visibility
+- [x] `ADMIN-06` An administrator of somebody else's calendar manages its public visibility
+- [x] `ADMIN-07` A reader or an editor of a shared calendar sees its public visibility read only
 
 ## IMPEX — Import, export, CalDAV (16)
 

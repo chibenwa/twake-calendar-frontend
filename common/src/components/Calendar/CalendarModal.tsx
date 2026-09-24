@@ -8,11 +8,13 @@ import {
   patchCalendar,
   updateDelegationCalendar
 } from '@common/features/Calendars/CalendarSlice'
-import { canWriteToCalendar } from '@common/features/Calendars/utils/calendarPermissions'
+import {
+  canAdministerCalendar,
+  canWriteToCalendar
+} from '@common/features/Calendars/utils/calendarPermissions'
 import { Calendar } from '@common/types/CalendarTypes'
 import { accessRightToDavProp } from '@common/utils/accessRightToDavProp'
 import { defaultColors } from '@common/utils/defaultColors'
-import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
 import { Button, Tab, Tabs } from '@linagora/twake-mui'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
@@ -37,19 +39,9 @@ function CalendarPopover({
   const dispatch = useAppDispatch()
   const userData = useAppSelector(state => state.user.userData) ?? {}
   const calendars = useAppSelector(state => state.calendars.list)
-  const isOwn = calendar?.id
-    ? extractEventBaseUuid(calendar.id) === userData.openpaasId
+  const canManageInvites = calendar
+    ? canAdministerCalendar(calendar, userData)
     : true
-  const canManageInvites =
-    isOwn ||
-    !!calendar?.invite?.some(invite => {
-      const inviteEmail = invite.href
-        .replace(/^mailto:/i, '')
-        .trim()
-        .toLowerCase()
-      const currentEmail = userData.email?.trim().toLowerCase()
-      return inviteEmail === currentEmail && invite.access === 5
-    })
   // Importing writes events: any write right on the calendar is enough, whether
   // it comes from owning it or from a delegation.
   const canImport =
