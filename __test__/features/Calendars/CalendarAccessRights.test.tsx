@@ -400,10 +400,19 @@ describe('AccessTab – conditional rendering of CalendarAccessRights', () => {
     ).toBeInTheDocument()
   })
 
-  it('hides input to invite user for team calendar', () => {
+  it('hides input to invite user for a team member without the administration right', () => {
     const teamCalendar: Calendar = {
       ...baseCalendar,
-      owner: { firstname: 'Engineering Team', emails: [], teamCalendar: true }
+      id: 'team1/cal1',
+      owner: { firstname: 'Engineering Team', emails: [], teamCalendar: true },
+      invite: [
+        {
+          href: 'mailto:user1@example.com',
+          principal: '/principals/users/user1',
+          access: 3,
+          inviteStatus: 1
+        }
+      ]
     }
 
     renderWithProviders(
@@ -415,7 +424,7 @@ describe('AccessTab – conditional rendering of CalendarAccessRights', () => {
       />,
       {
         ...userState,
-        calendars: { list: { 'user1/cal1': teamCalendar } }
+        calendars: { list: { 'team1/cal1': teamCalendar } }
       }
     )
 
@@ -424,6 +433,42 @@ describe('AccessTab – conditional rendering of CalendarAccessRights', () => {
     ).not.toBeInTheDocument()
     expect(
       screen.getByText('calendarPopover.access.accessRights')
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText('calendarPopover.access.owner')
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows input to invite user for a team member holding the administration right', () => {
+    const teamCalendar: Calendar = {
+      ...baseCalendar,
+      id: 'team1/cal1',
+      owner: { firstname: 'Engineering Team', emails: [], teamCalendar: true },
+      invite: [
+        {
+          href: 'mailto:user1@example.com',
+          principal: '/principals/users/user1',
+          access: 5,
+          inviteStatus: 1
+        }
+      ]
+    }
+
+    renderWithProviders(
+      <AccessTab
+        calendar={teamCalendar}
+        usersWithAccess={[]}
+        onUsersWithAccessChange={noop}
+        onInvitesLoaded={noop}
+      />,
+      {
+        ...userState,
+        calendars: { list: { 'team1/cal1': teamCalendar } }
+      }
+    )
+
+    expect(
+      screen.getByText('calendarPopover.access.grantAccessRights')
     ).toBeInTheDocument()
     expect(
       screen.queryByText('calendarPopover.access.owner')

@@ -204,9 +204,12 @@ describe('CalendarPopover (editing mode)', () => {
     await waitFor(() => expect(mockOnClose).toHaveBeenCalled())
   })
 
-  it('shows access tab when modifying a team calendar, but hides input to invite user', () => {
+  it('shows access tab when modifying a team calendar, but hides input to invite user to a member without the administration right', () => {
     const teamCalendar: Calendar = {
       ...existingCalendar,
+      id: 'team1/cal1',
+      link: '/calendars/user1/instance1.json',
+      delegated: true,
       owner: { firstname: 'Engineering Team', emails: [], teamCalendar: true }
     }
 

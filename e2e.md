@@ -461,6 +461,9 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHARE-29` Every right, on a private, public read and public read-write calendar, shows the owner's events and allows exactly what it says
 - [x] `SHARE-30` A private calendar nobody shared cannot be added by another user of the domain
 - [x] `SHARE-31` An event the owner adds reaches the grantee live
+- [x] `ADMIN-01` An administrator of a team calendar grants a right on it from the calendar dialog
+- [x] `ADMIN-02` An administrator of somebody else's calendar grants a right on it from the calendar dialog
+- [x] `ADMIN-03` An administrator of a resource grants a right on it from the calendar dialog
 
 ## IMPEX — Import, export, CalDAV (16)
 

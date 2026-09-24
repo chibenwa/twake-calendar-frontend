@@ -130,8 +130,9 @@ export function CalendarAccessRights({
   })
 
   const isTeamCalendar = Boolean(calendar.owner?.teamCalendar)
-  const canEdit =
-    (isPersonalCalendar || isDelegatedWithAdministration) && !isTeamCalendar
+  // A team calendar is administered by the members holding the administration
+  // right, like any calendar lent with that right.
+  const canEdit = isPersonalCalendar || isDelegatedWithAdministration
 
   const ownerEmail =
     calendar.owner?.preferredEmail ?? calendar.owner?.emails?.[0] ?? ''
