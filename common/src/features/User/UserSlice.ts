@@ -9,6 +9,9 @@ import { userData, userOrganiser } from './userDataTypes'
 // Type for core config datetime
 interface DatetimeConfig {
   timeZone: string | null
+  // Missing on deployments that predate the setting: there the automatic
+  // detection is remembered client side instead.
+  autoDetect?: boolean
   [key: string]: unknown
 }
 

@@ -296,6 +296,26 @@ class TimezonesTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("TZ-23 A browser sitting elsewhere runs the calendar in the timezone it detects")
+    void theDetectedTimezoneRunsTheCalendar(E2EUser user, E2ESessions sessions, CalendarProbe probe) {
+        // this account configured no timezone of its own: the zone below can only come from
+        // the browser, and must not be the fallback the backend serves to such users
+        CalendarPage tokyo = sessions.openFor(user, "Asia/Tokyo");
+        String title = title("Detected");
+
+        var form = tokyo.createEvent().title(title).expand();
+
+        assertThat(form.timezone())
+            .as("the form offers the detected zone, detection being on by default")
+            .contains("Asia/Tokyo");
+        form.startTime("10:00").endTime("11:00").save();
+        awaitAttached(tokyo.eventCard(title));
+        assertThat(Ics.parameters(Ics.event(probe.singleEvent(user)), "DTSTART"))
+            .as("and what reaches CalDAV is written against that same zone")
+            .contains("TZID=Asia/Tokyo");
+    }
+
+    @Test
     @DisplayName("TZ-16 The banner offers to switch when the detected zone differs from the configured one")
     void theBannerOffersToSwitch(Page page, E2EUser user, RuntimeConfig config) {
         // the suite ships with the prompt off so it never steals focus: turn it back on here

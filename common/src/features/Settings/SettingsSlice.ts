@@ -35,12 +35,60 @@ const savedTimeZone = localStorage.getItem('timeZone')
 const defaultTimeZone =
   savedTimeZone === 'null' || !savedTimeZone ? null : savedTimeZone
 
+const AUTO_DETECT_TIME_ZONE_KEY = 'autoDetectTimeZone'
+
+// Automatic detection is the default. The backend answers with a deployment
+// wide fallback timezone for users who never configured one, so its answer
+// cannot tell a deliberate choice apart from that fallback: only an explicit
+// opt out, remembered here, turns the detection off.
+const autoDetectTimeZone =
+  localStorage.getItem(AUTO_DETECT_TIME_ZONE_KEY) !== 'false'
+
+function rememberAutoDetectTimeZone(enabled: boolean): void {
+  localStorage.setItem(AUTO_DETECT_TIME_ZONE_KEY, String(enabled))
+}
+
+interface DatetimeConfiguration {
+  timeZone?: string | null
+  autoDetect?: boolean
+}
+
+// The backend tells whether the user opted out of the automatic detection, and
+// is then the one to be believed: the opt out follows the user across
+// browsers, whether or not a zone comes attached to it. Deployments that
+// predate the flag answer without it, and there only a stored zone can carry
+// the opt out this browser remembers.
+const isOptedOut = (
+  datetime: DatetimeConfiguration | undefined,
+  isOptedOutLocally: boolean
+): boolean =>
+  typeof datetime?.autoDetect === 'boolean'
+    ? !datetime.autoDetect
+    : isOptedOutLocally && Boolean(datetime?.timeZone)
+
+// A timezone coming back only wins over the browser one when the user opted
+// out of the automatic detection: otherwise it may well be the deployment wide
+// fallback the backend serves to unconfigured users, or the very zone a
+// browser of theirs detected. An opt out reaching us without a zone pins the
+// one the calendar already runs on rather than that fallback.
+const optedOutTimeZone = (
+  datetime: DatetimeConfiguration | undefined,
+  timeZoneInUse: string | null
+): string => datetime?.timeZone ?? timeZoneInUse ?? browserDefaultTimeZone
+
 const applyServerTimeZone = (
   state: SettingsState,
-  serverTimeZone: string | undefined
-) => {
-  state.timeZone = serverTimeZone || browserDefaultTimeZone
-  state.isBrowserDefaultTimeZone = !serverTimeZone
+  datetime: DatetimeConfiguration | undefined
+): void => {
+  if (isOptedOut(datetime, !state.isBrowserDefaultTimeZone)) {
+    state.timeZone = optedOutTimeZone(datetime, state.timeZone)
+    state.isBrowserDefaultTimeZone = false
+    rememberAutoDetectTimeZone(false)
+  } else {
+    state.timeZone = browserDefaultTimeZone
+    state.isBrowserDefaultTimeZone = true
+    rememberAutoDetectTimeZone(true)
+  }
   localStorage.setItem('timeZone', state.timeZone)
 }
 
@@ -48,8 +96,8 @@ const SettingsSlice = createAppSlice({
   name: 'settings',
   initialState: {
     language: defaultLang,
-    timeZone: defaultTimeZone,
-    isBrowserDefaultTimeZone: defaultTimeZone === null,
+    timeZone: autoDetectTimeZone ? browserDefaultTimeZone : defaultTimeZone,
+    isBrowserDefaultTimeZone: autoDetectTimeZone,
     timeZonePickedDuringUserDataFetch: false,
     hideDeclinedEvents: null,
     displayWeekNumbers: true,
@@ -69,6 +117,7 @@ const SettingsSlice = createAppSlice({
     }),
     setIsBrowserDefaultTimeZone: create.reducer(
       (state, action: PayloadAction<boolean>) => {
+        rememberAutoDetectTimeZone(action.payload)
         state.isBrowserDefaultTimeZone = action.payload
         state.timeZonePickedDuringUserDataFetch = true
       }
@@ -111,14 +160,13 @@ const SettingsSlice = createAppSlice({
         (config: ConfigurationItem) => config.name === 'datetime'
       )
       const datetimeValue = datetimeConfig?.value as
-        | { timeZone?: string }
+        | DatetimeConfiguration
         | undefined
-      const timeZone = datetimeValue?.timeZone
 
       // a zone the user picked while this fetch was in flight must not be
       // clobbered by the (now stale) server value
       if (!state.timeZonePickedDuringUserDataFetch) {
-        applyServerTimeZone(state, timeZone)
+        applyServerTimeZone(state, datetimeValue)
       }
       const esnCalendarModule = action.payload.configurations?.modules?.find(
         (module: ModuleConfiguration) => module.name === 'linagora.esn.calendar'

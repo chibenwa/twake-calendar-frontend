@@ -52,6 +52,8 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
     const previousTimeZone = currentTimeZone
     dispatch(setUserTimeZone(newTimeZone))
     dispatch(setSettingsTimeZone(newTimeZone))
+    // No `autoDetectTimezone` here: picking a zone by hand is only offered
+    // once the detection was turned off, which is what wrote the flag down.
     dispatch(
       updateUserConfigurations({ timezone: newTimeZone, previousConfig })
     )
@@ -64,20 +66,35 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
   }
 
   const handleTimeZoneDefaultChange = (isDefault: boolean): void => {
-    const previousTimeZone = currentTimeZone
+    const previousUserTimeZone = userTimeZone ?? null
+    const previousSettingTimeZone = settingTimeZone ?? browserDefaultTimeZone
+    // The backend holds a concrete zone at all times -- it renders invitation
+    // mails with it and has no browser of its own to detect one -- so the
+    // detection hands it the detected zone, and turning the detection off
+    // pins down the zone the calendar already runs on rather than the
+    // fallback served to users who configured none. The `autoDetect` flag,
+    // not the zone, is what tells the two apart from now on.
+    const timeZone = isDefault
+      ? browserDefaultTimeZone
+      : previousSettingTimeZone
+
     dispatch(setIsBrowserDefaultTimeZone(isDefault))
-    if (isDefault) {
-      dispatch(setUserTimeZone(null))
-      dispatch(setSettingsTimeZone(browserDefaultTimeZone))
-      dispatch(updateUserConfigurations({ timezone: null, previousConfig }))
-        .unwrap()
-        .catch(() => {
-          dispatch(setUserTimeZone(previousTimeZone))
-          dispatch(setSettingsTimeZone(previousTimeZone))
-          dispatch(setIsBrowserDefaultTimeZone(!isDefault))
-          onTimeZoneError()
-        })
-    }
+    dispatch(setUserTimeZone(timeZone))
+    dispatch(setSettingsTimeZone(timeZone))
+    dispatch(
+      updateUserConfigurations({
+        timezone: timeZone,
+        autoDetectTimezone: isDefault,
+        previousConfig
+      })
+    )
+      .unwrap()
+      .catch(() => {
+        dispatch(setUserTimeZone(previousUserTimeZone))
+        dispatch(setSettingsTimeZone(previousSettingTimeZone))
+        dispatch(setIsBrowserDefaultTimeZone(!isDefault))
+        onTimeZoneError()
+      })
   }
 
   const inputMinWidth = isMobile ? '100%' : 500

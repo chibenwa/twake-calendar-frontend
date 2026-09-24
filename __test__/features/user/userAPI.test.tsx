@@ -59,6 +59,28 @@ describe('makeConfigurationBody', () => {
     })
   })
 
+  it('should write the automatic detection flag down along the timezone', () => {
+    const result = makeConfigurationBody({
+      timezone: 'Europe/Paris',
+      autoDetectTimezone: false,
+      previousConfig: { datetime: { timeZone: 'UTC', autoDetect: true } }
+    })
+
+    expect(result).toEqual({
+      modules: [
+        {
+          name: 'core',
+          configurations: [
+            {
+              name: 'datetime',
+              value: { timeZone: 'Europe/Paris', autoDetect: false }
+            }
+          ]
+        }
+      ]
+    })
+  })
+
   it('should return empty modules for empty updates', () => {
     const result = makeConfigurationBody({})
 

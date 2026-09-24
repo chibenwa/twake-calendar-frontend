@@ -2,6 +2,7 @@ package com.linagora.calendar.e2e.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Request;
 import com.microsoft.playwright.options.AriaRole;
 
 /** The settings panel, reachable from the user menu. */
@@ -50,18 +51,19 @@ public class SettingsPage {
 
     /**
      * Pins the application timezone. Automatic detection has to go first, otherwise the
-     * browser timezone wins straight back. Turning it off only reveals the picker: nothing is
-     * written until a zone is chosen, so there is no request to wait for.
+     * browser timezone wins straight back. Turning it off pins the zone the browser runs in.
      */
     public SettingsPage selectTimezone(String timezone) {
         Locator autoDetect = page.getByLabel("Detect time zone automatically").first();
         if (autoDetect.isChecked()) {
-            autoDetect.click();
-            com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(autoDetect).not().isChecked();
+            // a detection write still in flight also PATCHes the datetime configuration, but it
+            // set off before the click: only the write the click queued behind it counts
+            awaitPersisted(autoDetect::click);
         }
         Locator picker = page.getByPlaceholder("Select timezone");
         if (isSelected(picker, timezone)) {
-            // picking the zone already shown changes nothing, hence writes nothing
+            // turning the detection off pinned the zone the browser runs in, and picking the
+            // zone already shown changes nothing, hence writes nothing
             return this;
         }
         for (int attempt = 1; attempt <= 3; attempt++) {
@@ -116,10 +118,14 @@ public class SettingsPage {
      * write to come back keeps a following reload from racing it.
      */
     private void awaitPersisted(Runnable action) {
-        page.waitForResponse(
-            response -> response.url().contains("api/configurations")
-                && "PATCH".equals(response.request().method()),
+        // Writes are queued one after the other, so the one the action caused is the first to
+        // set off after it; a write already in flight does not count. The request body cannot
+        // tell them apart: the application streams it, and the browser never exposes it.
+        Request write = page.waitForRequest(
+            request -> request.url().contains("api/configurations")
+                && "PATCH".equals(request.method()),
             action::run);
+        write.response();
     }
 
     public CalendarPage backToCalendar() {

@@ -100,6 +100,46 @@ class SettingsFullTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("SET-15 Automatic timezone detection is on for a fresh user")
+    void automaticTimezoneDetectionIsOnByDefault(Page page, E2EUser user) {
+        // the backend answers with a deployment wide fallback timezone to users who
+        // configured none: that fallback must not read as a deliberate choice
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+
+        calendar.openSettings();
+
+        PlaywrightAssertions.assertThat(page.getByLabel("Detect time zone automatically").first())
+            .isChecked(new LocatorAssertions.IsCheckedOptions().setTimeout(30_000));
+    }
+
+    @Test
+    @DisplayName("SET-16 A timezone update leaves the rest of the settings alone")
+    void aTimezoneUpdateKeepsTheOtherSettings(Page page, E2EUser user, E2ESessions sessions) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        assertThat(calendar.visibleDayHeaders()).hasSize(7);
+
+        calendar.openSettings()
+            .toggle("Show only working days")
+            .toggle("Show week number")
+            .selectTimezone("Asia/Tokyo");
+
+        // another browser, which remembers nothing locally: everything it draws was read back
+        // from the server. Its own detection writes the zone it sits in on the way in, so the
+        // reload below reads the settings as they stand *after* that automatic update
+        CalendarPage elsewhere = sessions.openFor(user, "America/New_York");
+        elsewhere.page().reload();
+        elsewhere.waitUntilLoaded();
+
+        PlaywrightAssertions.assertThat(elsewhere.weekNumber().first())
+            .not().containsText("Week",
+                new LocatorAssertions.ContainsTextOptions().setTimeout(30_000));
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(elsewhere.visibleDayHeaders())
+                .as("the working days the user chose survived the timezone writes")
+                .hasSizeLessThan(7));
+    }
+
+    @Test
     @DisplayName("SET-08 Show only working days hides the weekend from the grid")
     void showOnlyWorkingDaysHidesTheWeekend(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);

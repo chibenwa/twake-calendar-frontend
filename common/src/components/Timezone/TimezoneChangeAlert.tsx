@@ -15,15 +15,25 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { getTimezoneOffset } from '@common/utils/timezone'
+import { useDetectedTimeZoneSync } from './hooks/useDetectedTimeZoneSync'
 
 export const TimezoneChangeAlert: React.FC = () => {
   const dispatch = useAppDispatch()
   const { t } = useI18n()
 
-  const configuredTZ = useAppSelector(
-    state =>
-      state.user?.coreConfig?.datetime?.timeZone ?? state.settings?.timeZone
+  // The detection never prompts: it keeps the backend in step on its own.
+  useDetectedTimeZoneSync()
+
+  // While the detection is on the settings already follow the browser, so the
+  // stored configuration must not be read back: it may hold a zone the user
+  // pinned long ago, or the fallback the backend serves to unconfigured users.
+  const pinnedTZ = useAppSelector(state =>
+    state.settings?.isBrowserDefaultTimeZone
+      ? null
+      : state.user?.coreConfig?.datetime?.timeZone
   )
+  const settingsTZ = useAppSelector(state => state.settings?.timeZone)
+  const configuredTZ = pinnedTZ ?? settingsTZ
   const previousConfig = useAppSelector(state => state.user?.coreConfig)
 
   const [open, setOpen] = useState(false)
