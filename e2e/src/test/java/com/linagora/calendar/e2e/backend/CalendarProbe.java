@@ -6,6 +6,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -34,6 +36,7 @@ public class CalendarProbe {
     private static final String SABRE_ADMIN_PASSWORD = "secret123";
     private static final Pattern SUMMARY = Pattern.compile("^SUMMARY:(.*)$", Pattern.MULTILINE);
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final Pattern HREF = Pattern.compile("<[^>]*href>([^<]*\\.ics)</[^>]*href>");
 
     private final HttpClient httpClient;
@@ -186,6 +189,24 @@ public class CalendarProbe {
             throw new IllegalStateException("Unreadable calendar list of " + user.email() + ": "
                 + response.statusCode() + " " + response.body(), e);
         }
+    }
+
+    /**
+     * The HTTP status Sabre answers when the reader asks for this week's events of a calendar
+     * node, {@code /calendars/<home>/<calendar>}: 200 when they may read it -- as its owner, or
+     * because it is public -- and 403 when they may not.
+     */
+    public int readStatus(E2EUser reader, String calendarPath) {
+        LocalDate today = LocalDate.now();
+        String body = "{\"match\":{\"start\":\"" + today.minusDays(7).format(DAY) + "T000000\","
+            + "\"end\":\"" + today.plusDays(7).format(DAY) + "T000000\"}}";
+        return execute(reader, "REPORT", calendarPath + ".json", body, "application/json",
+            "application/json").statusCode();
+    }
+
+    /** The node of the default calendar of a user, a team or a resource: {@code /calendars/<id>/<id>}. */
+    public static String defaultCalendarNode(String homeId) {
+        return "/calendars/" + homeId + "/" + homeId;
     }
 
     /** The DTSTART line of an event of the user's default calendar, to tell whether it moved. */

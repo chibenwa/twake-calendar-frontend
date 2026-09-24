@@ -1,4 +1,5 @@
 import { useAppSelector } from '@common/app/hooks'
+import { canAdministerCalendar } from '@common/features/Calendars/utils/calendarPermissions'
 import { Calendar } from '@common/types/CalendarTypes'
 import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
 import {
@@ -47,8 +48,18 @@ export function SettingsTab({
   const { t } = useI18n()
   const inputSize = useResponsiveInputSize()
   const [toggleDesc, setToggleDesc] = useState(Boolean(description))
-  const userId = useAppSelector(state => state.user.userData?.openpaasId) ?? ''
+  const userData = useAppSelector(state => state.user.userData)
+  const userId = userData?.openpaasId ?? ''
   const isOwn = calendar ? extractEventBaseUuid(calendar.id) === userId : true
+  // The public visibility is managed by whoever administers the calendar: its
+  // owner, or an administrator of a shared, team or resource calendar.
+  const canManageVisibility = calendar
+    ? canAdministerCalendar(calendar, userData ?? {})
+    : true
+  // Somebody a calendar is lent to without the administration right still
+  // reads its public visibility from their own instance of it, where Sabre
+  // carries it over: shown, but not theirs to change.
+  const showsVisibility = canManageVisibility || Boolean(calendar?.delegated)
   const theme = useTheme()
   const infoIconColor = alpha(theme.palette.grey[900], 0.9)
   const infoIconSx = { minWidth: '25px', marginRight: 2, color: infoIconColor }
@@ -153,7 +164,7 @@ export function SettingsTab({
       </Box>
 
       {/* Form group 4: New events visibility */}
-      {isOwn && (
+      {showsVisibility && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h6" sx={{ margin: 0 }}>
             {t('calendar.newEventsVisibility')}
@@ -162,6 +173,7 @@ export function SettingsTab({
             <ToggleButtonGroup
               value={visibility}
               exclusive
+              disabled={!canManageVisibility}
               onChange={(e, val) => val && setVisibility(val)}
               size="medium"
               sx={{ borderRadius: '12px' }}

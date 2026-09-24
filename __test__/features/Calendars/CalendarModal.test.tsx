@@ -623,3 +623,130 @@ describe('CalendarPopover - Tabs Scenarios', () => {
     )
   })
 })
+
+describe('CalendarPopover - public visibility of calendars administered by the user', () => {
+  const mockOnClose = jest.fn()
+  const user = {
+    userData: { openpaasId: 'user1', email: 'user1@example.com' }
+  }
+
+  const administered = (
+    owner: Calendar['owner'],
+    access: 2 | 3 | 5
+  ): Calendar => ({
+    id: 'home1/cal1',
+    link: '/calendars/user1/instance1.json',
+    name: 'Administered',
+    description: '',
+    color: { light: '#0062FF', dark: '#FFF' },
+    visibility: 'public',
+    delegated: true,
+    events: {},
+    owner,
+    invite: [
+      {
+        href: 'mailto:user1@example.com',
+        principal: '/principals/users/user1',
+        access,
+        inviteStatus: 1
+      }
+    ]
+  })
+
+  const team = { firstname: 'Team', emails: [], teamCalendar: true }
+  const resource = { firstname: 'Room', emails: [], resource: true }
+  const somebody = { firstname: 'Owner', emails: ['owner@example.com'] }
+
+  afterEach(() => jest.clearAllMocks())
+
+  it.each([
+    ['a team calendar', team],
+    ['a resource', resource],
+    ["somebody else's calendar", somebody]
+  ])('offers the public visibility to an administrator of %s', (_, owner) => {
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={administered(owner, 5)}
+      />,
+      { user }
+    )
+
+    expect(screen.getByText('calendar.newEventsVisibility')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['a team calendar', team, 3],
+    ['a resource', resource, 3],
+    ["somebody else's calendar, read only", somebody, 2],
+    ["somebody else's calendar, read write", somebody, 3]
+  ] as const)(
+    'shows the public visibility read only to a member of %s without the administration right',
+    (_, owner, access) => {
+      renderWithProviders(
+        <CalendarPopover
+          open={true}
+          onClose={mockOnClose}
+          calendar={administered(owner, access)}
+        />,
+        { user }
+      )
+
+      expect(
+        screen.getByText('calendar.newEventsVisibility')
+      ).toBeInTheDocument()
+      const publicButton = screen.getByRole('button', { name: /All/i })
+      expect(publicButton).toHaveAttribute('aria-pressed', 'true')
+      expect(publicButton).toBeDisabled()
+      expect(screen.getByRole('button', { name: /You/i })).toBeDisabled()
+    }
+  )
+
+  it('does not show the public visibility of a calendar that is not lent to the user', () => {
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={{
+          ...administered(somebody, 2),
+          delegated: false,
+          invite: []
+        }}
+      />,
+      { user }
+    )
+
+    expect(
+      screen.queryByText('calendar.newEventsVisibility')
+    ).not.toBeInTheDocument()
+  })
+
+  it("saves the public visibility of a team calendar through the administrator's instance", async () => {
+    jest
+      .spyOn(eventThunks, 'patchCalendar')
+      .mockImplementation(mockThunkWithUnwrap())
+    jest
+      .spyOn(eventThunks, 'patchACLCalendar')
+      .mockImplementation(mockThunkWithUnwrap())
+
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={administered(team, 5)}
+      />,
+      { user }
+    )
+    fireEvent.click(screen.getByRole('button', { name: /You/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'actions.save' }))
+
+    await waitFor(() =>
+      expect(eventThunks.patchACLCalendar).toHaveBeenCalledWith({
+        calId: 'home1/cal1',
+        calLink: '/calendars/user1/instance1.json',
+        request: ''
+      })
+    )
+  })
+})

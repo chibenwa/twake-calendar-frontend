@@ -4,6 +4,7 @@ import { User } from '@common/components/Attendees/types'
 import { ResourceAdmin } from '@common/components/Calendar/ResourceAdmins'
 import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
 import { stringAvatar } from '@common/components/Event/utils/eventUtils'
+import { canAdministerCalendar } from '@common/features/Calendars/utils/calendarPermissions'
 import { fetchUserById } from '@common/features/User/UserDao'
 import { AccessRight, Calendar } from '@common/types/CalendarTypes'
 import { makeDisplayName } from '@common/utils/makeDisplayName'
@@ -122,17 +123,11 @@ export function CalendarAccessRights({
 }: CalendarAccessRightsProps): JSX.Element {
   const { t } = useI18n()
   const userData = useAppSelector(state => state.user.userData)
-  const isPersonalCalendar = userData?.openpaasId === calendar.id.split('/')[0]
-  const currentUserEmail = normalizeEmail(userData?.email)
-  const isDelegatedWithAdministration = !!calendar.invite?.some(invite => {
-    const invitedEmail = normalizeEmail(invite.href.replace(/^mailto:/i, ''))
-    return invitedEmail === currentUserEmail && invite.access === 5
-  })
 
   const isTeamCalendar = Boolean(calendar.owner?.teamCalendar)
   // A team calendar is administered by the members holding the administration
   // right, like any calendar lent with that right.
-  const canEdit = isPersonalCalendar || isDelegatedWithAdministration
+  const canEdit = canAdministerCalendar(calendar, userData ?? {})
 
   const ownerEmail =
     calendar.owner?.preferredEmail ?? calendar.owner?.emails?.[0] ?? ''

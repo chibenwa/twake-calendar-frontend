@@ -80,6 +80,17 @@ public class CalendarModal {
         return this;
     }
 
+    /** One of the two buttons of the public visibility of the calendar, All or You. */
+    public Locator visibilityOption(String audience) {
+        return dialog().getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(audience).setExact(true));
+    }
+
+    /** Whether the Settings tab tells who the events of the calendar are visible to. */
+    public boolean showsVisibility() {
+        return dialog().getByText("New events created will be visible to:").count() > 0;
+    }
+
     public String text() {
         return dialog().innerText();
     }
