@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { AppDispatch } from '@common/app/store'
+import { calendarDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { useSelectedCalendars } from '@common/utils/storage/useSelectedCalendars'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -57,7 +58,24 @@ export function WebSocketGate(): JSX.Element | null {
   const isPending = useAppSelector(state => state.calendars.pending)
   const [shouldConnect, setShouldConnect] = useState(false)
 
-  const calendarList = useSelectedCalendars()
+  const selectedCalendars = useSelectedCalendars()
+  // A calendar shared with the user is watched through their own instance of
+  // it: the side service refuses a registration on its owner's node. Joined in
+  // a string so that the registration effect only reruns when a path changes.
+  const registrationPaths = useAppSelector(state =>
+    selectedCalendars
+      .map(id => {
+        const calendar = state.calendars?.list?.[id]
+        return calendar
+          ? calendarDavPath(calendar).replace(/^\/calendars\//, '')
+          : id
+      })
+      .join('\n')
+  )
+  const calendarList = useMemo(
+    () => (registrationPaths ? registrationPaths.split('\n') : []),
+    [registrationPaths]
+  )
   const tempCalendarList = Object.keys(
     useAppSelector(state => state?.calendars?.templist) ?? {}
   )

@@ -4,6 +4,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
 import { useState } from 'react'
 import { getEvent } from '../Calendars/CalendarSlice'
+import { buildDelegatedEventURL } from '../Events/utils/buildDelegatedEventURL'
 import { SearchEventResult } from './types/SearchEventResult'
 import { userAttendee } from '../User/models/attendee'
 
@@ -23,8 +24,11 @@ export function useEventPreview(
 
   const handleOpen = async (): Promise<void> => {
     if (!calendar) return
+    const href = eventData._links.self.href
     const event: CalendarEvent = {
-      URL: eventData._links.self.href,
+      // search indexes an event under its owner's calendar, which a calendar
+      // shared with the user is not read from
+      URL: calendar.delegated ? buildDelegatedEventURL(calendar, href) : href,
       calId: calendar.id,
       uid: eventData.data.uid,
       start: eventData.data.start,

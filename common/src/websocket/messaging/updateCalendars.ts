@@ -6,6 +6,7 @@ import {
 } from '@common/features/Calendars/CalendarSlice'
 import { refreshCalendarWithSyncToken } from '@common/features/Calendars/CalendarSlice'
 import { listBookingLinks } from '@common/features/booking/BookingLinksSlice'
+import { calendarDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { findCalendarById, getDisplayedCalendarRange } from '@common/utils'
 import { formatDateToYYYYMMDDTHHMMSS } from '@common/utils/dateUtils'
@@ -290,12 +291,10 @@ export function updateCalendars(
   accumulators: UpdateCalendarsAccumulators
 ): void {
   const state = store.getState()
-  const {
-    calendarsToRefresh,
-    calendarsToHide,
-    shouldRefreshCalendarList,
-    shouldRefreshBookingLinks
-  } = parseMessage(message)
+  const parsed = parseMessage(message)
+  const { shouldRefreshCalendarList, shouldRefreshBookingLinks } = parsed
+  const calendarsToRefresh = toCalendarIdPaths(state, parsed.calendarsToRefresh)
+  const calendarsToHide = toCalendarIdPaths(state, parsed.calendarsToHide)
 
   // Accumulate
   accumulateCalendarsToRefresh(
@@ -348,6 +347,26 @@ export function updateCalendars(
 }
 
 // --- Helpers ---
+/**
+ * A calendar shared with the user is watched through their own instance of it,
+ * so that is the path its notifications come with. Everything else here works
+ * on `/calendars/<id>`, the path of the calendar in the store.
+ */
+function toCalendarIdPaths(
+  state: ReturnType<typeof store.getState>,
+  paths: Set<string>
+): Set<string> {
+  const delegated = Object.values(state.calendars?.list ?? {}).filter(
+    (calendar: Calendar) => calendar.delegated
+  )
+  return new Set(
+    Array.from(paths, path => {
+      const calendar = delegated.find(cal => calendarDavPath(cal) === path)
+      return calendar ? `/calendars/${calendar.id}` : path
+    })
+  )
+}
+
 function triggerCalendarRefresh(
   dispatch: AppDispatch,
   calendar: Calendar,

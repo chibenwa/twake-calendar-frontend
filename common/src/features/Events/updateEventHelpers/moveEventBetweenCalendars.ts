@@ -6,7 +6,7 @@ import {
 } from '@common/features/Calendars/CalendarSlice'
 import { fetchAllRecurrentVevents } from '@common/features/Events/EventDao'
 import { parseCalendarEvent } from '@common/features/Events/utils'
-import { buildDelegatedEventURL } from '@common/features/Events/utils/buildDelegatedEventURL'
+import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { userOrganiser } from '@common/features/User/userDataTypes'
 import { Calendar } from '@common/types/CalendarTypes'
@@ -207,13 +207,10 @@ async function moveDelegatedEvent({
     newOrganizer
   )
 
-  const newURL = `/calendars/${newCalId}/${extractEventBaseUuid(newEvent.uid)}.ics`
   const eventForTargetCalendar: CalendarEvent = {
     ...newEvent,
     calId: newCalId,
-    URL: targetCalendar.delegated
-      ? buildDelegatedEventURL(targetCalendar, newURL)
-      : newURL,
+    URL: eventDavPath(targetCalendar, extractEventBaseUuid(newEvent.uid)),
     organizer: newOrganizer,
     attendee: newAttendees
   }

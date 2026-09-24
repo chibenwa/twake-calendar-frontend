@@ -5,7 +5,9 @@ import {
 } from '@common/features/Calendars/CalendarDAO'
 import { CalendarData } from '@common/features/Calendars/types/CalendarData'
 import { RejectedError } from '@common/features/Calendars/types/RejectedError'
+import { calendarDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { extractCalendarEvents } from '@common/features/Calendars/utils/extractCalendarEvents'
+import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { toRejectedError } from '@common/utils/errorUtils'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
@@ -36,12 +38,17 @@ export const getEventByUidThunk = (create: ReducerCreators<CalendarState>) =>
         if (!eventURL) {
           return null
         }
-        const calId = calendarIdFromEventHref(eventURL)
+        // The href names the calendar the user read it through: for a calendar
+        // shared with them, their own instance of it rather than its id.
+        const calendarPath = `/calendars/${calendarIdFromEventHref(eventURL)}`
         const state = getState() as RootState
-        const calendarStored = state.calendars.list[calId]
+        const calendarStored: Calendar | undefined = Object.values(
+          state.calendars.list
+        ).find(cal => calendarDavPath(cal) === calendarPath)
         if (!calendarStored) {
           return null
         }
+        const calId: string = calendarStored.id
         const events = extractCalendarEvents(item, {
           cal: calendarStored,
           color: calendarStored.color

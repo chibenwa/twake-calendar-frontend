@@ -129,6 +129,33 @@ describe('updateCalendars', () => {
     })
   })
 
+  it("refreshes a delegated calendar notified through the sharee's instance", async () => {
+    const delegated = {
+      id: 'owner1/cal1',
+      name: 'Shared',
+      link: '/calendars/sharee1/instance1.json',
+      delegated: true,
+      syncToken: 1
+    }
+    ;(store.getState as jest.Mock).mockReturnValue({
+      calendars: { list: { [delegated.id]: delegated }, templist: {} }
+    })
+
+    updateCalendars(
+      { '/calendars/sharee1/instance1': { updated: true } },
+      mockDispatch,
+      mockAccumulators
+    )
+
+    await waitFor(() =>
+      expect(mockRefreshCalendarWithSyncToken).toHaveBeenCalledWith({
+        calendar: delegated,
+        calType: undefined,
+        calendarRange: mockRange
+      })
+    )
+  })
+
   it('should use displayed calendar range', async () => {
     const message = {
       '/calendars/cal1/entry1': {}

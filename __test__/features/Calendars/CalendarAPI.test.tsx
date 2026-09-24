@@ -6,10 +6,12 @@ import {
   fetchCalendars,
   fetchEventByUid,
   fetchSecretLink,
+  fetchSyncTokenChanges,
   updateDelegationCalendar
 } from '@common/features/Calendars/CalendarDAO'
 import { makeAddSharedCalendarBody } from '@common/features/Calendars/transformers'
 import { clientConfig } from '@common/features/User/oidcAuth'
+import { Calendar } from '@common/types/CalendarTypes'
 import { api } from '@common/utils/apiUtils'
 import { waitFor } from '@testing-library/dom'
 clientConfig.url = 'https://example.com'
@@ -41,7 +43,7 @@ describe('Calendar DAO', () => {
   })
 
   it('fetches calendar events for a given ID and match window', async () => {
-    const calendarId = 'calendar1'
+    const calendarId = 'user1/calendar1'
     const match = { start: '2025-07-01', end: '2025-07-31' }
     const mockCalendarData = { events: ['event1', 'event2'] }
 
@@ -49,7 +51,10 @@ describe('Calendar DAO', () => {
       json: jest.fn().mockResolvedValue(mockCalendarData)
     })
 
-    const result = await fetchCalendar(calendarId, match)
+    const result = await fetchCalendar(
+      { id: calendarId, link: `/calendars/${calendarId}.json` },
+      match
+    )
 
     expect(api).toHaveBeenCalledWith(`dav/calendars/${calendarId}.json`, {
       method: 'REPORT',
@@ -60,6 +65,63 @@ describe('Calendar DAO', () => {
     })
 
     expect(result).toEqual(mockCalendarData)
+  })
+
+  it("fetches the events of a delegated calendar through the sharee's instance", async () => {
+    const match = { start: '2025-07-01', end: '2025-07-31' }
+    ;(api as unknown as jest.Mock).mockReturnValue({
+      json: jest.fn().mockResolvedValue({})
+    })
+
+    await fetchCalendar(
+      {
+        id: 'owner1/calendar1',
+        link: '/calendars/sharee1/instance1.json',
+        delegated: true
+      },
+      match
+    )
+
+    expect(api).toHaveBeenCalledWith(
+      'dav/calendars/sharee1/instance1.json',
+      expect.objectContaining({ method: 'REPORT' })
+    )
+  })
+
+  it("syncs a delegated calendar through the sharee's instance", async () => {
+    ;(api as unknown as jest.Mock).mockReturnValue({
+      json: jest.fn().mockResolvedValue({})
+    })
+
+    await fetchSyncTokenChanges({
+      id: 'owner1/calendar1',
+      link: '/calendars/sharee1/instance1.json',
+      delegated: true,
+      syncToken: 'token-1'
+    } as Calendar)
+
+    expect(api).toHaveBeenCalledWith('dav/calendars/sharee1/instance1.json', {
+      method: 'REPORT',
+      headers: { Accept: 'application/json, text/plain, */*' },
+      body: JSON.stringify({ 'sync-token': 'token-1' })
+    })
+  })
+
+  it('syncs an own calendar through its own node', async () => {
+    ;(api as unknown as jest.Mock).mockReturnValue({
+      json: jest.fn().mockResolvedValue({})
+    })
+
+    await fetchSyncTokenChanges({
+      id: 'user1/calendar1',
+      link: '/calendars/user1/calendar1.json',
+      syncToken: 'token-1'
+    } as Calendar)
+
+    expect(api).toHaveBeenCalledWith(
+      'dav/calendars/user1/calendar1.json',
+      expect.objectContaining({ method: 'REPORT' })
+    )
   })
 
   it('fetches an event by its UID through a REPORT on the user home', async () => {

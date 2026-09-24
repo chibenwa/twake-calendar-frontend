@@ -650,6 +650,45 @@ describe('WebSocketGate', () => {
       })
     })
 
+    it("registers a delegated calendar through the sharee's instance", async () => {
+      store = configureStore({
+        reducer: {
+          user: (
+            state = { userData: { id: '1' }, tokens: { access: 'token' } }
+          ) => state,
+          calendars: (
+            state = {
+              list: {
+                'owner1/cal1': {
+                  id: 'owner1/cal1',
+                  link: '/calendars/sharee1/instance1.json',
+                  delegated: true
+                },
+                'sharee1/own': {
+                  id: 'sharee1/own',
+                  link: '/calendars/sharee1/own.json'
+                }
+              }
+            }
+          ) => state
+        }
+      })
+      localStorage.setItem(
+        'selectedCalendars',
+        JSON.stringify(['owner1/cal1', 'sharee1/own'])
+      )
+      ;(createWebSocketConnection as jest.Mock).mockResolvedValue(mockSocket)
+
+      render(<TestWrapper store={store} />)
+
+      await waitFor(() => {
+        expect(registerToCalendars).toHaveBeenCalledWith(mockSocket, [
+          '/calendars/sharee1/instance1',
+          '/calendars/sharee1/own'
+        ])
+      })
+    })
+
     it('should register only new calendars when calendar list changes', async () => {
       localStorage.setItem('selectedCalendars', JSON.stringify(['cal1']))
       ;(createWebSocketConnection as jest.Mock).mockResolvedValue(mockSocket)
