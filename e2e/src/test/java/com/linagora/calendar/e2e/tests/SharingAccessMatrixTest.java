@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,6 +41,17 @@ import com.microsoft.playwright.Page;
 class SharingAccessMatrixTest extends TwakeCalendarE2ETest {
     private static final String OWN_CALENDAR = "My calendar";
     private static final long PROPAGATION_MS = SharedCalendar.PROPAGATION_MS;
+
+    private E2EUserFactory users;
+    private E2ESessions sessions;
+    private CalendarProbe probe;
+
+    @BeforeEach
+    void fixtures(E2EUserFactory users, E2ESessions sessions, CalendarProbe probe) {
+        this.users = users;
+        this.sessions = sessions;
+        this.probe = probe;
+    }
 
     /** The three rights the Access tab offers. */
     enum Grant {
@@ -75,8 +87,7 @@ class SharingAccessMatrixTest extends TwakeCalendarE2ETest {
         + "the grantee sees the owner's events and may do what the right says, no more")
     @MethodSource("cells")
     void theGranteeGetsWhatTheRightSays(Grant grant, PublicRight visibility,
-                                        Page page, E2EUser user, E2EUserFactory users,
-                                        E2ESessions sessions, CalendarProbe probe) {
+                                        Page page, E2EUser user) {
         E2EUser mate = users.newUser("mate");
         Page matePage = sessions.pageFor(mate);
         CalendarPage calendar = LoginPage.loginAs(page, user);
@@ -111,9 +122,9 @@ class SharingAccessMatrixTest extends TwakeCalendarE2ETest {
         mateCalendar.eventCard(title).first().waitFor();
 
         if (grant.writes) {
-            assertWritesReachTheOwner(mateCalendar, user, probe, title);
+            assertWritesReachTheOwner(mateCalendar, user, title);
         } else {
-            assertNothingCanBeWritten(mateCalendar, user, probe, title);
+            assertNothingCanBeWritten(mateCalendar, user, title);
         }
 
         assertThat(shared.requestsToOwnerNode())
@@ -123,7 +134,7 @@ class SharingAccessMatrixTest extends TwakeCalendarE2ETest {
     }
 
     private void assertWritesReachTheOwner(CalendarPage mateCalendar, E2EUser owner,
-                                           CalendarProbe probe, String ownerTitle) {
+                                           String ownerTitle) {
         String created = uniqueTitle("Written by the delegate");
         mateCalendar.createEvent().title(created).expand().calendar(owner.uid()).save();
         Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS)).untilAsserted(() ->
@@ -141,7 +152,7 @@ class SharingAccessMatrixTest extends TwakeCalendarE2ETest {
     }
 
     private void assertNothingCanBeWritten(CalendarPage mateCalendar, E2EUser owner,
-                                           CalendarProbe probe, String ownerTitle) {
+                                           String ownerTitle) {
         EventFormModal form = mateCalendar.createEvent().expand();
         assertThat(form.calendarOptions())
             .as("a calendar the user may only read is no destination for a new event")

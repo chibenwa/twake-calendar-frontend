@@ -164,30 +164,46 @@ public class CalendarProbe {
     /**
      * The privileges the user's default calendar grants to every authenticated user, read back
      * from Sabre: empty for a calendar nobody but its owner and grantees may read.
+     *
+     * <p>Fails rather than answering empty when the list cannot be read or does not hold the
+     * default calendar: an empty answer is what a private calendar looks like, and a privacy
+     * assertion must never pass on a request that went wrong.
      */
     public List<String> publicPrivileges(E2EUser user) {
-        String id = requireOpenPaasId(user);
-        HttpResponse<String> response = execute(user, "GET",
-            "/calendars/" + id + ".json?personal=true&withRights=true", null, null,
-            "application/calendar+json");
-        try {
-            JsonNode calendars = JSON.readTree(response.body()).path("_embedded").path("dav:calendar");
-            List<String> privileges = new ArrayList<>();
-            for (JsonNode calendar : calendars) {
-                if (!calendar.path("_links").path("self").path("href").asText()
-                        .equals(defaultCalendarJsonPath(user))) {
-                    continue;
-                }
-                for (JsonNode entry : calendar.path("acl")) {
-                    if ("{DAV:}authenticated".equals(entry.path("principal").asText())) {
-                        privileges.add(entry.path("privilege").asText());
-                    }
-                }
+        JsonNode calendar = listedDefaultCalendar(user);
+        List<String> privileges = new ArrayList<>();
+        for (JsonNode entry : calendar.path("acl")) {
+            if ("{DAV:}authenticated".equals(entry.path("principal").asText())) {
+                privileges.add(entry.path("privilege").asText());
             }
-            return privileges;
+        }
+        return privileges;
+    }
+
+    /** The default calendar of the user, as the JSON listing of their home describes it. */
+    private JsonNode listedDefaultCalendar(E2EUser user) {
+        HttpResponse<String> response = execute(user, "GET",
+            "/calendars/" + requireOpenPaasId(user) + ".json?personal=true&withRights=true",
+            null, null, "application/calendar+json");
+        if (response.statusCode() != 200) {
+            throw new IllegalStateException("Could not list the calendars of " + user.email()
+                + ": " + response.statusCode() + " " + response.body());
+        }
+        String href = defaultCalendarJsonPath(user);
+        for (JsonNode calendar : readJson(response).path("_embedded").path("dav:calendar")) {
+            if (href.equals(calendar.path("_links").path("self").path("href").asText())) {
+                return calendar;
+            }
+        }
+        throw new IllegalStateException("No default calendar " + href + " in the calendars of "
+            + user.email() + ": " + response.body());
+    }
+
+    private JsonNode readJson(HttpResponse<String> response) {
+        try {
+            return JSON.readTree(response.body());
         } catch (Exception e) {
-            throw new IllegalStateException("Unreadable calendar list of " + user.email() + ": "
-                + response.statusCode() + " " + response.body(), e);
+            throw new IllegalStateException("Not JSON: " + response.body(), e);
         }
     }
 

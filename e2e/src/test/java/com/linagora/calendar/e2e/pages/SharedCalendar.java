@@ -3,6 +3,7 @@ package com.linagora.calendar.e2e.pages;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.awaitility.Awaitility;
 
@@ -63,22 +64,27 @@ public class SharedCalendar {
     }
 
     /**
-     * Reloads the grantee's page until the calendar shows up in their sidebar.
+     * Reloads the page until {@code check} passes on the freshly loaded calendar.
      *
      * <p>Polls slowly on purpose: each attempt reloads the application, and the sidebar needs a
      * moment after that to fetch the calendars. Hammering reload every few milliseconds keeps it
-     * permanently at the beginning of that fetch, and the calendar would never appear.
+     * permanently at the beginning of that fetch, and what is awaited would never appear.
      */
-    public SharedCalendar awaitInSidebar() {
+    public static void reloadUntil(Page page, Consumer<CalendarPage> check) {
         Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS))
             .pollInterval(Duration.ofSeconds(2))
             // a locator giving up on one attempt is no reason to give up on the next one
             .ignoreExceptions()
             .untilAsserted(() -> {
-                grantee.reload();
-                new CalendarPage(grantee).waitUntilLoaded();
-                row().first().waitFor(new Locator.WaitForOptions().setTimeout(8_000));
+                page.reload();
+                check.accept(new CalendarPage(page).waitUntilLoaded());
             });
+    }
+
+    /** Reloads the grantee's page until the calendar shows up in their sidebar. */
+    public SharedCalendar awaitInSidebar() {
+        reloadUntil(grantee, calendar ->
+            row().first().waitFor(new Locator.WaitForOptions().setTimeout(8_000)));
         return this;
     }
 
@@ -97,17 +103,11 @@ public class SharedCalendar {
     /** Waits, reloading slowly, for an event of the calendar to reach the grantee's grid. */
     public SharedCalendar awaitEvent(String title) {
         awaitInSidebar();
-        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS))
-            .pollInterval(Duration.ofSeconds(2))
-            // a locator giving up on one attempt is no reason to give up on the next one
-            .ignoreExceptions()
-            .untilAsserted(() -> {
-                grantee.reload();
-                CalendarPage calendar = new CalendarPage(grantee).waitUntilLoaded();
-                show();
-                calendar.eventCard(title).first()
-                    .waitFor(new Locator.WaitForOptions().setTimeout(8_000));
-            });
+        reloadUntil(grantee, calendar -> {
+            show();
+            calendar.eventCard(title).first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(8_000));
+        });
         return this;
     }
 
