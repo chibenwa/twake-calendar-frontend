@@ -3,6 +3,7 @@ package com.linagora.calendar.e2e.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -16,8 +17,11 @@ import com.linagora.calendar.e2e.backend.E2EUserFactory;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarModal;
 import com.linagora.calendar.e2e.pages.CalendarPage;
+import com.linagora.calendar.e2e.backend.Ical;
 import com.linagora.calendar.e2e.backend.Ics;
 import com.linagora.calendar.e2e.pages.EventFormModal;
+import com.linagora.calendar.e2e.pages.EventPreviewPopover;
+import com.linagora.calendar.e2e.pages.SharedCalendar;
 import com.linagora.calendar.e2e.pages.RecurrenceSection;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
@@ -38,7 +42,7 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 class SharingTest extends TwakeCalendarE2ETest {
     private static final String OWN_CALENDAR = "My calendar";
     /** How long a share may take to reach the other session. */
-    private static final long PROPAGATION_MS = 60_000;
+    private static final long PROPAGATION_MS = SharedCalendar.PROPAGATION_MS;
 
     private static String uniqueTitle(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
@@ -56,73 +60,25 @@ class SharingTest extends TwakeCalendarE2ETest {
         modal.save();
     }
 
-    /**
-     * The sidebar row of a calendar somebody shared. It lands in a "Shared calendars" section
-     * and is named after its owner, so the address is what identifies it -- the row carries no
-     * label of the shape a personal calendar has.
-     */
+    /** The sidebar row of a calendar somebody shared, see {@link SharedCalendar#row()}. */
     private Locator sharedCalendarRow(Page page, E2EUser owner) {
-        // matched on the local part rather than the whole address: the row is named after the
-        // owner's display name, and that is the address in some builds and only its local part
-        // in others. The local part is in both.
-        return page.locator("li").filter(new Locator.FilterOptions()
-            .setHasText(owner.uid()));
+        return new SharedCalendar(page, owner).row();
     }
 
-    /**
-     * Reloads the grantee's page until the shared calendar shows up in their sidebar.
-     *
-     * <p>Polls slowly on purpose: each attempt reloads the application, and the sidebar needs a
-     * moment after that to fetch the calendars. Hammering reload every few milliseconds keeps it
-     * permanently at the beginning of that fetch, and the calendar would never appear.
-     */
     private void awaitSharedCalendar(Page grantee, E2EUser owner) {
-        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS))
-            .pollInterval(Duration.ofSeconds(2))
-            .untilAsserted(() -> {
-                grantee.reload();
-                new CalendarPage(grantee).waitUntilLoaded();
-                sharedCalendarRow(grantee, owner).first()
-                    .waitFor(new Locator.WaitForOptions().setTimeout(8_000));
-            });
+        new SharedCalendar(grantee, owner).awaitInSidebar();
     }
 
-    /**
-     * Ticks a shared calendar. It arrives switched off, so its events are not drawn until the
-     * grantee asks for them -- a test looking straight at the grid would conclude the share
-     * failed.
-     */
-    private void showSharedCalendar(Page grantee, E2EUser owner) {
-        Locator checkbox = sharedCalendarRow(grantee, owner).first()
-            .locator("input[type=checkbox]").first();
-        if (!checkbox.isChecked()) {
-            checkbox.check();
-        }
-    }
-
-    /** Waits for an event of the shared calendar to reach the grid of the grantee. */
-    private void awaitEventVisible(Page grantee, E2EUser owner, String title) {
-        awaitSharedCalendar(grantee, owner);
-        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS))
-            .pollInterval(Duration.ofSeconds(2))
-            .untilAsserted(() -> {
-                grantee.reload();
-                CalendarPage calendar = new CalendarPage(grantee).waitUntilLoaded();
-                showSharedCalendar(grantee, owner);
-                calendar.eventCard(title).first()
-                    .waitFor(new Locator.WaitForOptions().setTimeout(8_000));
-            });
-    }
-
-    /** What the overflow menu of that row offers. */
     private java.util.List<String> menuOfSharedCalendar(Page page, E2EUser owner) {
-        Locator row = sharedCalendarRow(page, owner).first();
-        row.hover();
-        row.locator("button").last().click();
-        page.locator("[role=menuitem]").first().waitFor();
-        java.util.List<String> entries = page.locator("[role=menuitem]").allInnerTexts();
-        page.keyboard().press("Escape");
-        return entries;
+        return new SharedCalendar(page, owner).menu();
+    }
+
+    /** Writes an event into the owner's calendar, today, and returns its title. */
+    private String seedOwnerEvent(CalendarProbe probe, E2EUser owner, String prefix, int startHourUtc) {
+        String title = uniqueTitle(prefix);
+        String uid = UUID.randomUUID().toString();
+        probe.putEvent(owner, uid, Ical.event(uid, title, LocalDate.now(), startHourUtc));
+        return title;
     }
 
     @Test
@@ -214,6 +170,150 @@ class SharingTest extends TwakeCalendarE2ETest {
                     .as("a right taken back has to disappear from the other side too")
                     .isZero();
             });
+    }
+
+    @Test
+    @DisplayName("SHARE-07 Revoking a right takes the owner's events off the grantee's grid")
+    void revokingARightTakesTheEventsBack(Page page, E2EUser user, E2EUserFactory users,
+                                          E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = seedOwnerEvent(probe, user, "Soon out of reach", 10);
+        share(calendar, mate, "View all events");
+        new SharedCalendar(matePage, user).awaitEvent(title);
+
+        CalendarModal modal = calendar.modifyCalendar(OWN_CALENDAR).tab("Access");
+        modal.revokeAccess(mate.email());
+        modal.save();
+
+        CalendarPage mateCalendar = new CalendarPage(matePage);
+        Awaitility.await().atMost(Duration.ofMillis(PROPAGATION_MS))
+            .pollInterval(Duration.ofSeconds(2))
+            .untilAsserted(() -> {
+                matePage.reload();
+                mateCalendar.waitUntilLoaded();
+                matePage.waitForTimeout(2000);
+                assertThat(mateCalendar.eventCard(title).count())
+                    .as("the events of a calendar taken back go with it, not only its sidebar row")
+                    .isZero();
+            });
+    }
+
+    @Test
+    @DisplayName("SHARE-03 A read right on a private calendar shows the owner's events, "
+        + "read through the grantee's own instance of it")
+    void aReadRightOnAPrivateCalendarShowsTheOwnersEvents(Page page, E2EUser user,
+                                                          E2EUserFactory users,
+                                                          E2ESessions sessions,
+                                                          CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = seedOwnerEvent(probe, user, "Owner only meeting", 10);
+        share(calendar, mate, "View all events");
+        // after the share: saving the Access tab writes the visibility too
+        probe.setPublicRight(user, CalendarProbe.PublicRight.NONE);
+        // free-busy stays public whatever the public right: it is the events that are not
+        assertThat(probe.publicPrivileges(user))
+            .as("the calendar under test lets the other users of the instance read no event")
+            .doesNotContain("{DAV:}read", "{DAV:}write", "{DAV:}all");
+
+        SharedCalendar shared = new SharedCalendar(matePage, user)
+            .watchRequestsToOwnerNode(probe.requireOpenPaasId(user));
+        shared.awaitEvent(title);
+        EventPreviewPopover preview = new CalendarPage(matePage).openEvent(title);
+
+        assertThat(preview.text())
+            .as("the grantee reads the event itself, not only a slot in their grid")
+            .contains(title);
+        assertThat(shared.requestsToOwnerNode())
+            .as("a share grants nothing on the owner's own node: every read has to go through "
+                + "the grantee's instance of the calendar")
+            .isEmpty();
+    }
+
+    @Test
+    @DisplayName("SHARE-11 A private event of the owner shows to a reader without its details")
+    void aPrivateEventShowsWithoutItsDetails(Page page, E2EUser user, E2EUserFactory users,
+                                             E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String anchor = seedOwnerEvent(probe, user, "Public anchor", 7);
+        String secret = uniqueTitle("Secret interview");
+        String secretPlace = uniqueTitle("Room of secrets");
+        String uid = UUID.randomUUID().toString();
+        probe.putEvent(user, uid, Ical.privateEvent(uid, secret, secretPlace, LocalDate.now(), 13));
+        share(calendar, mate, "View all events");
+        probe.setPublicRight(user, CalendarProbe.PublicRight.NONE);
+
+        new SharedCalendar(matePage, user).awaitEvent(anchor);
+        CalendarPage mateCalendar = new CalendarPage(matePage);
+        Locator privateCard = mateCalendar.eventCards()
+            .filter(new Locator.FilterOptions().setHasNotText(anchor));
+        privateCard.first().waitFor();
+
+        assertThat(mateCalendar.eventTitles())
+            .as("the slot of a private event shows, what it is about does not")
+            .hasSize(2)
+            .noneMatch(shown -> shown.contains(secret));
+        privateCard.first().click();
+        EventPreviewPopover preview = new EventPreviewPopover(matePage);
+        PlaywrightAssertions.assertThat(preview.content())
+            .containsText("Details are hidden");
+        assertThat(preview.text())
+            .doesNotContain(secret)
+            .doesNotContain(secretPlace);
+    }
+
+    @Test
+    @DisplayName("SHARE-30 A private calendar nobody shared cannot be added by another user "
+        + "of the domain: browsing its owner offers no calendar")
+    void aPrivateCalendarCannotBeBrowsedWithoutAShare(Page page, E2EUser user,
+                                                      E2EUserFactory users,
+                                                      E2ESessions sessions,
+                                                      CalendarProbe probe) {
+        E2EUser stranger = users.newUser("stranger");
+        LoginPage.loginAs(page, user);
+        seedOwnerEvent(probe, user, "Nobody else's business", 10);
+        probe.setPublicRight(user, CalendarProbe.PublicRight.NONE);
+
+        CalendarPage strangerCalendar = sessions.openFor(stranger);
+        String answer = strangerCalendar.browseOtherCalendars().pickInOtherCalendars(user.email());
+
+        assertThat(answer)
+            .as("a calendar granting nothing to the domain is not offered to the domain")
+            .contains("No publicly available calendars");
+        strangerCalendar.cancelBrowsing();
+    }
+
+    @Test
+    @DisplayName("SHARE-31 An event the owner adds reaches the grantee without a reload")
+    void anEventTheOwnerAddsReachesTheGranteeLive(Page page, E2EUser user, E2EUserFactory users,
+                                                  E2ESessions sessions, CalendarProbe probe) {
+        E2EUser mate = users.newUser("mate");
+        Page matePage = sessions.pageFor(mate);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String first = seedOwnerEvent(probe, user, "Already there", 7);
+        share(calendar, mate, "View all events");
+        probe.setPublicRight(user, CalendarProbe.PublicRight.NONE);
+        SharedCalendar shared = new SharedCalendar(matePage, user)
+            .watchRequestsToOwnerNode(probe.requireOpenPaasId(user));
+        shared.awaitEvent(first);
+        CalendarPage mateCalendar = new CalendarPage(matePage).waitUntilLiveConnected();
+        // the socket registers the calendars once they are listed, give it that moment
+        matePage.waitForTimeout(3000);
+
+        String title = uniqueTitle("Added while watched");
+        calendar.createEvent(title);
+
+        PlaywrightAssertions.assertThat(mateCalendar.eventCard(title).first())
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(PROPAGATION_MS));
+        assertThat(mateCalendar.eventCard(first).count())
+            .as("a live update adds to the grid, it does not duplicate what was there")
+            .isEqualTo(1);
+        assertThat(shared.requestsToOwnerNode()).isEmpty();
     }
 
     @Test

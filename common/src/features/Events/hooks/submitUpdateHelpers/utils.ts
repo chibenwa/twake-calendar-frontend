@@ -3,6 +3,7 @@ import { EventFormValues } from '@common/components/Event/EventFormFields.types'
 import { resolveEventISORange } from '@common/components/Event/utils/dateRangeUtils'
 import { updateAttendeesAfterTimeChange } from '@common/features/Events/updateEventHelpers/updateAttendeesAfterTimeChange'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { VAlarm } from '@common/types/VAlarm'
 import { Valarms } from '@common/types/Valarms'
@@ -88,10 +89,10 @@ function getNextSequence(sequence?: number): number {
 
 function getEventURL(
   url: string | undefined,
-  calId: string,
+  calendar: Calendar,
   uid: string
 ): string {
-  return url ?? `/calendars/${calId}/${uid}.ics`
+  return url ?? eventDavPath(calendar, uid)
 }
 
 function getEventAttachments<T>(attachments?: T[]): T[] | undefined {
@@ -148,7 +149,7 @@ export function prepareUpdatedEvent({
     ...updateAttendeesAfterTimeChange(event, timeChanged, values.attendees),
     calId: currentCalId,
     title: values.title,
-    URL: getEventURL(event.URL, currentCalId, event.uid),
+    URL: getEventURL(event.URL, targetCalendar, event.uid),
     start: startISO,
     end: endISO,
     allday: values.allday,

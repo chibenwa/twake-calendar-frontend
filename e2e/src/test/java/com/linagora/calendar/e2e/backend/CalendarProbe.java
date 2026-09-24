@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 
 import org.bson.Document;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.linagora.calendar.e2e.docker.TwakeCalendarStack;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -30,6 +33,7 @@ import com.mongodb.client.MongoDatabase;
 public class CalendarProbe {
     private static final String SABRE_ADMIN_PASSWORD = "secret123";
     private static final Pattern SUMMARY = Pattern.compile("^SUMMARY:(.*)$", Pattern.MULTILINE);
+    private static final ObjectMapper JSON = new ObjectMapper();
     private static final Pattern HREF = Pattern.compile("<[^>]*href>([^<]*\\.ics)</[^>]*href>");
 
     private final HttpClient httpClient;
@@ -121,6 +125,78 @@ public class CalendarProbe {
         }
     }
 
+    /**
+     * What every authenticated user of the instance may do with a calendar, whether or not it was
+     * shared with them: the "public right" of esn-sabre, in the vocabulary its ACL route speaks.
+     */
+    public enum PublicRight {
+        NONE(""),
+        READ("{DAV:}read"),
+        READ_WRITE("{DAV:}write");
+
+        private final String privilege;
+
+        PublicRight(String privilege) {
+            this.privilege = privilege;
+        }
+
+        /** The ACL privilege the right grants to every authenticated user, empty for none. */
+        public String privilege() {
+            return privilege;
+        }
+    }
+
+    /** Sets the public right of the user's default calendar. */
+    public void setPublicRight(E2EUser user, PublicRight right) {
+        HttpResponse<String> response = execute(user, "ACL", defaultCalendarJsonPath(user),
+            "{\"public_right\":\"" + right.privilege + "\"}", "application/json",
+            // esn-sabre reads the body as JSON only for a client that asks for JSON back
+            "application/json");
+        if (response.statusCode() != 200 && response.statusCode() != 204) {
+            throw new IllegalStateException("Failed to set the public right of " + user.email()
+                + " to " + right + ": " + response.statusCode() + " " + response.body());
+        }
+    }
+
+    /**
+     * The privileges the user's default calendar grants to every authenticated user, read back
+     * from Sabre: empty for a calendar nobody but its owner and grantees may read.
+     */
+    public List<String> publicPrivileges(E2EUser user) {
+        String id = requireOpenPaasId(user);
+        HttpResponse<String> response = execute(user, "GET",
+            "/calendars/" + id + ".json?personal=true&withRights=true", null, null,
+            "application/calendar+json");
+        try {
+            JsonNode calendars = JSON.readTree(response.body()).path("_embedded").path("dav:calendar");
+            List<String> privileges = new ArrayList<>();
+            for (JsonNode calendar : calendars) {
+                if (!calendar.path("_links").path("self").path("href").asText()
+                        .equals(defaultCalendarJsonPath(user))) {
+                    continue;
+                }
+                for (JsonNode entry : calendar.path("acl")) {
+                    if ("{DAV:}authenticated".equals(entry.path("principal").asText())) {
+                        privileges.add(entry.path("privilege").asText());
+                    }
+                }
+            }
+            return privileges;
+        } catch (Exception e) {
+            throw new IllegalStateException("Unreadable calendar list of " + user.email() + ": "
+                + response.statusCode() + " " + response.body(), e);
+        }
+    }
+
+    /** The DTSTART line of an event of the user's default calendar, to tell whether it moved. */
+    public Optional<String> dtStart(E2EUser user, String summary) {
+        return rawEvents(user).stream()
+            .map(Ics::unfold)
+            .filter(ics -> summaryOf(ics).filter(summary::equals).isPresent())
+            .findFirst()
+            .flatMap(ics -> Ics.property(Ics.event(ics), "DTSTART"));
+    }
+
     /** Forces the provisioning of the user's default calendar. */
     public void provisionDefaultCalendar(E2EUser user) {
         String id = requireOpenPaasId(user);
@@ -146,6 +222,11 @@ public class CalendarProbe {
         return "/calendars/" + id + "/" + id + "/";
     }
 
+    private String defaultCalendarJsonPath(E2EUser user) {
+        String id = requireOpenPaasId(user);
+        return "/calendars/" + id + "/" + id + ".json";
+    }
+
     private String get(E2EUser user, String href) {
         return execute(user, "GET", href, null, null).body();
     }
@@ -157,10 +238,15 @@ public class CalendarProbe {
     }
 
     private HttpResponse<String> execute(E2EUser user, String method, String path, String body, String contentType) {
+        return execute(user, method, path, body, contentType, "application/xml, text/calendar, */*");
+    }
+
+    private HttpResponse<String> execute(E2EUser user, String method, String path, String body,
+                                         String contentType, String accept) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
             .uri(URI.create(davBaseUrl + path))
             .header("Authorization", impersonationHeader(user))
-            .header("Accept", "application/xml, text/calendar, */*")
+            .header("Accept", accept)
             .timeout(Duration.ofSeconds(30));
         if ("PROPFIND".equals(method)) {
             builder.header("Depth", "1");

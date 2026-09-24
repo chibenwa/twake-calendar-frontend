@@ -44,7 +44,7 @@ export const getCalendarDetailThunk = (
           )
         }
         const calendar = (await fetchCalendar(
-          calId,
+          calendarStored,
           match,
           signal
         )) as CalendarData

@@ -25,4 +25,18 @@ public class Ical {
             """.formatted(uid, date, startHourUtc, date, startHourUtc, date, startHourUtc + 1, summary)
             .replace("\n", "\r\n");
     }
+
+    /** Same, organised by somebody: what the application writes for an event it creates. */
+    public static String eventOrganisedBy(String uid, String summary, LocalDate day, int startHourUtc,
+                                          String organizerEmail) {
+        return event(uid, summary, day, startHourUtc)
+            .replace("SUMMARY:", "ORGANIZER:mailto:" + organizerEmail + "\r\nSUMMARY:");
+    }
+
+    /** Same, marked private: only its owner may read what it is about. */
+    public static String privateEvent(String uid, String summary, String location, LocalDate day,
+                                      int startHourUtc) {
+        return event(uid, summary, day, startHourUtc)
+            .replace("SUMMARY:", "CLASS:PRIVATE\r\nLOCATION:" + location + "\r\nSUMMARY:");
+    }
 }

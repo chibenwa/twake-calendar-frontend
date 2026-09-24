@@ -3,8 +3,8 @@ import { Resource } from '@common/components/Attendees/ResourceSearch'
 import { EventFormValues } from '@common/components/Event/EventFormFields.types'
 import { resolveEventISORange } from '@common/components/Event/utils/dateRangeUtils'
 import { putEvent } from '@common/features/Calendars/CalendarSlice'
-import { buildDelegatedEventURL } from '@common/features/Events/utils/buildDelegatedEventURL'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { RepetitionObject } from '@common/types/Repetition'
@@ -51,7 +51,6 @@ export function buildNewEvent({
   newEventUID: string
   t?: (key: string) => string
 }): CalendarEvent {
-  const newEventURL = `/calendars/${targetCalendar.id}/${newEventUID}.ics`
   const { startISO, endISO } = resolveEventISORange({
     start: values.start,
     end: values.end,
@@ -70,9 +69,7 @@ export function buildNewEvent({
   return {
     calId: targetCalendar.id,
     title: values.title,
-    URL: targetCalendar.delegated
-      ? buildDelegatedEventURL(targetCalendar, newEventURL)
-      : newEventURL,
+    URL: eventDavPath(targetCalendar, newEventUID),
     start: startISO,
     end: endISO,
     allday: values.allday,

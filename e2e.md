@@ -434,13 +434,13 @@ Four of the forty nine, each with what stands in the way.
 
 - [x] `SHARE-01` The Access tab allows granting a right to another user
 - [x] `SHARE-02` The grantee sees the shared calendar under "Other calendars"
-- [ ] `SHARE-03` A read right shows the events without allowing edition
+- [x] `SHARE-03` A read right shows the events without allowing edition
 - [x] `SHARE-04` An edit right allows creating an event in the shared calendar
-- [ ] `SHARE-05` An edit right allows editing an existing event
+- [x] `SHARE-05` An edit right allows editing an existing event
 - [x] `SHARE-06` An administration right allows managing the shares
 - [x] `SHARE-07` Revoking a right removes the calendar from the grantee
 - [x] `SHARE-08` The owner is identified in the list of rights
-- [ ] `SHARE-11` A private event shows "Details are hidden" to the delegate
+- [x] `SHARE-11` A private event shows "Details are hidden" to the delegate
 - [ ] `SHARE-12` Browsing a user's public calendars offers them for subscription
 - [ ] `SHARE-13` Subscribing to a public calendar adds it to the sidebar
 - [ ] `SHARE-14` Unsubscribing from a public calendar removes it without deleting it
@@ -458,6 +458,9 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SHARE-26` A recurring event created by a delegate keeps its rule for the owner
 - [x] `SHARE-27` A write right opens the Import tab of the delegated calendar
 - [x] `SHARE-28` A read right does not open the Import tab of the delegated calendar
+- [x] `SHARE-29` Every right, on a private, public read and public read-write calendar, shows the owner's events and allows exactly what it says
+- [x] `SHARE-30` A private calendar nobody shared cannot be added by another user of the domain
+- [x] `SHARE-31` An event the owner adds reaches the grantee live
 
 ## IMPEX — Import, export, CalDAV (16)
 

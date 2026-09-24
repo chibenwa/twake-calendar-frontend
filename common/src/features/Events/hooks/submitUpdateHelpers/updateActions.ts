@@ -8,6 +8,7 @@ import {
   updateEventLocal,
   updateSeries
 } from '@common/features/Calendars/CalendarSlice'
+import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { calendarEventToJCal, detectRecurringEventChanges } from '../../utils'
@@ -78,7 +79,7 @@ export async function handleConvertRecurringToSingle({
     const finalNewEvent = {
       ...newEvent,
       uid: newUID,
-      URL: `/calendars/${targetCalId}/${newUID}.ics`,
+      URL: eventDavPath(targetCalendar, newUID),
       sequence: 1,
       recurrenceId: undefined
     }

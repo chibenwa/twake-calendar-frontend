@@ -2,6 +2,7 @@ import { Calendar } from '@common/types/CalendarTypes'
 import { api } from '@common/utils/apiUtils'
 import { DavSyncResponse } from './types/CalendarApiTypes'
 import { CalendarList } from './types/CalendarData'
+import { calendarDavPath } from './utils/calendarDavPath'
 
 export async function fetchCalendars(
   userId: string,
@@ -18,11 +19,11 @@ export async function fetchCalendars(
 }
 
 export async function fetchCalendar(
-  id: string,
+  calendar: Pick<Calendar, 'id' | 'link' | 'delegated'>,
   match: { start: string; end: string },
   signal?: AbortSignal
 ): Promise<unknown> {
-  const response = await api(`dav/calendars/${id}.json`, {
+  const response = await api(`dav${calendarDavPath(calendar)}.json`, {
     method: 'REPORT',
     headers: { Accept: 'application/json, text/plain, */*' },
     body: JSON.stringify({ match }),
@@ -101,7 +102,7 @@ export async function fetchCalendarExport(calLink: string): Promise<string> {
 export async function fetchSyncTokenChanges(
   calendar: Calendar
 ): Promise<DavSyncResponse> {
-  const response = await api(`dav/calendars/${calendar.id}.json`, {
+  const response = await api(`dav${calendarDavPath(calendar)}.json`, {
     method: 'REPORT',
     headers: {
       Accept: 'application/json, text/plain, */*'
