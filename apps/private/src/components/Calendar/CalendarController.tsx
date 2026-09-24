@@ -13,7 +13,14 @@ import type {
   SlotLabelContentArg
 } from '@fullcalendar/core'
 import { CalendarApi, DateSelectArg } from '@fullcalendar/core'
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import { useI18n } from 'twake-i18n'
 import { useCalendarDataLoader } from '@common/features/Calendars/useCalendarLoader'
 import { User } from '@common/components/Attendees/types'
@@ -32,6 +39,7 @@ import { useHiddenDays } from '@common/components/Calendar/hooks/useCalendarCont
 import { useTouchListener } from '@common/components/Calendar/hooks/useTouchListener'
 import { updateSlotLabelVisibility } from '@common/components/Calendar/utils/calendarUtils'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
+import { buildCreateEventRange } from '@common/components/Calendar/utils/createEventRange'
 import ViewMoreEvents from '@common/components/Calendar/ViewMoreEvents'
 import { CalendarGrid } from '@common/components/Calendar/CalendarGrid'
 import ImportAlert from '@common/features/Events/ImportAlert'
@@ -272,21 +280,29 @@ const CalendarController: React.FC<CalendarControllerProps> = ({
     timezone
   )
 
+  // In day view, the new event lands on the displayed day rather than today
+  const { handleDateSelect } = eventHandlers
+  const handleCreateEvent = useCallback((): void => {
+    handleDateSelect(
+      buildCreateEventRange(
+        currentView,
+        calendarRef.current?.view.currentStart,
+        timezone
+      )
+    )
+  }, [handleDateSelect, currentView, calendarRef, timezone])
+
   // Expose handleCreateEvent through controllerRef
   useEffect(() => {
     if (controllerRef) {
-      controllerRef.current = {
-        handleCreateEvent: (): void => {
-          eventHandlers.handleDateSelect(null)
-        }
-      }
+      controllerRef.current = { handleCreateEvent }
     }
     return (): void => {
       if (controllerRef) {
         controllerRef.current = null
       }
     }
-  }, [controllerRef, eventHandlers])
+  }, [controllerRef, handleCreateEvent])
 
   const datesSet = (arg: DatesSetArg): void => {
     onViewChange?.(arg.view.type)
@@ -331,7 +347,7 @@ const CalendarController: React.FC<CalendarControllerProps> = ({
           <Fab
             color="primary"
             aria-label={t('event.createEvent')}
-            onClick={() => eventHandlers.handleDateSelect(null)}
+            onClick={handleCreateEvent}
             sx={{
               position: 'fixed',
               bottom: 24,
