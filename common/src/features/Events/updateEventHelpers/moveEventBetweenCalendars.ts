@@ -6,7 +6,10 @@ import {
 } from '@common/features/Calendars/CalendarSlice'
 import { fetchAllRecurrentVevents } from '@common/features/Events/EventDao'
 import { parseCalendarEvent } from '@common/features/Events/utils'
-import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
+import {
+  encodeDavSegment,
+  eventDavPath
+} from '@common/features/Calendars/utils/calendarDavPath'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { userOrganiser } from '@common/features/User/userDataTypes'
 import { Calendar } from '@common/types/CalendarTypes'
@@ -169,7 +172,9 @@ async function moveStandardEvent({
     })
   )
   await assertThunkSuccess(putResult)
-  const newURL = `/calendars/${newCalId}/${extractEventBaseUuid(newEvent.uid)}.ics`
+  const newURL = `/calendars/${newCalId}/${encodeDavSegment(
+    extractEventBaseUuid(newEvent.uid)
+  )}.ics`
 
   const moveResult = await dispatch(
     moveEvent({

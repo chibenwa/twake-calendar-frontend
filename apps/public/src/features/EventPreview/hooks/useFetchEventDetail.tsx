@@ -4,6 +4,7 @@ import { fetchEvent } from '../EventDao'
 import { parseFetchedEvent } from '@common/features/Events/transformers/parseFetchedEvent'
 import { useI18n } from 'twake-i18n'
 import { getSanitizedHttpErrorMessage } from './useEventDetailError'
+import { encodeDavSegment } from '@common/features/Calendars/utils/calendarDavPath'
 
 export interface EventDetailResult {
   event: CalendarEvent | undefined
@@ -68,7 +69,7 @@ export const useFetchEventDetail = (
 
         const parsed = parseFetchedEvent(initialEvent, response.eventJSON)
         if (parsed.uid) {
-          parsed.URL = `/calendars/${parsed.calId}/${parsed.uid}.ics`
+          parsed.URL = `/calendars/${parsed.calId}/${encodeDavSegment(parsed.uid)}.ics`
         }
 
         setData({
