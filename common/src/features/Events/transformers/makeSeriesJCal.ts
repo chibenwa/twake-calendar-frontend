@@ -235,10 +235,21 @@ const computeSeriesShift = (
 }
 
 // An override moved away from its original slot keeps its own time when the
-// series time changes; the others follow the series
-const isRescheduled = (props: VObjectProperty[], tz: string): boolean =>
-  parseInstant(findFieldValue(props, 'recurrence-id'), tz) !==
-  parseInstant(findFieldValue(props, 'dtstart'), tz)
+// series time changes; the others follow the series. Unparseable values fall
+// back to a raw comparison, as NaN never equals itself
+const isRescheduled = (props: VObjectProperty[], tz: string): boolean => {
+  const recurrenceId = findFieldValue(props, 'recurrence-id')
+  const start = findFieldValue(props, 'dtstart')
+  const recurrenceIdMs = parseInstant(recurrenceId, tz)
+  const startMs = parseInstant(start, tz)
+  if (Number.isFinite(recurrenceIdMs) && Number.isFinite(startMs)) {
+    return recurrenceIdMs !== startMs
+  }
+  return rawDateTime(recurrenceId) !== rawDateTime(start)
+}
+
+const rawDateTime = (prop: VObjectProperty | undefined): unknown =>
+  typeof prop?.[3] === 'string' ? prop[3].replace(/Z$/, '') : prop?.[3]
 
 // Re-anchor an override on the moved occurrence: RECURRENCE-ID must match the
 // new time of the occurrence it replaces, otherwise it is orphaned
@@ -409,7 +420,7 @@ const updateVeventsPreservingOverrides = (
   return vevents
     .filter((vevent, index) => {
       if (index === masterIndex) return true
-      return !isSourceOverride(vevent, sourceRecurrenceId)
+      return !isSourceOverride(vevent, sourceRecurrenceId, tz)
     })
     .map(vevent =>
       updateOverrideWithMetadata({
