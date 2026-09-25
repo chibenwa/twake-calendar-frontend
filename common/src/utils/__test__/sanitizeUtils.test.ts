@@ -43,11 +43,10 @@ describe('sanitizeUtils', () => {
       expect(sanitizeHtml(input)).toBe('<p>safe text</p>')
     })
 
-    it('should add rel="noopener noreferrer" to links with target', () => {
-      const input = '<a href="https://example.com" target="_blank">link</a>'
-      expect(sanitizeHtml(input)).toBe(
-        '<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>'
-      )
+    it('should drop the target and rel of the description', () => {
+      const input =
+        '<a href="https://example.com" target="_top" rel="opener">link</a>'
+      expect(sanitizeHtml(input)).toBe('<a href="https://example.com">link</a>')
     })
   })
 })

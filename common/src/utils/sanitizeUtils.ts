@@ -48,7 +48,9 @@ export function sanitizeHtml(htmlText: string): string {
   if (typeof DOMPurify?.sanitize === 'function') {
     return DOMPurify.sanitize(htmlText, {
       ALLOWED_TAGS: allowedTags,
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
+      // target and rel are not taken from the description: its author could
+      // otherwise point a link at the embedding portal (target="_top").
+      ALLOWED_ATTR: ['href'],
       KEEP_CONTENT: true
     })
   }
