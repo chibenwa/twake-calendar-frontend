@@ -3,11 +3,6 @@ pipeline {
         label 'heavy'
     }
 
-    environment {
-        DOCKER_HUB_CREDENTIAL = credentials('dockerHub')
-        GITHUB_CREDENTIAL = credentials('github')
-    }
-
     tools {
         nodejs 'nodejs_24'
     }
@@ -67,54 +62,68 @@ pipeline {
         }
         steps {
           script {
+            // The credentials are bound only around the steps that need them: the
+            // build and the tests run the code of the pull request, possibly from a
+            // fork, and must not be able to read them.
+            def dockerHubCredential = usernamePassword(credentialsId: 'dockerHub',
+              usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')
+            def githubCredential = usernamePassword(credentialsId: 'github',
+              usernameVariable: 'GITHUB_CREDENTIAL_USR', passwordVariable: 'GITHUB_CREDENTIAL_PSW')
+
             // If the PR comes from a fork, verify the fork owner is a linagora org member
+            def deployAllowed = true
             if (env.CHANGE_FORK) {
               def forkOwner = env.CHANGE_FORK
-              def memberStatus = sh(
-                script: """curl -s -o /dev/null -w "%{http_code}" \
-                  -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \
-                  "https://api.github.com/orgs/linagora/members/${forkOwner}" """,
-                returnStdout: true
-              ).trim()
-              echo "GitHub org membership check returned HTTP ${memberStatus} for '${forkOwner}'"
-              if (memberStatus == '204') {
-                echo "Fork owner '${forkOwner}' is a linagora org member, proceeding."
-              } else if (memberStatus == '404') {
-                echo "Fork owner '${forkOwner}' is not a member of the linagora organization."
-                // Check if a linagora member has approved the build via comment
-                def approvedByMember = false
-                def commentsJson = sh(
-                  script: """curl -s \
+              withCredentials([githubCredential]) {
+                def memberStatus = sh(
+                  script: """curl -s -o /dev/null -w "%{http_code}" \
                     -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \
-                    "https://api.github.com/repos/linagora/twake-calendar-frontend/issues/\${CHANGE_ID}/comments" """,
+                    "https://api.github.com/orgs/linagora/members/${forkOwner}" """,
                   returnStdout: true
                 ).trim()
-                def comments = readJSON text: commentsJson
-                for (comment in comments) {
-                  if (comment.body.trim() == 'Build this please') {
-                    def commenter = comment.user.login
-                    def commenterStatus = sh(
-                      script: """curl -s -o /dev/null -w "%{http_code}" \
-                        -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \
-                        "https://api.github.com/orgs/linagora/members/${commenter}" """,
-                      returnStdout: true
-                    ).trim()
-                    if (commenterStatus == '204') {
-                      echo "Build approved by linagora member '${commenter}', proceeding."
-                      approvedByMember = true
-                      break
+                echo "GitHub org membership check returned HTTP ${memberStatus} for '${forkOwner}'"
+                if (memberStatus == '204') {
+                  echo "Fork owner '${forkOwner}' is a linagora org member, proceeding."
+                } else if (memberStatus == '404') {
+                  echo "Fork owner '${forkOwner}' is not a member of the linagora organization."
+                  // Check if a linagora member has approved the build via comment
+                  def approvedByMember = false
+                  def commentsJson = sh(
+                    script: """curl -s \
+                      -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \
+                      "https://api.github.com/repos/linagora/twake-calendar-frontend/issues/\${CHANGE_ID}/comments" """,
+                    returnStdout: true
+                  ).trim()
+                  def comments = readJSON text: commentsJson
+                  for (comment in comments) {
+                    if (comment.body.trim() == 'Build this please') {
+                      def commenter = comment.user.login
+                      def commenterStatus = sh(
+                        script: """curl -s -o /dev/null -w "%{http_code}" \
+                          -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \
+                          "https://api.github.com/orgs/linagora/members/${commenter}" """,
+                        returnStdout: true
+                      ).trim()
+                      if (commenterStatus == '204') {
+                        echo "Build approved by linagora member '${commenter}', proceeding."
+                        approvedByMember = true
+                        break
+                      }
                     }
                   }
+                  if (!approvedByMember) {
+                    echo "No linagora member approval found. Skipping deploy."
+                    deployAllowed = false
+                  }
+                } else if (memberStatus == '401' || memberStatus == '403') {
+                  error("Authentication/permission error validating fork owner: ${memberStatus}")
+                } else {
+                  error("GitHub API error ${memberStatus} while checking membership for '${forkOwner}'")
                 }
-                if (!approvedByMember) {
-                  echo "No linagora member approval found. Skipping deploy."
-                  return
-                }
-              } else if (memberStatus == '401' || memberStatus == '403') {
-                error("Authentication/permission error validating fork owner: ${memberStatus}")
-              } else {
-                error("GitHub API error ${memberStatus} while checking membership for '${forkOwner}'")
               }
+            }
+            if (!deployAllowed) {
+              return
             }
 
             def dockerTag = "${env.CHANGE_ID}"
@@ -124,20 +133,32 @@ pipeline {
             sh 'npm run build'
             sh "docker build -f apps/private/Dockerfile --build-arg BUILD_VERSION=${shortSha} -t linagora/twake-calendar-web-pr:\$DOCKER_TAG ."
             sh "docker build -f apps/public/Dockerfile --build-arg BUILD_VERSION=${shortSha} -t linagora/twake-calendar-public-pr:\$DOCKER_TAG ."
-            sh 'echo $DOCKER_HUB_CREDENTIAL_PSW | docker login -u $DOCKER_HUB_CREDENTIAL_USR --password-stdin'
-            sh 'docker push linagora/twake-calendar-web-pr:$DOCKER_TAG'
-            sh 'docker push linagora/twake-calendar-public-pr:$DOCKER_TAG'
-            sh """
-              HTTP_STATUS=\$(curl -s -o /tmp/gh_comment_response.json -w "%{http_code}" -X POST \\
-                -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \\
-                -H "Content-Type: application/json" \\
-                -d "{\\"body\\": \\"Docker images published for this PR:\\n- Private: linagora/twake-calendar-web-pr:${dockerTag}\\n- Public: linagora/twake-calendar-public-pr:${dockerTag}\\"}" \\
-                "https://api.github.com/repos/linagora/twake-calendar-frontend/issues/\${CHANGE_ID}/comments")
-              if [ "\$HTTP_STATUS" -lt 200 ] || [ "\$HTTP_STATUS" -ge 300 ]; then
-                echo "WARNING: GitHub API comment failed with HTTP \$HTTP_STATUS"
-                cat /tmp/gh_comment_response.json
-              fi
-            """
+            // A docker config of this build only: the Docker Hub token must not stay
+            // in the agent's shared docker config once pushed.
+            withEnv(["DOCKER_CONFIG=${env.WORKSPACE}@tmp/docker-config"]) {
+              withCredentials([dockerHubCredential]) {
+                try {
+                  sh 'echo $DOCKER_HUB_CREDENTIAL_PSW | docker login -u $DOCKER_HUB_CREDENTIAL_USR --password-stdin'
+                  sh 'docker push linagora/twake-calendar-web-pr:$DOCKER_TAG'
+                  sh 'docker push linagora/twake-calendar-public-pr:$DOCKER_TAG'
+                } finally {
+                  sh 'rm -rf "$DOCKER_CONFIG"'
+                }
+              }
+            }
+            withCredentials([githubCredential]) {
+              sh """
+                HTTP_STATUS=\$(curl -s -o /tmp/gh_comment_response.json -w "%{http_code}" -X POST \\
+                  -H "Authorization: token \${GITHUB_CREDENTIAL_PSW}" \\
+                  -H "Content-Type: application/json" \\
+                  -d "{\\"body\\": \\"Docker images published for this PR:\\n- Private: linagora/twake-calendar-web-pr:${dockerTag}\\n- Public: linagora/twake-calendar-public-pr:${dockerTag}\\"}" \\
+                  "https://api.github.com/repos/linagora/twake-calendar-frontend/issues/\${CHANGE_ID}/comments")
+                if [ "\$HTTP_STATUS" -lt 200 ] || [ "\$HTTP_STATUS" -ge 300 ]; then
+                  echo "WARNING: GitHub API comment failed with HTTP \$HTTP_STATUS"
+                  cat /tmp/gh_comment_response.json
+                fi
+              """
+            }
           }
         }
       }
@@ -172,9 +193,20 @@ pipeline {
               sh 'npm run build'
               sh 'docker build -f apps/private/Dockerfile --build-arg BUILD_VERSION=$BUILD_VERSION -t linagora/twake-calendar-web:$DOCKER_TAG .'
               sh 'docker build -f apps/public/Dockerfile --build-arg BUILD_VERSION=$BUILD_VERSION -t linagora/twake-calendar-public:$DOCKER_TAG .'
-              sh 'docker login -u $DOCKER_HUB_CREDENTIAL_USR -p $DOCKER_HUB_CREDENTIAL_PSW'
-              sh 'docker push linagora/twake-calendar-web:$DOCKER_TAG'
-              sh 'docker push linagora/twake-calendar-public:$DOCKER_TAG'
+              // A docker config of this build only: the Docker Hub token must not stay
+              // in the agent's shared docker config once pushed.
+              withEnv(["DOCKER_CONFIG=${env.WORKSPACE}@tmp/docker-config"]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerHub',
+                  usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
+                  try {
+                    sh 'docker login -u $DOCKER_HUB_CREDENTIAL_USR -p $DOCKER_HUB_CREDENTIAL_PSW'
+                    sh 'docker push linagora/twake-calendar-web:$DOCKER_TAG'
+                    sh 'docker push linagora/twake-calendar-public:$DOCKER_TAG'
+                  } finally {
+                    sh 'rm -rf "$DOCKER_CONFIG"'
+                  }
+                }
+              }
             }
           }
         }
