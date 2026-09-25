@@ -11,6 +11,11 @@ import {
 } from '../../common/sentryBuildUtils'
 import { injectedAliases } from './injectedAliases'
 
+const lottiePlayerWasm = path.join(
+  path.dirname(require.resolve('@lottiefiles/dotlottie-web/package.json')),
+  'dist/dotlottie-player.wasm'
+)
+
 export default defineConfig({
   plugins: [pluginReact(), pluginStylus(), pluginSvgr()],
   html: {
@@ -30,6 +35,8 @@ export default defineConfig({
     distPath: {
       root: 'dist'
     },
+    // The Lottie player runtime, served locally rather than from its CDN
+    copy: [{ from: lottiePlayerWasm, to: 'dotlottie-player.wasm' }],
     minify: true,
     sourceMap: {
       js: isSentryConfigured() ? 'source-map' : false

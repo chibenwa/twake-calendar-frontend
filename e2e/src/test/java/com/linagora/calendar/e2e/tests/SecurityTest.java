@@ -144,6 +144,23 @@ class SecurityTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("SEC-15 Loading the application fetches nothing from a public CDN")
+    void nothingIsFetchedFromAPublicCdn(Page page, E2EUser user) {
+        List<String> requested = new ArrayList<>();
+        page.onRequest(request -> requested.add(request.url()));
+
+        LoginPage.loginAs(page, user);
+        page.reload();
+        new CalendarPage(page).waitUntilLoaded();
+
+        assertThat(requested)
+            .as("a third party would learn about every loading screen, and serve code nobody reviewed")
+            .isNotEmpty()
+            .noneMatch(url -> url.contains("cdn.jsdelivr.net") || url.contains("unpkg.com"));
+        assertThat(requested).anyMatch(url -> url.endsWith("/dotlottie-player.wasm"));
+    }
+
+    @Test
     @DisplayName("SEC-06 A script in a description is never executed")
     void aScriptInADescriptionIsNeverExecuted(Page page, E2EUser user, BrowserLog log) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
