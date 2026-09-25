@@ -26,6 +26,9 @@ export const setupStore = (preloadedState?: Partial<RootState>) => {
   return configureStore({
     reducer: rootReducer,
     preloadedState,
+    // The state holds the user's events and data: Redux DevTools only get to
+    // read it when DEBUG is set in .env.js, never in production.
+    devTools: window.DEBUG === true,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         serializableCheck: {
