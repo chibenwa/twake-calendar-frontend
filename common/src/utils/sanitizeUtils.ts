@@ -6,8 +6,11 @@ const DOMPurify =
     : dompurify
 
 if (typeof DOMPurify?.addHook === 'function') {
+  // Every link of a description opens in a new tab, without access to the
+  // calendar window and without leaking its URL.
   DOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
-    if (node.tagName === 'A' && node.hasAttribute('target')) {
+    if (node.tagName === 'A') {
+      node.setAttribute('target', '_blank')
       node.setAttribute('rel', 'noopener noreferrer')
     }
   })
