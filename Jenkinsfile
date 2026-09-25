@@ -199,7 +199,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerHub',
                   usernameVariable: 'DOCKER_HUB_CREDENTIAL_USR', passwordVariable: 'DOCKER_HUB_CREDENTIAL_PSW')]) {
                   try {
-                    sh 'docker login -u $DOCKER_HUB_CREDENTIAL_USR -p $DOCKER_HUB_CREDENTIAL_PSW'
+                    sh 'echo $DOCKER_HUB_CREDENTIAL_PSW | docker login -u $DOCKER_HUB_CREDENTIAL_USR --password-stdin'
                     sh 'docker push linagora/twake-calendar-web:$DOCKER_TAG'
                     sh 'docker push linagora/twake-calendar-public:$DOCKER_TAG'
                   } finally {
