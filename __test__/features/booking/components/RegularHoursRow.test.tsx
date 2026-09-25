@@ -148,6 +148,25 @@ describe('RegularHoursRow', () => {
     )
   })
 
+  it('associates the slot error with both time inputs', () => {
+    customRender(
+      <RegularHoursRow
+        {...defaultProps}
+        slots={[{ start: '09:00', end: '08:00' }]}
+      />
+    )
+    expect(screen.getByTestId('slot-error-MON-0')).toHaveAttribute(
+      'id',
+      'slot-error-MON-0'
+    )
+    ;['start-time-MON-0', 'end-time-MON-0'].forEach(testId =>
+      expect(TimePickerField).toHaveBeenCalledWith(
+        expect.objectContaining({ testId, errorId: 'slot-error-MON-0' }),
+        expect.anything()
+      )
+    )
+  })
+
   it('does not report an error for a valid slot', () => {
     customRender(<RegularHoursRow {...defaultProps} />)
     expect(screen.queryByTestId('slot-error-MON-0')).not.toBeInTheDocument()

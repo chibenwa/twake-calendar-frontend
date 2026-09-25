@@ -56,6 +56,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
   const startValue = parseTime(slot.start)
   const endValue = parseTime(slot.end)
   const hasError = isEnabled && isInvalidSlot(slot)
+  const errorId = `slot-error-${day}-${index}`
   const width = isMobile ? '100%' : 110
 
   const isFirst = index === 0
@@ -75,6 +76,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
             onChange={handleTimeChangeCallback('start')}
             disabled={!isEnabled}
             hasError={hasError}
+            errorId={errorId}
           />
         </Box>
         <Typography sx={{ mx: isMobile ? 0.5 : 1 }}>-</Typography>
@@ -86,6 +88,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
             onChange={handleTimeChangeCallback('end')}
             disabled={!isEnabled}
             hasError={hasError}
+            errorId={errorId}
           />
         </Box>
 
@@ -120,7 +123,8 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
         <Typography
           variant="caption"
           color="error"
-          data-testid={`slot-error-${day}-${index}`}
+          id={errorId}
+          data-testid={errorId}
         >
           {t('event.validation.endAfterStart')}
         </Typography>
