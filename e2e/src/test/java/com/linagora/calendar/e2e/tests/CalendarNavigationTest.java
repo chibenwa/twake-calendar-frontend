@@ -9,6 +9,7 @@ import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
@@ -225,11 +226,14 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     @DisplayName("NAV-17 (#1412) The month view shows the events of the adjacent-month days of its last row")
     void theMonthViewShowsTheEventsOfItsLastRow(Page page, E2EUser user, CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
-        // a month ahead, so that nothing has been loaded around it yet
-        YearMonth month = YearMonth.now().plusMonths(2);
-        // the month grid always renders six weeks, starting on the Monday of the first week
-        LocalDate lastGridDay = month.atDay(1)
-            .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        // a month ahead, so that nothing has been loaded around it yet, whose days fit in
+        // five weeks: its sixth row is then only made of days of the next month
+        YearMonth month = Stream.iterate(YearMonth.now().plusMonths(2), m -> m.plusMonths(1))
+            .filter(m -> firstGridDay(m).plusWeeks(5).isAfter(m.atEndOfMonth()))
+            .findFirst()
+            .orElseThrow();
+        // the month grid always renders six weeks
+        LocalDate lastGridDay = firstGridDay(month)
             .plusWeeks(6)
             .minusDays(1);
         String title = "Last row " + UUID.randomUUID().toString().substring(0, 6);
@@ -246,8 +250,12 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
                 .containsExactly(lastGridDay.toString()));
     }
 
+    private static LocalDate firstGridDay(YearMonth month) {
+        return month.atDay(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    }
+
     @Test
-    @DisplayName("NAV-11 The week number shown matches the ISO week of the displayed days")
+    @DisplayName("NAV-11The week number shown matches the ISO week of the displayed days")
     void theWeekNumberMatchesTheDisplayedWeek(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
