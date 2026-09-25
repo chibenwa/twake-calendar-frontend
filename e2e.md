@@ -139,9 +139,9 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Essential (200)
+# Essential (201)
 
-## AUTH — Authentication and session (9)
+## AUTH — Authentication and session (10)
 
 - [x] `AUTH-01` An unauthenticated visitor is sent to the SSO and lands on their calendar
 - [x] `AUTH-02` Reloading the page keeps the session, signing back in silently through the SSO
@@ -152,6 +152,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `AUTH-08` The default personal calendar is provisioned on the first login
 - [x] `AUTH-09` Opening `/calendar` without a session redirects to the SSO and back to `/calendar`
 - [x] `AUTH-10` An expired token triggers a silent re-authentication without losing the current view
+- [x] `AUTH-11` Logging out ends the session in the other tabs of the application
 
 ## SHELL — Application shell (15)
 
@@ -770,9 +771,9 @@ Four of the forty nine, each with what stands in the way.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 195 | 200 |
+| Essential | 196 | 201 |
 | Bonus | 256 | 307 |
-| **Total** | **496** | **556** |
+| **Total** | **497** | **557** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

@@ -1,9 +1,9 @@
 import { useAppDispatch } from '@common/app/hooks'
 import { setView } from '@common/features/Settings/SettingsSlice'
+import { endLocalSession } from '@common/features/User/localSession'
 import { Logout } from '@common/features/User/oidcAuth'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { redirectTo } from '@common/utils/navigation'
-import { clearTokenSet } from '@common/utils/apiUtils'
 import { useEffect, useState } from 'react'
 
 export const useUtilMenus = (): {
@@ -53,14 +53,17 @@ export const useUtilMenus = (): {
   }
 
   const handleLogoutClick = async (): Promise<void> => {
+    // The tokens are dropped, here and in the other tabs, before anything else:
+    // even if the SSO cannot be reached, this browser no longer holds a
+    // session.
+    endLocalSession()
+    handleUserMenuClose()
     try {
       const logoutUrl = await Logout()
       redirectTo(logoutUrl.href)
     } catch (error) {
       console.error('Logout failed:', error)
-    } finally {
-      clearTokenSet()
-      handleUserMenuClose()
+      redirectTo('/')
     }
   }
 

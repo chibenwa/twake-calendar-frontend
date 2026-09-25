@@ -821,6 +821,25 @@ describe('Menubar logout flow', () => {
     expect(getAccessToken()).toBeUndefined()
     expect(sessionStorage.length).toBe(0)
   })
+
+  it('drops the tokens even when the SSO cannot be reached', async () => {
+    setTokenSet({ access_token: 'dummy' })
+    jest.spyOn(oidcAuth, 'Logout').mockRejectedValue(new Error('unreachable'))
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
+    await act(async () => {
+      renderMenubar()
+    })
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('menubar.userProfile'))
+    })
+    await act(async () => {
+      fireEvent.click(screen.getByText('menubar.logout'))
+    })
+
+    expect(getAccessToken()).toBeUndefined()
+    expect(redirectToMock).toHaveBeenCalledWith('/')
+  })
 })
 
 describe('Logo click navigation to current week', () => {

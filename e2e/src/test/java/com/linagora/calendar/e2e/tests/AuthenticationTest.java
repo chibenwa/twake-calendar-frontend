@@ -138,4 +138,17 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
             .contains("client_id=twake-calendar")
             .contains("post_logout_redirect_uri");
     }
+
+    @Test
+    @DisplayName("AUTH-11 Logging out ends the session in the other tabs of the application")
+    void logoutEndsTheSessionInTheOtherTabs(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        Page otherTab = page.context().newPage();
+        otherTab.navigate("/calendar");
+        new CalendarPage(otherTab).waitUntilLoaded();
+
+        // the other tab drops the tokens it holds in memory and starts over from the SSO
+        otherTab.waitForRequest(request -> request.url().startsWith("https://sso:5554/"),
+            calendar::logout);
+    }
 }

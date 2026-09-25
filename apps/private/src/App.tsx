@@ -19,6 +19,8 @@ import { default as EventDeepLink } from '@common/features/Events/EventDeepLink'
 import { default as NewEventDeepLink } from '@common/features/Events/NewEventDeepLink'
 import { CallbackResume } from '@/features/User/LoginCallback'
 import { useInitializeApp } from '@common/features/User/useInitializeApp'
+import { onSessionEndedElsewhere } from '@common/features/User/localSession'
+import { redirectTo } from '@common/utils/navigation'
 import { WebSocketGate } from '@common/websocket/WebSocketGate'
 import { makeCalendarOverrides } from '@common/theme/makeCalendarOverrides'
 
@@ -68,6 +70,9 @@ export default function App(): JSX.Element {
   }, [error, dispatch])
 
   useInitializeApp()
+
+  // Logging out from another tab ended the session: start over from the login
+  useEffect(() => onSessionEndedElsewhere(() => redirectTo('/')), [])
 
   return (
     <EmbeddingProvider>
