@@ -3,7 +3,10 @@ import { Icon, CalendarToday, EmailOpen, Discuss } from '@linagora/twake-icons'
 import { useI18n } from 'twake-i18n'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@common/app/hooks'
-import { resolveMailSpaUrl } from '@common/utils/mailUrlUtils'
+import {
+  buildMailComposeUrl,
+  resolveMailSpaUrl
+} from '@common/utils/mailUrlUtils'
 import { resolveChatSpaUrl } from '@common/utils/chatUrlUtils'
 import { Tooltip } from '@common/components/Tooltip'
 import { useCheckInternalUser } from './useCheckInternalUser'
@@ -45,11 +48,9 @@ export function AttendeeActions({
 
   const handleSendMail = (): void => {
     if (!mailSpaUrl) return
-    window.open(
-      `${mailSpaUrl}/mailto/?uri=${encodeURIComponent(attendee.asMailto())}`,
-      '_blank',
-      'noopener,noreferrer'
-    )
+    const composeUrl = buildMailComposeUrl(mailSpaUrl, [attendee.cal_address])
+    if (!composeUrl) return
+    window.open(composeUrl, '_blank', 'noopener,noreferrer')
   }
 
   const handleOpenChat = (): void => {

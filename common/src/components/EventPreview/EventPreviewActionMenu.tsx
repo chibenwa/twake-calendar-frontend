@@ -3,7 +3,10 @@ import { Menu, MenuItem } from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { useAppSelector } from '@common/app/hooks'
-import { resolveMailSpaUrl } from '@common/utils/mailUrlUtils'
+import {
+  buildMailComposeUrl,
+  resolveMailSpaUrl
+} from '@common/utils/mailUrlUtils'
 
 interface EventPreviewActionMenuProps {
   anchorEl: Element | null
@@ -37,6 +40,13 @@ export const EventPreviewActionMenu: React.FC<EventPreviewActionMenuProps> = ({
   const otherAttendees = attendees.filter(
     a => a.cal_address !== userEmail && a.cutype !== 'RESOURCE'
   )
+  const composeUrl = mailSpaUrl
+    ? buildMailComposeUrl(
+        mailSpaUrl,
+        otherAttendees.map(a => a.cal_address),
+        event.title ?? ''
+      )
+    : null
 
   return (
     <Menu open={Boolean(anchorEl)} onClose={onClose} anchorEl={anchorEl}>
@@ -50,16 +60,10 @@ export const EventPreviewActionMenu: React.FC<EventPreviewActionMenuProps> = ({
           {t('eventPreview.editEventSpecificSettings')}
         </MenuItem>
       )}
-      {mailSpaUrl && otherAttendees.length > 0 && (
+      {composeUrl && (
         <MenuItem
           onClick={() =>
-            window.open(
-              `${mailSpaUrl}/mailto/?uri=${encodeURIComponent(
-                `mailto:${otherAttendees.map(a => a.cal_address).join(',')}`
-              )}&subject=${encodeURIComponent(event.title ?? '')}`,
-              '_blank',
-              'noopener,noreferrer'
-            )
+            window.open(composeUrl, '_blank', 'noopener,noreferrer')
           }
         >
           {t('eventPreview.emailAttendees')}
