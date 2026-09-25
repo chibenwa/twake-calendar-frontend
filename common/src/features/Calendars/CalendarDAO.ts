@@ -1,5 +1,6 @@
 import { Calendar } from '@common/types/CalendarTypes'
 import { api } from '@common/utils/apiUtils'
+import { isSafeColor } from '@common/utils/safeColor'
 import { DavSyncResponse } from './types/CalendarApiTypes'
 import { CalendarList } from './types/CalendarData'
 import { calendarDavPath } from './utils/calendarDavPath'
@@ -14,8 +15,23 @@ export async function fetchCalendars(
       headers: { Accept: 'application/calendar+json' },
       signal
     })
-    .json()
-  return calendars as CalendarList
+    .json<CalendarList>()
+  return withSafeColors(calendars)
+}
+
+/**
+ * Drops the colors that are not plain hexadecimal colors: they are chosen by
+ * the owner of each calendar and end up in style rules.
+ */
+function withSafeColors(calendars: CalendarList): CalendarList {
+  const list = calendars?._embedded?.['dav:calendar']
+  if (!Array.isArray(list)) return calendars
+  list.forEach(cal => {
+    if (cal && 'apple:color' in cal && !isSafeColor(cal['apple:color'])) {
+      delete cal['apple:color']
+    }
+  })
+  return calendars
 }
 
 export async function fetchCalendar(

@@ -42,6 +42,33 @@ describe('Calendar DAO', () => {
     expect(calendars).toEqual(mockResponse)
   })
 
+  it('drops calendar colors that are not hexadecimal colors', async () => {
+    ;(api.get as jest.Mock).mockReturnValue({
+      json: jest.fn().mockResolvedValue({
+        _embedded: {
+          'dav:calendar': [
+            { id: 'safe', 'apple:color': '#A1B2C3' },
+            {
+              id: 'injected',
+              'apple:color': '#fff;}*{background:url(https://evil.example/x)}'
+            },
+            { id: 'named', 'apple:color': 'red' },
+            { id: 'none' }
+          ]
+        }
+      })
+    })
+
+    const calendars = await fetchCalendars('user123')
+
+    expect(calendars._embedded['dav:calendar']).toEqual([
+      { id: 'safe', 'apple:color': '#A1B2C3' },
+      { id: 'injected' },
+      { id: 'named' },
+      { id: 'none' }
+    ])
+  })
+
   it('fetches calendar events for a given ID and match window', async () => {
     const calendarId = 'user1/calendar1'
     const match = { start: '2025-07-01', end: '2025-07-31' }
