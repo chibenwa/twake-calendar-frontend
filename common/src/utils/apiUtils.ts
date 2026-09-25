@@ -72,6 +72,20 @@ const redirectSSO = async (
   }
 }
 
+/**
+ * Whether a request goes to the Calendar backend, the only one that gets the
+ * Calendar access token.
+ */
+const isCalendarBackendRequest = (request: KyRequest): boolean => {
+  try {
+    const target = new URL(request.url, window.location.href)
+    const backend = new URL(window.CALENDAR_BASE_URL, window.location.href)
+    return target.origin === backend.origin
+  } catch {
+    return false
+  }
+}
+
 const handleUnauthorizeRequest = async (
   response: KyResponse,
   request: KyRequest,
@@ -85,7 +99,7 @@ const handleUnauthorizeRequest = async (
 
   // Check if we have a token in the request
   const hasAuthHeader = request.headers.has('Authorization')
-  if (!hasAuthHeader) {
+  if (!hasAuthHeader || !isCalendarBackendRequest(request)) {
     return response
   }
 
@@ -109,7 +123,10 @@ export const api: KyInstance = ky.extend({
       async (request: KyRequest): Promise<KyRequest> => {
         const headers = new Headers(request.headers)
 
-        if (!headers.has('Authorization')) {
+        if (
+          !headers.has('Authorization') &&
+          isCalendarBackendRequest(request)
+        ) {
           const access_token = getAccessToken()
           if (access_token) {
             headers.set('Authorization', `Bearer ${access_token}`)
@@ -145,6 +162,12 @@ export const api: KyInstance = ky.extend({
     ]
   }
 })
+
+/**
+ * HTTP client for the services other than the Calendar backend: it never
+ * adds the Calendar access token, nor redirects to the SSO on a 401.
+ */
+export const externalApi: KyInstance = ky.create({})
 
 export function redirectTo(url: URL): void {
   window.location.assign(url)

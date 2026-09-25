@@ -4,10 +4,9 @@
 
 import {
   exchangeToken,
-  createIntent,
   fetchIntentJSON
 } from '@common/features/Tdrive/TdriveDao'
-import { api } from '@common/utils/apiUtils'
+import { externalApi } from '@common/utils/apiUtils'
 
 jest.mock('@common/utils/apiUtils')
 
@@ -29,14 +28,14 @@ describe('TdriveDao', () => {
           registration_access_token: 'reg-token'
         })
       }
-      ;(api.post as jest.Mock).mockResolvedValue(mockResponse)
+      ;(externalApi.post as jest.Mock).mockResolvedValue(mockResponse)
 
       const result = await exchangeToken(
         'https://drive.example.com',
         'user-id-token'
       )
 
-      expect(api.post).toHaveBeenCalledWith('auth/token_exchange', {
+      expect(externalApi.post).toHaveBeenCalledWith('auth/token_exchange', {
         prefixUrl: 'https://drive.example.com',
         json: {
           id_token: 'user-id-token',
@@ -47,74 +46,13 @@ describe('TdriveDao', () => {
     })
 
     it('throws when API call fails', async () => {
-      ;(api.post as jest.Mock).mockRejectedValue(new Error('Network error'))
+      ;(externalApi.post as jest.Mock).mockRejectedValue(
+        new Error('Network error')
+      )
 
       await expect(
         exchangeToken('https://drive.example.com', 'token')
       ).rejects.toThrow('Network error')
-    })
-  })
-
-  describe('createIntent', () => {
-    it('creates intent with correct payload', async () => {
-      const mockResponse = {
-        json: jest.fn().mockResolvedValue({
-          data: {
-            type: 'io.cozy.intents',
-            id: 'intent-123',
-            attributes: {
-              action: 'PICK',
-              type: 'io.cozy.files',
-              permissions: ['GET'],
-              client: 'client-123',
-              services: [
-                {
-                  slug: 'drive',
-                  href: 'https://drive.example.com/intents?intent=intent-123'
-                }
-              ],
-              availableApps: null
-            },
-            meta: { rev: '1' },
-            links: {
-              self: '/intents/intent-123',
-              permissions: '/permissions/123'
-            }
-          }
-        })
-      }
-      ;(api.post as jest.Mock).mockResolvedValue(mockResponse)
-
-      const result = await createIntent(
-        'https://drive.example.com',
-        'test-access-token'
-      )
-
-      expect(api.post).toHaveBeenCalledWith('intents', {
-        prefixUrl: 'https://drive.example.com',
-        json: {
-          data: {
-            type: 'io.cozy.intents',
-            attributes: {
-              action: 'PICK',
-              type: 'io.cozy.files',
-              permissions: ['GET'],
-              actions: [
-                {
-                  sharingLink: { label: 'Add as Attachment' }
-                }
-              ]
-            }
-          }
-        },
-        headers: {
-          Authorization: 'Bearer test-access-token'
-        }
-      })
-      expect(result.data.id).toBe('intent-123')
-      expect(result.data.attributes.services[0].href).toBe(
-        'https://drive.example.com/intents?intent=intent-123'
-      )
     })
   })
 
