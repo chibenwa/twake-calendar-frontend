@@ -12,6 +12,16 @@ export function getAccessiblePair(baseColor: string, theme: Theme): string {
     return theme.palette.getContrastText('#000')
   }
 
+  // MUI throws on the colors it cannot decompose ("red", "hsl(...)"): one
+  // such calendar color must not fail the load of every calendar.
+  try {
+    return computeAccessiblePair(baseColor, theme)
+  } catch {
+    return theme.palette.getContrastText('#000')
+  }
+}
+
+function computeAccessiblePair(baseColor: string, theme: Theme): string {
   const contrastToBlack = getContrastRatio(baseColor, '#000')
   const contrastToWhite = getContrastRatio(baseColor, '#fff')
   const isLight = contrastToBlack > contrastToWhite
