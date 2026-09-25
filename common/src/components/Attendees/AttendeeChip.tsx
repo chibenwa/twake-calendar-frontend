@@ -44,7 +44,7 @@ export const AttendeeChip: React.FC<AttendeeChipProps> = ({
     if (chipColor) {
       return (
         <Icon sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ color: chipColor }}>
+          <Box style={{ color: chipColor }}>
             <CircleIcon fontSize="inherit" color="inherit" />
           </Box>
         </Icon>

@@ -298,9 +298,9 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
                       WebkitBoxOrient: 'vertical',
                       whiteSpace: 'nowrap',
                       flex: 1,
-                      maxWidth: '100%',
-                      color: titleStyle.color
+                      maxWidth: '100%'
                     }}
+                    style={{ color: titleStyle.color }}
                   >
                     {displayDescription}
                   </Typography>

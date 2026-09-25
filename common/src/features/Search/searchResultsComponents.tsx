@@ -96,9 +96,9 @@ export const RenderTime: React.FC<TimeProps> = ({
       sx={{
         minWidth: '120px',
         fontSize: '16px',
-        fontWeight: 400,
-        ...(styles || {})
+        fontWeight: 400
       }}
+      style={styles}
     >
       {startDate.toLocaleTimeString(t('locale'), {
         hour: '2-digit',

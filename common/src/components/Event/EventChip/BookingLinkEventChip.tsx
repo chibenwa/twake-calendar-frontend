@@ -64,23 +64,29 @@ export const BaseBookingLinkChip: React.FC<BaseBookingLinkChipProps> = ({
   const statusIcon =
     data.active === false ? (
       <WebAssetOffOutlinedIcon
-        sx={{ color: titleStyle.color, fontSize: '12px' }}
+        sx={{ fontSize: '12px' }}
+        style={{ color: titleStyle.color }}
       />
     ) : (
-      <EventIcon sx={{ color: titleStyle.color, fontSize: '12px' }} />
+      <EventIcon
+        sx={{ fontSize: '12px' }}
+        style={{ color: titleStyle.color }}
+      />
     )
 
   return (
     <Card
       variant="outlined"
       onClick={onClick}
-      sx={{
+      sx={{ alignItems: 'center' }}
+      // The card colors go through style, not sx: they come from the server
+      // and must not be able to add style rules.
+      style={{
         ...cardStyle,
         ...(!isMonthView ? { width } : {}),
-        alignItems: 'center',
-        cursor: onClick ? 'pointer' : 'default'
+        cursor: onClick ? 'pointer' : 'default',
+        ...style
       }}
-      style={style}
       ref={cardRef}
       data-testid={`event-card-${data.name || 'booking'}`}
     >

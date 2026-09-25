@@ -813,10 +813,7 @@ const CalendarSelector: React.FC<{
             }}
           >
             <Checkbox
-              sx={{
-                color: calendars[id].color?.light,
-                '&.Mui-checked': { color: calendars[id].color?.light }
-              }}
+              style={{ color: calendars[id].color?.light }}
               size="small"
               checked={selectedCalendars.includes(id)}
               onChange={() => handleCalendarToggle(id)}

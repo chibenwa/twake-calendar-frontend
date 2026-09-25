@@ -145,9 +145,9 @@ export const RenderListEventTime: React.FC<ListEventTimeProps> = ({
         fontSize: '16px',
         fontWeight: 400,
         width: '120px',
-        flexShrink: 0,
-        ...(styles || {})
+        flexShrink: 0
       }}
+      style={styles}
     >
       {timeText}
     </Typography>

@@ -39,21 +39,26 @@ export const RenderMobileDate: React.FC<MobileDateProps> = ({
   </Box>
 )
 
-const getCardSx = (effectiveColor: {
-  light: string
-  dark: string
-}): React.CSSProperties => ({
+const cardSx = {
   height: 'stretch',
   minHeight: '58px',
   width: '100%',
   borderRadius: '8px',
   padding: 1,
   boxShadow: 'none',
-  backgroundColor: effectiveColor.light,
-  color: effectiveColor.dark,
   border: '1px solid',
   borderColor: 'background.paper',
   display: 'flex'
+}
+
+// The calendar colors go through style, not sx: they come from the server and
+// must not be able to add style rules.
+const getCardColorStyle = (effectiveColor: {
+  light: string
+  dark: string
+}): React.CSSProperties => ({
+  backgroundColor: effectiveColor.light,
+  color: effectiveColor.dark
 })
 
 const headerSx = {
@@ -106,7 +111,8 @@ export const RenderMobileEventCard: React.FC<MobileEventCardProps> = ({
   return (
     <Card
       variant="outlined"
-      sx={getCardSx(resolvedColor)}
+      sx={cardSx}
+      style={getCardColorStyle(resolvedColor)}
       data-testid={`event-card-${uid}`}
     >
       <CardHeader

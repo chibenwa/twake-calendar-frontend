@@ -17,11 +17,12 @@ export const ResourceIcon: React.FC<ResourceIconProps> = ({
   if (colorIcon && avatarUrl) {
     return (
       <Box
-        sx={{
+        style={{
           width: '24px',
           height: '24px',
           backgroundColor: color,
-          maskImage: `url(${avatarUrl})`,
+          // Quoted: the URL comes from the server and must stay a single token
+          maskImage: `url(${JSON.stringify(avatarUrl)})`,
           maskSize: 'cover'
         }}
       />
