@@ -13,6 +13,7 @@ import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.linagora.calendar.e2e.pages.PrintDialog;
+import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Page;
 
 /**
@@ -133,7 +134,7 @@ class PrintScheduleTest extends TwakeCalendarE2ETest {
             .layout("Schedule")
             .startDate(LocalDate.now().plusMonths(6))
             .endDate(LocalDate.now().plusMonths(6).plusDays(2));
-        Page printed = print.print();
+        Frame printed = print.print();
 
         assertThat(printed.locator("body").innerText())
             .as("an empty week has to say it is empty rather than print a blank page")
@@ -148,7 +149,7 @@ class PrintScheduleTest extends TwakeCalendarE2ETest {
         page.waitForTimeout(3000);
 
         PrintDialog print = calendar.printCalendar(OWN_CALENDAR).layout("Schedule").thisWeek();
-        Page printed = print.print();
+        Frame printed = print.print();
 
         assertThat(printed.locator("body").innerText())
             .as("an event nobody named still has to be printed, under something")
@@ -164,7 +165,7 @@ class PrintScheduleTest extends TwakeCalendarE2ETest {
         calendar.eventCard(title).first().waitFor();
 
         PrintDialog print = calendar.printCalendar(OWN_CALENDAR).layout("Schedule").thisWeek();
-        Page printed = print.print();
+        Frame printed = print.print();
 
         String printout = printed.locator("body").innerText();
         assertThat(printout).contains(title);

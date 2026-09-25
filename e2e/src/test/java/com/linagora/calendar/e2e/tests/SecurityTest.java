@@ -19,6 +19,7 @@ import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.docker.RuntimeConfig;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
+import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
@@ -120,6 +121,26 @@ class SecurityTest extends TwakeCalendarE2ETest {
             .doesNotContain(token)
             .doesNotContain("access_token")
             .doesNotContain("id_token");
+    }
+
+    @Test
+    @DisplayName("SEC-14 The printed schedule cannot reach the application")
+    void thePrintedScheduleIsSandboxed(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = title("Printed");
+        calendar.createEvent().title(title).expand().save();
+        awaitAttached(calendar.eventCard(title));
+
+        Frame printed = calendar.printCalendar("My calendar").layout("Schedule").thisWeek().print();
+
+        assertThat(printed.locator("body").innerText()).contains(title);
+        assertThat(printed.evaluate("() => window.origin"))
+            .as("the schedule, written by other people, must not run with the application's origin")
+            .isEqualTo("null");
+        assertThat(printed.evaluate(
+            "() => { try { return window.parent.document.title; } catch (e) { return 'blocked'; } }"))
+            .as("nor reach the window it is printed from")
+            .isEqualTo("blocked");
     }
 
     @Test

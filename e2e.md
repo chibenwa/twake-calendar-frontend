@@ -385,7 +385,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (305)
+# Bonus (306)
 
 ## RES — Resources (18)
 
@@ -749,7 +749,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `DRIVE-09` A picker opening failure shows the dedicated message
 - [ ] `DRIVE-10` Attachments survive an edit of the event
 
-## SEC — Security and privacy (9)
+## SEC — Security and privacy (10)
 
 - [x] `SEC-01` A user cannot read another's calendar without a share
 - [x] `SEC-02` A CalDAV request carrying another user's token is refused
@@ -760,6 +760,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
 - [x] `SEC-12` A websocket ticket cannot be replayed by another session
 - [x] `SEC-13` The session tokens are never written to web storage
+- [x] `SEC-14` The printed schedule runs sandboxed, out of reach of the application
 
 ---
 
@@ -769,8 +770,8 @@ Four of the forty nine, each with what stands in the way.
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
 | Essential | 195 | 200 |
-| Bonus | 254 | 305 |
-| **Total** | **494** | **554** |
+| Bonus | 255 | 306 |
+| **Total** | **495** | **555** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

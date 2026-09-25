@@ -6,6 +6,7 @@ export {
 } from './selectPrintEvents'
 export { layoutTimedEvents } from './layout'
 export { renderPrintDocument } from './renderPrintDocument'
+export { sandboxPrintDocument } from './sandboxPrintDocument'
 export type {
   PrintScale,
   PrintLayout,

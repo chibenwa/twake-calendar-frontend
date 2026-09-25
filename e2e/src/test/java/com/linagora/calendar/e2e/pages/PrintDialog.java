@@ -2,6 +2,7 @@ package com.linagora.calendar.e2e.pages;
 
 import java.time.LocalDate;
 
+import com.microsoft.playwright.Frame;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -94,14 +95,20 @@ public class PrintDialog {
         return this;
     }
 
-    /** Prints, and hands back the window the schedule was rendered into. */
-    public Page print() {
+    /**
+     * Prints, and hands back the frame the schedule was rendered into: the sandboxed iframe of
+     * the print window, which keeps the schedule away from the application's origin.
+     */
+    public Frame print() {
         Page printed = page.waitForPopup(() -> button("Print").click());
         printed.waitForLoadState();
         // the window opens empty and is filled in afterwards: reading it too early reads nothing
-        printed.waitForFunction("() => (document.body.innerText || '').trim().length > 0",
-            null, new Page.WaitForFunctionOptions().setTimeout(30_000));
-        return printed;
+        Frame schedule = printed.waitForSelector("iframe[sandbox]",
+                new Page.WaitForSelectorOptions().setTimeout(30_000))
+            .contentFrame();
+        schedule.waitForFunction("() => (document.body.innerText || '').trim().length > 0",
+            null, new Frame.WaitForFunctionOptions().setTimeout(30_000));
+        return schedule;
     }
 
     /** Clicks Print without expecting a window: for the cases the dialog must refuse. */

@@ -16,6 +16,7 @@ import {
   PrintLayout,
   PrintScale,
   renderPrintDocument,
+  sandboxPrintDocument,
   selectPrintEvents
 } from '@common/utils/printSchedule'
 import { TwakeLocalizationProvider } from '@common/components/DateTimePicker/TwakeLocalizationProvider'
@@ -220,16 +221,22 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
         )
       }))
 
+      const labels = buildLabels()
       const html = renderPrintDocument({
         periods,
         calendars: printCalendars,
         locale: lang,
         layout,
-        labels: buildLabels()
+        labels
       })
 
+      // The print window shares the application's origin: cut its way back to
+      // the application, and render the schedule in a sandboxed iframe.
+      printWindow.opener = null
       printWindow.document.open()
-      printWindow.document.write(html)
+      printWindow.document.write(
+        sandboxPrintDocument(html, labels.documentTitle)
+      )
       printWindow.document.close()
       onClose()
     } catch {
