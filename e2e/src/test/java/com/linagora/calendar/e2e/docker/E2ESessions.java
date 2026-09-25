@@ -35,6 +35,7 @@ public class E2ESessions {
         BrowserContext context = browser.newContext(
             TwakeCalendarE2EExtension.contextOptions().setTimezoneId(browserTimezone));
         contexts.add(context);
+        BearerTokens.track(context);
         Page page = context.newPage();
         LoginPage.loginAs(page, user);
         return new CalendarPage(page).waitUntilLoaded();
@@ -45,6 +46,7 @@ public class E2ESessions {
         BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
         context.grantPermissions(java.util.List.of("clipboard-read", "clipboard-write"));
         contexts.add(context);
+        BearerTokens.track(context);
         Page page = context.newPage();
         LoginPage.loginAs(page, user);
         return page;
@@ -61,6 +63,7 @@ public class E2ESessions {
         BrowserContext context = browser.newContext(
             TwakeCalendarE2EExtension.contextOptions().setViewportSize(width, height));
         contexts.add(context);
+        BearerTokens.track(context);
         Page page = context.newPage();
         LoginPage.loginAs(page, user);
         return new CalendarPage(page).waitUntilLoaded();
@@ -75,6 +78,7 @@ public class E2ESessions {
     public Page blankPage() {
         BrowserContext context = browser.newContext(TwakeCalendarE2EExtension.contextOptions());
         contexts.add(context);
+        BearerTokens.track(context);
         return context.newPage();
     }
 

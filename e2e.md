@@ -144,7 +144,7 @@ Four of the forty nine, each with what stands in the way.
 ## AUTH — Authentication and session (9)
 
 - [x] `AUTH-01` An unauthenticated visitor is sent to the SSO and lands on their calendar
-- [x] `AUTH-02` Reloading the page keeps the session, with no second trip to the SSO
+- [x] `AUTH-02` Reloading the page keeps the session, signing back in silently through the SSO
 - [x] `AUTH-03` Logging out hands the session over to the SSO end session endpoint
 - [x] `AUTH-04` The user menu shows the email address of the signed in account
 - [x] `AUTH-05` The menubar avatar carries the initials of the signed in account
@@ -385,7 +385,7 @@ Four of the forty nine, each with what stands in the way.
 
 ---
 
-# Bonus (304)
+# Bonus (305)
 
 ## RES — Resources (18)
 
@@ -749,7 +749,7 @@ Four of the forty nine, each with what stands in the way.
 - [ ] `DRIVE-09` A picker opening failure shows the dedicated message
 - [ ] `DRIVE-10` Attachments survive an edit of the event
 
-## SEC — Security and privacy (8)
+## SEC — Security and privacy (9)
 
 - [x] `SEC-01` A user cannot read another's calendar without a share
 - [x] `SEC-02` A CalDAV request carrying another user's token is refused
@@ -759,6 +759,7 @@ Four of the forty nine, each with what stands in the way.
 - [x] `SEC-08` An external link in a description opens with `rel=noopener`
 - [x] `SEC-09` `DISABLE_PUBLIC_VISIBILITY` removes the public visibility option
 - [x] `SEC-12` A websocket ticket cannot be replayed by another session
+- [x] `SEC-13` The session tokens are never written to web storage
 
 ---
 
@@ -768,8 +769,8 @@ Four of the forty nine, each with what stands in the way.
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
 | Essential | 195 | 200 |
-| Bonus | 253 | 304 |
-| **Total** | **493** | **553** |
+| Bonus | 254 | 305 |
+| **Total** | **494** | **554** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

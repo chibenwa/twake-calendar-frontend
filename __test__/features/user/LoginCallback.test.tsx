@@ -8,6 +8,7 @@ import {
   setUserData
 } from '@common/features/User/UserSlice'
 import { CallbackResume } from '@private/features/User/LoginCallback'
+import { getAccessToken } from '@common/utils/apiUtils'
 import { render, waitFor } from '@testing-library/react'
 import { replace } from 'redux-first-history'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
@@ -166,11 +167,10 @@ describe('CallbackResume', () => {
     await waitFor(() => {
       expect(sessionStorage.getItem('redirectState')).toBe(null)
     })
-    await waitFor(() => {
-      expect(sessionStorage.getItem('tokenSet')).toEqual(
-        JSON.stringify(mockTokenSet)
-      )
-    })
+    // The tokens are handed to the API client, never to web storage
+    expect(getAccessToken()).toBe('abc')
+    expect(sessionStorage.getItem('tokenSet')).toBeNull()
+    expect(sessionStorage.getItem('userData')).toBeNull()
   })
 
   it('should handle missing redirectState gracefully', async () => {

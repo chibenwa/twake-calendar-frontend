@@ -1,6 +1,7 @@
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 import { Menubar } from '@common/components/Menubar/Menubar'
 import * as oidcAuth from '@common/features/User/oidcAuth'
+import { getAccessToken, setTokenSet } from '@common/utils/apiUtils'
 import { redirectTo } from '@common/utils/navigation'
 import '@testing-library/jest-dom'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
@@ -799,8 +800,8 @@ describe('Menubar logout flow', () => {
     )
   }
 
-  it('clears storage before redirecting', async () => {
-    sessionStorage.setItem('tokenSet', 'dummy')
+  it('clears the tokens and storage before redirecting', async () => {
+    setTokenSet({ access_token: 'dummy' })
     const logoutSpy = jest
       .spyOn(oidcAuth, 'Logout')
       .mockResolvedValue(new URL('https://logout.url'))
@@ -817,6 +818,7 @@ describe('Menubar logout flow', () => {
     expect(logoutSpy).toHaveBeenCalled()
     expect(redirectToMock).toHaveBeenCalledWith('https://logout.url/')
 
+    expect(getAccessToken()).toBeUndefined()
     expect(sessionStorage.length).toBe(0)
   })
 })

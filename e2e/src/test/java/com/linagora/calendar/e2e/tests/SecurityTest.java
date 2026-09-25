@@ -13,6 +13,7 @@ import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
+import com.linagora.calendar.e2e.docker.BearerTokens;
 import com.linagora.calendar.e2e.docker.BrowserLog;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.docker.RuntimeConfig;
@@ -36,8 +37,7 @@ class SecurityTest extends TwakeCalendarE2ETest {
     }
 
     private static String accessToken(Page page) {
-        return String.valueOf(page.evaluate(
-            "() => JSON.parse(sessionStorage.getItem('tokenSet') || '{}').access_token || ''"));
+        return BearerTokens.of(page);
     }
 
     @Test
@@ -104,6 +104,22 @@ class SecurityTest extends TwakeCalendarE2ETest {
             .as("a token in a URL ends up in browser history, referrers and server logs")
             .isNotEmpty()
             .allSatisfy(url -> assertThat(url).doesNotContain(token));
+    }
+
+    @Test
+    @DisplayName("SEC-13 The session tokens are never written to web storage")
+    void theTokensStayOutOfWebStorage(Page page, E2EUser user) {
+        LoginPage.loginAs(page, user);
+
+        String token = accessToken(page);
+        assertThat(token).isNotEmpty();
+        Object stored = page.evaluate(
+            "() => JSON.stringify({ ...sessionStorage }) + JSON.stringify({ ...localStorage })");
+        assertThat(String.valueOf(stored))
+            .as("web storage is readable by any script of the page, an XSS would take the tokens along")
+            .doesNotContain(token)
+            .doesNotContain("access_token")
+            .doesNotContain("id_token");
     }
 
     @Test

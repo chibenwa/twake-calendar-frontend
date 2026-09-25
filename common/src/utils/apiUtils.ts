@@ -23,6 +23,28 @@ const RETRY_CONFIG = {
 
 let isRedirectingToSso = false
 
+type TokenSet = TokenEndpointResponse & TokenEndpointResponseHelpers
+
+/**
+ * The tokens of the session, held in memory only: web storage is readable by
+ * any script of the page, so a single XSS would hand them over for replay
+ * from anywhere. A reload goes through the SSO again, which signs the user
+ * back in silently while their SSO session lasts.
+ */
+let tokenSet: Partial<TokenSet> | null = null
+
+export function setTokenSet(tokens: Partial<TokenSet>): void {
+  tokenSet = tokens
+}
+
+export function getAccessToken(): string | undefined {
+  return tokenSet?.access_token
+}
+
+export function clearTokenSet(): void {
+  tokenSet = null
+}
+
 const redirectSSO = async (
   response: KyResponse,
   request: KyRequest,
@@ -88,12 +110,7 @@ export const api: KyInstance = ky.extend({
         const headers = new Headers(request.headers)
 
         if (!headers.has('Authorization')) {
-          const raw = sessionStorage.getItem('tokenSet')
-          const saved = raw
-            ? (JSON.parse(raw) as TokenEndpointResponse &
-                TokenEndpointResponseHelpers)
-            : null
-          const access_token = saved?.access_token
+          const access_token = getAccessToken()
           if (access_token) {
             headers.set('Authorization', `Bearer ${access_token}`)
           }

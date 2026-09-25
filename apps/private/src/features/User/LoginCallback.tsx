@@ -13,6 +13,7 @@ import {
   TokenEndpointResponseHelpers,
   UserInfoResponse
 } from 'openid-client'
+import { getAccessToken, setTokenSet } from '@common/utils/apiUtils'
 import { useEffect, useRef } from 'react'
 import { replace } from 'redux-first-history'
 
@@ -37,7 +38,7 @@ const getSavedRedirectState = (): RedirectState | null => {
 }
 
 const hasSavedToken = (): boolean => {
-  return sessionStorage.getItem('tokenSet') !== null
+  return getAccessToken() !== undefined
 }
 
 const getErrorMessage = (error: unknown): string => {
@@ -92,10 +93,9 @@ export const CallbackResume: React.FC = () => {
 
         const data = await processCallbackData(saved.code_verifier, saved.state)
 
-        // IMPORTANT: Save tokens to sessionStorage FIRST before making any API calls
-        // because API calls will read token from sessionStorage
-        sessionStorage.setItem('tokenSet', JSON.stringify(data.tokenSet))
-        sessionStorage.setItem('userData', JSON.stringify(data.userinfo))
+        // IMPORTANT: Hand the tokens to the API client FIRST, before making any
+        // API call
+        setTokenSet(data.tokenSet)
 
         dispatch(setUserData(data.userinfo))
         dispatch(setTokens(data.tokenSet))

@@ -138,6 +138,7 @@ public class TwakeCalendarE2EExtension implements BeforeEachCallback, AfterTestE
         Browser browser = browser();
         TestState state = new TestState();
         state.context = browser.newContext(contextOptions());
+        BearerTokens.track(state.context);
         state.context.setDefaultTimeout(DEFAULT_TIMEOUT_MS);
         // several features hand something to the clipboard and confirm it on screen; without the
         // permission the write silently rejects and the confirmation never comes

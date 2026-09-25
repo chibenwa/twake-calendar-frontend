@@ -1,7 +1,9 @@
 package com.linagora.calendar.e2e.pages;
 
 import java.util.List;
+import java.util.Map;
 
+import com.linagora.calendar.e2e.docker.BearerTokens;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Mouse;
 import com.microsoft.playwright.Page;
@@ -676,14 +678,13 @@ public class CalendarPage {
      */
     public String bookingLinkPublicId(String name) {
         Object id = page.evaluate("""
-            async name => {
-              const token = JSON.parse(sessionStorage.getItem('tokenSet') || '{}').access_token;
+            async ({ name, token }) => {
               const response = await fetch(window.CALENDAR_BASE_URL + '/api/booking-links', {
                 headers: { Authorization: 'Bearer ' + token } });
               const links = await response.json();
               const found = links.find(link => link.name === name);
               return found ? found.publicId : null;
-            }""", name);
+            }""", Map.of("name", name, "token", BearerTokens.of(page)));
         if (id == null) {
             throw new AssertionError("No booking link named " + name);
         }
@@ -693,12 +694,11 @@ public class CalendarPage {
     /** Every booking link of the user, straight from the API, for the assertions on persistence. */
     public String bookingLinksJson() {
         return String.valueOf(page.evaluate("""
-            async () => {
-              const token = JSON.parse(sessionStorage.getItem('tokenSet') || '{}').access_token;
+            async token => {
               const response = await fetch(window.CALENDAR_BASE_URL + '/api/booking-links', {
                 headers: { Authorization: 'Bearer ' + token } });
               return await response.text();
-            }"""));
+            }""", BearerTokens.of(page)));
     }
 
     /**

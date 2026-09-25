@@ -3,6 +3,7 @@ import { setView } from '@common/features/Settings/SettingsSlice'
 import { Logout } from '@common/features/User/oidcAuth'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { redirectTo } from '@common/utils/navigation'
+import { clearTokenSet } from '@common/utils/apiUtils'
 import { useEffect, useState } from 'react'
 
 export const useUtilMenus = (): {
@@ -58,7 +59,7 @@ export const useUtilMenus = (): {
     } catch (error) {
       console.error('Logout failed:', error)
     } finally {
-      sessionStorage.removeItem('tokenSet')
+      clearTokenSet()
       handleUserMenuClose()
     }
   }

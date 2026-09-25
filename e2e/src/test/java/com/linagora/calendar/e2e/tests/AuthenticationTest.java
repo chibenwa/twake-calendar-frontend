@@ -2,6 +2,8 @@ package com.linagora.calendar.e2e.tests;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +13,7 @@ import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Route;
 
 class AuthenticationTest extends TwakeCalendarE2ETest {
 
@@ -25,7 +28,7 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("AUTH-02 Reloading the page keeps the session, no second trip to the SSO")
+    @DisplayName("AUTH-02 Reloading the page keeps the session, signing back in silently through the SSO")
     void reloadKeepsTheSession(Page page, E2EUser user) {
         LoginPage.loginAs(page, user);
 
@@ -103,10 +106,17 @@ class AuthenticationTest extends TwakeCalendarE2ETest {
         calendar.switchView("Month");
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
 
-        // the SSO session is still valid, only the token the SPA holds is not
-        page.evaluate("() => { const t = JSON.parse(sessionStorage.getItem('tokenSet'));"
-            + " t.access_token = 'expired-token'; sessionStorage.setItem('tokenSet', JSON.stringify(t)); }");
-        page.reload();
+        // the SSO session is still valid, only the token the SPA holds is not: the backend
+        // refuses it once
+        AtomicBoolean refused = new AtomicBoolean();
+        page.route("http://api/**", route -> {
+            if (route.request().headers().containsKey("authorization") && refused.compareAndSet(false, true)) {
+                route.fulfill(new Route.FulfillOptions().setStatus(401).setBody(""));
+            } else {
+                route.resume();
+            }
+        });
+        page.waitForRequest(request -> request.url().contains("/callback"), calendar::refresh);
 
         new CalendarPage(page).waitUntilLoaded();
         assertThat(page).hasURL(java.util.regex.Pattern.compile(".*/calendar.*"));
