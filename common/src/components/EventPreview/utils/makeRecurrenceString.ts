@@ -31,7 +31,10 @@ const getIntervalText = (
     return recurType[repetition.freq]
   }
 
-  if (interval > 1 && repetition.freq in recurType) {
+  if (
+    interval > 1 &&
+    Object.prototype.hasOwnProperty.call(recurType, repetition.freq)
+  ) {
     return t(`eventPreview.everyIntervalByFreq.${repetition.freq}`, {
       smart_count: interval
     })
