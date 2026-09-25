@@ -34,6 +34,8 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 /** Editing and deleting a recurring event: the scope dialog and what it does to the series. */
 class RecurrenceEditionTest extends TwakeCalendarE2ETest {
 
+    private static final int LATER_WEEKS = 6;
+
     private static String title(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
     }
@@ -217,6 +219,46 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
             .hasCount(before - 1, new LocatorAssertions.HasCountOptions().setTimeout(30_000));
         Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
             assertThat(Ics.properties(master(probe, user), "EXDATE")).hasSize(1));
+    }
+
+    @Test
+    @DisplayName("RECUR-EDIT-26 Deleting this event keeps the later occurrences already loaded. See #1413")
+    void deletingOneOccurrenceKeepsTheLaterOnes(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = title("Weekly");
+        LocalDate weekStart = calendar.firstVisibleDate();
+        var creation = calendar.createEvent().title(title).expand()
+            .startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+        creation.repeat().frequency(RecurrenceSection.WEEKLY).endsAfter(LATER_WEEKS + 1);
+        creation.save();
+        awaitAttached(calendar.eventCard(title));
+        page.reload();
+        calendar.waitUntilLoaded();
+
+        // Walking the weeks ahead loads them. The last one lies past the month grid the
+        // refresh following the deletion re-expands the series over, whatever today is.
+        walkTheLaterWeeks(calendar, title);
+        calendar.today();
+        awaitAttached(calendar.eventCard(title));
+
+        calendar.openEvent(title).delete(THIS_EVENT);
+
+        PlaywrightAssertions.assertThat(calendar.eventCard(title))
+            .hasCount(0, new LocatorAssertions.HasCountOptions().setTimeout(30_000));
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(Ics.properties(master(probe, user), "EXDATE")).hasSize(1));
+        // lets the refresh that follows the deletion land before walking again
+        page.waitForTimeout(2000);
+
+        walkTheLaterWeeks(calendar, title);
+    }
+
+    private void walkTheLaterWeeks(CalendarPage calendar, String title) {
+        for (int week = 1; week <= LATER_WEEKS; week++) {
+            calendar.next();
+            PlaywrightAssertions.assertThat(calendar.eventCard(title))
+                .hasCount(1, new LocatorAssertions.HasCountOptions().setTimeout(30_000));
+        }
     }
 
     @Test
