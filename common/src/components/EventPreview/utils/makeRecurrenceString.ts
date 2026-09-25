@@ -31,10 +31,16 @@ const getIntervalText = (
     return recurType[repetition.freq]
   }
 
+  if (interval > 1 && repetition.freq in recurType) {
+    return t(`eventPreview.everyIntervalByFreq.${repetition.freq}`, {
+      smart_count: interval
+    })
+  }
+
   if (interval > 1) {
     return t('eventPreview.everyInterval', {
       interval,
-      unit: recurType[repetition.freq] ?? repetition.freq
+      unit: repetition.freq
     })
   }
 
@@ -61,7 +67,7 @@ const getEndConditionText = (
 ): string | undefined => {
   if (repetition.occurrences) {
     return t('eventPreview.forOccurrences', {
-      count: repetition.occurrences
+      smart_count: repetition.occurrences
     })
   }
   if (repetition.endDate) {
