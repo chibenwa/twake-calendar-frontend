@@ -280,6 +280,28 @@ describe('parseCalendarEvent', () => {
     expect(result2.error).toMatch(/missing crucial event param/)
   })
 
+  it('does not log the content of an event it cannot parse', () => {
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+
+    parseCalendarEvent({
+      data: [
+        ['SUMMARY', {}, 'text', 'Confidential meeting'],
+        ['ATTENDEE', {}, 'cal-address', 'mailto:alice@example.com']
+      ],
+      color: baseColor,
+      calendar,
+      eventURL: '/calendars/test.ics'
+    })
+
+    expect(consoleError).toHaveBeenCalled()
+    const logged = JSON.stringify(consoleError.mock.calls)
+    expect(logged).not.toContain('Confidential meeting')
+    expect(logged).not.toContain('alice@example.com')
+    consoleError.mockRestore()
+  })
+
   it('returns computed end when there is no end but a duration', () => {
     jest.useFakeTimers().setSystemTime(new Date('2025-07-18T00:00:00Z'))
 

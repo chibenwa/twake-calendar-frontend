@@ -396,9 +396,10 @@ export function parseCalendarEvent({
     : eventURL
 
   if (!event.uid || !event.start) {
+    // Only identifiers: the event itself (title, description, attendees)
+    // must not reach the console, which is forwarded to Sentry.
     console.error(
-      `missing crucial event param in calendar ${calendar.id} `,
-      data
+      `missing crucial event param in calendar ${calendar.id} (uid: ${event.uid ?? 'none'}, url: ${eventURL})`
     )
     event.error = `missing crucial event param in calendar ${calendar.id} `
   }
