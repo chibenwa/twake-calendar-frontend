@@ -56,7 +56,7 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
         // not on screen to be counted. Anchoring it to the visible week keeps every occurrence
         // of a week or less in view whatever day the suite runs.
         LocalDate weekStart = calendar.firstVisibleDate();
-        form.expand().startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+        form.expand().at(weekStart, "09:00", "10:00");
         form.repeat().frequency(RecurrenceSection.DAILY).endsAfter(occurrences);
         form.save();
         awaitAttached(calendar.eventCard(title));
@@ -228,7 +228,7 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
         String title = title("Weekly");
         LocalDate weekStart = calendar.firstVisibleDate();
         var creation = calendar.createEvent().title(title).expand()
-            .startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+            .at(weekStart, "09:00", "10:00");
         creation.repeat().frequency(RecurrenceSection.WEEKLY).endsAfter(LATER_WEEKS + 1);
         creation.save();
         awaitAttached(calendar.eventCard(title));
@@ -334,7 +334,7 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
         // stay countable: bounds taken from today put half the occurrences in next week
         LocalDate weekStart = calendar.firstVisibleDate();
         var creation = calendar.createEvent().title(title).expand()
-            .startDate(weekStart).endDate(weekStart).startTime("09:00").endTime("10:00");
+            .at(weekStart, "09:00", "10:00");
         creation.repeat().frequency(RecurrenceSection.DAILY).endsOn(weekStart.plusDays(1));
         creation.save();
         awaitAttached(calendar.eventCard(title));
