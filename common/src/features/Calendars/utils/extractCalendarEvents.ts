@@ -51,40 +51,65 @@ export function extractCalendarEvents(
     return []
   }
 
-  const timezoneOfTheCalendarObject = bundledTimezone(vevents)
+  // The content of a calendar object is chosen by whoever sent the
+  // invitation: one that cannot be read is skipped and reported, instead of
+  // failing the load of the whole calendar.
+  let timezoneOfTheCalendarObject: string | undefined
+  try {
+    timezoneOfTheCalendarObject = bundledTimezone(vevents)
+  } catch (error) {
+    reportUnreadableEvent(options.cal, eventURL, error)
+  }
 
   return vevents
     .map(vevent => {
-      if (!Array.isArray(vevent)) {
+      try {
+        return extractEvent(vevent)
+      } catch (error) {
+        reportUnreadableEvent(options.cal, eventURL, error)
         return null
       }
-
-      // A calendar object can bundle non-event components (typically a
-      // VTIMEZONE) alongside its VEVENT(s); only VEVENTs are actual events.
-      if (
-        typeof vevent[0] !== 'string' ||
-        vevent[0].toLowerCase() !== 'vevent'
-      ) {
-        return null
-      }
-
-      const eventProps = vevent[1] as VObjectProperty[]
-      if (!Array.isArray(eventProps)) {
-        return null
-      }
-
-      const valarms = extractValarms(vevent as VCalComponent)
-
-      return parseCalendarEvent({
-        data: eventProps,
-        color: options?.color ?? defaultColors[0],
-        calendar: options.cal,
-        eventURL,
-        valarms,
-        timezoneOfTheCalendarObject
-      })
     })
     .filter(Boolean) as CalendarEvent[]
+
+  function extractEvent(vevent: unknown): CalendarEvent | null {
+    if (!Array.isArray(vevent)) {
+      return null
+    }
+
+    // A calendar object can bundle non-event components (typically a
+    // VTIMEZONE) alongside its VEVENT(s); only VEVENTs are actual events.
+    if (typeof vevent[0] !== 'string' || vevent[0].toLowerCase() !== 'vevent') {
+      return null
+    }
+
+    const eventProps = vevent[1] as VObjectProperty[]
+    if (!Array.isArray(eventProps)) {
+      return null
+    }
+
+    const valarms = extractValarms(vevent as VCalComponent)
+
+    return parseCalendarEvent({
+      data: eventProps,
+      color: options?.color ?? defaultColors[0],
+      calendar: options.cal,
+      eventURL,
+      valarms,
+      timezoneOfTheCalendarObject
+    })
+  }
+}
+
+function reportUnreadableEvent(
+  calendar: Calendar,
+  eventURL: string,
+  error: unknown
+): void {
+  const reason = error instanceof Error ? error.message : String(error)
+  console.error(
+    `Skipping unreadable event ${eventURL} of calendar ${calendar.id}: ${reason}`
+  )
 }
 
 function extractValarms(vevent: VCalComponent): VCalComponent[] | undefined {

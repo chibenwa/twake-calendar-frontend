@@ -121,4 +121,33 @@ describe('extractCalendarEvents', () => {
       expect(extract([inNewYork]).timezone).toBe('America/New_York')
     })
   })
+
+  it('skips and reports an event that cannot be read, keeping the others', () => {
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+    const unreadable = [
+      'vevent',
+      [
+        ['uid', {}, 'text', 'event-uid'],
+        ['dtstart', {}, 'date-time', '20250316T100000Z']
+      ],
+      [[42, [], []]]
+    ]
+    const item = {
+      _links: { self: { href: '/calendars/u1/u1/event-uid.ics' } },
+      data: ['vcalendar', [], [unreadable, vevent]]
+    } as unknown as CalDavItem
+
+    const events = extractCalendarEvents(item, { cal, color: cal.color })
+
+    expect(events).toHaveLength(1)
+    expect(events[0].title).toBe('My event')
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Skipping unreadable event /calendars/u1/u1/event-uid.ics of calendar u1/u1'
+      )
+    )
+    consoleError.mockRestore()
+  })
 })
