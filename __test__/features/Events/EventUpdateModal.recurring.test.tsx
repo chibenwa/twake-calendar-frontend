@@ -497,10 +497,13 @@ describe("EventUpdateModal - Recurring Event 'Edit All' Handling", () => {
         stateWithSeries
       )
 
-      await waitFor(() => {
-        expect(screen.getByDisplayValue('Weekly Meeting')).toBeInTheDocument()
-      })
-      expect(screen.getByTestId('series-overrides-warning')).toBeInTheDocument()
+      // The clicked occurrence already shows the series title: wait for the
+      // stored series to be fetched, otherwise the form gets remounted on the
+      // master after the rename
+      expect(
+        await screen.findByTestId('series-overrides-warning')
+      ).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Weekly Meeting')).toBeInTheDocument()
 
       fireEvent.change(screen.getByDisplayValue('Weekly Meeting'), {
         target: { value: 'Renamed Meeting' }
