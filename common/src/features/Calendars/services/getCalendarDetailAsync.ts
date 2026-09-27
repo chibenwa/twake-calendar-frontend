@@ -84,12 +84,18 @@ export const getCalendarDetailThunk = (
           syncToken
         )
         events.forEach(event => {
+          // A range reload can bring back an occurrence without its zone: what
+          // is known of it beats the zone of the browser. That includes not
+          // knowing it yet, as after a sync refresh -- opening the event then
+          // reads its zone, which a guessed one would prevent.
+          const known = state[type][calId].events[event.uid]
           state[type][calId].events[event.uid] = event
           state[type][calId].events[event.uid].color = state[type][calId].color
           state[type][calId].events[event.uid].calId = calId
           if (!state[type][calId].events[event.uid].timezone) {
-            state[type][calId].events[event.uid].timezone =
-              browserDefaultTimeZone
+            state[type][calId].events[event.uid].timezone = known
+              ? known.timezone
+              : browserDefaultTimeZone
           }
         })
       },

@@ -502,6 +502,75 @@ describe('CalendarSlice', () => {
       expect(state.list.c1.events.e1.uid).toBe('e1')
     })
 
+    it('getCalendarDetail.fulfilled keeps the known zone of a reloaded event without one', () => {
+      const payload = { calId: 'c1', events: [{ uid: 'e1' }] as any[] }
+      const state = reducer(
+        {
+          ...initialState,
+          list: {
+            ['c1']: {
+              id: 'c1',
+              events: {
+                e1: { uid: 'e1', timezone: 'Asia/Shanghai' }
+              }
+            } as unknown as Calendar
+          }
+        },
+        getCalendarDetail.fulfilled(payload, 'req11', {
+          calId: 'c1',
+          match: { start: '', end: '' }
+        })
+      )
+      expect(state.list.c1.events.e1.timezone).toBe('Asia/Shanghai')
+    })
+
+    it('getCalendarDetail.fulfilled does not guess the zone of a reloaded event not read yet', () => {
+      // A sync refresh re-expands an event without its zone: opening it reads
+      // the zone, as long as a reload does not put the browser one instead
+      const payload = { calId: 'c1', events: [{ uid: 'e1' }] as any[] }
+      const state = reducer(
+        {
+          ...initialState,
+          list: {
+            ['c1']: {
+              id: 'c1',
+              events: { e1: { uid: 'e1' } }
+            } as unknown as Calendar
+          }
+        },
+        getCalendarDetail.fulfilled(payload, 'req11', {
+          calId: 'c1',
+          match: { start: '', end: '' }
+        })
+      )
+      expect(state.list.c1.events.e1.timezone).toBeUndefined()
+    })
+
+    it('getCalendarDetail.fulfilled lets a reloaded event state its own zone', () => {
+      const payload = {
+        calId: 'c1',
+        events: [{ uid: 'e1', timezone: 'Asia/Tokyo' }] as any[]
+      }
+      const state = reducer(
+        {
+          ...initialState,
+          list: {
+            ['c1']: {
+              id: 'c1',
+              events: {
+                e1: { uid: 'e1', timezone: 'Asia/Shanghai' }
+              }
+            } as unknown as Calendar
+          }
+        },
+        getCalendarDetail.fulfilled(payload, 'req11', {
+          calId: 'c1',
+          match: { start: '', end: '' }
+        })
+      )
+      expect(state.list.c1.events.e1.timezone).toBe('Asia/Tokyo')
+    })
+
     it('getEventByUid.fulfilled adds the resolved event to its calendar', () => {
       const payload = { calId: 'c1', events: [{ uid: 'e1' }] as any[] }
       const state = reducer(
