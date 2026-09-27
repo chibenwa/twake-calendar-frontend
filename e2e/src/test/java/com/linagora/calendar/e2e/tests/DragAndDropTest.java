@@ -273,15 +273,18 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
             }
         });
         boolean moved = calendar.tryDragEventToSlot(title, E2EClock.today(), "19:00:00");
-        page.unrouteAll();
 
         assertThat(moved)
             .as("a move the server refused must not be left on screen")
             .isFalse();
 
+        // Writes stay refused until the end: the drop reads the event before writing it, and
+        // a write going out once the route is gone would move the event for real.
         assertThat(dtStart(probe, user)).isEqualTo(before);
         calendar.reload();
         assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+        assertThat(dtStart(probe, user)).isEqualTo(before);
+        page.unrouteAll();
     }
 
     @Test
