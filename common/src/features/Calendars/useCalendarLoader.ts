@@ -119,7 +119,7 @@ export function useCalendarDataLoader({
   const inFlightRef = useRef<Record<string, Interval[]>>({})
   const tempFetchedIntervalsRef = useRef<Record<string, Interval[]>>({})
   const processedCacheClearRef = useRef<Record<string, number>>({})
-  // Bumped on every cache clear: a load requested before it is stale
+  // Bumped on every cache clear or outdating: a load requested before it is stale
   const cacheEpochRef = useRef<Record<string, number>>({})
   const processedOutdatedRangesRef = useRef<Record<string, number>>({})
 
@@ -348,6 +348,12 @@ export function useCalendarDataLoader({
       fetchedIntervalsRef.current[id] = (
         fetchedIntervalsRef.current[id] ?? []
       ).flatMap(iv => clipInterval(iv, visibleStart, visibleEnd))
+      // A load still pending may have been answered before the change: it no
+      // longer covers its range, nor records it once done
+      inFlightRef.current[id] = (inFlightRef.current[id] ?? []).flatMap(iv =>
+        clipInterval(iv, visibleStart, visibleEnd)
+      )
+      cacheEpochRef.current[id] = (cacheEpochRef.current[id] ?? 0) + 1
     })
   }, [calendarsWithOutdatedRanges, visibleStart, visibleEnd])
 

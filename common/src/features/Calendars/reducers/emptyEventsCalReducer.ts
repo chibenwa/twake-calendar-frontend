@@ -15,7 +15,7 @@ export const emptyEventsCalReducer = (create: ReducerCreators<CalendarState>) =>
         cals[action.payload.calId].events = {}
         cals[action.payload.calId].syncToken = undefined
       } else {
-        Object.keys(state.templist).forEach(calId => {
+        Object.keys(cals).forEach(calId => {
           cals[calId].events = {}
           cals[calId].syncToken = undefined
         })

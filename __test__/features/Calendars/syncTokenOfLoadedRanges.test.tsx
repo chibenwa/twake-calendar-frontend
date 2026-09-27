@@ -40,4 +40,10 @@ describe('the sync token of a calendar loaded range by range', () => {
 
     expect(state.list.cal.syncToken).toBeUndefined()
   })
+
+  it('goes with the events when all the calendars are emptied', () => {
+    const state = reducer(stateWith(token(3)), emptyEventsCal({}))
+
+    expect(state.list.cal.syncToken).toBeUndefined()
+  })
 })

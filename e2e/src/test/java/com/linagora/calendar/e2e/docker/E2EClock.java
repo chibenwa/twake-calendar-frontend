@@ -133,12 +133,15 @@ public final class E2EClock {
               const shift = %d;
               const RealDate = Date;
               const offset = () => location.pathname.startsWith('/callback') ? 0 : shift;
-              class ShiftedDate extends RealDate {
-                constructor(...args) {
-                  if (args.length === 0) { super(RealDate.now() + offset()); } else { super(...args); }
-                }
-                static now() { return RealDate.now() + offset(); }
+              // A function, not a class: Date() called without new returns a string
+              function ShiftedDate(...args) {
+                if (!new.target) { return new RealDate(RealDate.now() + offset()).toString(); }
+                return args.length === 0 ? new RealDate(RealDate.now() + offset()) : new RealDate(...args);
               }
+              ShiftedDate.prototype = RealDate.prototype;
+              ShiftedDate.now = () => RealDate.now() + offset();
+              ShiftedDate.parse = RealDate.parse;
+              ShiftedDate.UTC = RealDate.UTC;
               globalThis.Date = ShiftedDate;
             })();""".formatted(SHIFT.get()));
     }
