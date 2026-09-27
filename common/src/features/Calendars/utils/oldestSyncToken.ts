@@ -8,6 +8,15 @@ const parse = (
   return match ? { namespace: match[1], sequence: Number(match[2]) } : undefined
 }
 
+// Only tokens of the same sabre namespace compare
+const isOlder = (candidate: string, reference: string): boolean => {
+  const received = parse(candidate)
+  const held = parse(reference)
+  if (!received || !held) return false
+  if (received.namespace !== held.namespace) return false
+  return received.sequence < held.sequence
+}
+
 /**
  * The sync token a calendar may claim once a range of it is loaded.
  *
@@ -28,12 +37,5 @@ export const oldestSyncToken = (
 ): string | undefined => {
   if (!current) return incoming
   if (!incoming) return current
-  const held = parse(current)
-  const received = parse(incoming)
-  const cannotBeCompared =
-    !held || !received || held.namespace !== received.namespace
-  if (cannotBeCompared) {
-    return current
-  }
-  return received.sequence < held.sequence ? incoming : current
+  return isOlder(incoming, current) ? incoming : current
 }
