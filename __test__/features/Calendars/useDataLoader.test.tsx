@@ -379,6 +379,38 @@ describe('useCalendarDataLoader — outdated ranges', () => {
 
     expect(loadsOf(LATER_WEEK)).toHaveLength(0)
   })
+
+  it('does not load the displayed range again when its load outlived its run', async () => {
+    // Any store update, the load itself included, makes the run requesting
+    // the displayed range stale before it lands
+    const pendingLoads: (() => void)[] = []
+    mockDispatch.mockReturnValue({
+      unwrap: jest.fn(
+        () => new Promise<void>(resolve => pendingLoads.push(resolve))
+      )
+    })
+    storeWith({})
+    const { rerender } = renderHook(p => useCalendarDataLoader(p), {
+      initialProps: props
+    })
+    storeWith({})
+    rerender(props)
+    await act(async () => {
+      pendingLoads.forEach(resolve => resolve())
+      await new Promise(r => setTimeout(r, 0))
+    })
+    mockGetCalendarDetailAsync.mockClear()
+
+    storeWith({ lastRangesOutdated: OUTDATED })
+    rerender(props)
+    await flush()
+    // a later update of the store runs the loader over the displayed range
+    storeWith({ lastRangesOutdated: OUTDATED })
+    rerender(props)
+    await flush()
+
+    expect(loadsOf(FIRST_WEEK)).toHaveLength(0)
+  })
 })
 
 describe('useCalendarDataLoader — temp calendars', () => {
