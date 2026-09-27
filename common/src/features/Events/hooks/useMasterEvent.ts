@@ -20,10 +20,13 @@ export function useMasterEvent(
   isLoadingMasterEvent: boolean
   effectiveEvent: CalendarEvent | null | undefined
   hasOverrides: boolean
+  isMasterPending: boolean
 } {
   const [masterEvent, setMasterEvent] = useState<CalendarEvent | null>(null)
   const [isLoadingMasterEvent, setIsLoadingMasterEvent] = useState(false)
   const [hasOverrides, setHasOverrides] = useState(false)
+  // The occurrence whose master fetch settled, successfully or not
+  const [masterSettledFor, setMasterSettledFor] = useState<string | null>(null)
 
   useEffect(() => {
     setHasOverrides(false)
@@ -33,13 +36,15 @@ export function useMasterEvent(
       return
     }
 
-    if (!event.repetition?.freq) {
+    // An occurrence belongs to a series even when the grid lost its rule: a
+    // refresh re-expands the series without it
+    const [baseUID, recurrenceId] = event.uid.split('/')
+    if (!event.repetition?.freq && !recurrenceId) {
       setMasterEvent(null)
       setIsLoadingMasterEvent(false)
       return
     }
 
-    const [baseUID, recurrenceId] = event.uid.split('/')
     if (!recurrenceId) {
       setMasterEvent(event)
       setIsLoadingMasterEvent(false)
@@ -64,7 +69,10 @@ export function useMasterEvent(
         if (!cancelled) setMasterEvent(event)
       } finally {
         setIsLoadingMasterEvent(false)
-        if (!cancelled) setIsLoadingMasterEvent(false)
+        if (!cancelled) {
+          setIsLoadingMasterEvent(false)
+          setMasterSettledFor(event.uid)
+        }
       }
     }
 
@@ -82,5 +90,20 @@ export function useMasterEvent(
     return shouldShowMaster ? masterEvent : event
   }, [typeOfAction, masterEvent, isLoadingMasterEvent, event])
 
-  return { masterEvent, isLoadingMasterEvent, effectiveEvent, hasOverrides }
+  // Editing all the events from an occurrence: until its master is known the
+  // form would start from the occurrence date, and saving it would move the
+  // whole series there
+  const isMasterPending =
+    open &&
+    typeOfAction === 'all' &&
+    !!event?.uid.includes('/') &&
+    (isLoadingMasterEvent || masterSettledFor !== event.uid)
+
+  return {
+    masterEvent,
+    isLoadingMasterEvent,
+    effectiveEvent,
+    hasOverrides,
+    isMasterPending
+  }
 }

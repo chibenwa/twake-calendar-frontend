@@ -27,6 +27,7 @@ export function useEventUpdateModal(
   formRef: React.RefObject<EventFormHandle>
   effectiveEvent: CalendarEvent | undefined | null
   hasOverrides: boolean
+  isMasterPending: boolean
   initialValues: ReturnType<typeof useBuildInitialValues>
   handleClose: () => void
   handleSubmit: (
@@ -51,11 +52,8 @@ export function useEventUpdateModal(
   const [showMore, setShowMore] = useState(false)
   const formRef = useRef<EventFormHandle>(null)
 
-  const { masterEvent, effectiveEvent, hasOverrides } = useMasterEvent(
-    event,
-    open,
-    typeOfAction
-  )
+  const { masterEvent, effectiveEvent, hasOverrides, isMasterPending } =
+    useMasterEvent(event, open, typeOfAction)
 
   const initialValues = useBuildInitialValues({
     event: effectiveEvent || null,
@@ -127,8 +125,9 @@ export function useEventUpdateModal(
   const handleExpandToggle = (): void => setShowMore(s => !s)
 
   const handleSave = useCallback(async () => {
+    if (isMasterPending) return
     await formRef.current?.submit()
-  }, [formRef])
+  }, [formRef, isMasterPending])
 
   return {
     userPersonalCalendars,
@@ -137,6 +136,7 @@ export function useEventUpdateModal(
     formRef,
     effectiveEvent,
     hasOverrides,
+    isMasterPending,
     initialValues,
     handleClose,
     handleSubmit,

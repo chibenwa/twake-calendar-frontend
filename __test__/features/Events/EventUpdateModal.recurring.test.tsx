@@ -180,6 +180,137 @@ describe("EventUpdateModal - Recurring Event 'Edit All' Handling", () => {
       })
     })
 
+    it('does not offer the occurrence data for edition while the master loads', async () => {
+      const instance = {
+        uid: `${baseUID}/20250116`,
+        title: 'Instance Event',
+        calId,
+        start: '2025-01-16T10:00:00.000Z',
+        end: '2025-01-16T11:00:00.000Z',
+        repetition: { freq: 'daily', interval: 1 },
+        allday: false,
+        organizer: new userOrganiser({
+          cn: 'test',
+          cal_address: 'test@test.com'
+        }),
+        URL: `/calendars/${calId}/${baseUID}.ics`
+      } as CalendarEvent
+
+      const stateWithInstance = {
+        ...preloadedState,
+        calendars: {
+          ...preloadedState.calendars,
+          list: {
+            [calId]: {
+              ...preloadedState.calendars.list[calId],
+              events: { [instance.uid]: instance }
+            }
+          }
+        }
+      }
+
+      // The master never arrives
+      const mockFetchEvent = jest
+        .spyOn(EventDao, 'fetchEvent')
+        .mockReturnValue(new Promise(() => {}))
+
+      renderWithProviders(
+        <EventUpdateModal
+          open={true}
+          onClose={mockOnClose}
+          calId={calId}
+          eventId={instance.uid}
+          typeOfAction="all"
+        />,
+        stateWithInstance
+      )
+
+      await waitFor(() => {
+        expect(mockFetchEvent).toHaveBeenCalled()
+      })
+
+      // Saving that form would move the whole series to the occurrence date
+      expect(screen.getByTestId('series-loading')).toBeInTheDocument()
+      expect(
+        screen.queryByDisplayValue('Instance Event')
+      ).not.toBeInTheDocument()
+    })
+
+    it('reads the master of an occurrence the grid lost the rule of', async () => {
+      // A refresh re-expands the series: its occurrences come back without RRULE
+      const instance = {
+        uid: `${baseUID}/20250116`,
+        title: 'Instance Event',
+        calId,
+        start: '2025-01-16T10:00:00.000Z',
+        end: '2025-01-16T11:00:00.000Z',
+        allday: false,
+        organizer: new userOrganiser({
+          cn: 'test',
+          cal_address: 'test@test.com'
+        }),
+        URL: `/calendars/${calId}/${baseUID}.ics`
+      } as CalendarEvent
+
+      const stateWithInstance = {
+        ...preloadedState,
+        calendars: {
+          ...preloadedState.calendars,
+          list: {
+            [calId]: {
+              ...preloadedState.calendars.list[calId],
+              events: { [instance.uid]: instance }
+            }
+          }
+        }
+      }
+
+      jest
+        .spyOn(EventDao, 'fetchEvent')
+        .mockResolvedValue(
+          jCalFromIcs(
+            [
+              'BEGIN:VCALENDAR',
+              'VERSION:2.0',
+              'PRODID:-//Test//EN',
+              'BEGIN:VEVENT',
+              `UID:${baseUID}`,
+              'SUMMARY:Master Event Title',
+              'DTSTART:20250115T100000Z',
+              'DTEND:20250115T110000Z',
+              'RRULE:FREQ=DAILY;COUNT=4',
+              'END:VEVENT',
+              'BEGIN:VEVENT',
+              `UID:${baseUID}`,
+              'RECURRENCE-ID:20250117T100000Z',
+              'SUMMARY:Exception',
+              'DTSTART:20250117T140000Z',
+              'DTEND:20250117T150000Z',
+              'END:VEVENT',
+              'END:VCALENDAR'
+            ].join('\r\n')
+          )
+        )
+
+      renderWithProviders(
+        <EventUpdateModal
+          open={true}
+          onClose={mockOnClose}
+          calId={calId}
+          eventId={instance.uid}
+          typeOfAction="all"
+        />,
+        stateWithInstance
+      )
+
+      await waitFor(() => {
+        expect(
+          screen.getByDisplayValue('Master Event Title')
+        ).toBeInTheDocument()
+      })
+      expect(screen.getByTestId('series-overrides-warning')).toBeInTheDocument()
+    })
+
     it('should use master event directly if clicked event is already the master', async () => {
       const masterEvent = {
         uid: baseUID, // No recurrence-id
