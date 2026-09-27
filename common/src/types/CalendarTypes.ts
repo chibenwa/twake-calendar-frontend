@@ -16,6 +16,7 @@ export interface Calendar {
   visibility: 'private' | 'public'
   access?: DelegationAccess
   lastCacheCleared?: number
+  lastRangesOutdated?: number
   syncToken?: string
   invite?: CalendarInvite[]
 }

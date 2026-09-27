@@ -54,6 +54,18 @@ export function subtractIntervals(
   return remaining
 }
 
+export function clipInterval(
+  iv: Interval,
+  start: number,
+  end: number
+): Interval[] {
+  const clipped = {
+    start: Math.max(iv.start, start),
+    end: Math.min(iv.end, end)
+  }
+  return clipped.start < clipped.end ? [clipped] : []
+}
+
 interface UseCalendarDataLoaderParams {
   selectedDate: Date
   currentView: string
@@ -93,6 +105,7 @@ export function useCalendarDataLoader({
   const inFlightRef = useRef<Record<string, Interval[]>>({})
   const tempFetchedIntervalsRef = useRef<Record<string, Interval[]>>({})
   const processedCacheClearRef = useRef<Record<string, number>>({})
+  const processedOutdatedRangesRef = useRef<Record<string, number>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -304,6 +317,31 @@ export function useCalendarDataLoader({
         })
     })
   }, [calendarsWithClearedCache, dispatch, visibleStart, visibleEnd])
+
+  // Outdated ranges: all the loaded ones but the displayed one, which the
+  // refresh reporting the change brought up to date
+  const calendarsWithOutdatedRanges = useMemo(
+    () =>
+      selectedCalendars
+        .map(id => {
+          const outdated = calendars[id]?.lastRangesOutdated
+          return outdated ? { id, outdated } : null
+        })
+        .filter(Boolean) as { id: string; outdated: number }[],
+    [selectedCalendars, calendars]
+  )
+
+  useEffect(() => {
+    calendarsWithOutdatedRanges.forEach(({ id, outdated }) => {
+      if (processedOutdatedRangesRef.current[id] === outdated) return
+      processedOutdatedRangesRef.current[id] = outdated
+      // the loaded ranges stay in flight too: forget them there as well
+      delete inFlightRef.current[id]
+      fetchedIntervalsRef.current[id] = (
+        fetchedIntervalsRef.current[id] ?? []
+      ).flatMap(iv => clipInterval(iv, visibleStart, visibleEnd))
+    })
+  }, [calendarsWithOutdatedRanges, visibleStart, visibleEnd])
 
   // Temp calendars cleanup
   useEffect(() => {

@@ -478,7 +478,7 @@ describe('refreshCalendarWithSyncToken', () => {
     expect(state.list[mockCalendar.id].events['event1']).toBeUndefined()
   })
 
-  it('should clear the fetch cache when an event is created outside of the refreshed range', async () => {
+  it('should outdate the loaded ranges when an event is created outside of the refreshed range', async () => {
     ;(CalendarDAO.fetchSyncTokenChanges as jest.Mock).mockResolvedValue({
       'sync-token': 'new-token',
       _embedded: {
@@ -511,11 +511,15 @@ describe('refreshCalendarWithSyncToken', () => {
     // The range holding the event was fetched before its creation: the loader
     // has to fetch it again
     expect(
-      store.getState().calendars.list[mockCalendar.id].lastCacheCleared
+      store.getState().calendars.list[mockCalendar.id].lastRangesOutdated
     ).toEqual(expect.any(Number))
+    // but not the displayed one, the refresh just brought it up to date
+    expect(
+      store.getState().calendars.list[mockCalendar.id].lastCacheCleared
+    ).toBeUndefined()
   })
 
-  it('should keep the fetch cache when nothing changed', async () => {
+  it('should keep the loaded ranges when nothing changed', async () => {
     ;(CalendarDAO.fetchSyncTokenChanges as jest.Mock).mockResolvedValue({
       'sync-token': 'new-token',
       _embedded: { 'dav:item': [] }
@@ -530,7 +534,7 @@ describe('refreshCalendarWithSyncToken', () => {
     )
 
     expect(
-      store.getState().calendars.list[mockCalendar.id].lastCacheCleared
+      store.getState().calendars.list[mockCalendar.id].lastRangesOutdated
     ).toBeUndefined()
   })
 

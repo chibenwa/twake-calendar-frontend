@@ -24,12 +24,15 @@ jest.mock('@common/features/Calendars/CalendarSlice', () => ({
   getCalendarDetail: (args: unknown) => mockGetCalendarDetailAsync(args)
 }))
 
+const FIRST_WEEK = {
+  start: new Date('2024-01-01T00:00:00Z'),
+  end: new Date('2024-01-07T23:59:59Z')
+}
+let mockViewRange = FIRST_WEEK
+
 jest.mock('@common/utils/dateUtils', () => ({
   formatDateToYYYYMMDDTHHMMSS: (d: Date) => d.toISOString(),
-  getViewRange: (_date: Date, _view: string) => ({
-    start: new Date('2024-01-01T00:00:00Z'),
-    end: new Date('2024-01-07T23:59:59Z')
-  }),
+  getViewRange: (_date: Date, _view: string) => mockViewRange,
   getAdjacentWeekRange: (_date: Date) => ({
     start: new Date('2024-01-08T00:00:00Z'),
     end: new Date('2024-01-14T23:59:59Z')
@@ -292,6 +295,89 @@ describe('useCalendarDataLoader — cache-clear flow', () => {
 
     // At least one additional dispatch should have occurred for CAL_A
     expect(mockDispatch.mock.calls.length).toBeGreaterThanOrEqual(countBefore)
+  })
+})
+
+describe('useCalendarDataLoader — outdated ranges', () => {
+  const LATER_WEEK = {
+    start: new Date('2024-04-01T00:00:00Z'),
+    end: new Date('2024-04-07T23:59:59Z')
+  }
+  const props = {
+    ...defaultProps,
+    selectedCalendars: [CAL_A],
+    sortedSelectedCalendars: [CAL_A],
+    calendarIds: [CAL_A],
+    calendarIdsString: CAL_A
+  }
+  const laterProps = {
+    ...props,
+    selectedDate: new Date('2024-04-03T12:00:00Z')
+  }
+  const OUTDATED = 1700000000000
+
+  const flush = () =>
+    act(async () => {
+      await new Promise(r => setTimeout(r, 0))
+    })
+
+  const storeWith = (calendar: Record<string, unknown>) =>
+    mockGetState.mockReturnValue({
+      calendars: { list: { [CAL_A]: { id: CAL_A, ...calendar } } }
+    })
+
+  const loadsOf = (range: { start: Date; end: Date }) =>
+    mockGetCalendarDetailAsync.mock.calls.filter(
+      ([args]: [{ match: { start: string } }]) =>
+        args.match.start === range.start.toISOString()
+    )
+
+  /** Loads the first week, then a change is reported on the later one */
+  async function outdateRangesFromTheLaterWeek() {
+    storeWith({})
+    const hook = renderHook(p => useCalendarDataLoader(p), {
+      initialProps: props
+    })
+    await flush()
+    mockViewRange = LATER_WEEK
+    hook.rerender(laterProps)
+    await flush()
+
+    mockGetCalendarDetailAsync.mockClear()
+    storeWith({ lastRangesOutdated: OUTDATED })
+    hook.rerender(laterProps)
+    await flush()
+    return hook
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockDispatch.mockReturnValue(makeDispatchResult(true))
+  })
+
+  afterEach(() => {
+    mockViewRange = FIRST_WEEK
+  })
+
+  it('loads again a range loaded before the change', async () => {
+    const { rerender } = await outdateRangesFromTheLaterWeek()
+
+    mockViewRange = FIRST_WEEK
+    rerender(props)
+    await flush()
+
+    expect(loadsOf(FIRST_WEEK)).toHaveLength(1)
+  })
+
+  it('does not load the displayed range again', async () => {
+    const { rerender } = await outdateRangesFromTheLaterWeek()
+
+    // a later update of the store runs the loader over the displayed range
+    storeWith({ lastRangesOutdated: OUTDATED })
+    rerender(laterProps)
+    await flush()
+
+    expect(loadsOf(LATER_WEEK)).toHaveLength(0)
   })
 })
 

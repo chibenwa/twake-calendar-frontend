@@ -116,9 +116,11 @@ export const refreshCalendarWithSyncToken = (
 
           // A changed event is only expanded over the displayed range: its
           // occurrences in the ranges already fetched elsewhere are missing,
-          // so these ranges have to be loaded again.
+          // so these ranges have to be loaded again. Not the displayed one,
+          // which is up to date: loading it again would replace the events
+          // just expanded, while they are being worked on.
           if (deletedEvents.length > 0 && calType !== 'temp') {
-            target.lastCacheCleared = Date.now()
+            target.lastRangesOutdated = Date.now()
           }
         }
       },
