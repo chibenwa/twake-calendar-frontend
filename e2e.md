@@ -4,7 +4,7 @@ Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
 - **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
-- **Essential — 200 tests**: every basic feature working as intended. Until they are all green,
+- **Essential — 203 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
 - **Bonus — 304 tests**: the peripheral features, the edge cases, accessibility, responsive
   layouts and robustness.
@@ -327,7 +327,7 @@ day, 23:45) — 48 tests.
 - [x] `RECUR-EDIT-24` Moving a recurring series to another calendar keeps its rule
 - [x] `RECUR-EDIT-25` Answering on a single occurrence writes that answer as an exception ([#1375](https://github.com/linagora/twake-calendar-frontend/issues/1375))
 
-## ATT — Guests and invitations (17)
+## ATT — Guests and invitations (19)
 
 - [x] `ATT-01` Typing a valid email in the guest field adds it to the list
 - [x] `ATT-02` An invalid address shows "is not a valid email address" and is not added
@@ -346,6 +346,8 @@ day, 23:45) — 48 tests.
 - [x] `ATT-15` Adding a guest to an existing event sends them the invitation
 - [x] `ATT-17` The same guest cannot be added twice
 - [x] `ATT-18` "Show more" expands the full guest list beyond the fold
+- [x] `ATT-19` A guest invited to an event visible to participants only gets it, with its details
+- [x] `ATT-20` A guest added later to an event visible to participants only gets it, with its details
 
 ## CAL — Personal calendars (15)
 
@@ -799,9 +801,9 @@ day, 23:45) — 48 tests.
 | Batch | Written | Total |
 | --- | --- | --- |
 | Past incidents | 45 | 49 |
-| Essential | 196 | 201 |
+| Essential | 198 | 203 |
 | Bonus | 256 | 307 |
-| **Total** | **497** | **557** |
+| **Total** | **499** | **559** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

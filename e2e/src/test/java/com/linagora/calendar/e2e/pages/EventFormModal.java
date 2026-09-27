@@ -397,6 +397,20 @@ public class EventFormModal {
     }
 
     /**
+     * Who the event is visible to: "All" (PUBLIC) or "Participants" (PRIVATE). Only shown once
+     * the form is {@link #expand() expanded}.
+     */
+    public EventFormModal visibleTo(String label) {
+        Locator toggle = dialog().getByRole(AriaRole.BUTTON,
+            new Locator.GetByRoleOptions().setName(label).setExact(true));
+        toggle.scrollIntoViewIfNeeded();
+        toggle.click();
+        com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(toggle)
+            .hasAttribute("aria-pressed", "true");
+        return this;
+    }
+
+    /**
      * The "Show me as" choice of the event: whether it makes its owner busy for the others.
      * That is what free/busy reads, so it is the lever behind most availability scenarios.
      */

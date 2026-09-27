@@ -311,4 +311,55 @@ class AttendeesFullTest extends TwakeCalendarE2ETest {
             .isGreaterThanOrEqualTo(folded.length());
         assertThat(expanded).contains(first.email()).contains(second.email());
     }
+
+    @Test
+    @DisplayName("ATT-19 A guest invited to an event visible to participants only gets it, with its details")
+    void aGuestGetsAPrivateEventWithItsDetails(Page page, E2EUser organizer, E2EUserFactory users,
+                                               E2ESessions sessions, CalendarProbe probe) {
+        E2EUser guest = users.newUser();
+        CalendarPage guestCalendar = sessions.openFor(guest);
+        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        String title = title("Private chat");
+
+        calendar.createEvent().title(title).addGuest(guest.email())
+            .expand().visibleTo("Participants").save();
+        awaitAttached(calendar.eventCard(title));
+        assertThat(Ics.property(probe.singleEvent(organizer), "CLASS")).contains("PRIVATE");
+
+        Awaitility.await().atMost(Duration.ofSeconds(45)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(guest))
+                .as("the guest is a participant: the invitation reaches their calendar")
+                .contains(title));
+        assertThat(Ics.property(probe.singleEvent(guest), "CLASS")).contains("PRIVATE");
+        guestCalendar.page().reload();
+        guestCalendar.waitUntilLoaded();
+        PlaywrightAssertions.assertThat(guestCalendar.eventCard(title).first())
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(45_000));
+    }
+
+    @Test
+    @DisplayName("ATT-20 A guest added later to an event visible to participants only gets it, with its details")
+    void aGuestAddedLaterGetsAPrivateEvent(Page page, E2EUser organizer, E2EUserFactory users,
+                                           E2ESessions sessions, CalendarProbe probe) {
+        E2EUser guest = users.newUser();
+        CalendarPage guestCalendar = sessions.openFor(guest);
+        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        String title = title("Private late invite");
+        calendar.createEvent().title(title).expand().visibleTo("Participants").save();
+        awaitAttached(calendar.eventCard(title));
+
+        var form = calendar.openEvent(title).edit();
+        form.addGuest(guest.email());
+        form.save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(45)).untilAsserted(() ->
+            assertThat(probe.eventSummaries(guest))
+                .as("the guest is a participant: the invitation reaches their calendar")
+                .contains(title));
+        assertThat(Ics.property(probe.singleEvent(guest), "CLASS")).contains("PRIVATE");
+        guestCalendar.page().reload();
+        guestCalendar.waitUntilLoaded();
+        PlaywrightAssertions.assertThat(guestCalendar.eventCard(title).first())
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(45_000));
+    }
 }
