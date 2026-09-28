@@ -30,7 +30,8 @@ export const oldestSyncToken = (
   if (!incoming) return current
   const held = parse(current)
   const received = parse(incoming)
-  if (!held || !received || held.namespace !== received.namespace) {
+  const cannotBeCompared = !held || !received || held.namespace !== received.namespace
+  if (cannotBeCompared) {
     return current
   }
   return received.sequence < held.sequence ? incoming : current
