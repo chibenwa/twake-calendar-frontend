@@ -8,6 +8,9 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import loadingReducer from './loadingSlice'
 import { createBrowserHistory } from 'history'
 import { createReduxHistoryContext } from 'redux-first-history'
+import { normalizeHashRoute } from '@common/utils/hashRoute'
+
+normalizeHashRoute()
 
 const { createReduxHistory, routerMiddleware, routerReducer } =
   createReduxHistoryContext({ history: createBrowserHistory() })
