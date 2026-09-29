@@ -1,3 +1,10 @@
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
+import 'dayjs/locale/ru'
+import 'dayjs/locale/vi'
+import { getTimezoneOffset } from '@common/utils/timezone'
+
 /**
  * Date/time formatting utilities
  */
@@ -95,4 +102,49 @@ const LOCALIZED_LONG_DATE_FORMATS: Record<string, string> = {
  */
 export function getLongDateFormat(locale?: string): string {
   return (locale && LOCALIZED_LONG_DATE_FORMATS[locale]) || LONG_DATE_FORMAT
+}
+
+/**
+ * Format date with current locale.
+ * @param dateStr - Date string to format
+ * @param lang - Language code
+ * @returns Formatted date string
+ */
+export function formatLocalizedDate(dateStr: string, lang?: string): string {
+  if (!dateStr) return ''
+  const date = dayjs(dateStr)
+  const locale = lang && ['en', 'vi', 'fr', 'ru'].includes(lang) ? lang : 'en'
+
+  if (locale === 'vi') {
+    const dow = date.day() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const weekdayLabel = dow === 0 ? 'Chủ nhật' : `Thứ ${dow + 1}` // Mon=Thứ 2, Wed=Thứ 4, ...
+    const day = date.date()
+    const month = date.month() + 1
+    const year = date.year()
+    return `${weekdayLabel}, ${day} Tháng ${month}, ${year}`
+  }
+
+  const formatted = date.locale(locale).format(getLongDateFormat(locale))
+  if (locale === 'fr' || locale === 'ru') {
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+  }
+  return formatted
+}
+
+/**
+ * Format timezone with offset
+ * @param tz - Timezone string
+ * @param dateStr - Optional date string to calculate offset for correct DST
+ * @returns Formatted timezone string
+ */
+export function formatTimezoneWithOffset(tz: string, dateStr?: string): string {
+  if (!tz) return ''
+  try {
+    const dateForOffset = dateStr ? dayjs(dateStr).toDate() : new Date()
+    const offset = getTimezoneOffset(tz, dateForOffset)
+    const tzName = tz.replace(/_/g, ' ')
+    return `(${offset}) ${tzName}`
+  } catch {
+    return tz.replace(/_/g, ' ')
+  }
 }

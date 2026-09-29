@@ -1,15 +1,12 @@
 import { Box, Typography, useTheme, alpha } from '@linagora/twake-mui'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import dayjs from 'dayjs'
-import 'dayjs/locale/en'
-import 'dayjs/locale/fr'
-import 'dayjs/locale/ru'
-import 'dayjs/locale/vi'
 import React from 'react'
 import { useI18n } from 'twake-i18n'
-import { getTimezoneOffset } from '@common/utils/timezone'
 import { RepetitionObject } from '@common/types/Repetition'
-import { getLongDateFormat } from '@common/components/Event/utils/dateTimeFormatters'
+import {
+  formatLocalizedDate,
+  formatTimezoneWithOffset
+} from '@common/components/Event/utils/dateTimeFormatters'
 import { SectionPreviewRow } from './SectionPreviewRow'
 import { makeRecurrenceString } from '@common/components/EventPreview/utils/makeRecurrenceString'
 import { isDateInPast } from '@common/components/Event/utils/formValidation'
@@ -40,28 +37,6 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
   const { t, lang } = useI18n()
   const theme = useTheme()
 
-  // Format date with current locale. VI: "Thứ 4, 4 Tháng 2, 2026"; FR: "Mercredi 5 février 2026"; RU: first letter capitalized
-  const formatDate = (dateStr: string): string => {
-    if (!dateStr) return ''
-    const date = dayjs(dateStr)
-    const locale = lang && ['en', 'vi', 'fr', 'ru'].includes(lang) ? lang : 'en'
-
-    if (locale === 'vi') {
-      const dow = date.day() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      const weekdayLabel = dow === 0 ? 'Chủ nhật' : `Thứ ${dow + 1}` // Mon=Thứ 2, Wed=Thứ 4, ...
-      const day = date.date()
-      const month = date.month() + 1
-      const year = date.year()
-      return `${weekdayLabel}, ${day} Tháng ${month}, ${year}`
-    }
-
-    const formatted = date.locale(locale).format(getLongDateFormat(locale))
-    if (locale === 'fr' || locale === 'ru') {
-      return formatted.charAt(0).toUpperCase() + formatted.slice(1)
-    }
-    return formatted
-  }
-
   // Format time in 24h: "03:30 - 16:30"
   const formatTime = (startTimeStr: string, endTimeStr: string): string => {
     if (allday || !startTimeStr || !endTimeStr) return ''
@@ -72,19 +47,6 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
     }
 
     return `${toHHmm(startTimeStr)} - ${toHHmm(endTimeStr)}`
-  }
-
-  // Format timezone: "(UTC+2) Paris". Use event date for offset (DST correctness).
-  const formatTimezone = (tz: string, dateStr?: string): string => {
-    if (!tz) return ''
-    try {
-      const dateForOffset = dateStr ? dayjs(dateStr).toDate() : new Date()
-      const offset = getTimezoneOffset(tz, dateForOffset)
-      const tzName = tz.replace(/_/g, ' ')
-      return `(${offset}) ${tzName}`
-    } catch {
-      return tz.replace(/_/g, ' ')
-    }
   }
 
   // Format repeat: "Doesn't repeat" or repeat info
@@ -106,17 +68,20 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
 
   // Format date text: show both start and end date if showEndDate is true
   const formatDateText = (): string => {
-    if (showEndDate && endDate && endDate !== startDate) {
-      const startDateText = formatDate(startDate)
-      const endDateText = formatDate(endDate)
+    const shouldShowBothDates =
+      showEndDate && Boolean(endDate) && endDate !== startDate
+
+    if (shouldShowBothDates) {
+      const startDateText = formatLocalizedDate(startDate, lang)
+      const endDateText = formatLocalizedDate(endDate, lang)
       return `${startDateText} - ${endDateText}`
     }
-    return formatDate(startDate)
+    return formatLocalizedDate(startDate, lang)
   }
 
   const dateText = formatDateText()
   const timeText = formatTime(startTime, endTime)
-  const timezoneText = formatTimezone(timezone, startDate)
+  const timezoneText = formatTimezoneWithOffset(timezone, startDate)
   const repeatText = formatRepeat(repetition)
   const startDateInPast = isDateInPast(startDate)
 

@@ -1,12 +1,9 @@
-import { getLongDateFormat } from '@common/components/Event/utils/dateTimeFormatters'
-import { getTimezoneOffset } from '@common/utils/timezone'
+import {
+  formatLocalizedDate,
+  formatTimezoneWithOffset
+} from '@common/components/Event/utils/dateTimeFormatters'
 import { Box, Typography, alpha, useTheme } from '@linagora/twake-mui'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import dayjs from 'dayjs'
-import 'dayjs/locale/en'
-import 'dayjs/locale/fr'
-import 'dayjs/locale/ru'
-import 'dayjs/locale/vi'
 import React from 'react'
 import { useI18n } from 'twake-i18n'
 
@@ -31,27 +28,6 @@ export const StaticDateTimeSummary: React.FC<StaticDateTimeSummaryProps> = ({
   const { lang } = useI18n()
   const theme = useTheme()
 
-  const formatDate = (dateStr: string): string => {
-    if (!dateStr) return ''
-    const date = dayjs(dateStr)
-    const locale = lang && ['en', 'vi', 'fr', 'ru'].includes(lang) ? lang : 'en'
-
-    if (locale === 'vi') {
-      const dow = date.day()
-      const weekdayLabel = dow === 0 ? 'Chủ nhật' : `Thứ ${dow + 1}`
-      const day = date.date()
-      const month = date.month() + 1
-      const year = date.year()
-      return `${weekdayLabel}, ${day} Tháng ${month}, ${year}`
-    }
-
-    const formatted = date.locale(locale).format(getLongDateFormat(locale))
-    if (locale === 'fr' || locale === 'ru') {
-      return formatted.charAt(0).toUpperCase() + formatted.slice(1)
-    }
-    return formatted
-  }
-
   const formatTime = (startTimeStr: string, endTimeStr: string): string => {
     if (!startTimeStr || !endTimeStr) return ''
     const toHHmm = (timeStr: string): string => {
@@ -61,21 +37,9 @@ export const StaticDateTimeSummary: React.FC<StaticDateTimeSummaryProps> = ({
     return `${toHHmm(startTimeStr)} - ${toHHmm(endTimeStr)}`
   }
 
-  const formatTimezone = (tz: string, dateStr?: string): string => {
-    if (!tz) return ''
-    try {
-      const dateForOffset = dateStr ? dayjs(dateStr).toDate() : new Date()
-      const offset = getTimezoneOffset(tz, dateForOffset)
-      const tzName = tz.replace(/_/g, ' ')
-      return `(${offset}) ${tzName}`
-    } catch {
-      return tz.replace(/_/g, ' ')
-    }
-  }
-
-  const dateText = formatDate(startDate)
+  const dateText = formatLocalizedDate(startDate, lang)
   const timeText = formatTime(startTime, endTime)
-  const timezoneText = formatTimezone(timezone, startDate)
+  const timezoneText = formatTimezoneWithOffset(timezone, startDate)
 
   const primaryStyle = {
     fontSize: '14px',
