@@ -178,6 +178,8 @@ partial compliance rate.
   attendee chat button.
 - **Blocked (visible change)**: making the sidebar `.MoreBtn` visible on keyboard focus (they stay
   `opacity: 0` until hover) changes the rendering — handled with the focus indicator, R-03.
+- **High contrast mode**: the hover-only sidebar actions are revealed on keyboard focus (done with
+  R-03, `common/src/theme/highContrast.css`). Nothing else of R-05 was visible.
 - **Validation**: pending
 
 ### R-06 — Localise accessibility strings
@@ -201,6 +203,11 @@ partial compliance rate.
   tooltip), date picker `localeText` (toolbar texts, month arrows tooltips), FullCalendar
   `closeHint` / `moreLinkHint` (rendered as `title` tooltips), `allDayText`, default
   `'Select timezone'` placeholder, `<noscript>` text. The colour picker label is done with R-12.
+- **High contrast mode**: the displayed texts follow the user language — MUI core locale merged
+  into the theme (`common/src/theme/highContrastTheme.ts`: Autocomplete, Alert close…), complete
+  date picker `localeText` (month arrows, toolbar…), FullCalendar `closeHint`, `moreLinkHint`
+  ("Show 3 more events") and `allDayText`, default timezone placeholder. Remaining: `<noscript>`
+  text (no JavaScript, so no setting to read).
 - **Validation**: pending
 
 ### R-07 — Headings, landmarks and skip link

@@ -704,6 +704,7 @@
     "accessToGrant": "Quyền truy cập cần cấp",
     "searchResultsCount": "Tìm thấy %{smart_count} sự kiện",
     "moreEvents": "Các sự kiện khác",
-    "calendarSettings": "Cài đặt lịch"
+    "calendarSettings": "Cài đặt lịch",
+    "moreEventsHint": "Hiển thị thêm %{smart_count} sự kiện"
   }
 }
