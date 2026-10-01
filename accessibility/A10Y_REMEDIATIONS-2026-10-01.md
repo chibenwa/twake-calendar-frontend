@@ -363,6 +363,22 @@ partial compliance rate.
   mobile dialogs; `DialogTitle component="div"` + inner heading; `title` on the Tdrive iframe after
   `intent.start` (and upstream fix in cozy-interapp).
 - **RGAA**: 7.1, 2.1, 9.1, 8.2 · **Effort**: S–M · **Impact**: medium.
+- **Status**: implemented without visible change:
+  - `ResponsiveDialog` is named after its title text only (no longer "Title expand close"),
+    keeps that name in expanded mode where the back button replaces the title, and accepts
+    `ariaLabel` / `ariaLabelledBy` when the title is not text: event preview → event title,
+    calendar modal → "New calendar" / "Calendar settings", booking confirmation → "Confirm your
+    booking";
+  - names for the dialogs and drawers that had none: touch date / time pickers (field label),
+    Tdrive picker (and a `title` on its iframe), calendar search and availability search dialogs
+    (instead of "Back" + the search field), mobile and tablet sidebars, mobile app grid and user
+    menu, "more events" drawer, mobile bottom-sheet selectors (`label` prop: language, time
+    zone, search in), whose trigger now says "<label>: <value>" with `aria-haspopup` /
+    `aria-expanded`.
+- **Blocked (visible change)**: none identified. Remaining (not visual, not done): `DialogTitle`
+  still renders an `<h2>` that contains the title bar buttons; the mobile search overlay is a
+  plain `Paper` without dialog semantics nor focus management; mobile bottom sheets do not move
+  the focus inside (`disableAutoFocus`).
 - **Validation**: pending
 
 ### R-17 — Automated accessibility regression net

@@ -696,6 +696,8 @@
     "searchEvents": "Поиск событий",
     "accessFor": "Доступ для %{name}",
     "accessToGrant": "Предоставляемый доступ",
-    "searchResultsCount": "Найдено %{smart_count} событие |||| Найдено %{smart_count} события |||| Найдено %{smart_count} событий"
+    "searchResultsCount": "Найдено %{smart_count} событие |||| Найдено %{smart_count} события |||| Найдено %{smart_count} событий",
+    "moreEvents": "Другие события",
+    "calendarSettings": "Настройки календаря"
   }
 }

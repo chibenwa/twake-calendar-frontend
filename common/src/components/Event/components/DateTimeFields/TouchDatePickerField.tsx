@@ -187,7 +187,12 @@ export const TouchDatePickerField: React.FC<DatePickerFieldProps> = ({
       <Dialog
         open={open}
         onClose={handleCancel}
-        slotProps={{ paper: { sx: { borderRadius: 2, overflow: 'hidden' } } }}
+        slotProps={{
+          paper: {
+            'aria-label': label,
+            sx: { borderRadius: 2, overflow: 'hidden' }
+          }
+        }}
       >
         <DatePickerDialogContent
           value={pendingValue}
