@@ -732,6 +732,7 @@
     "calendarSettings": "Cài đặt lịch",
     "moreEventsHint": "Hiển thị thêm %{smart_count} sự kiện",
     "skipToContent": "Chuyển đến nội dung",
-    "requiredLegend": "Các trường có dấu sao (*) là bắt buộc."
+    "requiredLegend": "Các trường có dấu sao (*) là bắt buộc.",
+    "calendarNameRequired": "Cần có tên để lưu lịch."
   }
 }

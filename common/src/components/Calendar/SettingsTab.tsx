@@ -21,6 +21,7 @@ import { AddDescButton } from '@common/components/Event/AddDescButton'
 import { ColorPicker } from './CalendarColorPicker'
 import { InfoRow } from '@common/components/Event/InfoRow'
 import { useResponsiveInputSize } from '@common/hooks/useResponsiveInputSize'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
 
 export function SettingsTab({
   name,
@@ -46,6 +47,7 @@ export function SettingsTab({
   autoFocusName?: boolean
 }): JSX.Element {
   const { t } = useI18n()
+  const highContrast = useHighContrast()
   const inputSize = useResponsiveInputSize()
   const [toggleDesc, setToggleDesc] = useState(Boolean(description))
   const userData = useAppSelector(state => state.user.userData)
@@ -97,6 +99,8 @@ export function SettingsTab({
                 ? 'calendarPopover.settings.resourceName'
                 : 'calendarPopover.settings.calendarName'
           )}
+          {/* R-15, high contrast mode: the name is required to save */}
+          {highContrast && isOwn && <span aria-hidden="true"> *</span>}
         </Typography>
         <Box sx={{ marginTop: '6px' }}>
           {isResource || isTeam ? (
@@ -120,6 +124,13 @@ export function SettingsTab({
               placeholder={t('common.name')}
               value={name}
               disabled={!isOwn}
+              // high contrast mode: why Save is disabled, said next to the
+              // field (and linked to it)
+              helperText={
+                highContrast && !name.trim()
+                  ? t('a11y.calendarNameRequired')
+                  : undefined
+              }
               onChange={e => setName(e.target.value)}
               size={inputSize}
               slotProps={{

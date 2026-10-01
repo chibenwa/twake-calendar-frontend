@@ -731,6 +731,7 @@
     "calendarSettings": "Paramètres de l'agenda",
     "moreEventsHint": "Afficher %{smart_count} autre événement |||| Afficher %{smart_count} autres événements",
     "skipToContent": "Aller au contenu",
-    "requiredLegend": "Les champs marqués d'un astérisque (*) sont obligatoires."
+    "requiredLegend": "Les champs marqués d'un astérisque (*) sont obligatoires.",
+    "calendarNameRequired": "Un nom est nécessaire pour enregistrer l'agenda."
   }
 }
