@@ -131,7 +131,11 @@ export const TouchTimePickerField: React.FC<TimePickerFieldProps> = ({
           openPickerButton: { sx: { display: 'none' } },
           field: {
             ...getTimeFieldSlotProps(testId, hasError, label, true, errorId),
-            onFocus: e => e.target.blur()
+            // Keeps a tap from leaving the field focused, but lets keyboard
+            // and assistive technology users land on it and open the picker
+            onFocus: e => {
+              if (!e.target.matches(':focus-visible')) e.target.blur()
+            }
           }
         }}
       />

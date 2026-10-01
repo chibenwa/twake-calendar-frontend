@@ -235,6 +235,13 @@ partial compliance rate.
   in `EditableTimeField`.
 - **RGAA**: 7.3, 7.1 · **Effort**: S · **Impact**: blocker — creating or moving an event is
   impossible without a mouse today.
+- **Status**: implemented. Read-only date and time fields open their picker with Enter, Space or
+  Alt+Arrow Down (`aria-haspopup="dialog"`). The touch time field still drops the focus after a
+  tap, but keeps it when it comes from the keyboard or an assistive technology (`:focus-visible`).
+  Keyboard usage documented in [`KEYBOARD.md`](KEYBOARD.md).
+- **Blocked (visible change)**: the requested "Keyboard" section in the left bar of the settings
+  page adds a visible navigation entry and page — documented in `KEYBOARD.md` until validated.
+  Keeping the focus in the editable time field after Enter / Escape is done with R-21.
 - **Validation**: pending
 
 ### R-11 — Keyboard-operable lists, rows and sidebar actions
@@ -243,6 +250,13 @@ partial compliance rate.
 - **What**: real buttons / `ListItemButton` inside `<ul>`; Schedule chip wrapped in a button calling
   the `eventClick` handler; always render the "more" button, keep long-press as a shortcut.
 - **RGAA**: 7.3, 7.1, 9.3, 10.11 · **Effort**: S–M · **Impact**: blocker removed on 5 features.
+- **Status**: implemented. Shared `buttonLikeProps` (`common/src/utils/keyboardActivation.ts`):
+  Schedule view events (title on desktop, whole card on mobile — their click reaches FullCalendar's
+  `eventClick`), booking-link rows, standalone people / calendar / filter option lists, mobile
+  search results. Calendar rows open their actions menu with Shift+F10 or the Menu key
+  (`aria-keyshortcuts`), at every width — the keyboard counterpart of the long press.
+- **Blocked (visible change)**: rendering the "more" button in narrow layouts. The default browser
+  focus outline appears on the newly focusable elements; a designed focus indicator is R-03.
 - **Validation**: pending
 
 ### R-12 — Accessible calendar colour picker

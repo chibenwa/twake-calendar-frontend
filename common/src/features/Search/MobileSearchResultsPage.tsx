@@ -3,6 +3,7 @@ import EventPreviewModal from '@common/components/EventPreview'
 import { Box } from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { VisuallyHidden } from '@common/components/VisuallyHidden'
+import { buttonLikeProps } from '@common/utils/keyboardActivation'
 import { AttendeesFilter } from './AttendeesFilter'
 import { normalizeCalendars } from './calendarColorUtils'
 import { OrganizersFilter } from './OrganizersFilter'
@@ -118,6 +119,7 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
           alignItems: 'center',
           textAlign: 'left'
         }}
+        {...buttonLikeProps}
         onClick={() => void handleOpen()}
       >
         <RenderMobileDate startDate={startDate} t={t} timeZone={timeZone} />
