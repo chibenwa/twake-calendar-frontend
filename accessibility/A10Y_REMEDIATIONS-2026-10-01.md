@@ -22,6 +22,9 @@ Companion of [`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md) (finding IDs
 **Validation**: each entry carries a `Validation:` line — `pending` (not reviewed), `approved`
 (go), or `denied` (rejected / postponed). Edit it in place.
 
+> **Re-audit** of the first batch (R-01, R-04 → R-07, R-10 → R-17):
+> [`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md).
+
 ## Implementation constraint
 
 Remediations are implemented **only when they do not change the visible interface** (ARIA

@@ -32,7 +32,8 @@ Twake Calendar est **non conforme** avec le RGAA 4.1.2.
 **Aucun audit de conformité RGAA n'a encore été réalisé.** Aucun taux de conformité ne peut donc
 être indiqué. Un pré-audit (revue du code source de l'ensemble de l'application et tests
 automatisés des pages publiques) a été mené le 1er octobre 2026 ; ses résultats sont publics :
-[`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md).
+[`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md). Un premier lot de corrections a fait
+l'objet d'un nouveau pré-audit le même jour : [`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md).
 
 ## Contenus non accessibles
 
@@ -42,15 +43,16 @@ Le pré-audit a notamment relevé les obstacles suivants (liste complète et loc
 - La prise de focus clavier est peu visible sur la plupart des éléments interactifs.
 - Plusieurs couleurs (boutons principaux, textes secondaires, liens, messages d'erreur, événements)
   n'atteignent pas le contraste requis.
-- Certaines fonctionnalités ne sont pas utilisables au clavier seul (certains champs de date, choix
-  de la couleur d'un agenda, événements de la vue Planning, certaines actions sur les agendas en
-  zoom important).
-- Plusieurs champs de formulaire ne sont identifiés que par leur texte indicatif ; les champs
-  obligatoires ne sont pas signalés et certaines erreurs ne sont pas restituées.
-- Certains boutons n'ont pas de nom accessible ; certains états (statut de participation, réponse
-  sélectionnée) ne sont transmis que par la couleur ou une icône.
-- Les pages n'ont pas de titre de niveau 1 ni de lien d'évitement ; le titre de la page ne décrit
-  pas toujours la vue affichée.
+- La fiche de contact d'un participant n'est pas atteignable au clavier depuis les fenêtres
+  d'événement.
+- Plusieurs champs de formulaire n'ont pas d'étiquette visible (seulement un texte indicatif, leur
+  nom est transmis aux technologies d'assistance) et les champs obligatoires ne sont pas signalés
+  visuellement.
+- Certains états (statut de participation, caractère privé) ne sont transmis que par la couleur ou
+  une icône, et les événements de l'agenda sont restitués sans leur plage horaire complète ni leur
+  statut.
+- Il n'y a pas de lien d'évitement ; le focus n'est pas déplacé lors du passage entre l'agenda, les
+  paramètres et la recherche.
 - Certains messages disparaissent au bout de 2 secondes.
 
 ### Dérogations pour charge disproportionnée
