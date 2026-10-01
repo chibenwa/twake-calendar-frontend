@@ -23,6 +23,7 @@ import { useI18n } from 'twake-i18n'
 import { ReadOnlyTimeField } from '@common/components/Event/components/ReadOnlyPickerField'
 import { getTimeFieldSlotProps } from './dateTimePickerSlotProps'
 import { TimePickerFieldProps } from './TimePickerField'
+import { useDateTimeErrorId } from './DateTimeError'
 
 const TIME_DISPLAY_SX = {
   fontSize: '48px',
@@ -40,6 +41,7 @@ export const TouchTimePickerField: React.FC<TimePickerFieldProps> = ({
   errorId,
   disabled = false
 }) => {
+  const contextErrorId = useDateTimeErrorId()
   const { t } = useI18n()
   const theme = useTheme()
 
@@ -130,7 +132,13 @@ export const TouchTimePickerField: React.FC<TimePickerFieldProps> = ({
         slotProps={{
           openPickerButton: { sx: { display: 'none' } },
           field: {
-            ...getTimeFieldSlotProps(testId, hasError, label, true, errorId),
+            ...getTimeFieldSlotProps(
+              testId,
+              hasError,
+              label,
+              true,
+              errorId ?? contextErrorId
+            ),
             // Keeps a tap from leaving the field focused, but lets keyboard
             // and assistive technology users land on it and open the picker
             onFocus: e => {

@@ -21,6 +21,7 @@ import {
   getDateFieldSlotProps,
   getDateSlotProps
 } from './dateTimePickerSlotProps'
+import { useDateTimeErrorId } from './DateTimeError'
 
 dayjs.extend(customParseFormat)
 
@@ -148,6 +149,7 @@ export const TouchDatePickerField: React.FC<DatePickerFieldProps> = ({
   label = 'Date',
   hasError = false
 }) => {
+  const errorId = useDateTimeErrorId()
   const [open, setOpen] = useState(false)
   const [pendingValue, setPendingValue] = useState<PickerValue>(value)
 
@@ -178,7 +180,7 @@ export const TouchDatePickerField: React.FC<DatePickerFieldProps> = ({
         slotProps={{
           openPickerButton: { sx: { display: 'none' } },
           ...getDateSlotProps(testId, hasError, label, true),
-          field: getDateFieldSlotProps(testId, hasError, label, true),
+          field: getDateFieldSlotProps(testId, hasError, label, true, errorId),
           layout: { sx: dateCalendarLayoutSx }
         }}
       />

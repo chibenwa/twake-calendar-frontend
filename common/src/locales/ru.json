@@ -695,6 +695,7 @@
     "occurrenceCount": "Количество повторений",
     "searchEvents": "Поиск событий",
     "accessFor": "Доступ для %{name}",
-    "accessToGrant": "Предоставляемый доступ"
+    "accessToGrant": "Предоставляемый доступ",
+    "searchResultsCount": "Найдено %{smart_count} событие |||| Найдено %{smart_count} события |||| Найдено %{smart_count} событий"
   }
 }

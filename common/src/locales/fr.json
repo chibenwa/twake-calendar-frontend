@@ -694,6 +694,7 @@
     "occurrenceCount": "Nombre d'occurrences",
     "searchEvents": "Rechercher des événements",
     "accessFor": "Accès pour %{name}",
-    "accessToGrant": "Accès à accorder"
+    "accessToGrant": "Accès à accorder",
+    "searchResultsCount": "%{smart_count} événement trouvé |||| %{smart_count} événements trouvés"
   }
 }

@@ -124,7 +124,9 @@ export function SettingsTab({
               size={inputSize}
               slotProps={{
                 htmlInput: {
-                  'aria-label': t('common.name')
+                  'aria-label': t('common.name'),
+                  // Save stays disabled while the name is empty
+                  'aria-required': true
                 }
               }}
               sx={{

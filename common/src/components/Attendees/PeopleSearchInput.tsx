@@ -85,7 +85,13 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
     ),
     endAdornment: (
       <>
-        {loading ? <CircularProgress color="inherit" size={20} /> : null}
+        {loading ? (
+          <CircularProgress
+            color="inherit"
+            size={20}
+            aria-label={t('a11y.loading')}
+          />
+        ) : null}
         {paramsEndAdornment}
       </>
     )
