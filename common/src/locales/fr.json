@@ -705,6 +705,7 @@
     "searchResultsCount": "%{smart_count} événement trouvé |||| %{smart_count} événements trouvés",
     "moreEvents": "Autres événements",
     "calendarSettings": "Paramètres de l'agenda",
-    "moreEventsHint": "Afficher %{smart_count} autre événement |||| Afficher %{smart_count} autres événements"
+    "moreEventsHint": "Afficher %{smart_count} autre événement |||| Afficher %{smart_count} autres événements",
+    "skipToContent": "Aller au contenu"
   }
 }

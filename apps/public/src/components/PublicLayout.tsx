@@ -11,6 +11,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import React from 'react'
 import { useI18n } from 'twake-i18n'
 import { PublicLanguageSelector } from './PublicLanguageSelector'
+import { MAIN_CONTENT_ID, SkipLink } from '@common/components/SkipLink'
 
 interface PublicLayoutProps {
   children?: React.ReactNode
@@ -34,6 +35,7 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
         position: 'relative'
       }}
     >
+      <SkipLink />
       <Box
         component="header"
         sx={{
@@ -68,6 +70,8 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
 
       <Box
         component="main"
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
         sx={{
           flex: 1,
           display: 'flex',

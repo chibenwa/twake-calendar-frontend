@@ -20,6 +20,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { useManageCalendarSelection } from './hooks/useManageCalendarSelection'
 import Sidebar from './Sidebar/SideBar'
+import { MAIN_CONTENT_ID, SkipLink } from '@common/components/SkipLink'
 
 const VIEW_NAME_KEYS: Record<string, string> = {
   [CALENDAR_VIEWS.dayGridMonth]: 'menubar.views.month',
@@ -153,9 +154,12 @@ export default function CalendarLayout(): JSX.Element {
 
   return (
     <div className={cx('App ', { 'App--mobile': isMobile })}>
+      <SkipLink />
       {!isInIframe && <Menubar {...menubarProps} />}
       {(view === 'calendar' || view === 'search') && (
         <main
+          id={MAIN_CONTENT_ID}
+          tabIndex={-1}
           className={cx('main-layout calendar-layout', {
             isInIframe: isInIframe,
             'calendar-layout--desktop': !isMobile

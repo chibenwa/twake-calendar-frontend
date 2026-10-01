@@ -706,6 +706,7 @@
     "searchResultsCount": "Tìm thấy %{smart_count} sự kiện",
     "moreEvents": "Các sự kiện khác",
     "calendarSettings": "Cài đặt lịch",
-    "moreEventsHint": "Hiển thị thêm %{smart_count} sự kiện"
+    "moreEventsHint": "Hiển thị thêm %{smart_count} sự kiện",
+    "skipToContent": "Chuyển đến nội dung"
   }
 }

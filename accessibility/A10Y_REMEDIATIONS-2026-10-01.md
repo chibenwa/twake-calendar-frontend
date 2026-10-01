@@ -234,6 +234,11 @@ partial compliance rate.
 - **Blocked (visible change)**: skip link — it must become visible when it receives focus. Moving
   the sidebar out of `<main>` changes the layout (it stays an `<aside>` nested in `<main>`). Mobile
   search has no persistent search form to carry `role="search"`.
+- **High contrast mode**: "Skip to content" link (`common/src/components/SkipLink`), first focusable
+  element of the private and public applications, off screen until focused; it moves the focus
+  to the `<main id="main-content">` of the calendar, settings and public pages. Remaining: the
+  desktop sidebar stays inside `<main>` (moving it out is a layout change not worth its risk
+  while it is a named `<aside>`).
 - **Validation**: pending
 
 ### R-08 — Accessible colour palette
