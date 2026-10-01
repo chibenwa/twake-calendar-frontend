@@ -11,6 +11,7 @@ import { getLayoutConstants } from './LayoutConstants'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { PickerValue } from '@mui/x-date-pickers/internals'
 import { TwakeLocalizationProvider } from '@common/components/DateTimePicker'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
 
 interface AvailableDayProps extends PickerDayProps {
   availableDays?: Set<string>
@@ -103,6 +104,7 @@ export const BookingCalendarSection: React.FC<BookingCalendarSectionProps> = ({
   selectedTimezone
 }) => {
   const { isTooSmall: isMobile } = useScreenSizeDetection()
+  const highContrast = useHighContrast()
   const { CELL_SIZE, WEEKDAY_LABEL_HEIGHT, CALENDAR_GRID_HEIGHT, ROW_GAP } =
     getLayoutConstants(isMobile)
 
@@ -113,7 +115,8 @@ export const BookingCalendarSection: React.FC<BookingCalendarSectionProps> = ({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        p: '24px',
+        // R-13, high contrast mode: 7 cells of 40px fit in 320px (WCAG 1.4.10)
+        p: highContrast && isMobile ? '12px' : '24px',
         gap: '16px'
       }}
     >

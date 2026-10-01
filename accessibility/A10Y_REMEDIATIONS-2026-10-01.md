@@ -359,6 +359,13 @@ partial compliance rate.
   indicator on the date grid days (their focus style is overridden), a `<form>` wrapper so
   that Enter submits, focus restoration after the success dialog (programmatic focus shows a
   focus ring), selected slot colour contrast, 320 px reflow of the date grid.
+- **High contrast mode**: booking form with visible labels (MUI then shows the required asterisk)
+  and an "asterisk = required" legend, inside a real `<form>` (Enter submits, the Confirm button
+  is its submit button), e-mail checked when leaving the field instead of at each keystroke;
+  selected time slot drawn filled (not by colour only); 12 px padding around the date grid on
+  mobile so that it fits 320 px; focus brought back to the page content once the success dialog
+  is gone. Day focus and slot colours come with R-03 / R-08. Not done: the current public RSVP
+  answer stays a disabled button (PUB-08).
 - **Validation**: pending
 
 ### R-14 — Form labels and groups

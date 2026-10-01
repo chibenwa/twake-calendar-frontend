@@ -731,6 +731,7 @@
     "moreEvents": "Các sự kiện khác",
     "calendarSettings": "Cài đặt lịch",
     "moreEventsHint": "Hiển thị thêm %{smart_count} sự kiện",
-    "skipToContent": "Chuyển đến nội dung"
+    "skipToContent": "Chuyển đến nội dung",
+    "requiredLegend": "Các trường có dấu sao (*) là bắt buộc."
   }
 }

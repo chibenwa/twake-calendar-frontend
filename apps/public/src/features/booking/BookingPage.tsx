@@ -17,9 +17,12 @@ import { useBookingData } from './hooks/useBookingData'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
 import { BookingErrorBoundary } from './components/BookingErrorBoundary'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink'
 
 export const BookingPage: React.FC = () => {
   const { t } = useI18n()
+  const highContrast = useHighContrast()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   const { bookingLinkPublicId } = useParams<{
@@ -294,6 +297,13 @@ export const BookingPage: React.FC = () => {
             <BookingSuccessDialog
               open={successOpen}
               onClose={handleCloseSuccess}
+              // R-13, high contrast mode: the button that opened the booking
+              // dialog is gone, bring the focus back to the page content
+              onExited={
+                highContrast
+                  ? () => document.getElementById(MAIN_CONTENT_ID)?.focus()
+                  : undefined
+              }
               selectedSlot={selectedSlot}
               bookingInfo={bookingInfo}
               eventLink={`${window.location.origin}/booking/confirmed/${bookingConfirmationToken}`}
