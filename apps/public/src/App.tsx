@@ -33,6 +33,7 @@ import {
   SupportedLanguage
 } from './context/PublicLanguageContext'
 import { useHighContrastDocumentAttribute } from '@common/features/Settings/Accessibility/highContrastMode'
+import '@common/theme/highContrast.css'
 
 const locale = { en, fr, ru, vi }
 const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }

@@ -141,6 +141,12 @@ partial compliance rate.
   add `@media (forced-colors: active)` outline. Make `.MoreBtn` visible on `:focus-visible` /
   `:focus-within`. Ideally fix upstream in `@linagora/twake-mui`.
 - **RGAA**: 10.7, 3.3 · **Effort**: S · **Impact**: very high — fails on 100 % of pages today.
+- **High contrast mode**: implemented. `common/src/theme/highContrast.css`: a 3 px dark ring
+  (`#1C1B1F`, offset 2 px) on every `:focus-visible` element and MUI `.Mui-focusVisible`
+  (overriding MUI's `outline: 0`, twake-mui's removed button shadow and the `outline: none` of
+  the date pickers and mini calendar), drawn inside menu and list items, a 2 px dark border on
+  focused text fields, hover-only sidebar actions revealed on focus (CAL-03), system `Highlight`
+  colour under Windows forced colours.
 - **Validation**: pending
 
 ### R-04 — Page title per view
