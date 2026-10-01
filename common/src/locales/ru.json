@@ -117,7 +117,17 @@
     "selectCustom": "Выбрать цвет",
     "title": "Выберите цвет",
     "subtitle": "Выберите цвет фона",
-    "hex": "Hex"
+    "hex": "Hex",
+    "colors": {
+      "green": "Зелёный",
+      "orange": "Оранжевый",
+      "red": "Красный",
+      "blue": "Синий",
+      "purple": "Фиолетовый"
+    },
+    "customColorHex": "Свой цвет %{hex}",
+    "saturation": "Насыщенность и яркость",
+    "hue": "Оттенок"
   },
   "event": {
     "createEvent": "Создать",

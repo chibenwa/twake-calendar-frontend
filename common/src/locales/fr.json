@@ -117,7 +117,17 @@
     "selectCustom": "Sélectionner une couleur personnalisée",
     "title": "Choisir une couleur personnalisée",
     "subtitle": "Choisissez une couleur d'arrière-plan pour ce calendrier",
-    "hex": "Hex"
+    "hex": "Hex",
+    "colors": {
+      "green": "Vert",
+      "orange": "Orange",
+      "red": "Rouge",
+      "blue": "Bleu",
+      "purple": "Violet"
+    },
+    "customColorHex": "Couleur personnalisée %{hex}",
+    "saturation": "Saturation et luminosité",
+    "hue": "Teinte"
   },
   "event": {
     "createEvent": "Créer",

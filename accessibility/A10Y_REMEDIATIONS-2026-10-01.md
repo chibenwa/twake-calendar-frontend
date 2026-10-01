@@ -265,6 +265,15 @@ partial compliance rate.
   `aria-checked` + roving tabindex, translated colour names, labelled hex field, translated
   react-colorful slider labels.
 - **RGAA**: 7.3, 7.1, 11.1, 11.5 · **Effort**: S–M · **Impact**: blocker removed.
+- **Status**: implemented without visible change: the preset and current custom colours form a
+  `radiogroup` named "Color" (or the caller's `ariaLabel`), each swatch a `radio` with
+  `aria-checked` and a translated colour name ("Green", "Custom color #12AB34"…); one Tab stop on
+  the selected colour, arrows move and select (wrapping), Space / Enter select. The custom colour
+  button is keyboard-operable (`aria-haspopup` / `aria-expanded`); the hex field is labelled by
+  its visible "Hex" text; react-colorful's sliders get translated names.
+- **Blocked (visible change)**: none for keyboard and names. react-colorful's
+  `aria-valuetext` ("Saturation 40%, Brightness 80%") stays in English (re-rendered by the
+  library at each move).
 - **Validation**: pending
 
 ### R-13 — Public booking flow pass
