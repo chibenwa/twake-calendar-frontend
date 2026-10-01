@@ -717,7 +717,7 @@ day, 23:45) — 48 tests.
 - [x] `I18N-13` `LANG` sets the initial language before any user choice
 - [x] `I18N-14` No raw translation key ever shows up in the interface
 
-## A11Y — Accessibility and keyboard (14)
+## A11Y — Accessibility and keyboard (21)
 
 - [x] `A11Y-01` Every menubar button exposes an accessible name
 - [x] `A11Y-02` The creation modal traps the focus
@@ -733,6 +733,8 @@ day, 23:45) — 48 tests.
 - [x] `AXE-04` The settings page passes axe-core WCAG 2.1 AA (known failures listed in the test)
 - [x] `AXE-05` A public booking page with its slots passes axe-core WCAG 2.1 AA
 - [x] `AXE-06` The page of an unknown booking link passes axe-core WCAG 2.1 AA
+- [x] `A11Y-15` The high contrast mode is switched from the settings and kept on reload
+- [x] `AXE-HC-01…06` The same six screens pass axe-core, colour contrast included, in high contrast mode
 
 ## RESP — Responsive, mobile and tablet (18)
 

@@ -32,7 +32,7 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
  */
 class AxeScanTest extends TwakeCalendarE2ETest {
 
-    private static final List<String> WCAG_21_AA = List.of("wcag2a", "wcag2aa", "wcag21a", "wcag21aa");
+    static final List<String> WCAG_21_AA = List.of("wcag2a", "wcag2aa", "wcag21a", "wcag21aa");
 
     /** Fails on every page; a visible change waiting for design validation. */
     private static final List<String> KNOWN_FAILURES = List.of(
@@ -40,7 +40,7 @@ class AxeScanTest extends TwakeCalendarE2ETest {
         "color-contrast");
 
     /** Known failures of the calendar view, see the A10Y audit. */
-    private static final List<String> CALENDAR_KNOWN_FAILURES = List.of(
+    static final List<String> CALENDAR_KNOWN_FAILURES = List.of(
         // CAL-11: the timezone selector sits in FullCalendar's aria-hidden time axis
         "aria-hidden-focus",
         // CAL-16: sidebar accordions build aria-controls from translated titles, and nest
@@ -53,7 +53,7 @@ class AxeScanTest extends TwakeCalendarE2ETest {
         "scrollable-region-focusable");
 
     /** Known failures of the settings page, see the A10Y audit. */
-    private static final List<String> SETTINGS_KNOWN_FAILURES = List.of(
+    static final List<String> SETTINGS_KNOWN_FAILURES = List.of(
         // the settings navigation list holds buttons instead of list items
         "list");
 
@@ -62,12 +62,29 @@ class AxeScanTest extends TwakeCalendarE2ETest {
     }
 
     /** One line per violated rule: its id, its impact and the first offending element. */
-    private static List<String> violations(Page page, List<String> knownOnThisPage) {
-        List<String> disabled = new java.util.ArrayList<>(KNOWN_FAILURES);
+    static List<String> violations(Page page, List<String> knownOnThisPage) {
+        return violations(page, KNOWN_FAILURES, knownOnThisPage);
+    }
+
+    static List<String> violations(Page page, List<String> knownEverywhere,
+                                   List<String> knownOnThisPage) {
+        return violations(page, null, knownEverywhere, knownOnThisPage);
+    }
+
+    /** Same, restricted to the elements matching {@code scope} when it is not null. */
+    static List<String> violations(Page page, String scope, List<String> knownEverywhere,
+                                   List<String> knownOnThisPage) {
+        List<String> disabled = new java.util.ArrayList<>(knownEverywhere);
         disabled.addAll(knownOnThisPage);
-        return new AxeBuilder(page)
-            .withTags(WCAG_21_AA)
-            .disableRules(disabled)
+        AxeBuilder axe = new AxeBuilder(page).withTags(WCAG_21_AA);
+        if (scope != null) {
+            axe.include(List.of(scope));
+        }
+        // axe refuses an empty list
+        if (!disabled.isEmpty()) {
+            axe.disableRules(disabled);
+        }
+        return axe
             .analyze()
             .getViolations()
             .stream()
