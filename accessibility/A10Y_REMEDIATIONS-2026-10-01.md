@@ -308,6 +308,9 @@ partial compliance rate.
   (`aria-keyshortcuts`), at every width — the keyboard counterpart of the long press.
 - **Blocked (visible change)**: rendering the "more" button in narrow layouts. The default browser
   focus outline appears on the newly focusable elements; a designed focus indicator is R-03.
+- **High contrast mode**: the calendar "more actions" button is rendered in narrow layouts too
+  (no need for a long press), and the sidebar actions are always shown instead of only under the
+  mouse.
 - **Validation**: pending
 
 ### R-12 — Accessible calendar colour picker
