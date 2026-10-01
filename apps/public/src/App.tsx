@@ -33,6 +33,7 @@ import {
   getDefaultLanguage,
   SupportedLanguage
 } from './context/PublicLanguageContext'
+import { useHighContrastDocumentAttribute } from '@common/features/Settings/Accessibility/highContrastMode'
 
 const locale = { en, fr, ru, vi }
 const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }
@@ -40,6 +41,7 @@ const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }
 export default function App(): JSX.Element {
   const [lang, setLang] = useState<SupportedLanguage>(getDefaultLanguage)
   useDocumentLanguage(lang)
+  useHighContrastDocumentAttribute()
 
   const handleLanguageChange = (newLang: SupportedLanguage): void => {
     localStorage.setItem('lang', newLang)

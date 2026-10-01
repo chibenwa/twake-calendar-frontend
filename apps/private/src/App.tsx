@@ -37,6 +37,7 @@ import en from '@common/locales/en.json'
 import fr from '@common/locales/fr.json'
 import ru from '@common/locales/ru.json'
 import vi from '@common/locales/vi.json'
+import { useHighContrastDocumentAttribute } from '@common/features/Settings/Accessibility/highContrastMode'
 
 const locale = { en, fr, ru, vi }
 const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }
@@ -64,6 +65,7 @@ export default function App(): JSX.Element {
     ) || 'en'
 
   useDocumentLanguage(lang)
+  useHighContrastDocumentAttribute()
 
   const dispatch = useAppDispatch()
   useEffect(() => {

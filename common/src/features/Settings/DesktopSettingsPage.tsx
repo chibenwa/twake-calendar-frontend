@@ -7,6 +7,8 @@ import {
   Typography
 } from '@linagora/twake-mui'
 import SettingsIcon from '@mui/icons-material/Settings'
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew'
+import { AccessibilitySettings } from './Accessibility/AccessibilitySettings'
 import { useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { GeneralSettings } from './GeneralSettings'
@@ -59,12 +61,25 @@ export const DesktopSettingsPage: React.FC<{
         <List>
           <ListItemButton
             className={`settings-nav-item ${activeNavItem === 'settings' ? 'active' : ''}`}
+            aria-current={activeNavItem === 'settings' ? 'page' : undefined}
             onClick={() => handleNavItemClick('settings')}
           >
             <ListItemIcon>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary={t('settings.title') || 'Settings'} />
+          </ListItemButton>
+          <ListItemButton
+            className={`settings-nav-item ${activeNavItem === 'accessibility' ? 'active' : ''}`}
+            aria-current={
+              activeNavItem === 'accessibility' ? 'page' : undefined
+            }
+            onClick={() => handleNavItemClick('accessibility')}
+          >
+            <ListItemIcon>
+              <AccessibilityNewIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('settings.accessibility.title')} />
           </ListItemButton>
         </List>
         <Box sx={{ mt: 'auto', px: 3, pb: 2 }}>
@@ -100,9 +115,18 @@ export const DesktopSettingsPage: React.FC<{
                   onAlarmEmailsError={() => setAlarmEmailsErrorOpen(true)}
                 />
               )}
+              {/* left from the mobile layout, before a resize */}
+              {activeSettingsSubTab === 'accessibility' && (
+                <AccessibilitySettings />
+              )}
             </>
           )}
         </Box>
+        {activeNavItem === 'accessibility' && (
+          <Box className="settings-content-body">
+            <AccessibilitySettings />
+          </Box>
+        )}
         {activeNavItem === 'sync' && (
           <Box className="settings-tab-content">
             <Typography variant="body1" sx={{ color: 'text.secondary' }}>
