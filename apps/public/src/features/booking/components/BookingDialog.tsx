@@ -256,6 +256,7 @@ export const BookingConfirmDialog: React.FC<BookingConfirmDialogProps> = ({
       open={open}
       onClose={handleClose}
       title={title}
+      ariaLabel={t('booking.confirm.title')}
       actions={actions}
       normalMaxWidth="570px"
       titleSx={{

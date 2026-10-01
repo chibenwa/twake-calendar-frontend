@@ -62,8 +62,40 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    expect(screen.queryByText('My Title')).not.toBeInTheDocument()
+    // the back button takes the place of the title, which only remains as
+    // the (visually hidden) name of the dialog
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('My Title')
     expect(screen.getByLabelText('a11y.collapseDialog')).toBeInTheDocument()
+  })
+
+  it('is named after its title, not after the buttons of the title bar', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title="My Title"
+        onExpandToggle={mockOnExpandToggle}
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('My Title')
+  })
+
+  it('takes its name from ariaLabel when the title is not text', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title={<div>Tabs</div>}
+        ariaLabel="Calendar settings"
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    expect(screen.getByRole('dialog')).toHaveAccessibleName('Calendar settings')
   })
 
   it('calls onExpandToggle when back arrow is clicked', () => {

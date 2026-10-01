@@ -696,6 +696,8 @@
     "searchEvents": "Search events",
     "accessFor": "Access for %{name}",
     "accessToGrant": "Access to grant",
-    "searchResultsCount": "%{smart_count} event found |||| %{smart_count} events found"
+    "searchResultsCount": "%{smart_count} event found |||| %{smart_count} events found",
+    "moreEvents": "More events",
+    "calendarSettings": "Calendar settings"
   }
 }

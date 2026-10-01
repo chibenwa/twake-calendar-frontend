@@ -148,7 +148,11 @@ export const TouchTimePickerField: React.FC<TimePickerFieldProps> = ({
         }}
       />
 
-      <Dialog open={open} onClose={handleCancel}>
+      <Dialog
+        open={open}
+        onClose={handleCancel}
+        slotProps={{ paper: { 'aria-label': label } }}
+      >
         {view === 'clock' && (
           <StaticTimePicker
             ampm={false}

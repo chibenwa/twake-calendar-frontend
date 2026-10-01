@@ -14,6 +14,8 @@ export interface EventPreviewTitleRowProps {
   t: (key: string, options?: Record<string, unknown>) => string
   /** h2 inside the preview dialog, h1 when the preview is the whole page */
   titleComponent?: 'h1' | 'h2'
+  /** Lets the dialog holding the preview be named after the event */
+  titleId?: string
 }
 
 export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
@@ -21,7 +23,8 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
   isOwn,
   timezone,
   t,
-  titleComponent = 'h2'
+  titleComponent = 'h2',
+  titleId
 }) => {
   return (
     <Box>
@@ -46,6 +49,7 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
             <LockOutlinedIcon />
           ))}
         <Typography
+          id={titleId}
           component={titleComponent}
           variant="h3"
           sx={{

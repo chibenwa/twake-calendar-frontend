@@ -697,6 +697,8 @@
     "searchEvents": "Tìm kiếm sự kiện",
     "accessFor": "Quyền truy cập của %{name}",
     "accessToGrant": "Quyền truy cập cần cấp",
-    "searchResultsCount": "Tìm thấy %{smart_count} sự kiện"
+    "searchResultsCount": "Tìm thấy %{smart_count} sự kiện",
+    "moreEvents": "Các sự kiện khác",
+    "calendarSettings": "Cài đặt lịch"
   }
 }

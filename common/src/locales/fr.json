@@ -696,6 +696,8 @@
     "searchEvents": "Rechercher des événements",
     "accessFor": "Accès pour %{name}",
     "accessToGrant": "Accès à accorder",
-    "searchResultsCount": "%{smart_count} événement trouvé |||| %{smart_count} événements trouvés"
+    "searchResultsCount": "%{smart_count} événement trouvé |||| %{smart_count} événements trouvés",
+    "moreEvents": "Autres événements",
+    "calendarSettings": "Paramètres de l'agenda"
   }
 }
