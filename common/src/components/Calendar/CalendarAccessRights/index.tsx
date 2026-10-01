@@ -54,6 +54,7 @@ function UserAccessRow({
   onRemove: (email: string) => void
   onChangeRight: (email: string, right: AccessRight) => void
 }): JSX.Element {
+  const { t } = useI18n()
   return (
     <Box
       key={user.email}
@@ -103,7 +104,9 @@ function UserAccessRow({
         {canEdit && (
           <IconButton
             size="small"
-            aria-label="remove"
+            aria-label={t('a11y.removeItem', {
+              name: user.displayName || user.email
+            })}
             onClick={() => onRemove(user.email)}
             sx={{ color: 'text.secondary' }}
           >

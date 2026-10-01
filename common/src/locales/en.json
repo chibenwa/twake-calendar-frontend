@@ -667,6 +667,11 @@
   "a11y": {
     "removeItem": "Remove %{name}",
     "moreActionsFor": "More actions for %{name}",
-    "copyItem": "Copy %{name}"
+    "copyItem": "Copy %{name}",
+    "collapseDialog": "Show less",
+    "editItem": "Edit %{name}",
+    "editBookingLink": "Edit booking link",
+    "time": "Time",
+    "event": "Event"
   }
 }

@@ -167,6 +167,18 @@ partial compliance rate.
   translate `<noscript>`. Update e2e locators relying on English labels.
 - **RGAA**: 8.7, 11.9 · **Effort**: S · **Impact**: high for a French audit — English names on every
   dialog.
+- **Status**: implemented for strings that are not displayed: every hard-coded English accessible
+  name goes through `t()` (dialog expand / collapse / close, print and Tdrive close, access-right
+  "Remove <user>", "Remove <calendar>", regular hours add / remove / copy slot, booking strip
+  "Edit <link>"); `lang` on each language option (desktop, mobile, public selectors); FullCalendar
+  `timeHint` / `eventHint` (visually hidden Schedule view headers); camera icon made decorative
+  (`alt=""`, always next to a text), Tdrive logo alt "Twake Drive". e2e locators updated
+  (`expand` → "Show more options", slot actions, French test).
+- **Blocked (visible change)**: these strings are displayed, so translating them changes what
+  users see: MUI core locale (`frFR`… — Autocomplete "No options" / "Open" / "Clear", Alert close
+  tooltip), date picker `localeText` (toolbar texts, month arrows tooltips), FullCalendar
+  `closeHint` / `moreLinkHint` (rendered as `title` tooltips), `allDayText`, default
+  `'Select timezone'` placeholder, `<noscript>` text. The colour picker label is done with R-12.
 - **Validation**: pending
 
 ### R-07 — Headings, landmarks and skip link

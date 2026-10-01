@@ -63,7 +63,6 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
   const actionTitle = isFirst ? t('booking.addSlot') : t('booking.removeSlot')
   const handleAction = (): void =>
     isFirst ? handleAddSlot(day) : handleRemoveSlot(day, index)
-  const actionLabel = isFirst ? 'add-slot' : 'remove-slot'
 
   return (
     <Box>
@@ -98,7 +97,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
             sx={{ ml: 1 }}
             disabled={!isEnabled}
             onClick={handleAction}
-            aria-label={actionLabel}
+            aria-label={actionTitle}
           >
             {isFirst ? (
               <Add fontSize="small" />
@@ -113,7 +112,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
             size="small"
             disabled={!isEnabled}
             onClick={() => handleCopySlot(day, index)}
-            aria-label="copy-slot"
+            aria-label={t('booking.copySlot')}
           >
             <ContentCopy fontSize="small" />
           </IconButton>

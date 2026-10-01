@@ -668,6 +668,11 @@
   "a11y": {
     "removeItem": "Удалить %{name}",
     "moreActionsFor": "Другие действия для %{name}",
-    "copyItem": "Копировать %{name}"
+    "copyItem": "Копировать %{name}",
+    "collapseDialog": "Свернуть",
+    "editItem": "Изменить %{name}",
+    "editBookingLink": "Изменить ссылку для записи",
+    "time": "Время",
+    "event": "Событие"
   }
 }

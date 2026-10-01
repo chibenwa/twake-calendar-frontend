@@ -668,6 +668,11 @@
   "a11y": {
     "removeItem": "Xóa %{name}",
     "moreActionsFor": "Thêm thao tác cho %{name}",
-    "copyItem": "Sao chép %{name}"
+    "copyItem": "Sao chép %{name}",
+    "collapseDialog": "Thu gọn",
+    "editItem": "Chỉnh sửa %{name}",
+    "editBookingLink": "Chỉnh sửa liên kết đặt lịch",
+    "time": "Thời gian",
+    "event": "Sự kiện"
   }
 }
