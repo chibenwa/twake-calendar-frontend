@@ -1,12 +1,14 @@
 import { useTheme, MenuItem, Select } from '@linagora/twake-mui'
 import LanguageIcon from '@mui/icons-material/Language'
 import { AVAILABLE_LANGUAGES } from '@common/features/Settings/constants'
+import { useI18n } from 'twake-i18n'
 import {
   isValidLanguage,
   usePublicLanguage
 } from '../context/PublicLanguageContext'
 
 export const PublicLanguageSelector = (): JSX.Element => {
+  const { t } = useI18n()
   const theme = useTheme()
   const { currentLanguage, setCurrentLanguage } = usePublicLanguage()
 
@@ -21,6 +23,7 @@ export const PublicLanguageSelector = (): JSX.Element => {
       }}
       variant="standard"
       disableUnderline
+      SelectDisplayProps={{ 'aria-label': t('menubar.languageSelector') }}
       startAdornment={
         <LanguageIcon
           sx={{

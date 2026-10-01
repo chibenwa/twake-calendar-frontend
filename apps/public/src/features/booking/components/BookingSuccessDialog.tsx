@@ -48,21 +48,25 @@ interface SuccessHeaderProps {
   title: string
 }
 
-const SuccessHeader: React.FC<SuccessHeaderProps> = ({ onClose, title }) => (
-  <Box sx={{ position: 'relative', textAlign: 'center', pt: 3 }}>
-    <IconButton
-      onClick={onClose}
-      size="small"
-      sx={{ position: 'absolute', top: 8, right: 8 }}
-    >
-      <CloseIcon fontSize="small" />
-    </IconButton>
-    <CheckCircleOutlinedIcon color="success" sx={{ fontSize: 48, mb: 1 }} />
-    <Typography variant="h3" sx={{ mb: 1 }}>
-      {title}
-    </Typography>
-  </Box>
-)
+const SuccessHeader: React.FC<SuccessHeaderProps> = ({ onClose, title }) => {
+  const { t } = useI18n()
+  return (
+    <Box sx={{ position: 'relative', textAlign: 'center', pt: 3 }}>
+      <IconButton
+        aria-label={t('actions.close')}
+        onClick={onClose}
+        size="small"
+        sx={{ position: 'absolute', top: 8, right: 8 }}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+      <CheckCircleOutlinedIcon color="success" sx={{ fontSize: 48, mb: 1 }} />
+      <Typography variant="h3" sx={{ mb: 1 }}>
+        {title}
+      </Typography>
+    </Box>
+  )
+}
 
 interface SuccessSummaryProps {
   subtitle: string

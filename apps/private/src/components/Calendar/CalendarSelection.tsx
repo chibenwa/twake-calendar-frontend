@@ -342,7 +342,14 @@ const BookingLinkChip: React.FC<{
               <LinkIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <IconButton className="MoreBtn" size="small" onClick={handleMenuOpen}>
+          <IconButton
+            className="MoreBtn"
+            size="small"
+            aria-label={t('a11y.moreActionsFor', { name: linkName })}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={handleMenuOpen}
+          >
             <MoreHorizIcon fontSize="small" />
           </IconButton>
         </div>
@@ -850,7 +857,13 @@ const CalendarSelector: React.FC<{
           </label>
         </Tooltip>
         {!isMobile && (
-          <IconButton className="MoreBtn" onClick={handleClick}>
+          <IconButton
+            className="MoreBtn"
+            aria-label={t('a11y.moreActionsFor', { name: displayName })}
+            aria-haspopup="menu"
+            aria-expanded={open}
+            onClick={handleClick}
+          >
             <MoreHorizIcon />
           </IconButton>
         )}

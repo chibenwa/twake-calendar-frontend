@@ -111,6 +111,7 @@ const EventPreviewModal: React.FC<{
       onClose={() => onClose({}, 'backdropClick')}
       onEdit={handleEditClick}
       onMoreClick={e => setToggleActionMenu(e.currentTarget)}
+      isMoreMenuOpen={Boolean(toggleActionMenu)}
       onEditInOrganizerCalendar={
         organizerWritableCalendar ? handleEditInOrganizerCalendar : undefined
       }

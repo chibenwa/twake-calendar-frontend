@@ -131,6 +131,9 @@ export function AccessTab({
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
+                        aria-label={t('a11y.copyItem', {
+                          name: t('calendar.caldav_access')
+                        })}
                         onClick={() =>
                           handleCopyLink(
                             new URL(calDAVLink, window.location.origin),
@@ -164,6 +167,9 @@ export function AccessTab({
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      aria-label={t('a11y.copyItem', {
+                        name: t('calendar.secretUrl')
+                      })}
                       onClick={() =>
                         handleCopyLink(
                           new URL(secretLink, window.location.origin),
