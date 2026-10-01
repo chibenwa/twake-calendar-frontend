@@ -4,7 +4,8 @@
 >
 > *Accessibilité : non conforme.*
 
-*English version: [`ACCESSIBILITY_STATEMENT-en.md`](ACCESSIBILITY_STATEMENT-en.md).*
+*Autres langues : [English](ACCESSIBILITY_STATEMENT-en.md), [русский](ACCESSIBILITY_STATEMENT-ru.md),
+[tiếng Việt](ACCESSIBILITY_STATEMENT-vi.md).*
 
 La présente déclaration s'applique à l'application web Twake Calendar publiée depuis ce dépôt :
 
@@ -32,8 +33,22 @@ Twake Calendar est **non conforme** avec le RGAA 4.1.2.
 **Aucun audit de conformité RGAA n'a encore été réalisé.** Aucun taux de conformité ne peut donc
 être indiqué. Un pré-audit (revue du code source de l'ensemble de l'application et tests
 automatisés des pages publiques) a été mené le 1er octobre 2026 ; ses résultats sont publics :
-[`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md). Un premier lot de corrections a fait
-l'objet d'un nouveau pré-audit le même jour : [`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md).
+[`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md). Les corrections ont fait l'objet d'un
+nouveau pré-audit le même jour : [`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md),
+[`A10Y_REAUDIT-2026-10-01-batch2.md`](A10Y_REAUDIT-2026-10-01-batch2.md).
+
+## Mode contraste élevé
+
+Twake Calendar propose une version accessible de son interface : le **mode contraste élevé**. Il
+s'active depuis le pied de la barre latérale (agenda et paramètres), depuis le pied des pages
+publiques ou depuis *Paramètres › Accessibilité* ; survoler ou atteindre l'interrupteur au
+clavier en affiche la description. Il est enregistré sur l'appareil et désactivé par défaut.
+
+Mode activé : les couleurs atteignent les contrastes requis, le focus clavier est nettement
+visible, un lien « Aller au contenu » apparaît au premier appui sur la touche Tab, les champs ont
+une étiquette visible et les champs obligatoires sont signalés, les messages restent affichés
+suffisamment longtemps et tous les textes de l'interface suivent la langue choisie. Sauf mention
+contraire, les obstacles listés ci-dessous concernent l'affichage par défaut.
 
 ## Contenus non accessibles
 
@@ -73,7 +88,8 @@ Aucun identifié.
 - **Couleurs d'agenda choisies par les utilisateurs** : elles peuvent manquer de contraste ; le
   statut des événements est (ou sera) également transmis sous forme de texte.
 
-L'utilisation au clavier est documentée (en anglais) dans [`KEYBOARD.md`](KEYBOARD.md).
+L'utilisation au clavier est documentée (en anglais) dans [`KEYBOARD.md`](KEYBOARD.md) et dans
+*Paramètres › Accessibilité › Clavier*.
 
 ## Établissement de cette déclaration
 

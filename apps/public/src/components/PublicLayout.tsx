@@ -12,6 +12,7 @@ import React from 'react'
 import { useI18n } from 'twake-i18n'
 import { PublicLanguageSelector } from './PublicLanguageSelector'
 import { MAIN_CONTENT_ID, SkipLink } from '@common/components/SkipLink'
+import { HighContrastSwitch } from '@common/features/Settings/Accessibility/HighContrastSwitch'
 
 interface PublicLayoutProps {
   children?: React.ReactNode
@@ -107,6 +108,8 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
           />
         </Link>
         <Typography variant="body2">{t('publicLayout.title')}</Typography>
+        {/* R-29: the public pages have no settings, the switch sits here */}
+        <HighContrastSwitch />
         <Typography variant="body2">
           {t('publicLayout.useSubjectTo')}{' '}
           <Link

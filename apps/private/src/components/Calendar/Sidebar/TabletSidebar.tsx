@@ -3,6 +3,7 @@ import { CalendarSidebarProps } from './SideBar'
 import { SidebarCommonContent } from './SidebarCommonContent'
 import { ViewSwitcher } from './ViewSwitcher'
 import { useI18n } from 'twake-i18n'
+import { HighContrastSwitch } from '@common/features/Settings/Accessibility/HighContrastSwitch'
 
 export const TabletSidebar: React.FC<CalendarSidebarProps> = ({
   open,
@@ -49,6 +50,8 @@ export const TabletSidebar: React.FC<CalendarSidebarProps> = ({
         selectedCalendars={selectedCalendars}
         setSelectedCalendars={setSelectedCalendars}
       />
+      {/* R-29: the accessible version within one step of every view */}
+      <HighContrastSwitch sx={{ mt: 'auto', pt: 2 }} />
     </Drawer>
   )
 }

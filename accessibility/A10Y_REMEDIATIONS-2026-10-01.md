@@ -586,3 +586,28 @@ partial compliance rate.
   [`MULTI_YEAR_PLAN.md`](MULTI_YEAR_PLAN.md); known limitations and
   alternatives listed in the statement. To be completed by each deploying administration.
 - **Validation**: pending
+
+---
+
+## Added by the second re-audit
+
+### R-29 — High contrast mode within one step of every page
+- **Why**: an accessible alternative version only counts if it can be reached from the
+  non-conforming page; the public pages had no way to switch the mode on.
+- **What**: a "High contrast mode" switch at the foot of every side bar (calendar on desktop,
+  tablet and mobile, settings) and in the footer of the public pages.
+- **Status**: implemented (`HighContrastSwitch`).
+- **Validation**: pending
+
+### R-30 — Describe the high contrast mode
+- **What**: a flyover on the switch (hover and keyboard focus), the same description given to
+  screen readers, and a "High contrast mode" section in the accessibility statement, in every
+  language of the application (EN, FR, RU, VI).
+- **Status**: implemented.
+- **Validation**: pending
+
+### R-31 — Event chips and grid chrome in high contrast mode
+- **Why**: last `color-contrast` failure in high contrast mode (calendar grid).
+- **What**: R-19 applied when the mode is on.
+- **Status**: open.
+- **Validation**: pending
