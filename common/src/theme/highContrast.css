@@ -53,3 +53,26 @@ html[data-high-contrast='true'] li:focus-within .MoreBtn {
     outline-color: Highlight !important;
   }
 }
+
+/* --- R-07: skip link, off screen until it receives the focus ----------- */
+
+html[data-high-contrast='true'] .skip-link {
+  position: absolute;
+  left: -10000px;
+  top: 8px;
+  z-index: 2000;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1c1b1f;
+  font-weight: 600;
+  text-decoration: underline;
+}
+html[data-high-contrast='true'] .skip-link:focus {
+  left: 8px;
+}
+/* the main region only receives the focus to move the reading position */
+html[data-high-contrast='true'] #main-content:focus,
+html[data-high-contrast='true'] #main-content:focus-visible {
+  outline: none !important;
+}
