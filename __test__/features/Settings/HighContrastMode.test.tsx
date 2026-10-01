@@ -1,4 +1,5 @@
 import { AccessibilitySettings } from '@common/features/Settings/Accessibility/AccessibilitySettings'
+import { HighContrastSwitch } from '@common/features/Settings/Accessibility/HighContrastSwitch'
 import {
   HIGH_CONTRAST_STORAGE_KEY,
   isHighContrastEnabled,
@@ -61,5 +62,19 @@ describe('High contrast mode', () => {
     })
     // a header row plus one row per shortcut
     expect(table.querySelectorAll('tr')).toHaveLength(10)
+  })
+
+  it('can be switched from the side bars, with its description', () => {
+    renderWithProviders(<HighContrastSwitch />)
+    const toggle = screen.getByRole('switch', {
+      name: 'settings.accessibility.highContrast'
+    })
+    expect(toggle).toHaveAccessibleDescription(
+      'settings.accessibility.highContrastDescription'
+    )
+
+    fireEvent.click(toggle)
+
+    expect(isHighContrastEnabled()).toBe(true)
   })
 })

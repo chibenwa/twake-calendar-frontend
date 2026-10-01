@@ -5,6 +5,7 @@ import { MiniCalendar } from '@common/components/Calendar/MiniCalendar'
 import { CalendarSidebarProps } from './SideBar'
 import { SidebarCommonContent } from './SidebarCommonContent'
 import Tooltip from '@common/components/Tooltip'
+import { HighContrastSwitch } from '@common/features/Settings/Accessibility/HighContrastSwitch'
 
 export const DesktopSidebar: React.FC<CalendarSidebarProps> = ({
   calendarRef,
@@ -87,6 +88,8 @@ export const DesktopSidebar: React.FC<CalendarSidebarProps> = ({
         selectedCalendars={selectedCalendars}
         setSelectedCalendars={setSelectedCalendars}
       />
+      {/* R-29: the accessible version within one step of every view */}
+      <HighContrastSwitch sx={{ mt: 'auto', pt: 2 }} />
     </Drawer>
   )
 }

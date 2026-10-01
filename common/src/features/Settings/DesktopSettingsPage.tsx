@@ -17,6 +17,7 @@ import './SettingsPage.styl'
 import { SettingsHeader } from './SettingsHeader'
 import type { SidebarNavItem, SettingsSubTab } from './SettingsPage'
 import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
+import { HighContrastSwitch } from './Accessibility/HighContrastSwitch'
 
 export const DesktopSettingsPage: React.FC<{
   activeSettingsSubTab: SettingsSubTab
@@ -85,6 +86,7 @@ export const DesktopSettingsPage: React.FC<{
           </ListItemButton>
         </List>
         <Box sx={{ mt: 'auto', px: 3, pb: 2 }}>
+          <HighContrastSwitch sx={{ mb: 1 }} />
           <Typography
             variant="caption"
             // R-08, high contrast mode: real information, not a disabled state

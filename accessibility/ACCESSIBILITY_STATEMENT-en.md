@@ -4,7 +4,9 @@
 >
 > In the terms of the French accessibility reference (RGAA 4.1.2): *« Accessibilité : non conforme »*.
 
-*Version française : [`ACCESSIBILITY_STATEMENT-fr.md`](ACCESSIBILITY_STATEMENT-fr.md).*
+*Other languages: [français](ACCESSIBILITY_STATEMENT-fr.md), [русский](ACCESSIBILITY_STATEMENT-ru.md),
+[tiếng Việt](ACCESSIBILITY_STATEMENT-vi.md). The French version is the reference for French
+administrations.*
 
 This statement covers the Twake Calendar web application published from this repository:
 
@@ -31,8 +33,22 @@ Twake Calendar is **not compliant** with RGAA 4.1.2.
 **No RGAA compliance audit has been performed yet.** No compliance rate can therefore be stated.
 A pre-audit (source review of the whole application and automated tests of the public pages) was
 carried out on 2026-10-01; its findings are public: [`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md).
-A first batch of corrections was re-audited the same day:
-[`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md).
+The corrections were re-audited the same day:
+[`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md),
+[`A10Y_REAUDIT-2026-10-01-batch2.md`](A10Y_REAUDIT-2026-10-01-batch2.md).
+
+## High contrast mode
+
+Twake Calendar offers an accessible version of its interface: the **high contrast mode**. It is
+switched on from the foot of the side bar (calendar and settings), from the footer of the public
+pages, or from *Settings › Accessibility*; hovering or focusing the switch describes it. It is
+stored on the device, and off by default.
+
+With the mode on: colours reach the required contrast ratios, keyboard focus is clearly visible,
+a "Skip to content" link appears on the first press of the Tab key, fields have visible labels
+and required fields are marked, messages stay on screen long enough, and the interface texts all
+follow the chosen language. The barriers listed below concern the default display unless stated
+otherwise.
 
 ## Non-accessible content
 
@@ -69,7 +85,8 @@ None identified.
 - **Calendar colours chosen by users** may not contrast enough: event status is (or will be) also
   conveyed as text.
 
-Keyboard usage is documented in [`KEYBOARD.md`](KEYBOARD.md).
+Keyboard usage is documented in [`KEYBOARD.md`](KEYBOARD.md) and in *Settings › Accessibility ›
+Keyboard*.
 
 ## Preparation of this statement
 

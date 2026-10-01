@@ -265,7 +265,7 @@ var appList = [
 Twake Calendar targets the French accessibility reference RGAA 4.1.2 (WCAG 2.1 AA).
 **No RGAA compliance audit has been performed yet: the application is not compliant.**
 
-- Accessibility statement: [English](accessibility/ACCESSIBILITY_STATEMENT-en.md), [français](accessibility/ACCESSIBILITY_STATEMENT-fr.md)
+- Accessibility statement: [English](accessibility/ACCESSIBILITY_STATEMENT-en.md), [français](accessibility/ACCESSIBILITY_STATEMENT-fr.md), [русский](accessibility/ACCESSIBILITY_STATEMENT-ru.md), [tiếng Việt](accessibility/ACCESSIBILITY_STATEMENT-vi.md)
 - [Multi-year accessibility plan](accessibility/MULTI_YEAR_PLAN.md)
 - [Keyboard usage](accessibility/KEYBOARD.md)
 - [Pre-audit findings](accessibility/A10Y_AUDIT-2026-10-01.md), [re-audit](accessibility/A10Y_REAUDIT-2026-10-01.md) and [action plan](accessibility/A10Y_REMEDIATIONS-2026-10-01.md)
