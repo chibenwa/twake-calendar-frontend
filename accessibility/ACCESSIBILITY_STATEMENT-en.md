@@ -31,6 +31,8 @@ Twake Calendar is **not compliant** with RGAA 4.1.2.
 **No RGAA compliance audit has been performed yet.** No compliance rate can therefore be stated.
 A pre-audit (source review of the whole application and automated tests of the public pages) was
 carried out on 2026-10-01; its findings are public: [`A10Y_AUDIT-2026-10-01.md`](A10Y_AUDIT-2026-10-01.md).
+A first batch of corrections was re-audited the same day:
+[`A10Y_REAUDIT-2026-10-01.md`](A10Y_REAUDIT-2026-10-01.md).
 
 ## Non-accessible content
 
@@ -40,14 +42,13 @@ The pre-audit identified, among others, the following barriers (full list with l
 - Keyboard focus is hardly visible on most controls.
 - Several colours (primary buttons, secondary text, links, error messages, event chips) do not
   reach the required contrast ratio.
-- Some features cannot be used with the keyboard alone (some date fields, calendar colour choice,
-  events in the Schedule view, some calendar actions at high zoom levels).
-- Several form fields are identified by their placeholder only; required fields are not indicated
-  and some errors are not announced.
-- Some buttons have no accessible name; some states (participation status, selected answer) are
-  conveyed by colour or icon only.
-- Pages have no level-one heading and no skip link; the page title does not always describe the
-  current view.
+- The attendee contact card cannot be reached with the keyboard from within the event dialogs.
+- Several form fields show no visible label (only a placeholder, their name is given to assistive
+  technologies), and required fields are not visibly indicated.
+- Some states (event participation status, privacy) are conveyed by colour or icon only, and
+  calendar events are announced without their full time range and status.
+- There is no skip link; the focus is not moved when switching between calendar, settings and
+  search.
 - Some messages disappear after 2 seconds.
 
 ### Derogations for disproportionate burden
