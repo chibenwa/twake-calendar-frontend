@@ -419,6 +419,12 @@ partial compliance rate.
   visible explanation next to the disabled calendar Save button, naming the missing field in the
   booking schedule error message, keeping focus on the first invalid field when Save is pressed
   (the event form keeps Save usable and the date error is announced as soon as it appears).
+- **High contrast mode**: calendar name marked required (asterisk) with "A name is required to
+  save the calendar." under the field while it is empty — the reason why Save is disabled,
+  linked to the field; the booking schedule error names what is missing (calendar, slot
+  duration, regular hours with a slot ending before it starts); public booking form: required
+  asterisks and legend (R-13). Not done: moving the focus to the first invalid field on Save in
+  the event form (Save stays usable and the date error is announced as soon as it appears).
 - **Validation**: pending
 
 ### R-16 — Dialog, drawer and frame names
