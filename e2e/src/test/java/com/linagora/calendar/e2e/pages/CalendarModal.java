@@ -108,12 +108,12 @@ public class CalendarModal {
 
     /** The CalDAV address of this calendar, as the Access tab shows it. */
     public String caldavUrl() {
-        return dialog().getByLabel("CalDAV access").inputValue();
+        return dialog().getByLabel("CalDAV access", new Locator.GetByLabelOptions().setExact(true)).inputValue();
     }
 
     /** The address that opens the calendar without credentials, token included. */
     public String secretUrl() {
-        Locator field = dialog().getByLabel("Secret URL");
+        Locator field = dialog().getByLabel("Secret URL", new Locator.GetByLabelOptions().setExact(true));
         // the tab fetches the address once open: until it answers, the field stands empty
         com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(field)
             .hasValue(java.util.regex.Pattern.compile(".+"),
