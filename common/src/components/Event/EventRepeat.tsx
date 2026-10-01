@@ -90,7 +90,9 @@ export const RepeatEvent: React.FC<{
       <Stack>
         {/* Interval */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Typography variant="h6">{t('event.repeat.every')}</Typography>
+          <Typography component="p" variant="h6">
+            {t('event.repeat.every')}
+          </Typography>
           <TextField
             type="number"
             value={intervalInput}
@@ -202,7 +204,7 @@ export const RepeatEvent: React.FC<{
 
         {/* End options */}
         <Box>
-          <Typography variant="h6" gutterBottom>
+          <Typography component="p" variant="h6" gutterBottom>
             {t('event.repeat.end.label')}
           </Typography>
           <RadioGroup
@@ -248,7 +250,7 @@ export const RepeatEvent: React.FC<{
               value="never"
               control={<Radio />}
               label={
-                <Typography variant="h6">
+                <Typography component="span" variant="h6">
                   {t('event.repeat.end.never')}
                 </Typography>
               }
@@ -261,7 +263,7 @@ export const RepeatEvent: React.FC<{
               control={<Radio />}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="h6">
+                  <Typography component="span" variant="h6">
                     {t('event.repeat.end.on')}
                   </Typography>
                   <TwakeLocalizationProvider>
@@ -331,7 +333,7 @@ export const RepeatEvent: React.FC<{
               sx={{ mt: 1 }}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="h6">
+                  <Typography component="span" variant="h6">
                     {t('event.repeat.end.after')}
                   </Typography>
                   <TextField
@@ -360,7 +362,7 @@ export const RepeatEvent: React.FC<{
                       }
                     }}
                   />
-                  <Typography variant="h6">
+                  <Typography component="span" variant="h6">
                     {t('event.repeat.end.occurrences')}
                   </Typography>
                 </Box>

@@ -672,6 +672,8 @@
     "editItem": "Modifier %{name}",
     "editBookingLink": "Modifier le lien de réservation",
     "time": "Heure",
-    "event": "Événement"
+    "event": "Événement",
+    "sidebar": "Agendas et navigation",
+    "calendar": "Agenda"
   }
 }

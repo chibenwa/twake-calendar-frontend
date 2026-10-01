@@ -110,7 +110,9 @@ function ColorPickerHeader(): JSX.Element {
   const { t } = useI18n()
   return (
     <>
-      <Typography variant="subtitle2">{t('colorPicker.title')}</Typography>
+      <Typography component="p" variant="subtitle2">
+        {t('colorPicker.title')}
+      </Typography>
       <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
         {t('colorPicker.subtitle')}
       </Typography>
@@ -276,7 +278,11 @@ function ColorPickerBox({
       {isMobile ? (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
           <DialogTitle sx={{ pb: 1 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: '600' }}>
+            <Typography
+              component="span"
+              variant="subtitle1"
+              sx={{ fontWeight: '600' }}
+            >
               {t('colorPicker.title')}
             </Typography>
           </DialogTitle>

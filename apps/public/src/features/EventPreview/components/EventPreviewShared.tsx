@@ -14,7 +14,7 @@ export const EventLoadError: React.FC<EventLoadErrorProps> = ({
   return (
     <Box sx={{ p: 4, textAlign: 'center' }}>
       <img src={logo} alt={t('search.noResults')} />
-      <Typography color="error" variant="h5">
+      <Typography component="h1" color="error" variant="h5">
         {t('error.cannotLoadEvent')}
       </Typography>
       {errorDetail && (

@@ -9,6 +9,7 @@ import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
 import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
+import { VisuallyHidden } from '@common/components/VisuallyHidden'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { getViewRange } from '@common/utils/dateUtils'
 import type { CalendarApi } from '@fullcalendar/core'
@@ -52,12 +53,15 @@ export default function CalendarLayout(): JSX.Element {
   const [periodTitle, setPeriodTitle] = useState<string>()
 
   const viewNameKey = VIEW_NAME_KEYS[currentView]
+  const calendarHeading = [periodTitle, viewNameKey && t(viewNameKey)]
+    .filter(Boolean)
+    .join(' – ')
   useDocumentTitle(
     ...(view === 'settings'
       ? [t('settings.title')]
       : view === 'search'
         ? [t('search.resultsTitle')]
-        : [periodTitle, viewNameKey ? t(viewNameKey) : undefined])
+        : [calendarHeading])
   )
 
   useEffect(() => {
@@ -155,6 +159,11 @@ export default function CalendarLayout(): JSX.Element {
             'calendar-layout--desktop': !isMobile
           })}
         >
+          {view === 'calendar' && (
+            <VisuallyHidden component="h1">
+              {calendarHeading || t('a11y.calendar')}
+            </VisuallyHidden>
+          )}
           <Sidebar
             open={openSidebar}
             onClose={() => setOpenSideBar(false)}

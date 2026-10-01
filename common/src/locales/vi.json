@@ -673,6 +673,8 @@
     "editItem": "Chỉnh sửa %{name}",
     "editBookingLink": "Chỉnh sửa liên kết đặt lịch",
     "time": "Thời gian",
-    "event": "Sự kiện"
+    "event": "Sự kiện",
+    "sidebar": "Lịch và điều hướng",
+    "calendar": "Lịch"
   }
 }

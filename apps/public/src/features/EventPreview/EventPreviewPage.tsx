@@ -77,6 +77,7 @@ export const EventPreviewPage: React.FC = () => {
     <PreviewContainer>
       <EventPreviewTitleRow
         event={event as CalendarEvent}
+        titleComponent="h1"
         isOwn={false}
         timezone={event?.timezone as string}
         t={t}

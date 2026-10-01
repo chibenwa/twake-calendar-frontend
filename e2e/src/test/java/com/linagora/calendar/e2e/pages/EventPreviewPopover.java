@@ -15,7 +15,8 @@ public class EventPreviewPopover {
     EventPreviewPopover waitUntilOpen() {
         // the title heading, not the Edit button: a guest invited to an event they do not own
         // gets the preview without the editing actions
-        content().locator("h3").first().waitFor();
+        // (an h2: the heading level of a dialog title)
+        content().locator("h2.MuiTypography-h3").first().waitFor();
         return this;
     }
 

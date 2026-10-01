@@ -60,7 +60,7 @@ const SuccessHeader: React.FC<SuccessHeaderProps> = ({ onClose, title }) => {
         <CloseIcon fontSize="small" />
       </IconButton>
       <CheckCircleOutlinedIcon color="success" sx={{ fontSize: 48, mb: 1 }} />
-      <Typography variant="h3" sx={{ mb: 1 }}>
+      <Typography component="h2" variant="h3" sx={{ mb: 1 }}>
         {title}
       </Typography>
     </Box>
