@@ -115,7 +115,6 @@ export default function CalendarLayout(): JSX.Element {
 
   const handleDateChange = (date: Date): void => {
     setCurrentDate(date)
-    setPeriodTitle(calendarRef.current?.view.title)
   }
 
   const handleViewChange = (view: string): void => {
@@ -200,6 +199,7 @@ export default function CalendarLayout(): JSX.Element {
               onDateChange={handleDateChange}
               onPeriodChange={setDisplayedPeriod}
               onViewChange={handleViewChange}
+              onPeriodTitleChange={setPeriodTitle}
             />
           </div>
           {isMobile && (
