@@ -199,13 +199,19 @@ class AccessibilityTest extends TwakeCalendarE2ETest {
         calendar.openSettings();
         page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Accessibility")).click();
-        page.getByRole(com.microsoft.playwright.options.AriaRole.SWITCH,
-            new Page.GetByRoleOptions().setName("High contrast mode")).click();
+        // the switch of the Accessibility section; the side bar has its own (R-29)
+        page.locator(".settings-content").getByRole(com.microsoft.playwright.options.AriaRole.SWITCH,
+            new com.microsoft.playwright.Locator.GetByRoleOptions().setName("High contrast mode")).click();
 
         com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(page.locator("html"))
             .hasAttribute("data-high-contrast", "true");
         page.reload();
         com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(page.locator("html"))
             .hasAttribute("data-high-contrast", "true");
+        // back on the calendar, the side bar switch tells the mode is on
+        com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(
+                page.locator(".sidebar").getByRole(com.microsoft.playwright.options.AriaRole.SWITCH,
+                    new com.microsoft.playwright.Locator.GetByRoleOptions().setName("High contrast mode")))
+            .isChecked();
     }
 }
