@@ -45,6 +45,7 @@ export const Error: React.FC<ErrorProps> = ({
   return (
     <Fade in timeout={500}>
       <Box
+        component="main"
         sx={{
           minHeight: '100vh',
           display: 'flex',
@@ -79,7 +80,9 @@ export const Error: React.FC<ErrorProps> = ({
               <ErrorOutlinedIcon sx={{ fontSize: 40 }} />
             </Box>
 
-            <Typography variant="h5">{t('error.title')}</Typography>
+            <Typography component="h1" variant="h5">
+              {t('error.title')}
+            </Typography>
 
             <Typography
               variant="body1"

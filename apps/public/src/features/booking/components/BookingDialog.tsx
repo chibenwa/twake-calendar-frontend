@@ -60,7 +60,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
   return (
     <>
       {bookingInfo?.name && (
-        <Typography variant="h4" sx={{ mb: '24px' }}>
+        <Typography component="h3" variant="h4" sx={{ mb: '24px' }}>
           {bookingInfo.name}
         </Typography>
       )}

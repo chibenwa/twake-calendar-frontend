@@ -176,7 +176,11 @@ export function ResourceSearch({
         return (
           <>
             {!hideLabel && (
-              <Typography variant="h6" sx={{ marginBottom: '10px' }}>
+              <Typography
+                component="p"
+                variant="h6"
+                sx={{ marginBottom: '10px' }}
+              >
                 {t('resourceSearch.label')}
               </Typography>
             )}
@@ -195,7 +199,11 @@ export function ResourceSearch({
       return (
         <>
           {!hideLabel && (
-            <Typography variant="h6" sx={{ marginBottom: '10px' }}>
+            <Typography
+              component="p"
+              variant="h6"
+              sx={{ marginBottom: '10px' }}
+            >
               {t('resourceSearch.label')}
             </Typography>
           )}

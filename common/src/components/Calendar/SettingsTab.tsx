@@ -86,6 +86,7 @@ export function SettingsTab({
       {/* Form group 1: Name field - first group, margin top 0 */}
       <Box sx={{ mt: 0 }}>
         <Typography
+          component="p"
           variant="h6"
           sx={{ margin: 0, marginBottom: isResource || isTeam ? '16px' : 0 }}
         >
@@ -152,7 +153,7 @@ export function SettingsTab({
 
       {/* Form group 3: Color */}
       <Box sx={{ mt: 2 }}>
-        <Typography variant="h6" sx={{ margin: 0 }}>
+        <Typography component="p" variant="h6" sx={{ margin: 0 }}>
           {t('calendar.color')}
         </Typography>
         <Box sx={{ marginTop: '6px' }}>
@@ -166,7 +167,7 @@ export function SettingsTab({
       {/* Form group 4: New events visibility */}
       {showsVisibility && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" sx={{ margin: 0 }}>
+          <Typography component="p" variant="h6" sx={{ margin: 0 }}>
             {t('calendar.newEventsVisibility')}
           </Typography>
           <Box sx={{ marginTop: '6px' }}>

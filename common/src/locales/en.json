@@ -673,6 +673,8 @@
     "editItem": "Edit %{name}",
     "editBookingLink": "Edit booking link",
     "time": "Time",
-    "event": "Event"
+    "event": "Event",
+    "sidebar": "Calendars and navigation",
+    "calendar": "Calendar"
   }
 }

@@ -75,6 +75,7 @@ export const BookedEventPreviewPage: React.FC = () => {
     <PreviewContainer>
       <EventPreviewTitleRow
         event={event}
+        titleComponent="h1"
         isOwn={false}
         timezone={event?.timezone}
         t={t}

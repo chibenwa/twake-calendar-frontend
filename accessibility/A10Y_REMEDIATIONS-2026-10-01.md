@@ -189,6 +189,22 @@ partial compliance rate.
   `role="search"` on the search bar; `<header>` and `<main>` in `PublicLayout` and the Error page;
   "Skip to calendar" / "Skip to content" link as first focusable element.
 - **RGAA**: 9.1, 12.6, 12.7 · **Effort**: S–M · **Impact**: high — fails on 100 % of pages.
+- **Status**: implemented without visible change:
+  - one `<h1>` per view: visually hidden on the calendar ("<period> – <view>"), settings and mobile
+    search results; the visible "Search Results", error, public booking link name and public event
+    title become the `<h1>`;
+  - heading levels follow the structure: settings sections `<h2>`, event preview title `<h2>`
+    (dialog) or `<h1>` (public page), public success dialog `<h2>`; labels and values styled as
+    headings (repeat options, all day, calendar modal fields, resources, view switcher items,
+    owner name…) are no longer `<h1>`–`<h6>` elements. Only the element changes: the typography
+    variant, hence the rendering, is unchanged;
+  - landmarks: the desktop sidebar is an `<aside>` named "Calendars and navigation", the desktop
+    search bar has `role="search"`, public pages get `<header>` and `<main>`, the error page a
+    `<main>`;
+  - shared `VisuallyHidden` component (`common/src/components/VisuallyHidden`).
+- **Blocked (visible change)**: skip link — it must become visible when it receives focus. Moving
+  the sidebar out of `<main>` changes the layout (it stays an `<aside>` nested in `<main>`). Mobile
+  search has no persistent search form to carry `role="search"`.
 - **Validation**: pending
 
 ### R-08 — Accessible colour palette
