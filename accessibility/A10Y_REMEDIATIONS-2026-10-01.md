@@ -249,6 +249,15 @@ partial compliance rate.
   ≥ 4.5:1; input / outlined button borders ≥ 3:1; IconButton default colour ≥ 3:1. Ideally done in
   `@linagora/twake-mui` so all Twake apps benefit.
 - **RGAA**: 3.2, 3.3 · **Effort**: M · **Impact**: very high — contrast fails on 100 % of pages.
+- **High contrast mode**: implemented (`HIGH_CONTRAST_COLORS` in
+  `common/src/theme/highContrastTheme.ts`, checked by a unit test): primary `#B5470F` (private,
+  5.4:1) / `#0057B8` (public, 6.9:1), error / warning / success / info darkened to ≥ 5:1, secondary
+  text 6.5:1, placeholders 5.3:1, field and outlined button borders 3.4:1, icon buttons 5.6:1. The
+  calendar palette and the date picker overrides are rebuilt from the high contrast palette
+  (stronger arrows and weekday labels, 12 px instead of 10 px). Outside the theme: mini calendar
+  today / selected day, settings navigation and tab indicators (plus bold / underline), weekday
+  buttons, day badge, user menu icons, version caption. Not in this action: event chips and grid
+  chrome (R-19).
 - **Validation**: pending
 
 ### R-09 — Notification timing and roles

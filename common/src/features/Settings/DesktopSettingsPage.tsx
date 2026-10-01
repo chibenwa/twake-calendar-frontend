@@ -16,6 +16,7 @@ import { NotificationsSettings } from './NotificationSettings'
 import './SettingsPage.styl'
 import { SettingsHeader } from './SettingsHeader'
 import type { SidebarNavItem, SettingsSubTab } from './SettingsPage'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
 
 export const DesktopSettingsPage: React.FC<{
   activeSettingsSubTab: SettingsSubTab
@@ -42,6 +43,7 @@ export const DesktopSettingsPage: React.FC<{
   setActiveSettingsSubTab
 }) => {
   const { t } = useI18n()
+  const highContrast = useHighContrast()
 
   const [activeNavItem, setActiveNavItem] = useState<SidebarNavItem>('settings')
 
@@ -83,7 +85,11 @@ export const DesktopSettingsPage: React.FC<{
           </ListItemButton>
         </List>
         <Box sx={{ mt: 'auto', px: 3, pb: 2 }}>
-          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+          <Typography
+            variant="caption"
+            // R-08, high contrast mode: real information, not a disabled state
+            sx={{ color: highContrast ? 'text.secondary' : 'text.disabled' }}
+          >
             version {window.APP_VERSION ?? '2.0'}
           </Typography>
         </Box>

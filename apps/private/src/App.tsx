@@ -69,7 +69,13 @@ export default function App(): JSX.Element {
   useDocumentLanguage(lang)
   const highContrast = useHighContrastDocumentAttribute()
   const themeOptions = useMemo(
-    () => withHighContrast(makeCalendarOverrides(true), highContrast, lang),
+    () =>
+      withHighContrast(
+        makeCalendarOverrides(true, highContrast),
+        highContrast,
+        lang,
+        'private'
+      ),
     [highContrast, lang]
   )
 
