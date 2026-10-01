@@ -4,6 +4,7 @@ import { Close as CloseIcon } from '@mui/icons-material'
 import { TdriveFile } from '../types'
 import { PickerSkeleton } from './PickerSkeleton'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
+import { useI18n } from 'twake-i18n'
 
 interface TdrivePickerDialogProps {
   open: boolean
@@ -64,6 +65,7 @@ export const TdrivePickerDialog: React.FC<TdrivePickerDialogProps> = ({
   containerRef,
   onReadyToUse
 }) => {
+  const { t } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   const [isReady, setIsReady] = useState(false)
@@ -96,7 +98,7 @@ export const TdrivePickerDialog: React.FC<TdrivePickerDialogProps> = ({
       <PickerContent containerRef={containerRef} isReady={isReady} />
       {!isReady && (
         <IconButton
-          aria-label="close"
+          aria-label={t('actions.close')}
           onClick={onClose}
           sx={{
             position: 'absolute',

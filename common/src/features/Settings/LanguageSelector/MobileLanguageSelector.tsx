@@ -36,7 +36,7 @@ export const MobileLanguageSelector: React.FC<LanguageSelectorInputProps> = ({
     <MobileSelector ref={selectorRef} displayText={currentLabel}>
       <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
         {AVAILABLE_LANGUAGES.map(({ code, label }) => (
-          <ListItem key={code} value={code} disablePadding>
+          <ListItem key={code} value={code} lang={code} disablePadding>
             <ListItemButton
               selected={currentLanguage === code}
               aria-selected={currentLanguage === code}

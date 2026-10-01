@@ -58,7 +58,14 @@ const ResourceItem: React.FC<{
         <IconButton
           size="small"
           onClick={onRemove}
-          aria-label="Remove calendar"
+          aria-label={t('a11y.removeItem', {
+            name: renameDefault(
+              cal.cal['dav:name'],
+              cal.owner.displayName,
+              t,
+              false
+            )
+          })}
         >
           <CloseIcon fontSize="small" />
         </IconButton>
@@ -132,7 +139,14 @@ const OtherCalendarItem: React.FC<{
         <IconButton
           size="small"
           onClick={onRemove}
-          aria-label="Remove calendar"
+          aria-label={t('a11y.removeItem', {
+            name: renameDefault(
+              cal.cal['dav:name'],
+              cal.owner.displayName,
+              t,
+              false
+            )
+          })}
         >
           <CloseIcon fontSize="small" />
         </IconButton>

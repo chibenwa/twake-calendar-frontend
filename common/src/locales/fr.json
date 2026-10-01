@@ -668,6 +668,11 @@
   "a11y": {
     "removeItem": "Retirer %{name}",
     "moreActionsFor": "Plus d'actions pour %{name}",
-    "copyItem": "Copier %{name}"
+    "copyItem": "Copier %{name}",
+    "collapseDialog": "Réduire",
+    "editItem": "Modifier %{name}",
+    "editBookingLink": "Modifier le lien de réservation",
+    "time": "Heure",
+    "event": "Événement"
   }
 }
