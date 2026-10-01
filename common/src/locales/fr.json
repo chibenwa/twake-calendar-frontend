@@ -659,5 +659,10 @@
   "debug": {
     "enabled": "Mode debug activé.",
     "disabled": "Mode debug désactivé."
+  },
+  "pageTitle": {
+    "booking": "Prendre rendez-vous",
+    "bookingConfirmed": "Rendez-vous confirmé",
+    "bookingUnavailable": "Prise de rendez-vous indisponible"
   }
 }

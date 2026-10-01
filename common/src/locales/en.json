@@ -659,5 +659,10 @@
   "debug": {
     "enabled": "Debug mode enabled.",
     "disabled": "Debug mode disabled."
+  },
+  "pageTitle": {
+    "booking": "Book a meeting",
+    "bookingConfirmed": "Booking confirmed",
+    "bookingUnavailable": "Booking unavailable"
   }
 }

@@ -660,5 +660,10 @@
   "debug": {
     "enabled": "Режим отладки включён.",
     "disabled": "Режим отладки отключён."
+  },
+  "pageTitle": {
+    "booking": "Записаться на встречу",
+    "bookingConfirmed": "Встреча подтверждена",
+    "bookingUnavailable": "Запись недоступна"
   }
 }

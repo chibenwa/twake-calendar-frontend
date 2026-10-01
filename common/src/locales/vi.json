@@ -660,5 +660,10 @@
   "debug": {
     "enabled": "Đã bật chế độ gỡ lỗi.",
     "disabled": "Đã tắt chế độ gỡ lỗi."
+  },
+  "pageTitle": {
+    "booking": "Đặt lịch hẹn",
+    "bookingConfirmed": "Đã xác nhận lịch hẹn",
+    "bookingUnavailable": "Không thể đặt lịch hẹn"
   }
 }

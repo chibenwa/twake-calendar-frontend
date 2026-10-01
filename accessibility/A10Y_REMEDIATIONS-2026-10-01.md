@@ -133,6 +133,12 @@ partial compliance rate.
   "Settings – Twake Calendar", "Search: <query> – …", "Error – …", public "Book a meeting with
   <owner> – …", "Booking confirmed – …", "<event title> – …". Tighten e2e `A11Y-14`.
 - **RGAA**: 8.5, 8.6 · **Effort**: S · **Impact**: high — fails on 100 % of pages.
+- **Status**: implemented. `useDocumentTitle` (`common/src/hooks/useDocumentTitle.ts`) sets
+  "<period> – <view> – Twake Calendar" on the calendar (period worded by FullCalendar in the user
+  locale), "Settings – …", "Search Results – …", "Something went wrong – …" on the error page,
+  "<booking link> – Book a meeting – …", "Booking confirmed – …", "<event title> – …" and error
+  titles on the public pages. Only the browser tab title changes; nothing in the page does.
+  Remaining: tighten e2e `A11Y-14` (done with R-17).
 - **Validation**: pending
 
 ### R-05 — Name every unnamed button and selector
