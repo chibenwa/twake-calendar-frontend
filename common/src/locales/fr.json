@@ -729,6 +729,7 @@
     "moreEvents": "Autres événements",
     "calendarSettings": "Paramètres de l'agenda",
     "moreEventsHint": "Afficher %{smart_count} autre événement |||| Afficher %{smart_count} autres événements",
-    "skipToContent": "Aller au contenu"
+    "skipToContent": "Aller au contenu",
+    "requiredLegend": "Les champs marqués d'un astérisque (*) sont obligatoires."
   }
 }

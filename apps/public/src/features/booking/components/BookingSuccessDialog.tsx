@@ -35,6 +35,8 @@ interface BookingSuccessDialogProps {
   eventLink?: string
   bookingConfirmationToken?: string | null
   onCancelMeeting?: () => void
+  /** Called once the dialog is gone, to put the focus somewhere useful */
+  onExited?: () => void
 }
 
 interface SlotTime {
@@ -233,7 +235,8 @@ export const BookingSuccessDialog: React.FC<BookingSuccessDialogProps> = ({
   bookingInfo,
   eventLink,
   bookingConfirmationToken,
-  onCancelMeeting
+  onCancelMeeting,
+  onExited
 }) => {
   const { t, lang } = useI18n()
   const titleId = useId()
@@ -296,6 +299,7 @@ export const BookingSuccessDialog: React.FC<BookingSuccessDialogProps> = ({
       onClose={onClose}
       aria-labelledby={titleId}
       aria-describedby={slotTime && owner ? subtitleId : undefined}
+      slotProps={onExited ? { transition: { onExited } } : undefined}
     >
       <SuccessHeader
         onClose={onClose}

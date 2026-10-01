@@ -16,6 +16,7 @@ import { useI18n } from 'twake-i18n'
 import { getLayoutConstants } from './LayoutConstants'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { VisuallyHidden } from '@common/components/VisuallyHidden'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -79,6 +80,7 @@ const SlotList: React.FC<SlotListProps> = ({
   selectedTimezone
 }) => {
   const theme = useTheme()
+  const highContrast = useHighContrast()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
   const { CALENDAR_CONTENT_HEIGHT } = getLayoutConstants(isMobile)
 
@@ -102,7 +104,8 @@ const SlotList: React.FC<SlotListProps> = ({
         return (
           <Button
             key={slot.start}
-            variant="outlined"
+            // R-13, high contrast mode: selection shown by more than a colour
+            variant={highContrast && isSelected ? 'contained' : 'outlined'}
             color={isSelected ? 'warning' : 'inherit'}
             aria-pressed={isSelected}
             onClick={() => onSelectSlot(slot)}

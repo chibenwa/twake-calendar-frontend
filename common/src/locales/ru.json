@@ -730,6 +730,7 @@
     "moreEvents": "Другие события",
     "calendarSettings": "Настройки календаря",
     "moreEventsHint": "Показать ещё %{smart_count} событие |||| Показать ещё %{smart_count} события |||| Показать ещё %{smart_count} событий",
-    "skipToContent": "Перейти к содержимому"
+    "skipToContent": "Перейти к содержимому",
+    "requiredLegend": "Поля, отмеченные звёздочкой (*), обязательны."
   }
 }

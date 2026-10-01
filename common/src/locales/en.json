@@ -729,6 +729,7 @@
     "moreEvents": "More events",
     "calendarSettings": "Calendar settings",
     "moreEventsHint": "Show %{smart_count} more event |||| Show %{smart_count} more events",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "requiredLegend": "Fields marked with an asterisk (*) are required."
   }
 }
