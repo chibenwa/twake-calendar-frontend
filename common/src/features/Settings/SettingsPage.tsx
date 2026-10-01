@@ -8,8 +8,9 @@ import { Menubar, type MenubarProps } from '@common/components/Menubar/Menubar'
 import { VisuallyHidden } from '@common/components/VisuallyHidden'
 import { useI18n } from 'twake-i18n'
 
-export type SidebarNavItem = 'settings' | 'sync'
-export type SettingsSubTab = 'settings' | 'notifications'
+export type SidebarNavItem = 'settings' | 'sync' | 'accessibility'
+// 'accessibility' is a sub tab on mobile only, a navigation item on desktop
+export type SettingsSubTab = 'settings' | 'notifications' | 'accessibility'
 
 const SettingsPage: React.FC<{
   menubarProps?: MenubarProps

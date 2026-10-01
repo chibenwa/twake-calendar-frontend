@@ -353,7 +353,13 @@
     "back": "Back to calendar",
     "chooseWorkingDays": "Choose your working days",
     "showOnlyWorkingDays": "Show only working days",
-    "workingDaysUpdateError": "Failed to update working days setting"
+    "workingDaysUpdateError": "Failed to update working days setting",
+    "accessibility": {
+      "title": "Accessibility",
+      "display": "Display",
+      "highContrast": "High contrast mode",
+      "highContrastDescription": "Stronger colours, a visible keyboard focus, visible field labels and other accessibility aids. This setting is stored on this device."
+    }
   },
   "eventPreview": {
     "extraAttendees": "%{smart_count} extra participant |||| %{smart_count} extra participants",

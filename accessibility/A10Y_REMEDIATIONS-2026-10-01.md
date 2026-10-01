@@ -32,6 +32,19 @@ attributes, semantics, keyboard behaviour, documentation). Any part that would c
 see (colours, focus indicator, visible labels or asterisks, new elements, displayed texts) is left
 out until design validates it, and is listed in the entry under **Blocked (visible change)**.
 
+## High contrast mode (second batch)
+
+Design decision: the visible changes of Tier 1 and Tier 2 are delivered behind a **"High
+contrast mode"** setting, in a new *Accessibility* section of the settings (left bar on desktop,
+tab on mobile). It is stored on the device (`localStorage`, key `highContrast`), **off by
+default**: with the mode off the interface looks exactly as before; with the mode on every
+visible remediation of Tier 1 and Tier 2 applies. The mode is mirrored on
+`<html data-high-contrast="true">` for the stylesheets outside the MUI theme, and exposed to
+components by `useHighContrast()` (`common/src/features/Settings/Accessibility/`). The public
+application reads the same setting (same key, effective when both applications share an origin).
+
+Each entry below says what the mode adds under **High contrast mode**.
+
 ## Summary
 
 | Rank | ID | Action | Effort | Impact | Findings |
