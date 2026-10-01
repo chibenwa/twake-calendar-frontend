@@ -71,6 +71,8 @@ Aucun identifié.
 - **Couleurs d'agenda choisies par les utilisateurs** : elles peuvent manquer de contraste ; le
   statut des événements est (ou sera) également transmis sous forme de texte.
 
+L'utilisation au clavier est documentée (en anglais) dans [`KEYBOARD.md`](KEYBOARD.md).
+
 ## Établissement de cette déclaration
 
 - Déclaration établie le **1er octobre 2026**, mise à jour le **1er octobre 2026**.

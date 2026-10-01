@@ -60,6 +60,10 @@ import { handleCopyLink } from '@calendar/common/src/utils/handleCopyLink'
 import { useVisibleBookingLinks } from './hooks/useVisibleBookingLinks'
 import { PrintScheduleModal } from './PrintSchedule/PrintScheduleModal'
 import WebAssetOffOutlinedIcon from '@mui/icons-material/WebAssetOffOutlined'
+import {
+  buttonLikeProps,
+  isContextMenuKey
+} from '@common/utils/keyboardActivation'
 
 type SectionHeader = {
   title: string
@@ -299,6 +303,7 @@ const BookingLinkChip: React.FC<{
             overflow: 'hidden',
             cursor: 'pointer'
           }}
+          {...buttonLikeProps}
           onClick={() => onEdit(link)}
         >
           <div style={{ display: 'flex', padding: '9px', marginRight: '4px' }}>
@@ -803,6 +808,14 @@ const CalendarSelector: React.FC<{
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
+        // The keyboard counterpart of the long press, and of the "more"
+        // button that narrow layouts do not render
+        onKeyDown={e => {
+          if (isContextMenuKey(e)) {
+            e.preventDefault()
+            setAnchorEl(e.currentTarget)
+          }
+        }}
         onClickCapture={e => {
           if (isLongPressedRef.current) {
             e.stopPropagation()
@@ -824,7 +837,12 @@ const CalendarSelector: React.FC<{
               size="small"
               checked={selectedCalendars.includes(id)}
               onChange={() => handleCalendarToggle(id)}
-              slotProps={{ input: { 'aria-label': displayName } }}
+              slotProps={{
+                input: {
+                  'aria-label': displayName,
+                  'aria-keyshortcuts': 'Shift+F10'
+                }
+              }}
             />
             <div
               style={{

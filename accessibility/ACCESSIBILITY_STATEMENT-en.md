@@ -68,6 +68,8 @@ None identified.
 - **Calendar colours chosen by users** may not contrast enough: event status is (or will be) also
   conveyed as text.
 
+Keyboard usage is documented in [`KEYBOARD.md`](KEYBOARD.md).
+
 ## Preparation of this statement
 
 - Statement established on **2026-10-01**, updated on **2026-10-01**.
