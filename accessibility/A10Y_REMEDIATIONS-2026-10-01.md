@@ -394,6 +394,10 @@ partial compliance rate.
 - **Blocked (visible change)**: replacing placeholder-only fields by visible labels (title,
   location, description, searches, counter-proposal message); taking the date and number inputs
   out of the "Until" / "After" radio labels (layout change).
+- **High contrast mode**: visible labels where a field only had a placeholder: event title and
+  booking schedule title in the compact forms, counter-proposal message. Description and location
+  already show their label next to the field; searches keep their search icon and button as
+  visible cue. Not done: the "Until" / "After" inputs stay inside their radio labels.
 - **Validation**: pending
 
 ### R-15 — Required fields, errors and status messages
