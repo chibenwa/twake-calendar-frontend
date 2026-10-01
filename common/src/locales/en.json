@@ -117,7 +117,17 @@
     "selectCustom": "Select custom color",
     "title": "Choose custom color",
     "subtitle": "Choose a background color for this calendar",
-    "hex": "Hex"
+    "hex": "Hex",
+    "colors": {
+      "green": "Green",
+      "orange": "Orange",
+      "red": "Red",
+      "blue": "Blue",
+      "purple": "Purple"
+    },
+    "customColorHex": "Custom color %{hex}",
+    "saturation": "Saturation and brightness",
+    "hue": "Hue"
   },
   "event": {
     "createEvent": "Create",

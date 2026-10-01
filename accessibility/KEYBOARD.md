@@ -29,6 +29,7 @@ and change its dates and times in the form.
 | Calendar checkbox | Space | Shows / hides the calendar |
 | Calendar row | Shift+F10 or the Menu key | Opens the calendar actions (modify, delete, print, hide…), including in narrow layouts and at high zoom where the "more" button is not displayed |
 | Booking link row | Enter or Space | Edits the booking link |
+| Calendar colour (calendar settings) | Tab to the selected colour, then the arrow keys | Chooses another colour; Tab again reaches the custom colour button |
 
 ## Event form
 
@@ -57,5 +58,5 @@ and change its dates and times in the form.
 
 ## Not yet available
 
-See the action plan for the remaining keyboard barriers (keyboard focus visibility, colour picker
-until R-12, attendee contact card).
+See the action plan for the remaining keyboard barriers (keyboard focus visibility, attendee
+contact card).

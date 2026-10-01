@@ -48,9 +48,18 @@ public class CalendarModal {
         return page.getByRole(AriaRole.TAB).allInnerTexts();
     }
 
+    /** The preset colours, named as the colour radio group announces them. */
+    private static final java.util.Map<String, String> PRESET_COLOR_NAMES = java.util.Map.of(
+        "#D0ECDA", "Green",
+        "#FAE3CE", "Orange",
+        "#F5CFD0", "Red",
+        "#AFCBEF", "Blue",
+        "#E8E4F8", "Purple");
+
     /** Picks one of the preset colours, by its hexadecimal value. */
     public CalendarModal color(String hex) {
-        page.getByLabel("select color " + hex).click();
+        page.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions()
+            .setName(PRESET_COLOR_NAMES.get(hex.toUpperCase())).setExact(true)).click();
         return this;
     }
 

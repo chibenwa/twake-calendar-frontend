@@ -117,7 +117,17 @@
     "selectCustom": "Chọn màu tùy chỉnh",
     "title": "Chọn màu tùy chỉnh",
     "subtitle": "Chọn màu nền cho lịch này",
-    "hex": "Hex"
+    "hex": "Hex",
+    "colors": {
+      "green": "Xanh lá",
+      "orange": "Cam",
+      "red": "Đỏ",
+      "blue": "Xanh dương",
+      "purple": "Tím"
+    },
+    "customColorHex": "Màu tùy chỉnh %{hex}",
+    "saturation": "Độ bão hòa và độ sáng",
+    "hue": "Sắc độ"
   },
   "event": {
     "createEvent": "Tạo sự kiện",
