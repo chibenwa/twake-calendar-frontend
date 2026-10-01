@@ -7,6 +7,7 @@ import { Loading } from '@common/components/Loading/Loading'
 import React from 'react'
 import { useParams } from 'react-router'
 import { useI18n } from 'twake-i18n'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 import {
   EventLoadError,
   PreviewContainer
@@ -49,6 +50,14 @@ export const BookedEventPreviewPage: React.FC = () => {
       console.error('Failed to cancel meeting:', err)
     }
   }
+
+  useDocumentTitle(
+    ...(loading
+      ? []
+      : error || !event
+        ? [t('error.cannotLoadEvent')]
+        : [t('pageTitle.bookingConfirmed'), event.title])
+  )
 
   if (loading) {
     return <Loading />
