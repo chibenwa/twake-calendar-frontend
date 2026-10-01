@@ -389,6 +389,23 @@ partial compliance rate.
   blockers fixed in R-10 → R-13; fix the e2e tests that rely on placeholders.
 - **RGAA**: none directly · **Effort**: S–M · **Impact**: protects the score between audits; makes
   the re-audit cheaper.
+- **Status**: implemented.
+  - `eslint-plugin-jsx-a11y` (recommended rules, as warnings: `npm run lint` stays at 0 errors;
+    18 warnings reported on the current code).
+  - e2e `AxeScanTest` (`com.deque.html.axe-core:playwright`): WCAG 2.1 A / AA axe scan of the
+    week view, expanded event form, event preview, settings page, a populated public booking
+    page and the unknown booking link page. Known failures are listed per page in the test and
+    must be removed from it as their fix lands: `color-contrast` (R-08) everywhere; on the
+    calendar `aria-hidden-focus` (CAL-11), `aria-valid-attr-value` and `nested-interactive`
+    (CAL-16), `listitem` (sidebar list items outside a list — new), `scrollable-region-focusable`
+    (FullCalendar scroller — new); on settings `list` (navigation list holding buttons — new).
+  - e2e `A11Y-07` no longer accepts a placeholder as a label; `A11Y-14` and `SHELL-10` check
+    that the title names the view.
+  - Unit tests for the new behaviours (keyboard helper, colour radio group, date / time error,
+    slot status, dialog naming, document title).
+  - Full e2e suite run on this branch: 576 tests; page objects updated where they relied on the
+    old names (unnamed overflow button, exact RSVP names, copy buttons, "MO" weekdays,
+    "expand", "select color #…", Enter in date fields).
 - **Validation**: pending
 
 ---

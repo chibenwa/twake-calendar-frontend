@@ -107,8 +107,9 @@ public class SettingsPage {
 
     /** Toggles one of the working day buttons, by its iCalendar code. */
     public SettingsPage workingDay(String icalDay) {
-        awaitPersisted(() -> page.getByLabel(DAY_NAMES.getOrDefault(icalDay, icalDay),
-                new Page.GetByLabelOptions().setExact(true))
+        awaitPersisted(() -> page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                    .setName(DAY_NAMES.getOrDefault(icalDay, icalDay)).setExact(true))
             .first().click());
         return this;
     }

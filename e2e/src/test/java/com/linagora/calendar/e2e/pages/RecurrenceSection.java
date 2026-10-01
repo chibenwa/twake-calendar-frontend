@@ -86,8 +86,9 @@ public class RecurrenceSection {
         "FR", "Friday", "SA", "Saturday", "SU", "Sunday");
 
     public Locator weekday(String icalDay) {
-        return page.getByLabel(DAY_NAMES.getOrDefault(icalDay, icalDay),
-            new Page.GetByLabelOptions().setExact(true));
+        // a button: the date picker column headers carry the same day names
+        return page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+            .setName(DAY_NAMES.getOrDefault(icalDay, icalDay)).setExact(true));
     }
 
     /**
