@@ -64,6 +64,7 @@ import {
   buttonLikeProps,
   isContextMenuKey
 } from '@common/utils/keyboardActivation'
+import { useHighContrast } from '@common/features/Settings/Accessibility/highContrastMode'
 
 type SectionHeader = {
   title: string
@@ -719,6 +720,7 @@ const CalendarSelector: React.FC<{
   hideOwner
 }) => {
   const { t } = useI18n()
+  const highContrast = useHighContrast()
   const dispatch = useAppDispatch()
   const calLink = useAppSelector(state => state.calendars.list[id].link) ?? ''
   const { isTooSmall: isMobile } = useScreenSizeDetection()
@@ -869,7 +871,9 @@ const CalendarSelector: React.FC<{
             </div>
           </label>
         </Tooltip>
-        {!isMobile && (
+        {/* R-11: narrow layouts open the menu with a long press; the high
+            contrast mode keeps a button for whoever cannot */}
+        {(!isMobile || highContrast) && (
           <IconButton
             className="MoreBtn"
             aria-label={t('a11y.moreActionsFor', { name: displayName })}

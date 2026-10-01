@@ -108,3 +108,11 @@ html[data-high-contrast='true'] .settings-content-tabs--mobile .MuiTab-root.Mui-
   text-decoration: underline;
   text-underline-offset: 6px;
 }
+
+/* --- R-11: actions are not hidden until hover --------------------------- */
+
+/* a touch screen never hovers, and a cue that only shows up under the mouse
+   is missed by keyboard and magnifier users alike */
+html[data-high-contrast='true'] .MoreBtn {
+  opacity: 1 !important;
+}
