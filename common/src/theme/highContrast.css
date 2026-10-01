@@ -93,18 +93,26 @@ html[data-high-contrast='true'] .MuiPickerDay-root.Mui-selected:not(.today) {
 /* settings: the active entry and tab were only marked by a 2.64:1 orange */
 html[data-high-contrast='true'] .settings-nav-item:before,
 html[data-high-contrast='true'] .settings-content-tabs .MuiTabs-indicator,
-html[data-high-contrast='true'] .settings-content-tabs--mobile .MuiTabs-indicator {
+html[data-high-contrast='true']
+  .settings-content-tabs--mobile
+  .MuiTabs-indicator {
   background-color: #b5470f !important;
 }
 html[data-high-contrast='true'] .settings-nav-item.active .MuiListItemIcon-root,
 html[data-high-contrast='true'] .settings-nav-item:hover .MuiListItemIcon-root {
   color: #b5470f !important;
 }
-html[data-high-contrast='true'] .settings-nav-item.active .MuiListItemText-primary {
+html[data-high-contrast='true']
+  .settings-nav-item.active
+  .MuiListItemText-primary {
   font-weight: 700;
 }
-html[data-high-contrast='true'] .settings-content-tabs .MuiTab-root.Mui-selected,
-html[data-high-contrast='true'] .settings-content-tabs--mobile .MuiTab-root.Mui-selected {
+html[data-high-contrast='true']
+  .settings-content-tabs
+  .MuiTab-root.Mui-selected,
+html[data-high-contrast='true']
+  .settings-content-tabs--mobile
+  .MuiTab-root.Mui-selected {
   text-decoration: underline;
   text-underline-offset: 6px;
 }
