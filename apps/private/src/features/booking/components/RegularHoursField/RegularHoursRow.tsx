@@ -24,6 +24,7 @@ interface TimeSlotItemProps {
   handleAddSlot: (day: DayOfWeek) => void
   handleRemoveSlot: (day: DayOfWeek, index: number) => void
   handleCopySlot: (day: DayOfWeek, index: number) => void
+  dayLabel: string
 }
 
 const parseTime = (time?: string): Dayjs | null => {
@@ -32,6 +33,7 @@ const parseTime = (time?: string): Dayjs | null => {
 }
 
 const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
+  dayLabel,
   day,
   index,
   slot,
@@ -70,7 +72,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
         <Box sx={{ width }}>
           <TimePickerField
             testId={`start-time-${day}-${index}`}
-            label={t('dateTimeFields.startTime')}
+            label={`${dayLabel} – ${t('dateTimeFields.startTime')}`}
             value={startValue}
             onChange={handleTimeChangeCallback('start')}
             disabled={!isEnabled}
@@ -82,7 +84,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
         <Box sx={{ width }}>
           <TimePickerField
             testId={`end-time-${day}-${index}`}
-            label={t('dateTimeFields.endTime')}
+            label={`${dayLabel} – ${t('dateTimeFields.endTime')}`}
             value={endValue}
             onChange={handleTimeChangeCallback('end')}
             disabled={!isEnabled}
@@ -175,6 +177,7 @@ export const RegularHoursRow: React.FC<RegularHoursRowProps> = ({
         <Switch
           checked={isEnabled}
           onChange={() => handleToggleDay(day)}
+          slotProps={{ input: { 'aria-label': dayLabel } }}
           sx={{ mr: 1 }}
         />
         <Typography
@@ -190,6 +193,7 @@ export const RegularHoursRow: React.FC<RegularHoursRowProps> = ({
           {slots.map((slot, index) => (
             <TimeSlotItem
               key={index}
+              dayLabel={dayLabel}
               day={day}
               index={index}
               slot={slot}

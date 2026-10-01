@@ -152,6 +152,7 @@ export function ResourceSearch({
           input: inputProps,
           htmlInput: {
             ...params.slotProps?.htmlInput,
+            'aria-label': t('resourceSearch.label'),
             autoComplete: 'off'
           }
         }

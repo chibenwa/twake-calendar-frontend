@@ -7,6 +7,7 @@ import {
 import PeopleOutlineOutlinedIcon from '@mui/icons-material/PeopleOutlineOutlined'
 import React, { type ReactNode } from 'react'
 import { useI18n } from 'twake-i18n'
+import { visuallyHiddenSx } from '@common/components/VisuallyHidden'
 
 export interface ExtendedAutocompleteRenderInputParams extends AutocompleteRenderInputParams {
   error?: boolean
@@ -114,7 +115,11 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
   if (inputSlot) {
     return (
       <>
-        <label htmlFor={params.id} className="visually-hidden">
+        <label
+          htmlFor={params.id}
+          className="visually-hidden"
+          style={visuallyHiddenSx}
+        >
           {t('peopleSearch.label')}
         </label>
         {inputSlot({
@@ -130,7 +135,11 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
 
   return (
     <>
-      <label htmlFor={params.id} className="visually-hidden">
+      <label
+        htmlFor={params.id}
+        className="visually-hidden"
+        style={visuallyHiddenSx}
+      >
         {t('peopleSearch.label')}
       </label>
       <TextField

@@ -15,7 +15,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { TwakeLocalizationProvider } from '@common/components/DateTimePicker'
 import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { ReadOnlyDateField } from './components/ReadOnlyPickerField'
 import { getLongDateFormat } from './utils/dateTimeFormatters'
@@ -47,6 +47,7 @@ export const RepeatEvent: React.FC<{
   isOwn?: boolean
 }> = ({ repetition, eventStart, setRepetition, isOwn = true }) => {
   const { t, lang } = useI18n()
+  const endLabelId = useId()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
   const inputSize = useResponsiveInputSize()
   const days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
@@ -116,6 +117,7 @@ export const RepeatEvent: React.FC<{
                 min: 1,
                 max: MAX_REPEAT_INTERVAL,
                 step: 1,
+                'aria-label': t('event.repeat.repeatEvery'),
                 'data-testid': 'repeat-interval',
                 style: {
                   textAlign: 'center',
@@ -127,6 +129,7 @@ export const RepeatEvent: React.FC<{
           <FormControl size="small" style={{ minWidth: 120 }}>
             <Select
               value={repetition.freq ?? 'daily'}
+              SelectDisplayProps={{ 'aria-label': t('a11y.repeatUnit') }}
               disabled={!isOwn}
               onChange={(e: SelectChangeEvent) => {
                 if (e.target.value === 'weekly') {
@@ -183,6 +186,7 @@ export const RepeatEvent: React.FC<{
         {repetition.freq === 'weekly' && (
           <Box sx={{ mb: 2 }}>
             <WeekDaySelector
+              ariaLabel={t('event.repeat.repeatOn')}
               selectedDays={(repetition.byday ?? [])
                 .map(ics => FC_DAYS.find(d => d.ics === ics)?.fc ?? -1)
                 .filter(d => d !== -1)}
@@ -204,10 +208,11 @@ export const RepeatEvent: React.FC<{
 
         {/* End options */}
         <Box>
-          <Typography component="p" variant="h6" gutterBottom>
+          <Typography id={endLabelId} component="p" variant="h6" gutterBottom>
             {t('event.repeat.end.label')}
           </Typography>
           <RadioGroup
+            aria-labelledby={endLabelId}
             value={endOption}
             onChange={e => {
               const value = e.target.value
@@ -313,7 +318,7 @@ export const RepeatEvent: React.FC<{
                           field: getDateFieldSlotProps(
                             'event-repeat-end-date',
                             false,
-                            undefined,
+                            t('a11y.repeatEndDate'),
                             isMobile
                           ),
                           layout: { sx: dateCalendarLayoutSx }
@@ -358,6 +363,7 @@ export const RepeatEvent: React.FC<{
                         ...numericSlotProps.htmlInput,
                         min: 1,
                         step: 1,
+                        'aria-label': t('a11y.occurrenceCount'),
                         'data-testid': 'occurrences-input'
                       }
                     }}

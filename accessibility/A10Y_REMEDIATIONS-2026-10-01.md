@@ -316,6 +316,23 @@ partial compliance rate.
   move inputs out of radio labels in the repeat "Ends" group. Tighten e2e `A11Y-07` (placeholder is
   not a label).
 - **RGAA**: 11.1, 11.2, 11.5, 11.6 · **Effort**: M · **Impact**: high — the event form is in every sample.
+- **Status**: implemented without visible change:
+  - accessible names moved from the input wrapper to the `<input>` (title, location, description,
+    CalDAV and secret URLs);
+  - names added to: repeat interval / unit / end date / occurrence count, "Show me as" and
+    notification selects (their `labelId` pointed to nothing), main and mobile event search,
+    search filters (labels tied with `id`, filters grouped under their label), resource search,
+    counter-proposal message (via the placeholder), access-rights user search and per-user right
+    ("Access for <name>"), timezone search, booking title and duration, regular hours day switch
+    and start / end times prefixed with the day;
+  - groups named: repeat "how many times" radio group, recurrence scope radios, event visibility
+    and calendar visibility toggles, weekday buttons (full day names instead of "MO"), RSVP
+    buttons, print scale / layout toggles and extra calendars;
+  - the people search hidden label no longer depends on a class only defined in the private
+    stylesheet.
+- **Blocked (visible change)**: replacing placeholder-only fields by visible labels (title,
+  location, description, searches, counter-proposal message); taking the date and number inputs
+  out of the "Until" / "After" radio labels (layout change).
 - **Validation**: pending
 
 ### R-15 — Required fields, errors and status messages
