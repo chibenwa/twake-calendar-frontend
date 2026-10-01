@@ -695,6 +695,7 @@
     "occurrenceCount": "Number of occurrences",
     "searchEvents": "Search events",
     "accessFor": "Access for %{name}",
-    "accessToGrant": "Access to grant"
+    "accessToGrant": "Access to grant",
+    "searchResultsCount": "%{smart_count} event found |||| %{smart_count} events found"
   }
 }

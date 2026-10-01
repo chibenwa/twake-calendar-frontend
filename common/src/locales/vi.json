@@ -696,6 +696,7 @@
     "occurrenceCount": "Số lần lặp",
     "searchEvents": "Tìm kiếm sự kiện",
     "accessFor": "Quyền truy cập của %{name}",
-    "accessToGrant": "Quyền truy cập cần cấp"
+    "accessToGrant": "Quyền truy cập cần cấp",
+    "searchResultsCount": "Tìm thấy %{smart_count} sự kiện"
   }
 }

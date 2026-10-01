@@ -342,6 +342,18 @@ partial compliance rate.
   field; explain disabled Save; `role="status"` live region for search result counts and loading
   states.
 - **RGAA**: 11.10, 11.11, 7.5 · **Effort**: M · **Impact**: high.
+- **Status**: implemented without visible change:
+  - date / time validation message: `role="alert"` (warnings `role="status"`), and every date or
+    time field in error points to it with `aria-describedby` (shared through
+    `DateTimeErrorIdContext`, also for the time fields of booking regular hours);
+  - booking schedule form error: `role="alert"`; calendar name: `aria-required`;
+  - search results: a status region announces "Loading…", "N events found" or "No events found";
+    search errors are `role="alert"`; the "no results" illustration is decorative;
+  - loading spinners named (event update, people search, RSVP).
+- **Blocked (visible change)**: visible required-field indicators and legend (asterisks), a
+  visible explanation next to the disabled calendar Save button, naming the missing field in the
+  booking schedule error message, keeping focus on the first invalid field when Save is pressed
+  (the event form keeps Save usable and the date error is announced as soon as it appears).
 - **Validation**: pending
 
 ### R-16 — Dialog, drawer and frame names
