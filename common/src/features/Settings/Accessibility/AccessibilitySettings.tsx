@@ -9,6 +9,7 @@ import {
 import { useId } from 'react'
 import { useI18n } from 'twake-i18n'
 import { setHighContrastEnabled, useHighContrast } from './highContrastMode'
+import { KeyboardShortcuts } from './KeyboardShortcuts'
 
 export const AccessibilitySettings: React.FC = () => {
   const { t } = useI18n()
@@ -50,6 +51,7 @@ export const AccessibilitySettings: React.FC = () => {
           {t('settings.accessibility.highContrastDescription')}
         </Typography>
       </Box>
+      <KeyboardShortcuts />
     </Box>
   )
 }

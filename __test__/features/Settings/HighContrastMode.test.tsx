@@ -52,4 +52,14 @@ describe('High contrast mode', () => {
     expect(toggle).toBeChecked()
     expect(isHighContrastEnabled()).toBe(true)
   })
+
+  it('documents the keyboard shortcuts', () => {
+    renderWithProviders(<AccessibilitySettings />)
+
+    const table = screen.getByRole('table', {
+      name: 'settings.accessibility.keyboard.title'
+    })
+    // a header row plus one row per shortcut
+    expect(table.querySelectorAll('tr')).toHaveLength(10)
+  })
 })
