@@ -371,7 +371,11 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
                     </Select>
                     <IconButton
                       size="small"
-                      aria-label={t('actions.remove')}
+                      aria-label={
+                        calId
+                          ? t('a11y.removeItem', { name: calendarLabel(calId) })
+                          : t('actions.remove')
+                      }
                       onClick={() => removeCalendarRow(index)}
                     >
                       <CloseIcon fontSize="small" />

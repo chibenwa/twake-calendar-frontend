@@ -663,5 +663,10 @@
     "booking": "Prendre rendez-vous",
     "bookingConfirmed": "Rendez-vous confirmé",
     "bookingUnavailable": "Prise de rendez-vous indisponible"
+  },
+  "a11y": {
+    "removeItem": "Retirer %{name}",
+    "moreActionsFor": "Plus d'actions pour %{name}",
+    "copyItem": "Copier %{name}"
   }
 }

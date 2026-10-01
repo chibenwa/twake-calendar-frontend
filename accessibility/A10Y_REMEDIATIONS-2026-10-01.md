@@ -148,6 +148,14 @@ partial compliance rate.
 - **What**: translated `aria-label` including context ("More actions for calendar <name>",
   "Remove <calendar>"), `aria-haspopup="menu"` + `aria-expanded` on menu buttons.
 - **RGAA**: 7.1, 11.9, 1.1 · **Effort**: S · **Impact**: high — these buttons sit on the main screens.
+- **Status**: implemented (names only, nothing visible changes): event preview Close / More options /
+  Edit in organizer calendar, calendar and booking-link "More actions for <name>" (with
+  `aria-haspopup` / `aria-expanded`), CalDAV and secret URL copy buttons, attendee chip remove icon
+  (named and taken out of the tab order: chips are removed with Backspace / Delete), attendee
+  popover close, booking success dialog close, public language selector, print "Remove <calendar>",
+  attendee chat button.
+- **Blocked (visible change)**: making the sidebar `.MoreBtn` visible on keyboard focus (they stay
+  `opacity: 0` until hover) changes the rendering — handled with the focus indicator, R-03.
 - **Validation**: pending
 
 ### R-06 — Localise accessibility strings

@@ -664,5 +664,10 @@
     "booking": "Đặt lịch hẹn",
     "bookingConfirmed": "Đã xác nhận lịch hẹn",
     "bookingUnavailable": "Không thể đặt lịch hẹn"
+  },
+  "a11y": {
+    "removeItem": "Xóa %{name}",
+    "moreActionsFor": "Thêm thao tác cho %{name}",
+    "copyItem": "Sao chép %{name}"
   }
 }

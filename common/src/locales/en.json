@@ -663,5 +663,10 @@
     "booking": "Book a meeting",
     "bookingConfirmed": "Booking confirmed",
     "bookingUnavailable": "Booking unavailable"
+  },
+  "a11y": {
+    "removeItem": "Remove %{name}",
+    "moreActionsFor": "More actions for %{name}",
+    "copyItem": "Copy %{name}"
   }
 }

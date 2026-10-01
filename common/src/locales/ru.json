@@ -664,5 +664,10 @@
     "booking": "Записаться на встречу",
     "bookingConfirmed": "Встреча подтверждена",
     "bookingUnavailable": "Запись недоступна"
+  },
+  "a11y": {
+    "removeItem": "Удалить %{name}",
+    "moreActionsFor": "Другие действия для %{name}",
+    "copyItem": "Копировать %{name}"
   }
 }
