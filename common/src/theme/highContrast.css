@@ -1,0 +1,55 @@
+/*
+ * High contrast mode (settings > Accessibility): every rule is scoped to
+ * html[data-high-contrast='true'], so that nothing changes while the mode is
+ * off. See accessibility/A10Y_REMEDIATIONS-2026-10-01.md.
+ */
+
+/* --- R-03: a visible focus indicator on every focusable element --------- */
+
+html[data-high-contrast='true'] {
+  --hc-focus-color: #1c1b1f;
+  --hc-focus-on-dark: #ffffff;
+}
+
+/* MUI resets the outline of its ButtonBase and twake-mui removes the focus
+   shadow of buttons: draw one ring for everything instead, 3px, ≥ 3:1 against
+   the white and light grey backgrounds of the application */
+html[data-high-contrast='true'] :focus-visible,
+html[data-high-contrast='true'] .Mui-focusVisible {
+  outline: 3px solid var(--hc-focus-color) !important;
+  outline-offset: 2px !important;
+}
+
+/* inside menus and lists the ring would be clipped: draw it inside */
+html[data-high-contrast='true'] .MuiMenuItem-root.Mui-focusVisible,
+html[data-high-contrast='true'] .MuiListItemButton-root.Mui-focusVisible,
+html[data-high-contrast='true'] .MuiMenuItem-root:focus-visible,
+html[data-high-contrast='true'] .MuiListItemButton-root:focus-visible,
+html[data-high-contrast='true'] .MuiAutocomplete-option.Mui-focused {
+  outline-offset: -3px !important;
+}
+
+/* text fields show their focus through their border: make it thick and dark */
+html[data-high-contrast='true']
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-width: 2px !important;
+  border-color: var(--hc-focus-color) !important;
+}
+html[data-high-contrast='true'] .MuiInputBase-input:focus-visible {
+  outline: none !important;
+}
+
+/* actions shown on hover only must show up on keyboard focus too (CAL-03) */
+html[data-high-contrast='true'] .MoreBtn:focus-visible,
+html[data-high-contrast='true'] li:focus-within .MoreBtn {
+  opacity: 1 !important;
+}
+
+/* Windows high contrast themes repaint colours: use the system highlight */
+@media (forced-colors: active) {
+  html[data-high-contrast='true'] :focus-visible,
+  html[data-high-contrast='true'] .Mui-focusVisible {
+    outline-color: Highlight !important;
+  }
+}
