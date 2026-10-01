@@ -477,6 +477,11 @@ partial compliance rate.
   - Full e2e suite run on this branch: 576 tests; page objects updated where they relied on the
     old names (unnamed overflow button, exact RSVP names, copy buttons, "MO" weekdays,
     "expand", "select color #…", Enter in date fields).
+- **Second batch**: e2e `AxeScanHighContrastTest` runs the six scans with the mode on (set in
+  `localStorage` before the application loads) and **with `color-contrast` checked**: event form,
+  event preview (scoped to the dialog), settings, public booking page and unknown booking link
+  pass; the calendar view keeps `color-contrast` as a known failure (event chips and grid
+  chrome, R-19). `A11Y-15` switches the mode from the settings and checks it survives a reload.
 - **Validation**: pending
 
 ---

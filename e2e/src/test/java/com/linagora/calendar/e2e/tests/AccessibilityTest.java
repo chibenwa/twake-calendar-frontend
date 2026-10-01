@@ -187,4 +187,25 @@ class AccessibilityTest extends TwakeCalendarE2ETest {
             .isPositive();
         page.unrouteAll();
     }
+
+    @Test
+    @DisplayName("A11Y-15 The high contrast mode is switched from the settings and kept on reload")
+    void theHighContrastModeIsSwitchedFromTheSettings(Page page, E2EUser user) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        assertThat(page.locator("html").getAttribute("data-high-contrast"))
+            .as("off by default: the interface looks as designed")
+            .isNull();
+
+        calendar.openSettings();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Accessibility")).click();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.SWITCH,
+            new Page.GetByRoleOptions().setName("High contrast mode")).click();
+
+        com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(page.locator("html"))
+            .hasAttribute("data-high-contrast", "true");
+        page.reload();
+        com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(page.locator("html"))
+            .hasAttribute("data-high-contrast", "true");
+    }
 }
