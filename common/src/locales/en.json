@@ -688,6 +688,12 @@
     "loading": "Loading…",
     "slotsOn": "Available times on %{date}",
     "slotsAvailable": "%{smart_count} time slot available on %{date} |||| %{smart_count} time slots available on %{date}",
-    "currentAnswer": "(current answer)"
+    "currentAnswer": "(current answer)",
+    "repeatUnit": "Repeat unit",
+    "repeatEndDate": "Repeat until",
+    "occurrenceCount": "Number of occurrences",
+    "searchEvents": "Search events",
+    "accessFor": "Access for %{name}",
+    "accessToGrant": "Access to grant"
   }
 }

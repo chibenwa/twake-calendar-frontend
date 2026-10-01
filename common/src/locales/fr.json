@@ -688,6 +688,12 @@
     "loading": "Chargement…",
     "slotsOn": "Horaires disponibles le %{date}",
     "slotsAvailable": "%{smart_count} créneau disponible le %{date} |||| %{smart_count} créneaux disponibles le %{date}",
-    "currentAnswer": "(réponse actuelle)"
+    "currentAnswer": "(réponse actuelle)",
+    "repeatUnit": "Unité de répétition",
+    "repeatEndDate": "Répéter jusqu'au",
+    "occurrenceCount": "Nombre d'occurrences",
+    "searchEvents": "Rechercher des événements",
+    "accessFor": "Accès pour %{name}",
+    "accessToGrant": "Accès à accorder"
   }
 }

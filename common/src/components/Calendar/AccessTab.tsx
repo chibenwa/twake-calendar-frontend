@@ -126,8 +126,8 @@ export function AccessTab({
               value={calDAVLink}
               size="small"
               slotProps={{
+                htmlInput: { 'aria-label': t('calendar.caldav_access') },
                 input: {
-                  'aria-label': t('calendar.caldav_access'),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
@@ -162,8 +162,8 @@ export function AccessTab({
             value={secretLink}
             size="small"
             slotProps={{
+              htmlInput: { 'aria-label': t('calendar.secretUrl') },
               input: {
-                'aria-label': t('calendar.secretUrl'),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton

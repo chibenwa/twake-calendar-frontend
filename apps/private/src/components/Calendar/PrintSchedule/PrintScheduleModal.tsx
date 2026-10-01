@@ -276,6 +276,7 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
                 {t('print.scale')}
               </Typography>
               <ToggleButtonGroup
+                aria-label={t('print.scale')}
                 exclusive
                 fullWidth
                 value={scale}
@@ -297,6 +298,7 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
                 {t('print.layout')}
               </Typography>
               <ToggleButtonGroup
+                aria-label={t('print.layout')}
                 exclusive
                 fullWidth
                 value={layout}
@@ -362,6 +364,9 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
                       fullWidth
                       displayEmpty
                       value={calId}
+                      SelectDisplayProps={{
+                        'aria-label': t('print.selectCalendar')
+                      }}
                       onChange={e => updateCalendarRow(index, e.target.value)}
                     >
                       <MenuItem value="" disabled>

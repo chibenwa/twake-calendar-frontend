@@ -689,6 +689,12 @@
     "loading": "Загрузка…",
     "slotsOn": "Свободное время на %{date}",
     "slotsAvailable": "Свободных слотов на %{date}: %{smart_count}",
-    "currentAnswer": "(текущий ответ)"
+    "currentAnswer": "(текущий ответ)",
+    "repeatUnit": "Единица повторения",
+    "repeatEndDate": "Повторять до",
+    "occurrenceCount": "Количество повторений",
+    "searchEvents": "Поиск событий",
+    "accessFor": "Доступ для %{name}",
+    "accessToGrant": "Предоставляемый доступ"
   }
 }

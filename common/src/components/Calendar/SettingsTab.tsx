@@ -172,6 +172,7 @@ export function SettingsTab({
           </Typography>
           <Box sx={{ marginTop: '6px' }}>
             <ToggleButtonGroup
+              aria-label={t('calendar.newEventsVisibility')}
               value={visibility}
               exclusive
               disabled={!canManageVisibility}

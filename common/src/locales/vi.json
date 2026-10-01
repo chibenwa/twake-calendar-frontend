@@ -689,6 +689,12 @@
     "loading": "Đang tải…",
     "slotsOn": "Khung giờ trống ngày %{date}",
     "slotsAvailable": "%{smart_count} khung giờ trống ngày %{date}",
-    "currentAnswer": "(câu trả lời hiện tại)"
+    "currentAnswer": "(câu trả lời hiện tại)",
+    "repeatUnit": "Đơn vị lặp lại",
+    "repeatEndDate": "Lặp lại đến",
+    "occurrenceCount": "Số lần lặp",
+    "searchEvents": "Tìm kiếm sự kiện",
+    "accessFor": "Quyền truy cập của %{name}",
+    "accessToGrant": "Quyền truy cập cần cấp"
   }
 }

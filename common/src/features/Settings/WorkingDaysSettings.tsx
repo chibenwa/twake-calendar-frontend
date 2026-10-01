@@ -33,6 +33,7 @@ export const WorkingDaysSettings: React.FC<WorkingDaysSettingsProps> = ({
       <WeekDaySelector
         selectedDays={businessHours?.daysOfWeek ?? []}
         onChange={days => handleBusinessHour({ days })}
+        ariaLabel={t('settings.chooseWorkingDays')}
       />
       <FormControl size="small" sx={{ minWidth: inputMinWidth, mt: 2 }}>
         <FormControlLabel
