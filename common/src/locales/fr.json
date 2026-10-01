@@ -358,7 +358,31 @@
       "title": "Accessibilité",
       "display": "Affichage",
       "highContrast": "Mode contraste élevé",
-      "highContrastDescription": "Couleurs plus contrastées, focus clavier visible, étiquettes de champs visibles et autres aides à l'accessibilité. Ce réglage est enregistré sur cet appareil."
+      "highContrastDescription": "Couleurs plus contrastées, focus clavier visible, étiquettes de champs visibles et autres aides à l'accessibilité. Ce réglage est enregistré sur cet appareil.",
+      "keyboard": {
+        "title": "Clavier",
+        "keys": "Touches",
+        "action": "Action",
+        "caption": "Les principaux raccourcis clavier de Twake Calendar.",
+        "key1": "Tab / Maj+Tab",
+        "action1": "Aller au contrôle suivant / précédent",
+        "key2": "Entrée ou Espace",
+        "action2": "Activer le bouton, l'événement ou la ligne qui a le focus",
+        "key3": "Échap",
+        "action3": "Fermer une fenêtre ou un menu",
+        "key4": "Entrée, Espace ou Alt+↓",
+        "action4": "Ouvrir le sélecteur d'un champ de date ou d'heure",
+        "key5": "Flèches, Page préc. / Page suiv.",
+        "action5": "Changer de jour / de mois dans un sélecteur de date",
+        "key6": "Maj+F10 ou touche Menu",
+        "action6": "Ouvrir les actions de l'agenda qui a le focus",
+        "key7": "Flèches",
+        "action7": "Choisir la couleur d'un agenda",
+        "key8": "← / → puis Retour arrière",
+        "action8": "Retirer un participant du champ des participants",
+        "key9": "Entrée",
+        "action9": "Lancer la recherche saisie dans le champ de recherche"
+      }
     }
   },
   "eventPreview": {

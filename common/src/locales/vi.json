@@ -358,7 +358,31 @@
       "title": "Trợ năng",
       "display": "Hiển thị",
       "highContrast": "Chế độ tương phản cao",
-      "highContrastDescription": "Màu sắc tương phản hơn, tiêu điểm bàn phím hiển thị rõ, nhãn trường hiển thị và các hỗ trợ trợ năng khác. Cài đặt này được lưu trên thiết bị này."
+      "highContrastDescription": "Màu sắc tương phản hơn, tiêu điểm bàn phím hiển thị rõ, nhãn trường hiển thị và các hỗ trợ trợ năng khác. Cài đặt này được lưu trên thiết bị này.",
+      "keyboard": {
+        "title": "Bàn phím",
+        "keys": "Phím",
+        "action": "Thao tác",
+        "caption": "Các phím tắt chính của Twake Calendar.",
+        "key1": "Tab / Shift+Tab",
+        "action1": "Chuyển đến điều khiển tiếp theo / trước đó",
+        "key2": "Enter hoặc Space",
+        "action2": "Kích hoạt nút, sự kiện hoặc dòng đang được chọn",
+        "key3": "Escape",
+        "action3": "Đóng hộp thoại hoặc menu",
+        "key4": "Enter, Space hoặc Alt+↓",
+        "action4": "Mở bộ chọn của trường ngày hoặc giờ",
+        "key5": "Phím mũi tên, Page Up / Page Down",
+        "action5": "Di chuyển giữa các ngày / tháng trong bộ chọn ngày",
+        "key6": "Shift+F10 hoặc phím Menu",
+        "action6": "Mở các thao tác của lịch đang được chọn",
+        "key7": "Phím mũi tên",
+        "action7": "Chọn màu cho lịch",
+        "key8": "← / → rồi Backspace",
+        "action8": "Xóa người tham gia khỏi trường người tham gia",
+        "key9": "Enter",
+        "action9": "Thực hiện tìm kiếm trong ô tìm kiếm"
+      }
     }
   },
   "eventPreview": {

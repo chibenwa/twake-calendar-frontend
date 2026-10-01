@@ -358,7 +358,31 @@
       "title": "Accessibility",
       "display": "Display",
       "highContrast": "High contrast mode",
-      "highContrastDescription": "Stronger colours, a visible keyboard focus, visible field labels and other accessibility aids. This setting is stored on this device."
+      "highContrastDescription": "Stronger colours, a visible keyboard focus, visible field labels and other accessibility aids. This setting is stored on this device.",
+      "keyboard": {
+        "title": "Keyboard",
+        "keys": "Keys",
+        "action": "Action",
+        "caption": "The main keyboard shortcuts of Twake Calendar.",
+        "key1": "Tab / Shift+Tab",
+        "action1": "Move to the next / previous control",
+        "key2": "Enter or Space",
+        "action2": "Activate the focused button, event or row",
+        "key3": "Escape",
+        "action3": "Close a dialog or a menu",
+        "key4": "Enter, Space or Alt+↓",
+        "action4": "Open the picker of a date or time field",
+        "key5": "Arrow keys, Page Up / Page Down",
+        "action5": "Move between days / months in a date picker",
+        "key6": "Shift+F10 or Menu key",
+        "action6": "Open the actions of the focused calendar",
+        "key7": "Arrow keys",
+        "action7": "Choose a calendar colour",
+        "key8": "← / → then Backspace",
+        "action8": "Remove a guest from the guests field",
+        "key9": "Enter",
+        "action9": "Run the search typed in the search field"
+      }
     }
   },
   "eventPreview": {

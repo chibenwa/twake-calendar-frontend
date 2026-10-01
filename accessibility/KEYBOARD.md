@@ -5,6 +5,8 @@ keys that are specific to the application; everything else follows the usual con
 web (Tab / Shift+Tab to move between controls, Enter or Space to activate a button, Escape to
 close a dialog or a menu).
 
+The main shortcuts are also listed in the application: *Settings › Accessibility › Keyboard*.
+
 Known gaps are tracked in the [action plan](A10Y_REMEDIATIONS-2026-10-01.md); please report any
 other one with an issue labelled `accessibility`.
 

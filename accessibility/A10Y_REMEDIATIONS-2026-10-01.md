@@ -289,6 +289,10 @@ partial compliance rate.
 - **Blocked (visible change)**: the requested "Keyboard" section in the left bar of the settings
   page adds a visible navigation entry and page — documented in `KEYBOARD.md` until validated.
   Keeping the focus in the editable time field after Enter / Escape is done with R-21.
+- **Second batch**: the requested *Keyboard* section is in the settings, *Accessibility* entry of
+  the left bar (tab on mobile): a table of the main shortcuts (keys / action, translated), next to
+  the high contrast switch. It is part of the Accessibility section, which exists whatever the
+  mode.
 - **Validation**: pending
 
 ### R-11 — Keyboard-operable lists, rows and sidebar actions
