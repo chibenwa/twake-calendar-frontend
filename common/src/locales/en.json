@@ -704,6 +704,7 @@
     "accessToGrant": "Access to grant",
     "searchResultsCount": "%{smart_count} event found |||| %{smart_count} events found",
     "moreEvents": "More events",
-    "calendarSettings": "Calendar settings"
+    "calendarSettings": "Calendar settings",
+    "moreEventsHint": "Show %{smart_count} more event |||| Show %{smart_count} more events"
   }
 }

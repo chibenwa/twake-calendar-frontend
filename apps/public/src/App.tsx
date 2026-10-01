@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react'
 import { TwakeMuiThemeProvider } from '@linagora/twake-mui'
-import { Suspense, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router'
 import { HistoryRouter as Router } from 'redux-first-history/rr6'
 import { history } from '@common/app/store'
@@ -35,6 +35,7 @@ import {
 } from './context/PublicLanguageContext'
 import { useHighContrastDocumentAttribute } from '@common/features/Settings/Accessibility/highContrastMode'
 import '@common/theme/highContrast.css'
+import { withHighContrast } from '@common/theme/highContrastTheme'
 
 const locale = { en, fr, ru, vi }
 const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }
@@ -42,7 +43,11 @@ const dateLocales = { en: enGB, fr: frLocale, ru: ruLocale, vi: viLocale }
 export default function App(): JSX.Element {
   const [lang, setLang] = useState<SupportedLanguage>(getDefaultLanguage)
   useDocumentLanguage(lang)
-  useHighContrastDocumentAttribute()
+  const highContrast = useHighContrastDocumentAttribute()
+  const themeOptions = useMemo(
+    () => withHighContrast(makeCalendarOverrides(), highContrast, lang),
+    [highContrast, lang]
+  )
 
   const handleLanguageChange = (newLang: SupportedLanguage): void => {
     localStorage.setItem('lang', newLang)
@@ -51,11 +56,7 @@ export default function App(): JSX.Element {
 
   return (
     <EmbeddingProvider>
-      <TwakeMuiThemeProvider
-        themeOptions={{
-          ...makeCalendarOverrides()
-        }}
-      >
+      <TwakeMuiThemeProvider themeOptions={themeOptions}>
         <I18n
           dictRequire={(lang: keyof typeof locale) => locale[lang]}
           lang={lang}
