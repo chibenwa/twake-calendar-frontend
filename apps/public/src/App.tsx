@@ -44,7 +44,7 @@ export default function App(): JSX.Element {
   useDocumentLanguage(lang)
   const highContrast = useHighContrastDocumentAttribute()
   const themeOptions = useMemo(
-    () => withHighContrast(undefined, highContrast, lang),
+    () => withHighContrast(undefined, highContrast, lang, 'public'),
     [highContrast, lang]
   )
 
