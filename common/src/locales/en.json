@@ -684,6 +684,10 @@
     "time": "Time",
     "event": "Event",
     "sidebar": "Calendars and navigation",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "loading": "Loading…",
+    "slotsOn": "Available times on %{date}",
+    "slotsAvailable": "%{smart_count} time slot available on %{date} |||| %{smart_count} time slots available on %{date}",
+    "currentAnswer": "(current answer)"
   }
 }

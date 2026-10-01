@@ -221,7 +221,7 @@ export const BookingPage: React.FC = () => {
                   padding: '32px 0'
                 }}
               >
-                <CircularProgress size={28} />
+                <CircularProgress size={28} aria-label={t('a11y.loading')} />
               </Box>
             ) : (
               <>
@@ -250,7 +250,10 @@ export const BookingPage: React.FC = () => {
                         zIndex: 1
                       }}
                     >
-                      <CircularProgress size={24} />
+                      <CircularProgress
+                        size={24}
+                        aria-label={t('a11y.loading')}
+                      />
                     </Box>
                   )}
 

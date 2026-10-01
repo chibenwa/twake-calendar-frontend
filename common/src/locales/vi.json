@@ -685,6 +685,10 @@
     "time": "Thời gian",
     "event": "Sự kiện",
     "sidebar": "Lịch và điều hướng",
-    "calendar": "Lịch"
+    "calendar": "Lịch",
+    "loading": "Đang tải…",
+    "slotsOn": "Khung giờ trống ngày %{date}",
+    "slotsAvailable": "%{smart_count} khung giờ trống ngày %{date}",
+    "currentAnswer": "(câu trả lời hiện tại)"
   }
 }

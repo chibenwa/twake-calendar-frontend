@@ -286,6 +286,25 @@ partial compliance rate.
 - **RGAA**: 11.1, 11.2, 11.10, 11.13, 10.7, 7.1, 7.3, 7.5, 3.1, 10.11 · **Effort**: S–M ·
   **Impact**: blocker removed on the only screens used by citizens / external users — the most
   exposed pages for an administration.
+- **Status**: implemented without visible change:
+  - booking form: name and e-mail fields get an accessible name and `autocomplete="name"` /
+    `"email"`; a failed check moves the focus to the field in error (its message is linked by
+    `aria-describedby`); submit and load errors are `role="alert"`;
+  - date grid: unavailable and past days are also given to the grid through `shouldDisableDate`,
+    so arrow keys skip them; the empty cells outside the month are grid cells;
+  - time slots: a group named "Available times on <long date>", `aria-pressed` on the selected
+    slot, a polite status region announcing "N time slots available on <date>" (or "no slots")
+    when a day is picked;
+  - success dialog named by its title and described by its summary;
+  - public RSVP: buttons grouped under the question (also on mobile, where it is not displayed),
+    the current answer says so in hidden text; loading spinners named;
+  - decorative images (camera icon whose alt was a raw translation key, error illustrations)
+    get an empty alt.
+- **Blocked (visible change)**: visible labels and required-field indicator (asterisk + legend),
+  validating every field at once and on blur instead of on each keystroke, a visible focus
+  indicator on the date grid days (their focus style is overridden), a `<form>` wrapper so
+  that Enter submits, focus restoration after the success dialog (programmatic focus shows a
+  focus ring), selected slot colour contrast, 320 px reflow of the date grid.
 - **Validation**: pending
 
 ### R-14 — Form labels and groups

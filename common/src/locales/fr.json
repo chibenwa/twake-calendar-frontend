@@ -684,6 +684,10 @@
     "time": "Heure",
     "event": "Événement",
     "sidebar": "Agendas et navigation",
-    "calendar": "Agenda"
+    "calendar": "Agenda",
+    "loading": "Chargement…",
+    "slotsOn": "Horaires disponibles le %{date}",
+    "slotsAvailable": "%{smart_count} créneau disponible le %{date} |||| %{smart_count} créneaux disponibles le %{date}",
+    "currentAnswer": "(réponse actuelle)"
   }
 }

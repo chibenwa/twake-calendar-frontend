@@ -685,6 +685,10 @@
     "time": "Время",
     "event": "Событие",
     "sidebar": "Календари и навигация",
-    "calendar": "Календарь"
+    "calendar": "Календарь",
+    "loading": "Загрузка…",
+    "slotsOn": "Свободное время на %{date}",
+    "slotsAvailable": "Свободных слотов на %{date}: %{smart_count}",
+    "currentAnswer": "(текущий ответ)"
   }
 }
