@@ -265,6 +265,10 @@ partial compliance rate.
 - **What**: `SnackBarAlert` default ≥ 6–10 s with pause on hover/focus; errors never auto-hide;
   `role="status"` for success / info, `role="alert"` for errors only; translated `closeText`.
 - **RGAA**: 13.1, 7.5 · **Effort**: S · **Impact**: medium.
+- **Status**: implemented. Success and information messages are `role="status"`, errors
+  `role="alert"` (always: not visible). **High contrast mode** (`useMessageDuration`): messages
+  stay at least 10 s, errors stay until dismissed (settings save errors, Tdrive picker error,
+  people search errors); with the mode off the designed durations apply.
 - **Validation**: pending
 
 ---
