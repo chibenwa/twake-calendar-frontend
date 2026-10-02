@@ -288,6 +288,26 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
         });
     }
 
+    @Test
+    @DisplayName("NAV-19 (#1461) The schedule view lists an ongoing multi-day all day event from today on, not on its past days")
+    void theScheduleViewSkipsThePastDaysOfAnOngoingAllDayEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        LocalDate today = E2EClock.today();
+        String conference = "Conference " + UUID.randomUUID().toString().substring(0, 6);
+        String conferenceUid = UUID.randomUUID().toString();
+        probe.putEvent(user, conferenceUid, Ical.allDayEvent(conferenceUid, conference, today.minusDays(2), today.plusDays(2)));
+
+        calendar.goToDate(today);
+        calendar.switchView("Schedule");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(scheduleRows(page).stream().filter(row -> row.text().contains(conference)))
+                .as("past days are hidden from the schedule, like past events are")
+                .extracting(ScheduleRow::day)
+                .startsWith(dayHeader(today))
+                .doesNotContain(dayHeader(today.minusDays(1)), dayHeader(today.minusDays(2))));
+    }
+
     private record ScheduleRow(String day, String text) {
     }
 

@@ -33,13 +33,28 @@ export const useFilteredCalendarEvents = (
     const now = moment().tz(timezone)
     const startOfToday = now.clone().startOf('day')
 
-    return fullCalendarEvents.filter(event => {
-      if (!event.start) return false
+    return fullCalendarEvents
+      .filter(event => {
+        if (!event.start) return false
 
-      const eventEnd = event.end
-        ? moment.tz(event.end as moment.MomentInput, timezone)
-        : moment.tz(event.start as moment.MomentInput, timezone)
-      return eventEnd.isSameOrAfter(startOfToday, 'day')
-    })
+        const eventEnd = event.end
+          ? moment.tz(event.end as moment.MomentInput, timezone)
+          : moment.tz(event.start as moment.MomentInput, timezone)
+        return eventEnd.isSameOrAfter(startOfToday, 'day')
+      })
+      .map(event => skipPastDaysOfAllDayEvent(event, startOfToday, timezone))
   }, [fullCalendarEvents, bookingListEvents, currentView, timezone])
+}
+
+// The schedule hides past days: an ongoing all day event is listed from today on
+const skipPastDaysOfAllDayEvent = (
+  event: EventInput,
+  startOfToday: moment.Moment,
+  timezone: string
+): EventInput => {
+  const startedBeforeToday = moment
+    .tz(event.start as moment.MomentInput, timezone)
+    .isBefore(startOfToday, 'day')
+  if (!event.allday || !startedBeforeToday) return event
+  return { ...event, start: startOfToday.format('YYYY-MM-DD') }
 }
