@@ -11,6 +11,7 @@ import './Menubar.styl'
 import { TabletMenubar } from './TabletMenubar'
 import { MobileMenubar } from './MobileMenuBar'
 import { useUtilMenus } from '@common/components/Calendar/hooks/useUtilMenus'
+import { formatPeriodLabel } from './periodLabel'
 
 export type AppIconProps = {
   name: string
@@ -114,10 +115,7 @@ export const Menubar: React.FC<MenubarProps> = ({
   }
 
   // Use i18n for month names instead of date-fns
-  const monthIndex = currentDate.getMonth()
-  const year = currentDate.getFullYear()
-  const monthName = t(`months.standalone.${monthIndex}`)
-  const dateLabel = `${monthName} ${year}`
+  const dateLabel = formatPeriodLabel(calendarRef.current, currentDate, t)
 
   const sharedProps: SharedMenubarProps = {
     calendarRef,
