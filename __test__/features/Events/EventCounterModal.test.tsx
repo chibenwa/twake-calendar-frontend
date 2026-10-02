@@ -8,6 +8,13 @@ jest.mock('@common/features/Events/EventDao', () => ({
   postCounterProposal: jest.fn()
 }))
 
+jest.mock(
+  '@common/features/Events/transformers/makeCounterProposalPayload',
+  () => ({
+    makeCounterProposalPayload: jest.fn(() => ({ ical: 'BEGIN:VCALENDAR' }))
+  })
+)
+
 const makeContext = (start: string, end: string): ContextualizedEvent =>
   ({
     event: {
