@@ -50,17 +50,13 @@ describe('formatPeriodLabel', () => {
   it('shows a single month for a month view', () => {
     const api = calendarShowing(new Date(2026, 9, 1), new Date(2026, 10, 1))
 
-    expect(formatPeriodLabel(api, new Date(2026, 9, 1), t)).toBe(
-      'October 2026'
-    )
+    expect(formatPeriodLabel(api, new Date(2026, 9, 1), t)).toBe('October 2026')
   })
 
   it('shows a single month for a week within one month', () => {
     const api = calendarShowing(new Date(2026, 9, 5), new Date(2026, 9, 12))
 
-    expect(formatPeriodLabel(api, new Date(2026, 9, 5), t)).toBe(
-      'October 2026'
-    )
+    expect(formatPeriodLabel(api, new Date(2026, 9, 5), t)).toBe('October 2026')
   })
 
   it('falls back to the given date without calendar', () => {
