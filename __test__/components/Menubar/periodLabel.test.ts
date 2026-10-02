@@ -19,8 +19,15 @@ const MONTHS = [
 const t = (key: string): string =>
   MONTHS[Number(key.replace('months.standalone.', ''))]
 
-const calendarShowing = (currentStart: Date, currentEnd: Date): CalendarApi =>
-  ({ view: { currentStart, currentEnd } }) as unknown as CalendarApi
+const calendarShowing = (
+  currentStart: Date,
+  currentEnd: Date,
+  timeZone = 'local'
+): CalendarApi =>
+  ({
+    view: { currentStart, currentEnd },
+    getOption: () => timeZone
+  }) as unknown as CalendarApi
 
 describe('formatPeriodLabel', () => {
   it('shows both months for a week spanning two months', () => {
@@ -57,6 +64,17 @@ describe('formatPeriodLabel', () => {
     const api = calendarShowing(new Date(2026, 9, 5), new Date(2026, 9, 12))
 
     expect(formatPeriodLabel(api, new Date(2026, 9, 5), t)).toBe('October 2026')
+  })
+
+  it('reads the period in the calendar timezone', () => {
+    // January 2027 in Kiritimati (UTC+14), the browser being in UTC
+    const api = calendarShowing(
+      new Date('2026-12-31T10:00:00Z'),
+      new Date('2027-01-31T10:00:00Z'),
+      'Pacific/Kiritimati'
+    )
+
+    expect(formatPeriodLabel(api, new Date(2027, 0, 1), t)).toBe('January 2027')
   })
 
   it('falls back to the given date without calendar', () => {
