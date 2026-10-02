@@ -2,7 +2,7 @@
 
 Backlog of scenarios for the [`e2e/`](e2e) suite. One line, one test.
 
-- **Past incidents — 49 tests**: bugs and regressions this project has already shipped at
+- **Past incidents — 50 tests**: bugs and regressions this project has already shipped at
   least once. They are the cheapest tests to justify and the most likely to fire again.
 - **Essential — 203 tests**: every basic feature working as intended. Until they are all green,
   a regression can slip through.
@@ -32,7 +32,7 @@ accounts are handed out.
 
 ---
 
-# Past incidents (49)
+# Past incidents (50)
 
 Drawn from the [issue tracker](https://github.com/linagora/twake-calendar-frontend/issues):
 708 issues read, 233 labelled `bug`, 46 labelled `REGRESSION`. Each line below reproduces a
@@ -96,12 +96,13 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-35` A personal calendar can be unticked ([#159](https://github.com/linagora/twake-calendar-frontend/issues/159))
 - [x] `PAST-36` A user cannot delegate their own calendar to themselves and lock themselves out of it ([#908](https://github.com/linagora/twake-calendar-frontend/issues/908))
 
-## PAST — Search (4)
+## PAST — Search (5)
 
 - [ ] `PAST-37` A calendar picked through quick search is displayed in the central grid ([#196](https://github.com/linagora/twake-calendar-frontend/issues/196))
-- [x] `PAST-38` Searching again with a different keyword sends the new keyword, not the previous one ([#998](https://github.com/linagora/twake-calendar-frontend/issues/998))
+- [x] `PAST-38` Searching events again from the menubar shows the results of the new keyword, not those of the previous one ([#998](https://github.com/linagora/twake-calendar-frontend/issues/998), [#1459](https://github.com/linagora/twake-calendar-frontend/issues/1459))
 - [ ] `PAST-39` Quick searching a user who delegated their calendar returns that calendar ([#596](https://github.com/linagora/twake-calendar-frontend/issues/596))
 - [x] `PAST-40` Cancelling a search before its results arrive leaves no ghost calendar behind ([#271](https://github.com/linagora/twake-calendar-frontend/issues/271))
+- [x] `PAST-51` Quick searching other calendars with a second keyword shows the answer to that keyword only
 
 ## PAST — Loading and stability (4)
 
@@ -124,7 +125,7 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 
 ### Not covered yet
 
-Four of the forty nine, each with what stands in the way.
+Four of the fifty, each with what stands in the way.
 
 - `PAST-33` (#213) Deleting a calendar. `CAL-10` covers deletion from the essential batch; this
   one only needs re-pointing at it.
@@ -803,10 +804,10 @@ day, 23:45) — 48 tests.
 
 | Batch | Written | Total |
 | --- | --- | --- |
-| Past incidents | 45 | 49 |
+| Past incidents | 46 | 50 |
 | Essential | 198 | 203 |
 | Bonus | 256 | 307 |
-| **Total** | **499** | **559** |
+| **Total** | **500** | **560** |
 
 The essential batch is complete but for five scenarios. `SYNC-08` and `SYNC-09` need the
 websocket cut and restored under the application; `SEARCH-09`, `SET-07` and `SET-13` are simply

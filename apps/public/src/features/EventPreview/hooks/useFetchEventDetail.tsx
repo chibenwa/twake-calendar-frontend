@@ -4,7 +4,7 @@ import { fetchEvent } from '../EventDao'
 import { parseFetchedEvent } from '@common/features/Events/transformers/parseFetchedEvent'
 import { useI18n } from 'twake-i18n'
 import { getSanitizedHttpErrorMessage } from './useEventDetailError'
-import { encodeDavSegment } from '@common/features/Calendars/utils/calendarDavPath'
+import { encodeDavSegment } from '@linagora/twake-utils'
 
 export interface EventDetailResult {
   event: CalendarEvent | undefined

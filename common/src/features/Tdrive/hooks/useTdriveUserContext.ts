@@ -1,5 +1,5 @@
+import { resolveUriTemplate } from '@linagora/twake-utils'
 import { useAppSelector } from '@common/app/hooks'
-import { resolveTdriveUrl } from '@common/utils/tdriveUrlUtils'
 
 interface UseTdriveUserContextReturn {
   localpart: string | undefined
@@ -13,7 +13,13 @@ export function useTdriveUserContext(): UseTdriveUserContextReturn {
   )
 
   const localpart = email?.split('@')[0]
-  const tdriveBaseUrl = resolveTdriveUrl({ localpart, workplaceFqdn })
+  const tdriveBaseUrl = window.TDRIVE_INTENT_URL
+    ? resolveUriTemplate(window.TDRIVE_INTENT_URL, {
+        localpart,
+        workplaceFqdn,
+        workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK
+      })
+    : null
 
   return { localpart, tdriveBaseUrl }
 }

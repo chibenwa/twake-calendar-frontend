@@ -32,7 +32,8 @@ export const useVideoConference = ({
   const generateLocalMeetingLink = (): string =>
     generateMeetingLink({
       localpart: email?.split('@')[0],
-      workplaceFqdn
+      workplaceFqdn,
+      workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK
     })
 
   // With MEET_BACKEND_INTEGRATION, Meet mints the room code: a code invented

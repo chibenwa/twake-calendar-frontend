@@ -4,10 +4,10 @@ import { useI18n } from 'twake-i18n'
 import { useNavigate } from 'react-router'
 import { useAppSelector } from '@common/app/hooks'
 import {
-  buildMailComposeUrl,
-  resolveMailSpaUrl
-} from '@common/utils/mailUrlUtils'
-import { resolveChatSpaUrl } from '@common/utils/chatUrlUtils'
+  buildMailComposerUrl,
+  resolveMailSpaUrl,
+  resolveChatSpaUrl
+} from '@linagora/twake-utils'
 import { Tooltip } from '@common/components/Tooltip'
 import { useCheckInternalUser } from './useCheckInternalUser'
 import { userAttendee } from '@common/features/User/models/attendee'
@@ -30,14 +30,16 @@ export function AttendeeActions({
   )
   const userEmail = useAppSelector(state => state.user.userData?.email)
 
-  const mailSpaUrl = resolveMailSpaUrl({
-    localpart: getUserNameFromEmail(userEmail),
-    workplaceFqdn
-  })
-
-  const chatSpaUrl = resolveChatSpaUrl({
+  const mailSpaUrl = resolveMailSpaUrl(window.MAIL_SPA_URL, {
     localpart: getUserNameFromEmail(userEmail),
     workplaceFqdn,
+    workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK
+  })
+
+  const chatSpaUrl = resolveChatSpaUrl(window.CHAT_SPA_URL, {
+    localpart: getUserNameFromEmail(userEmail),
+    workplaceFqdn,
+    workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK,
     target: getUserNameFromEmail(attendee.cal_address)
   })
 
@@ -48,7 +50,7 @@ export function AttendeeActions({
 
   const handleSendMail = (): void => {
     if (!mailSpaUrl) return
-    const composeUrl = buildMailComposeUrl(mailSpaUrl, [attendee.cal_address])
+    const composeUrl = buildMailComposerUrl(mailSpaUrl, [attendee.cal_address])
     if (!composeUrl) return
     window.open(composeUrl, '_blank', 'noopener,noreferrer')
   }

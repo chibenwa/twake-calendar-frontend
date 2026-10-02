@@ -1,7 +1,6 @@
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { useTdrivePicker } from '@common/features/Tdrive/hooks/useTdrivePicker'
 import * as TdriveDao from '@common/features/Tdrive/TdriveDao'
-import * as tdriveUrlUtils from '@common/utils/tdriveUrlUtils'
 import { Provider } from 'react-redux'
 import { setupStore } from '@common/app/store'
 import React, { PropsWithChildren } from 'react'
@@ -25,11 +24,12 @@ jest.mock('twake-i18n', () => ({
 }))
 
 jest.mock('@common/features/Tdrive/TdriveDao')
-jest.mock('@common/utils/tdriveUrlUtils')
+jest.mock('@linagora/twake-utils', () => ({
+  resolveUriTemplate: jest.fn((template: string) => template)
+}))
 
 describe('useTdrivePicker', () => {
   const mockExchangeToken = jest.spyOn(TdriveDao, 'exchangeToken')
-  const mockResolveTdriveUrl = jest.spyOn(tdriveUrlUtils, 'resolveTdriveUrl')
 
   const createWrapper = (preloadedState = {}) => {
     const store = setupStore(preloadedState)
@@ -68,6 +68,7 @@ describe('useTdrivePicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    window.TDRIVE_INTENT_URL = 'https://drive.example.com'
     // Default: start() calls onReadyToUse then resolves with a file
     mockStart.mockImplementation((_container, { onReadyToUse } = {}) => {
       onReadyToUse?.()
@@ -80,8 +81,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('initializes with closed state', () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
-
     const { result } = renderHook(
       () => useTdrivePicker({ onFilesSelected: jest.fn() }),
       { wrapper: createWrapper() }
@@ -91,7 +90,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('opens picker using cozy-interapp', async () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
     mockExchangeToken.mockResolvedValue(defaultTokenResponse)
 
     // Don't resolve start() yet so we can assert isOpen while it's open
@@ -153,7 +151,7 @@ describe('useTdrivePicker', () => {
   })
 
   it('does not open when TDRIVE_URL is not configured', async () => {
-    mockResolveTdriveUrl.mockReturnValue(null)
+    window.TDRIVE_INTENT_URL = undefined
 
     const { result } = renderHook(
       () => useTdrivePicker({ onFilesSelected: jest.fn() }),
@@ -170,8 +168,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('does not open when idToken is missing', async () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
-
     const { result } = renderHook(
       () => useTdrivePicker({ onFilesSelected: jest.fn() }),
       {
@@ -194,7 +190,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('handles API errors gracefully', async () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
     mockExchangeToken.mockRejectedValue(new Error('API Error'))
 
     const { result } = renderHook(
@@ -220,7 +215,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('calls onFilesSelected with file from intent result', async () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
     mockExchangeToken.mockResolvedValue(defaultTokenResponse)
 
     const onFilesSelected = jest.fn()
@@ -264,7 +258,6 @@ describe('useTdrivePicker', () => {
   })
 
   it('closes picker and resets state', async () => {
-    mockResolveTdriveUrl.mockReturnValue('https://drive.example.com')
     mockExchangeToken.mockResolvedValue(defaultTokenResponse)
 
     // start() calls onReadyToUse but never resolves — simulates picker staying open

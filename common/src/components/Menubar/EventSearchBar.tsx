@@ -133,12 +133,17 @@ const SearchBar: React.FC<{
     }
   ): Promise<void> => {
     setSearch(searchQuery)
+    // the store only holds the new keyword once the next render has run: build the request
+    // from it right away, or it goes out with the previous one
+    const currentFilters = searchQuery
+      ? { ...filters, keywords: searchQuery }
+      : filters
     if (searchQuery) {
       handleFilterChange('keywords', searchQuery)
     }
     const cleanedQuery = buildQuery(
       searchQuery,
-      filters,
+      currentFilters,
       calendars.map(calendar => calendar.id),
       personnalCalendars.map(calendar => calendar.id),
       sharedCalendars.map(calendar => calendar.id)

@@ -4,8 +4,8 @@
 
 import {
   resolveUriTemplate,
-  UriTemplateContext
-} from '@common/utils/uriTemplateUtils'
+  type UriTemplateContext
+} from '@linagora/twake-utils'
 
 /**
  * Generate a random meeting ID in format xxx-xxxx-xxx

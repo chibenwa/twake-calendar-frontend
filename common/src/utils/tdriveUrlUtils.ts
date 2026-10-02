@@ -4,8 +4,8 @@
 
 import {
   resolveUriTemplate,
-  UriTemplateContext
-} from '@common/utils/uriTemplateUtils'
+  type UriTemplateContext
+} from '@linagora/twake-utils'
 
 /**
  * Resolve the TDRIVE_INTENT_URL configuration entry.

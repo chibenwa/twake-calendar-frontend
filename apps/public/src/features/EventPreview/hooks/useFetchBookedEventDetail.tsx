@@ -4,7 +4,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { getSanitizedHttpErrorMessage } from './useEventDetailError'
-import { encodeDavSegment } from '@common/features/Calendars/utils/calendarDavPath'
+import { encodeDavSegment } from '@linagora/twake-utils'
 
 export interface BookedEventDetailResult {
   event: CalendarEvent | undefined

@@ -3,10 +3,7 @@ import { Menu, MenuItem } from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { useAppSelector } from '@common/app/hooks'
-import {
-  buildMailComposeUrl,
-  resolveMailSpaUrl
-} from '@common/utils/mailUrlUtils'
+import { buildMailComposerUrl, resolveMailSpaUrl } from '@linagora/twake-utils'
 
 interface EventPreviewActionMenuProps {
   anchorEl: Element | null
@@ -31,9 +28,10 @@ export const EventPreviewActionMenu: React.FC<EventPreviewActionMenuProps> = ({
   const workplaceFqdn = useAppSelector(
     state => state.user.userData?.workplaceFqdn
   )
-  const mailSpaUrl = resolveMailSpaUrl({
+  const mailSpaUrl = resolveMailSpaUrl(window.MAIL_SPA_URL, {
     localpart: userEmail?.split('@')[0],
-    workplaceFqdn
+    workplaceFqdn,
+    workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK
   })
 
   const attendees = event.attendee ?? []
@@ -41,7 +39,7 @@ export const EventPreviewActionMenu: React.FC<EventPreviewActionMenuProps> = ({
     a => a.cal_address !== userEmail && a.cutype !== 'RESOURCE'
   )
   const composeUrl = mailSpaUrl
-    ? buildMailComposeUrl(
+    ? buildMailComposerUrl(
         mailSpaUrl,
         otherAttendees.map(a => a.cal_address),
         event.title ?? ''

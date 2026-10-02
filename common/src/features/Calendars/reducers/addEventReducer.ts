@@ -1,8 +1,8 @@
+import { encodeDavSegment } from '@linagora/twake-utils'
 import { PayloadAction, ReducerCreators } from '@reduxjs/toolkit'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
 import { CalendarState } from '../CalendarSlice'
-import { encodeDavSegment } from '../utils/calendarDavPath'
 
 export const addEventReducer = (create: ReducerCreators<CalendarState>) =>
   create.reducer(

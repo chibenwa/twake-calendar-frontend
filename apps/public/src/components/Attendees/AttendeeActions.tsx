@@ -2,10 +2,7 @@ import { Box, Button, useTheme, alpha } from '@linagora/twake-mui'
 import { Icon, EmailOpen } from '@linagora/twake-icons'
 import { useI18n } from 'twake-i18n'
 import { useAppSelector } from '@common/app/hooks'
-import {
-  buildMailComposeUrl,
-  resolveMailSpaUrl
-} from '@common/utils/mailUrlUtils'
+import { buildMailComposerUrl, resolveMailSpaUrl } from '@linagora/twake-utils'
 import { userAttendee } from '@common/features/User/models/attendee'
 
 const getUserNameFromEmail = (email: string | undefined): string => {
@@ -25,14 +22,15 @@ export function AttendeeActions({
   )
   const userEmail = useAppSelector(state => state.user.userData?.email)
 
-  const mailSpaUrl = resolveMailSpaUrl({
+  const mailSpaUrl = resolveMailSpaUrl(window.MAIL_SPA_URL, {
     localpart: getUserNameFromEmail(userEmail),
-    workplaceFqdn
+    workplaceFqdn,
+    workplaceFqdnFallback: window.WORKPLACE_FQDN_FALLBACK
   })
 
   const handleSendMail = (): void => {
     if (!mailSpaUrl) return
-    const composeUrl = buildMailComposeUrl(mailSpaUrl, [attendee.cal_address])
+    const composeUrl = buildMailComposerUrl(mailSpaUrl, [attendee.cal_address])
     if (!composeUrl) return
     window.open(composeUrl, '_blank', 'noopener,noreferrer')
   }

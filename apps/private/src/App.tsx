@@ -81,7 +81,7 @@ export default function App(): JSX.Element {
     <EmbeddingProvider>
       <TwakeMuiThemeProvider
         themeOptions={{
-          ...makeCalendarOverrides()
+          ...makeCalendarOverrides(true)
         }}
       >
         <I18n
