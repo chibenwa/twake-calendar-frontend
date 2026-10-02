@@ -47,6 +47,24 @@ public class Ical {
             .replace("\n", "\r\n");
     }
 
+    /** An all day event from the first to the last day, both included: DTEND is exclusive. */
+    public static String allDayEvent(String uid, String summary, LocalDate firstDay, LocalDate lastDay) {
+        return """
+            BEGIN:VCALENDAR
+            VERSION:2.0
+            PRODID:-//linagora//twake-calendar-e2e//EN
+            BEGIN:VEVENT
+            UID:%s
+            DTSTAMP:%sT000000Z
+            DTSTART;VALUE=DATE:%s
+            DTEND;VALUE=DATE:%s
+            SUMMARY:%s
+            END:VEVENT
+            END:VCALENDAR
+            """.formatted(uid, firstDay.format(DAY), firstDay.format(DAY), lastDay.plusDays(1).format(DAY), summary)
+            .replace("\n", "\r\n");
+    }
+
     private static String utc(ZonedDateTime instant) {
         return instant.withZoneSameInstant(ZoneOffset.UTC).format(UTC);
     }

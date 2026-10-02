@@ -200,7 +200,7 @@ day, 23:45) — 48 tests.
 - [x] `SHELL-14` Saving a full screen event edit gives the menubar its actions back
 - [x] `SHELL-15` Saving a full screen event creation gives the menubar its actions back
 
-## NAV — Navigation and views (16)
+## NAV — Navigation and views (17)
 
 - [x] `NAV-01` Next moves the week view to the following week
 - [x] `NAV-02` Today comes back to the current week after browsing away
@@ -214,6 +214,7 @@ day, 23:45) — 48 tests.
 - [x] `NAV-11` The week number shown matches the current ISO week
 - [x] `NAV-12` The current day column is highlighted in the week view
 - [x] `NAV-13` The schedule view shows a message when the period holds no event
+- [x] `NAV-18` The schedule view lists a multi-day all day event as all day under the header of each of its days ([#1461](https://github.com/linagora/twake-calendar-frontend/issues/1461))
 - [x] `NAV-14` Changing view keeps the displayed date
 - [x] `NAV-15` The time grid is scrolled to the current hour on opening
 - [x] `NAV-16` Browsing twelve weeks in a row does not duplicate any event

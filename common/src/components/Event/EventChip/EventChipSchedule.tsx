@@ -24,7 +24,8 @@ const getEffectiveDayMoment = (
     return moment(arg.event.start).tz(timezone)
   }
   if (arg.isEnd) {
-    return moment(arg.event.end).tz(timezone)
+    // The end is exclusive: an all-day event ending on the 8th lasts until the 7th
+    return moment(arg.event.end).tz(timezone).subtract(1, 'millisecond')
   }
   return moment(arg.event.start).tz(timezone).add(1, 'day')
 }

@@ -256,6 +256,61 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("NAV-18 (#1461) The schedule view lists a multi-day all day event as all day under each of its days")
+    void theScheduleViewListsAMultiDayAllDayEventUnderEachDay(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        // Monday to Wednesday sit in the same week whichever day the week starts on
+        LocalDate monday = E2EClock.today().plusWeeks(3).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate wednesday = monday.plusDays(2);
+        String conference = "Conference " + UUID.randomUUID().toString().substring(0, 6);
+        String meeting = "Meeting " + UUID.randomUUID().toString().substring(0, 6);
+        String conferenceUid = UUID.randomUUID().toString();
+        String meetingUid = UUID.randomUUID().toString();
+        probe.putEvent(user, conferenceUid, Ical.allDayEvent(conferenceUid, conference, monday, wednesday));
+        probe.putEvent(user, meetingUid, Ical.event(meetingUid, meeting, wednesday, 10));
+
+        calendar.goToDate(monday);
+        calendar.switchView("Schedule");
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            List<ScheduleRow> rows = scheduleRows(page);
+            assertThat(rows.stream().filter(row -> row.text().contains(conference)))
+                .as("the conference is listed once per day, each under its own day")
+                .extracting(ScheduleRow::day)
+                .containsExactly(dayHeader(monday), dayHeader(monday.plusDays(1)), dayHeader(wednesday));
+            assertThat(rows.stream().filter(row -> row.text().contains(conference)))
+                .as("an all day event reads all day on each of its days, not as a timed event")
+                .allSatisfy(row -> assertThat(row.text()).contains("All day").doesNotContain("00:00"));
+            assertThat(rows.stream().filter(row -> row.text().contains(meeting)))
+                .as("the other event of the last day stays under that day")
+                .extracting(ScheduleRow::day)
+                .containsExactly(dayHeader(wednesday));
+        });
+    }
+
+    private record ScheduleRow(String day, String text) {
+    }
+
+    /** Every row of the schedule, with the day header it is listed under. */
+    @SuppressWarnings("unchecked")
+    private static List<ScheduleRow> scheduleRows(Page page) {
+        List<List<String>> rows = (List<List<String>>) page.evaluate(
+            "() => { let day = ''; return Array.from(document.querySelectorAll('.fc-list-event [data-event-id]'))"
+            + ".map(row => { const header = row.firstElementChild.innerText.replace(/\\s+/g, ' ').trim().toUpperCase();"
+            + " if (header) { day = header; }"
+            + " return [day, Array.from(row.children).slice(1).map(cell => cell.innerText).join(' ')]; }); }");
+        return rows.stream()
+            .map(row -> new ScheduleRow(row.get(0), row.get(1)))
+            .toList();
+    }
+
+    private static String dayHeader(LocalDate day) {
+        return day.getDayOfMonth() + " " + day.getDayOfWeek()
+            .getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH)
+            .toUpperCase(java.util.Locale.ENGLISH);
+    }
+
+    @Test
     @DisplayName("NAV-11 The week number shown matches the ISO week of the displayed days")
     void theWeekNumberMatchesTheDisplayedWeek(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);

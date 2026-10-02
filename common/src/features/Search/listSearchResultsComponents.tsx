@@ -129,8 +129,8 @@ export const RenderListEventTime: React.FC<ListEventTimeProps> = ({
     )
   }
 
-  const isMultiDayStart = isStart && !isEnd
-  const isMultiDayEnd = !isStart && isEnd
+  const isMultiDayStart = !allDay && isStart && !isEnd
+  const isMultiDayEnd = !allDay && !isStart && isEnd
 
   let timeText = t('event.form.allDay')
   if (isMultiDayStart) {
