@@ -21,7 +21,7 @@ describe('BookingStatusSwitch', () => {
     )
 
     const switchElement = screen.getByRole('switch', {
-      name: /booking.inactiveSchedule/i
+      name: 'booking.activeSchedule'
     })
     expect(switchElement).toBeChecked()
 
@@ -36,7 +36,7 @@ describe('BookingStatusSwitch', () => {
     )
 
     const switchElement = screen.getByRole('switch', {
-      name: /booking.activeSchedule/i
+      name: 'booking.activeSchedule'
     })
     expect(switchElement).not.toBeChecked()
   })
