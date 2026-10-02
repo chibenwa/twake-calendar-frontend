@@ -7,6 +7,7 @@ import { history } from '@common/app/store'
 import { Error as ErrorPage } from '@common/components/Error/Error'
 import { EmbeddingProvider } from '@common/contexts/EmbeddingContext'
 import { DebugModeToggle } from '@common/components/Debug/DebugModeToggle'
+import { makeCalendarOverrides } from '@common/theme/makeCalendarOverrides'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Loading } from '@common/components/Loading/Loading'
 import { useDocumentLanguage } from '@common/hooks/useDocumentLanguage'
@@ -47,7 +48,11 @@ export default function App(): JSX.Element {
 
   return (
     <EmbeddingProvider>
-      <TwakeMuiThemeProvider>
+      <TwakeMuiThemeProvider
+        themeOptions={{
+          ...makeCalendarOverrides()
+        }}
+      >
         <I18n
           dictRequire={(lang: keyof typeof locale) => locale[lang]}
           lang={lang}

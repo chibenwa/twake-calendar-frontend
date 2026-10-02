@@ -225,12 +225,44 @@ describe('EventSearchBar', () => {
     await waitFor(() => {
       expect(searchSpy).toHaveBeenCalledWith({
         filters: {
-          keywords: '',
+          keywords: 'test',
           organizers: [],
           attendees: [],
           searchIn: ['user1/cal1']
         },
         search: 'test'
+      })
+    })
+  })
+
+  it('should search the keyword in the field, not the previous one, on a second search', async () => {
+    const searchSpy = jest.spyOn(searchThunk, 'searchEvents')
+
+    renderWithProviders(<SearchBar />, preloadedState)
+
+    const searchButton = screen.getByRole('button')
+    fireEvent.click(searchButton)
+
+    const searchInput = screen.getByPlaceholderText('common.search')
+    fireEvent.change(searchInput, { target: { value: 'alpha' } })
+    fireEvent.keyDown(searchInput, { key: 'Enter' })
+
+    await waitFor(() => {
+      expect(searchSpy).toHaveBeenCalledTimes(1)
+    })
+
+    fireEvent.change(searchInput, { target: { value: 'beta' } })
+    fireEvent.keyDown(searchInput, { key: 'Enter' })
+
+    await waitFor(() => {
+      expect(searchSpy).toHaveBeenLastCalledWith({
+        filters: {
+          keywords: 'beta',
+          organizers: [],
+          attendees: [],
+          searchIn: ['user1/cal1']
+        },
+        search: 'beta'
       })
     })
   })
