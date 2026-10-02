@@ -205,7 +205,12 @@ function CalendarPopover({
         calId
       })
     )
-    if (createCalendarAsync.fulfilled.match(created)) {
+      .unwrap()
+      .then(
+        () => true,
+        () => false
+      )
+    if (created) {
       onCalendarCreated?.(`${userData.openpaasId}/${calId}`)
     }
     dispatch(
