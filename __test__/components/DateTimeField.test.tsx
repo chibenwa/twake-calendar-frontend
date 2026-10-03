@@ -127,20 +127,18 @@ describe('DateTimeFields', () => {
 
     const endTimeInput = screen.getByTestId('end-time-input')
     await userEvent.click(endTimeInput)
-    await waitFor(() =>
-      expect(screen.getByRole('listbox')).toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument())
 
     await userEvent.keyboard('{Escape}')
 
     await waitFor(() =>
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
     )
-    expect(endTimeInput).not.toHaveFocus()
     expect(onParentKeyDown).not.toHaveBeenCalled()
 
-    // Focusing does not reopen the list: Escape now reaches the parent
-    act(() => endTimeInput.focus())
+    // The picker hands focus back to the input without reopening the list:
+    // Escape now reaches the parent
+    await waitFor(() => expect(endTimeInput).toHaveFocus())
     await userEvent.keyboard('{Escape}')
 
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
