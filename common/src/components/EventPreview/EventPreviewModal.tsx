@@ -170,9 +170,7 @@ const EventPreviewModal: React.FC<{
         <CalendarSelectField
           calendarid={calendarid}
           setCalendarid={handleCalendarMove}
-          userPersonalCalendars={
-            canMove ? userPersonalCalendars : [calendar]
-          }
+          userPersonalCalendars={canMove ? userPersonalCalendars : [calendar]}
           showMore={false}
           disabled={!canMove}
         />
