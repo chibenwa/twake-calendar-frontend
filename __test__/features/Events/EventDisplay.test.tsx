@@ -1835,7 +1835,13 @@ describe('Event Preview Display', () => {
               list: {
                 'user2/cal1': {
                   ...resourceCalendar,
-                  owner: { ...resourceCalendar.owner, resource: true }
+                  owner: {
+                    ...resourceCalendar.owner,
+                    resource: true,
+                    administrators: [
+                      { _id: 'user1', id: 'user1', objectType: 'user' }
+                    ]
+                  }
                 }
               }
             }
