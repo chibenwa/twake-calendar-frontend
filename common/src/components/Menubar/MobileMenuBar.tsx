@@ -15,11 +15,11 @@ import { DatePickerMobile } from './components/DatePickerMobile'
 import { SmallNavigationControls } from './components/SmallNavigationControls'
 import './Menubar.styl'
 import MobileSearchBar from './MobileEventSearchBar'
-import { formatPeriodLabel } from './periodLabel'
 
 export interface MobileMenubarProps {
   calendarRef: React.RefObject<CalendarApi | null>
   currentDate: Date
+  dateLabel: string
   onDateChange?: (date: Date) => void
   handleNavigation: (action: 'prev' | 'next' | 'today') => void
   onOpenSidebar: () => void
@@ -28,6 +28,7 @@ export interface MobileMenubarProps {
 export const MobileMenubar: React.FC<MobileMenubarProps> = ({
   calendarRef,
   currentDate,
+  dateLabel,
   onDateChange,
   handleNavigation,
   onOpenSidebar
@@ -39,9 +40,6 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
 
   const [openDatePicker, setOpenDatePicker] = useState(false)
   const [openEventSearch, setOpenEventSearch] = useState(false)
-
-  // Use i18n for month names instead of date-fns
-  const dateLabel = formatPeriodLabel(calendarRef.current, currentDate, t)
 
   const onToggleDatePicker = (): void => {
     setOpenDatePicker(prev => {

@@ -1,6 +1,12 @@
-import { CalendarApi } from '@fullcalendar/core'
-
 type Translate = (key: string) => string
+
+// The period FullCalendar displays, as its datesSet hands it over: the end is
+// exclusive
+export type DisplayedPeriod = {
+  start: Date
+  end: Date
+  timeZone?: string
+}
 
 type YearMonth = { year: number; month: number }
 
@@ -24,17 +30,15 @@ const monthLabel = (date: YearMonth, t: Translate): string =>
 // The title depends on the displayed period only, not on how it was reached:
 // FullCalendar's current date is today after "Today" but the period start otherwise
 export const formatPeriodLabel = (
-  calendarApi: CalendarApi | null | undefined,
+  period: DisplayedPeriod | undefined,
   fallbackDate: Date,
   t: Translate
 ): string => {
-  const view = calendarApi?.view
-  const timeZone = view ? calendarApi?.getOption('timeZone') : undefined
-  const first = yearMonthIn(timeZone, view ? view.currentStart : fallbackDate)
-  // currentEnd is exclusive
+  const timeZone = period?.timeZone
+  const first = yearMonthIn(timeZone, period ? period.start : fallbackDate)
   const last = yearMonthIn(
     timeZone,
-    view ? new Date(view.currentEnd.getTime() - 1) : fallbackDate
+    period ? new Date(period.end.getTime() - 1) : fallbackDate
   )
 
   if (first.year !== last.year) {
