@@ -1,5 +1,9 @@
 import React from 'react'
+import moment from 'moment-timezone'
 import { combineDateTime } from '@common/components/Event/utils/dateTimeHelpers'
+
+const DATE_FORMAT = 'YYYY-MM-DD'
+const TIME_FORMAT = 'HH:mm'
 
 /**
  * Parameters for all-day toggle hook
@@ -12,6 +16,7 @@ export interface AllDayToggleParams {
   startTime: string
   endDate: string
   endTime: string
+  timezone?: string
   setStartTime: (time: string) => void
   setEndTime: (time: string) => void
   setStart: (start: string) => void
@@ -48,6 +53,7 @@ export function useAllDayToggle(
     startTime,
     endDate,
     endTime,
+    timezone,
     setStartTime,
     setEndTime,
     setStart,
@@ -72,25 +78,22 @@ export function useAllDayToggle(
     if (!newAllDay) {
       const hasTimeParts = start.includes('T') && end.includes('T')
       if (!hasTimeParts && !startTime && !endTime) {
-        const now = new Date()
-        now.setSeconds(0)
-        now.setMilliseconds(0)
-        const nextHour = new Date(now)
-        nextHour.setMinutes(0)
-        nextHour.setHours(now.getHours() + 1)
-
-        const startHours = String(nextHour.getHours()).padStart(2, '0')
-        const startMinutes = String(nextHour.getMinutes()).padStart(2, '0')
-        const startTimeStr = `${startHours}:${startMinutes}`
-
-        const endHourDate = new Date(nextHour)
-        endHourDate.setHours(endHourDate.getHours() + 1)
-        const endHours = String(endHourDate.getHours()).padStart(2, '0')
-        const endMinutes = String(endHourDate.getMinutes()).padStart(2, '0')
-        const endTimeStr = `${endHours}:${endMinutes}`
+        // Next round hour in the zone of the event, not in the one of the browser
+        const now = timezone ? moment.tz(timezone) : moment()
+        const slotStart = now.clone().startOf('hour').add(1, 'hour')
+        const slotEnd = slotStart.clone().add(1, 'hour')
+        const startTimeStr = slotStart.format(TIME_FORMAT)
+        const endTimeStr = slotEnd.format(TIME_FORMAT)
 
         const startDateOnly = start.split('T')[0] || startDate
-        const endDateOnly = end.split('T')[0] || endDate || startDateOnly
+        const keptEndDate = end.split('T')[0] || endDate || startDateOnly
+        const slotCrossesMidnight = !slotEnd.isSame(slotStart, 'day')
+        const endDateOnly =
+          slotCrossesMidnight && keptEndDate <= startDateOnly
+            ? moment(startDateOnly, DATE_FORMAT)
+                .add(1, 'day')
+                .format(DATE_FORMAT)
+            : keptEndDate
         newStart = combineDateTime(startDateOnly, startTimeStr)
         newEnd = combineDateTime(endDateOnly, endTimeStr)
 
@@ -114,6 +117,7 @@ export function useAllDayToggle(
     startTime,
     endDate,
     endTime,
+    timezone,
     setStartTime,
     setEndTime,
     setStart,

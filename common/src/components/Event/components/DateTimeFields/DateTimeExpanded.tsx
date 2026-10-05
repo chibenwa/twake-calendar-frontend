@@ -240,6 +240,7 @@ export const DateTimeExpanded: React.FC<
     startTime,
     endDate,
     endTime,
+    timezone,
     setStartTime,
     setEndTime,
     setStart,
