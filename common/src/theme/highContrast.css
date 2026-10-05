@@ -34,6 +34,11 @@ html[data-high-contrast='true']
   .MuiOutlinedInput-root.Mui-focused
   .MuiOutlinedInput-notchedOutline {
   border-width: 2px !important;
+}
+/* a field in error keeps its red border */
+html[data-high-contrast='true']
+  .MuiOutlinedInput-root.Mui-focused:not(.Mui-error)
+  .MuiOutlinedInput-notchedOutline {
   border-color: var(--hc-focus-color) !important;
 }
 html[data-high-contrast='true'] .MuiInputBase-input:focus-visible {
@@ -123,4 +128,69 @@ html[data-high-contrast='true']
    is missed by keyboard and magnifier users alike */
 html[data-high-contrast='true'] .MoreBtn {
   opacity: 1 !important;
+}
+
+/* --- High contrast audit, 2026-10-05 ------------------------------------ */
+
+/* placeholders: twake-mui paints them in secondary.dark (1.6:1) with a
+   selector more specific than the theme override of the mode */
+html[data-high-contrast='true'] .MuiOutlinedInput-root input::placeholder,
+html[data-high-contrast='true'] .MuiOutlinedInput-root textarea::placeholder {
+  color: #6b6b6e !important;
+  opacity: 1 !important;
+}
+
+/* secondary outlined and text buttons ("Continue editing"): the secondary
+   colour of twake-mui is a near white grey meant for backgrounds (1.14:1) */
+html[data-high-contrast='true']
+  .MuiButton-outlined.MuiButton-colorSecondary:not(.Mui-disabled),
+html[data-high-contrast='true']
+  .MuiButton-text.MuiButton-colorSecondary:not(.Mui-disabled) {
+  color: #1c1b1f !important;
+}
+html[data-high-contrast='true']
+  .MuiButton-outlined.MuiButton-colorSecondary:not(.Mui-disabled) {
+  border-color: #8a8a8d !important;
+}
+
+/* switches: the track of an unchecked switch was a 1.5:1 grey, its white
+   thumb invisible on white */
+html[data-high-contrast='true']
+  .MuiSwitch-switchBase:not(.Mui-checked):not(.Mui-disabled)
+  + .MuiSwitch-track {
+  background-color: #6b6b6e !important;
+  opacity: 1 !important;
+}
+
+/* calendar grid: today (white on light orange, 2.09:1), weekday names
+   (2.8:1), hours (2.3:1), the current time (2.64:1), days of the other
+   months (1.76:1) */
+html[data-high-contrast='true'] span.fc-daygrid-day-number.current-date::after {
+  background-color: #b5470f;
+}
+html[data-high-contrast='true'] .fc-daygrid-day-top small,
+html[data-high-contrast='true'] .fc-timegrid-slot-label-cushion {
+  color: rgba(66, 66, 68, 0.85) !important;
+}
+html[data-high-contrast='true'] .fc .fc-timegrid-now-indicator-line {
+  border-color: #b5470f;
+}
+html[data-high-contrast='true'] .fc .fc-timegrid-now-indicator-line::after {
+  background-color: #b5470f;
+}
+html[data-high-contrast='true'] .fc .fc-timegrid-now-indicator-arrow::before,
+html[data-high-contrast='true'] .now-time-label {
+  color: #b5470f;
+}
+html[data-high-contrast='true'] .fc .fc-day-other .fc-daygrid-day-top {
+  opacity: 1;
+}
+html[data-high-contrast='true'] .fc .fc-day-other .fc-daygrid-day-number {
+  color: #6b6b6e;
+}
+
+/* avatars: white initials on the light twake-mui gradients (1.3:1 to 3.6:1);
+   dark initials reach 4.5:1 at the middle of every gradient */
+html[data-high-contrast='true'] .MuiAvatar-root {
+  color: #1c1b1f !important;
 }
