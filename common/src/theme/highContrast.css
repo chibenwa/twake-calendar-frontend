@@ -189,6 +189,12 @@ html[data-high-contrast='true'] .fc .fc-day-other .fc-daygrid-day-number {
   color: #6b6b6e;
 }
 
+/* R-31: event chips, whose text colour EventChip picks for the mode; the
+   start time and the description were dimmed down to 70 % and 80 % */
+html[data-high-contrast='true'] .fc-event .MuiCard-root .MuiTypography-root {
+  opacity: 1 !important;
+}
+
 /* avatars: white initials on the light twake-mui gradients (1.3:1 to 3.6:1);
    dark initials reach 4.5:1 at the middle of every gradient */
 html[data-high-contrast='true'] .MuiAvatar-root {
