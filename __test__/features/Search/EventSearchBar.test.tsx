@@ -340,6 +340,43 @@ describe('EventSearchBar', () => {
       expect(searchSpy).not.toHaveBeenCalled()
     })
   })
+  it('keeps the organizers picked in the filters when reopening them', async () => {
+    const searchSpy = jest.spyOn(searchThunk, 'searchEvents')
+
+    renderWithProviders(<SearchBar />, {
+      ...preloadedState,
+      searchResult: {
+        searchParams: {
+          search: '',
+          filters: {
+            searchIn: 'all',
+            keywords: '',
+            organizers: [{ cn: 'Bob', cal_address: 'bob@example.com' }],
+            attendees: []
+          }
+        },
+        hits: 0,
+        results: [],
+        error: null,
+        loading: false
+      }
+    })
+
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByTestId('TuneIcon'))
+    fireEvent.click(screen.getByText('common.search'))
+
+    await waitFor(() => {
+      expect(searchSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filters: expect.objectContaining({
+            organizers: ['bob@example.com']
+          })
+        })
+      )
+    })
+  })
+
   it('keeps search bar expanded when popover opens', () => {
     renderWithProviders(<SearchBar />, preloadedState)
 

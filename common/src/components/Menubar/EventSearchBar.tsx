@@ -90,20 +90,8 @@ const SearchBar: React.FC<{
   const [popperAnchor, setPopperAnchor] = useState<HTMLDivElement | null>(null)
   const shouldCollapseRef = useRef(false)
 
-  type FilterField = 'searchIn' | 'keywords' | 'organizers' | 'attendees'
-  const handleFilterChange = (
-    field: FilterField,
-    value: string | userAttendee[]
-  ): void => {
-    dispatch(setFilters({ ...filters, [field]: value }))
-    if (field === 'organizers') {
-      setSelectedContacts(
-        (value as userAttendee[]).map((a: userAttendee) => ({
-          displayName: a.cn ?? a.cal_address,
-          email: a.cal_address || ''
-        }))
-      )
-    }
+  const handleKeywordsChange = (keywords: string): void => {
+    dispatch(setFilters({ keywords }))
   }
 
   const handleClearFilters = (): void => {
@@ -115,11 +103,13 @@ const SearchBar: React.FC<{
   const handleContactSelect = (contacts: User[]): void => {
     setSelectedContacts(contacts)
     setSearch('')
+    // the store holds the organizers shown in the Filters popover: keep it in sync with the
+    // contacts picked here rather than overwriting it when the popover opens, which would
+    // drop the organizers picked in the popover itself
+    const organizers = contacts.map(userAttendee.fromUser.bind(userAttendee))
+    dispatch(setFilters({ organizers }))
     if (contacts.length > 0) {
-      void handleSearch('', {
-        ...filters,
-        organizers: contacts.map(userAttendee.fromUser.bind(userAttendee))
-      })
+      void handleSearch('', { ...filters, organizers })
     }
   }
 
@@ -139,7 +129,7 @@ const SearchBar: React.FC<{
       ? { ...filters, keywords: searchQuery }
       : filters
     if (searchQuery) {
-      handleFilterChange('keywords', searchQuery)
+      handleKeywordsChange(searchQuery)
     }
     const cleanedQuery = buildQuery(
       searchQuery,
@@ -307,7 +297,9 @@ const SearchBar: React.FC<{
                             onClick={() => {
                               setQuery('')
                               setSearch('')
-                              handleFilterChange('keywords', '')
+                              dispatch(
+                                setFilters({ keywords: '', organizers: [] })
+                              )
                               setSelectedContacts([])
                             }}
                           >
@@ -319,13 +311,7 @@ const SearchBar: React.FC<{
                           onMouseDown={e => e.preventDefault()}
                           onClick={() => {
                             setAnchorEl(containerRef.current)
-                            handleFilterChange('keywords', query)
-                            handleFilterChange(
-                              'organizers',
-                              selectedContacts.map((attendee: User) =>
-                                userAttendee.fromUser(attendee)
-                              )
-                            )
+                            handleKeywordsChange(query)
                           }}
                         >
                           <TuneIcon />
