@@ -206,16 +206,19 @@ function ColorPickerBox({
   selectedColor: Record<string, string>
 }): JSX.Element {
   const { t } = useI18n()
-  const [oldColor] = useState(
-    selectedColor ?? { light: '#ffffff', dark: '#808080' }
-  )
-  const [color, setColor] = useState(oldColor)
+  const currentColor = selectedColor ?? { light: '#ffffff', dark: '#808080' }
+  const [oldColor, setOldColor] = useState(currentColor)
+  const [color, setColor] = useState(currentColor)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)
   const theme = useTheme()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>): void => {
+    // The selected colour may have changed since mount (e.g. loaded
+    // asynchronously): start from the current one when opening the picker
+    setOldColor(currentColor)
+    setColor(currentColor)
     setAnchorEl(event.currentTarget)
   }
 
