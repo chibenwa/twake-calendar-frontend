@@ -609,5 +609,8 @@ partial compliance rate.
 ### R-31 — Event chips and grid chrome in high contrast mode
 - **Why**: last `color-contrast` failure in high contrast mode (calendar grid).
 - **What**: R-19 applied when the mode is on.
-- **Status**: open.
+- **Status**: implemented with the mode on (audit of 2026-10-05): event chips write in the
+  darkest or the lightest colour, whichever reads best on the calendar colour, at full opacity;
+  today, weekday names, hours, the current time and the days of other months reach 4.5:1. The
+  calendar colours themselves (chip tint, calendar checkboxes) stay the colours users chose.
 - **Validation**: pending

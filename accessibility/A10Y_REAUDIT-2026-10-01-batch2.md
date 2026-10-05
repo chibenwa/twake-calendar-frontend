@@ -108,3 +108,31 @@ GLB-13 / GLB-14 / GLB-15 and the minor findings (R-23 → R-27).
 
 With the mode off, the whole suite is unchanged apart from the page objects updated in the first
 batch. The new scans keep the mode on for their own pages only.
+
+## 7. Live audit of the mode, 2026-10-05
+
+The mode was audited live: the QA environment of `scripts/qa-environment` (origin/main) was
+built from this branch, and Playwright drove Chromium on its network (axe `color-contrast` on
+every screen, plus screenshots for what axe does not check: placeholders, disabled states,
+icons, switches).
+
+| Screen, mode on | Found | Fixed |
+|---|---|---|
+| Week / day / month grid | Today in light orange (2.09:1), weekday names 2.8:1, hours 2.3:1, current time 2.64:1, days of other months 1.76:1, event chips 2.08–2.96:1 (R-31) | Deep orange today and current time; dark labels; chip text picked for its background, at full opacity |
+| Schedule view | Same today badge and weekday names | Same colours as the search results |
+| "Discard changes?" dialog | "Continue editing", a secondary outlined button, near white on white (1.14:1) | Secondary outlined and text buttons dark, with a contrasted border |
+| Every text field | Placeholders in twake-mui's `secondary.dark` (the mode's override lost on specificity) | Placeholders 5.3:1 |
+| Event preview | Current RSVP answer drawn as a disabled grey button; avatar initials white on light gradients | Current answer keeps its colour; dark initials |
+| Settings, sidebar | Unchecked switches: white thumb on a 1.5:1 track | Dark track |
+| Mobile menu | Selected view, orange on its orange tint (4.17:1) | Deep orange |
+| Public booking | Focused field in error lost its red border | Red border kept |
+
+Result: **0 `color-contrast` violation** on the week, month, day and schedule views, the event
+preview, the creation and discard dialogs, settings, search, the booking link form, the mobile
+layout and menu, the public booking page, form and errors, and the public event preview page.
+Unit tests 178 suites / 1725 tests, `AccessibilityTest`, `AxeScanTest` and
+`AxeScanHighContrastTest` green.
+
+Left as they are: the calendar colours chosen by users (chip tint, calendar checkboxes and
+colour squares, booking link icon), documented as a known limitation in the accessibility
+statement; disabled controls, which WCAG exempts.
