@@ -24,26 +24,24 @@ export const WeekNumberContent: React.FC<WeekNumberContentProps> = ({
   return (
     <div className="weekSelector">
       {displayWeekNumbers && (
-        <>
-          <Typography
-            variant="caption"
-            sx={{
-              whiteSpace: 'nowrap',
-              flexShrink: 1,
-              fontSize: { xs: '0.7rem', sm: '0.75rem' }
-            }}
-          >
-            {t('menubar.views.week')} {num}
-          </Typography>
-          <TimezoneSelector
-            value={timezone}
-            referenceDate={selectedDate}
-            onChange={(newTimezone: string) => {
-              dispatch(setTimeZone(newTimezone))
-            }}
-          />
-        </>
+        <Typography
+          variant="caption"
+          sx={{
+            whiteSpace: 'nowrap',
+            flexShrink: 1,
+            fontSize: { xs: '0.7rem', sm: '0.75rem' }
+          }}
+        >
+          {t('menubar.views.week')} {num}
+        </Typography>
       )}
+      <TimezoneSelector
+        value={timezone}
+        referenceDate={selectedDate}
+        onChange={(newTimezone: string) => {
+          dispatch(setTimeZone(newTimezone))
+        }}
+      />
     </div>
   )
 }
