@@ -6,9 +6,12 @@ import { setupStore } from '@common/app/store'
 import React, { PropsWithChildren } from 'react'
 
 // Mock cozy-interapp
+// Like cozy-interapp, stop() is attached to the promise returned by start()
 const mockStart = jest.fn()
+const mockStop = jest.fn()
 const mockCreate = jest.fn().mockReturnValue({
-  start: mockStart
+  start: (...args: unknown[]) =>
+    Object.assign(mockStart(...args), { stop: mockStop })
 })
 
 jest.mock('cozy-interapp', () => {
@@ -281,5 +284,30 @@ describe('useTdrivePicker', () => {
       result.current.closePicker()
     })
     expect(result.current.isOpen).toBe(false)
+    expect(mockStop).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops the started intent on unmount', async () => {
+    mockExchangeToken.mockResolvedValue(defaultTokenResponse)
+
+    mockStart.mockImplementation((_container, { onReadyToUse } = {}) => {
+      onReadyToUse?.()
+      return new Promise(() => {})
+    })
+
+    const { result, unmount } = renderHook(
+      () => useTdrivePicker({ onFilesSelected: jest.fn() }),
+      { wrapper: createWrapper(defaultUserState) }
+    )
+
+    mountContainer(result)
+    act(() => {
+      void result.current.openPicker()
+    })
+    await waitFor(() => expect(mockStart).toHaveBeenCalled())
+
+    unmount()
+
+    expect(mockStop).toHaveBeenCalledTimes(1)
   })
 })
