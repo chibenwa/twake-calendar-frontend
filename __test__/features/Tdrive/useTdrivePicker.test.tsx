@@ -6,13 +6,16 @@ import { setupStore } from '@common/app/store'
 import React, { PropsWithChildren } from 'react'
 
 // Mock cozy-interapp
-// Like cozy-interapp, stop() is attached to the promise returned by start()
+// Like cozy-interapp, create() returns the intent creation request promise
+// and stop() is attached to the promise returned by start()
 const mockStart = jest.fn()
 const mockStop = jest.fn()
-const mockCreate = jest.fn().mockReturnValue({
-  start: (...args: unknown[]) =>
-    Object.assign(mockStart(...args), { stop: mockStop })
-})
+const withStart = (creation: Promise<unknown>): Promise<unknown> =>
+  Object.assign(creation, {
+    start: (...args: unknown[]) =>
+      Object.assign(mockStart(...args), { stop: mockStop })
+  })
+const mockCreate = jest.fn()
 
 jest.mock('cozy-interapp', () => {
   return jest.fn().mockImplementation(() => ({
@@ -72,6 +75,7 @@ describe('useTdrivePicker', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     window.TDRIVE_INTENT_URL = 'https://drive.example.com'
+    mockCreate.mockImplementation(() => withStart(Promise.resolve({})))
     // Default: start() calls onReadyToUse then resolves with a file
     mockStart.mockImplementation((_container, { onReadyToUse } = {}) => {
       onReadyToUse?.()
@@ -307,6 +311,72 @@ describe('useTdrivePicker', () => {
     await waitFor(() => expect(mockStart).toHaveBeenCalled())
 
     unmount()
+
+    expect(mockStop).toHaveBeenCalledTimes(1)
+  })
+
+  it('settles openPicker when the picker is closed', async () => {
+    mockExchangeToken.mockResolvedValue(defaultTokenResponse)
+
+    mockStart.mockImplementation((_container, { onReadyToUse } = {}) => {
+      onReadyToUse?.()
+      return new Promise(() => {})
+    })
+
+    const onFilesSelected = jest.fn()
+    const { result } = renderHook(() => useTdrivePicker({ onFilesSelected }), {
+      wrapper: createWrapper(defaultUserState)
+    })
+
+    mountContainer(result)
+    let openPickerSettled = false
+    act(() => {
+      void result.current.openPicker().then(() => {
+        openPickerSettled = true
+      })
+    })
+    await waitFor(() => expect(mockStart).toHaveBeenCalled())
+
+    act(() => {
+      result.current.closePicker()
+    })
+
+    await waitFor(() => expect(openPickerSettled).toBe(true))
+    expect(onFilesSelected).not.toHaveBeenCalled()
+  })
+
+  it('stops the intent once created when closed during its creation', async () => {
+    mockExchangeToken.mockResolvedValue(defaultTokenResponse)
+
+    let completeCreation!: (intent: unknown) => void
+    mockCreate.mockImplementation(() =>
+      withStart(
+        new Promise(resolve => {
+          completeCreation = resolve
+        })
+      )
+    )
+    mockStart.mockImplementation(() => new Promise(() => {}))
+
+    const { result } = renderHook(
+      () => useTdrivePicker({ onFilesSelected: jest.fn() }),
+      { wrapper: createWrapper(defaultUserState) }
+    )
+
+    mountContainer(result)
+    act(() => {
+      void result.current.openPicker()
+    })
+    await waitFor(() => expect(mockStart).toHaveBeenCalled())
+
+    act(() => {
+      result.current.closePicker()
+    })
+    mockStop.mockClear()
+
+    await act(async () => {
+      completeCreation({})
+    })
 
     expect(mockStop).toHaveBeenCalledTimes(1)
   })
