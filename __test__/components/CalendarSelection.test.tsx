@@ -283,6 +283,46 @@ describe('CalendarSelection', () => {
     await waitFor(() => expect(spy).toHaveBeenCalled())
   })
 
+  it('Remove dialog of a shared default calendar shows its displayed name', async () => {
+    renderWithProviders(
+      <CalendarSelection
+        selectedCalendars={[]}
+        setSelectedCalendars={jest.fn()}
+      />,
+      {
+        user: baseUser,
+        calendars: {
+          list: {
+            'user3/user3': {
+              name: '#default',
+              id: 'user3/user3',
+              color: '#0000FF',
+              owner: {
+                firstname: 'Charlie',
+                lastname: 'Chaplin',
+                emails: ['charlie@example.com']
+              }
+            }
+          },
+          pending: false
+        }
+      }
+    )
+
+    fireEvent.click(screen.getAllByTestId('MoreHorizIcon')[0])
+
+    userEvent.click(screen.getByText(/remove/i))
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          'calendar.delete.removeTitle(name=calendar.defaultCalendarName(name=Charlie Chaplin))'
+        )
+      ).toBeInTheDocument()
+    )
+    expect(screen.queryByText(/#default/)).not.toBeInTheDocument()
+  })
+
   it('opens CalendarSearch modal when Other Add button is clicked', () => {
     renderWithProviders(
       <CalendarSelection

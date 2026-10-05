@@ -1,4 +1,6 @@
 import { Calendar } from '@common/types/CalendarTypes'
+import { makeDisplayName } from '@common/utils/makeDisplayName'
+import { renameDefault } from '@common/utils/renameDefault'
 import {
   Button,
   Dialog,
@@ -28,10 +30,17 @@ export function DeleteCalendarDialog({
   const titleKey = isPersonal
     ? 'calendar.delete.title'
     : 'calendar.delete.removeTitle'
+  // Show the name used by the sidebar rather than the raw '#default' DAV name.
+  const calendarName = renameDefault(
+    calendars[id].name,
+    makeDisplayName(calendars[id]) ?? '',
+    t,
+    isPersonal
+  )
 
   return (
     <Dialog open={deletePopupOpen} onClose={() => setDeletePopupOpen(false)}>
-      <DialogTitle>{t(titleKey, { name: calendars[id].name })}</DialogTitle>
+      <DialogTitle>{t(titleKey, { name: calendarName })}</DialogTitle>
 
       <DialogContent>
         <DialogContentText>
