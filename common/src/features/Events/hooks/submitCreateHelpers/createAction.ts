@@ -68,7 +68,7 @@ export function buildNewEvent({
 
   return {
     calId: targetCalendar.id,
-    title: values.title,
+    title: values.title.trim(),
     URL: eventDavPath(targetCalendar, newEventUID),
     start: startISO,
     end: endISO,
@@ -100,7 +100,7 @@ export function buildNewEvent({
     color: targetCalendar?.color,
     alarms: Valarms.fromFormValues(values.alarms, {
       attendees: getAlarmAttendees(values, targetCalendar),
-      summary: values.title
+      summary: values.title.trim()
     }),
     x_openpass_videoconference: values.meetingLink || undefined,
     attach:

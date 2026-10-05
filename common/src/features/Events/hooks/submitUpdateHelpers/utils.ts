@@ -67,7 +67,7 @@ export function buildUpdatedAlarms(
         trigger: alarm.trigger,
         action: alarm.action,
         attendees: alarmAttendees,
-        summary: values.title,
+        summary: values.title.trim(),
         description: alarm.description
       })
     })
@@ -148,7 +148,7 @@ export function prepareUpdatedEvent({
   const newEvent: CalendarEvent = {
     ...updateAttendeesAfterTimeChange(event, timeChanged, values.attendees),
     calId: currentCalId,
-    title: values.title,
+    title: values.title.trim(),
     URL: getEventURL(event.URL, targetCalendar, event.uid),
     start: startISO,
     end: endISO,

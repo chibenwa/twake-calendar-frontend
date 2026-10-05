@@ -66,7 +66,7 @@ export function formatEventChipTitle(
   e: CalendarEvent,
   t: (key: string) => string
 ): string {
-  if (!e.title) {
+  if (!e.title?.trim()) {
     return t('event.untitled')
   }
   return e.title === 'Busy' && e.class === 'PRIVATE'

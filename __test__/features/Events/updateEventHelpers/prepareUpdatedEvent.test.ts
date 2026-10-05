@@ -183,6 +183,22 @@ describe('prepareUpdatedEvent', () => {
     expect(updatedEvent.alarms?.getAlarm(0)?.summary).toBe('Updated title')
   })
 
+  it('saves a spaces-only title as an empty one (#1515)', () => {
+    const updatedEvent = prepareUpdatedEvent({
+      event: baseEvent,
+      values: { ...baseValues, title: '   ' },
+      startISO: '2025-01-01T10:00:00.000Z',
+      endISO: '2025-01-01T11:00:00.000Z',
+      timeChanged: false,
+      targetCalendar: { id: 'cal-1' } as Calendar,
+      calId: 'cal-1',
+      newCalId: 'cal-1'
+    })
+
+    expect(updatedEvent.title).toBe('')
+    expect(updatedEvent.alarms?.getAlarm(0)?.summary).toBe('')
+  })
+
   it('preserves multiple alarms when modifying non-alarm fields', () => {
     const eventWithMultipleAlarms = {
       ...baseEvent,

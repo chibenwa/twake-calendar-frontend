@@ -222,3 +222,29 @@ describe('buildNewEvent - from a grid selection in another zone (#1398)', () => 
     expect(newEvent.end).toBe('2026-09-23T17:00:00.000Z')
   })
 })
+
+describe('buildNewEvent - title (#1515)', () => {
+  it('saves a spaces-only title as an empty one', () => {
+    const newEvent = buildNewEvent({
+      values: { ...baseValues, title: '   ' },
+      targetCalendar: baseCalendar,
+      showMore: false,
+      newEventUID: 'uid',
+      t: (key: string) => key
+    })
+
+    expect(newEvent.title).toBe('')
+  })
+
+  it('trims the spaces around the title', () => {
+    const newEvent = buildNewEvent({
+      values: { ...baseValues, title: '  Standup  ' },
+      targetCalendar: baseCalendar,
+      showMore: false,
+      newEventUID: 'uid',
+      t: (key: string) => key
+    })
+
+    expect(newEvent.title).toBe('Standup')
+  })
+})
