@@ -145,12 +145,13 @@ async function startTdrivePicker({
 
   // stop() is a no-op until the intent creation request completes: stop again
   // once it has, in case the picker got closed meanwhile.
-  intent.then(
-    () => {
+  // A failed creation request is reported by start(): nothing to stop then.
+  intent
+    .then(() => {
       if (cancellationRef.cancelled) startedIntent.stop()
-    },
-    () => undefined
-  )
+      return
+    })
+    .catch(() => undefined)
 
   // A stopped intent never settles: let cancellation end the wait.
   const result = await Promise.race([
