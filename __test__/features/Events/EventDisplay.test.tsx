@@ -8,7 +8,7 @@ import {
 import EventPreviewModal from '@common/components/EventPreview'
 import * as eventThunks from '@common/features/Calendars/CalendarSlice'
 import * as EventDao from '@common/features/Events/EventDao'
-import { DelegationAccess } from '@common/types/CalendarTypes'
+import { AccessRight, DelegationAccess } from '@common/types/CalendarTypes'
 import { VCalComponent } from '@common/features/Calendars/types/CalendarData'
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
@@ -1853,6 +1853,96 @@ describe('Event Preview Display', () => {
         ).not.toBeInTheDocument()
       })
     })
+  })
+
+  describe('EventDisplayPreview - team calendar members', () => {
+    const makeTeamState = (memberAccess: AccessRight) => ({
+      ...preloadedState,
+      calendars: {
+        list: {
+          'team1/cal1': {
+            id: 'team1/cal1',
+            name: 'Team A',
+            delegated: false,
+            owner: {
+              id: 'team1',
+              firstname: '',
+              lastname: 'Team A',
+              teamCalendar: true,
+              emails: ['alice@example.com', 'bob@example.com']
+            },
+            invite: [
+              {
+                href: 'mailto:alice@example.com',
+                principal: 'principals/users/alice',
+                access: 5,
+                inviteStatus: 2
+              },
+              {
+                href: 'mailto:bob@example.com',
+                principal: 'principals/users/bob',
+                access: memberAccess,
+                inviteStatus: 2
+              }
+            ],
+            color: { light: '#FF0000', dark: '#000' },
+            events: {
+              'event-1': {
+                uid: 'event-1',
+                calId: 'team1/cal1',
+                title: 'Team two',
+                start: day.toISOString(),
+                end: day.toISOString(),
+                organizer: { cal_address: 'alice@example.com' },
+                URL: '/calendars/team1/cal1/event-1.ics'
+              }
+            }
+          }
+        },
+        templist: {},
+        pending: false
+      },
+      user: {
+        userData: {
+          ...preloadedState.user.userData,
+          email: 'bob@example.com',
+          openpaasId: 'bob'
+        }
+      }
+    })
+
+    const renderTeamPreview = (memberAccess: AccessRight): void => {
+      renderWithProviders(
+        <EventPreviewModal
+          eventId="event-1"
+          calId="team1/cal1"
+          open={true}
+          onClose={mockOnClose}
+        />,
+        makeTeamState(memberAccess)
+      )
+    }
+
+    it('offers neither edit nor delete to a read-only member', () => {
+      renderTeamPreview(2)
+
+      expect(screen.queryByTestId('EditIcon')).not.toBeInTheDocument()
+      expect(
+        screen.queryByLabelText('eventPreview.deleteEvent')
+      ).not.toBeInTheDocument()
+    })
+
+    it.each([3, 5] as AccessRight[])(
+      'offers edit and delete to a member with the %s access',
+      memberAccess => {
+        renderTeamPreview(memberAccess)
+
+        expect(screen.getByTestId('EditIcon')).toBeInTheDocument()
+        expect(
+          screen.getByLabelText('eventPreview.deleteEvent')
+        ).toBeInTheDocument()
+      }
+    )
   })
 
   describe('BUGFIX', () => {

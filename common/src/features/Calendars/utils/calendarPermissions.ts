@@ -1,5 +1,11 @@
-import { Calendar } from '@common/types/CalendarTypes'
+import {
+  AccessRight,
+  Calendar,
+  WRITE_ACCESS_LEVELS
+} from '@common/types/CalendarTypes'
 import { normalizeEmail } from '@common/utils/normalizeEmail'
+
+const ADMIN_ACCESS: AccessRight = 5
 
 export function canWriteToCalendar(cal: Calendar, userId: string): boolean {
   if (!cal) return false
@@ -8,6 +14,20 @@ export function canWriteToCalendar(cal: Calendar, userId: string): boolean {
   const hasDelegatedWrite = !!(cal.delegated && cal.access?.write)
 
   return isOwner || hasDelegatedWrite
+}
+
+function isInvitedWith(
+  cal: Calendar,
+  userEmail: string | undefined,
+  accesses: number[]
+): boolean {
+  const email = normalizeEmail(userEmail)
+  if (!email) return false
+  return !!cal.invite?.some(
+    invite =>
+      accesses.includes(invite.access) &&
+      normalizeEmail(invite.href.replace(/^mailto:/i, '')) === email
+  )
 }
 
 /**
@@ -22,11 +42,18 @@ export function canAdministerCalendar(
   if (!cal) return false
   if (user.openpaasId && cal.id?.split('/')[0] === user.openpaasId) return true
 
-  const email = normalizeEmail(user.email)
-  if (!email) return false
-  return !!cal.invite?.some(
-    invite =>
-      invite.access === 5 &&
-      normalizeEmail(invite.href.replace(/^mailto:/i, '')) === email
-  )
+  return isInvitedWith(cal, user.email, [ADMIN_ACCESS])
+}
+
+/**
+ * Whether a member of a team calendar may change its events: every member
+ * sees them, but only those granted the read-write or the administration
+ * right may write them back.
+ */
+export function canWriteToTeamCalendar(
+  cal: Calendar,
+  userEmail: string | undefined
+): boolean {
+  if (!cal) return false
+  return isInvitedWith(cal, userEmail, WRITE_ACCESS_LEVELS)
 }

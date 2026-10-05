@@ -6,6 +6,7 @@ import {
   setCalendarError
 } from '@common/features/Calendars/CalendarSlice'
 import { createEventContext } from '@common/features/Events/createEventContext'
+import { canWriteToTeamCalendar } from '@common/features/Calendars/utils/calendarPermissions'
 import { moveEventBetweenCalendars } from '@common/features/Events/updateEventHelpers/moveEventBetweenCalendars'
 import { ToUserData } from '@common/features/User/type/OpenPaasUserData'
 import { userData, userOrganiser } from '@common/features/User/userDataTypes'
@@ -152,10 +153,18 @@ export function useEventPreviewState(
     ? isEventOrganiser(event, effectiveEmail, calendar)
     : isOwn
   const isNotPrivate = !isMaskedClassification(event?.class)
+  const isTeamCalendar = Boolean(calendar?.owner?.teamCalendar)
+
+  // Every member of a team calendar counts among its owners, but only those
+  // granted the read-write or the administration right may change its events.
+  const canWriteOwn =
+    isOwn &&
+    (!isTeamCalendar ||
+      (!!calendar && canWriteToTeamCalendar(calendar, user?.email)))
 
   // Private events of a delegated calendar are served masked ("Busy", details
   // stripped): writing them back would overwrite the owner's real content.
-  const canModify = isOwn || (isWriteDelegated && isNotPrivate)
+  const canModify = canWriteOwn || (isWriteDelegated && isNotPrivate)
   const canEdit = isOrganizer && canModify
 
   // If the user cannot edit here but has write access to the organizer's delegated
@@ -175,8 +184,6 @@ export function useEventPreviewState(
 
   const contextualizedEvent =
     event && calendar && user ? createEventContext(event, calendar, user) : null
-
-  const isTeamCalendar = Boolean(calendar?.owner?.teamCalendar)
 
   const attendanceUser =
     isWriteDelegated && calendar?.owner && !isTeamCalendar
