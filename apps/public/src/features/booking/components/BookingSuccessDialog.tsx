@@ -266,7 +266,9 @@ export const BookingSuccessDialog: React.FC<BookingSuccessDialogProps> = ({
     if (!selectedSlot) return null
     const startDate = dayjs(selectedSlot.start)
     return {
-      date: formatLocalizedDate(selectedSlot.start, lang),
+      date: formatLocalizedDate(selectedSlot.start, lang, {
+        capitalize: false
+      }),
       time: startDate.format('HH:mm')
     }
   }, [selectedSlot, lang])

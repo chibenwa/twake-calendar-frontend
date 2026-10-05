@@ -1,4 +1,5 @@
 import {
+  formatLocalizedDate,
   getLongDateFormat,
   LONG_DATE_FORMAT
 } from '@common/components/Event/utils/dateTimeFormatters'
@@ -7,6 +8,7 @@ import 'dayjs/locale/fr'
 import 'dayjs/locale/es'
 import 'dayjs/locale/de'
 import 'dayjs/locale/it'
+import 'dayjs/locale/ru'
 
 describe('getLongDateFormat', () => {
   it('orders the day before the month in French', () => {
@@ -52,5 +54,25 @@ describe('getLongDateFormat', () => {
   it('falls back to the default format for unknown locales', () => {
     expect(getLongDateFormat('xx')).toBe(LONG_DATE_FORMAT)
     expect(getLongDateFormat(undefined)).toBe(LONG_DATE_FORMAT)
+  })
+})
+
+describe('formatLocalizedDate', () => {
+  it('capitalises the French weekday for standalone labels', () => {
+    expect(formatLocalizedDate('2026-10-06T15:00:00', 'fr')).toBe(
+      'Mardi 6 octobre 2026'
+    )
+  })
+
+  it('keeps the French weekday lowercase inside a sentence', () => {
+    expect(
+      formatLocalizedDate('2026-10-06T15:00:00', 'fr', { capitalize: false })
+    ).toBe('mardi 6 octobre 2026')
+  })
+
+  it('keeps the Russian weekday lowercase inside a sentence', () => {
+    expect(
+      formatLocalizedDate('2026-10-06T15:00:00', 'ru', { capitalize: false })
+    ).toMatch(/^вторник/)
   })
 })

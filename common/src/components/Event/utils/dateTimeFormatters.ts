@@ -114,9 +114,17 @@ export function getLongDateFormat(locale?: string): string {
  * Format date with current locale.
  * @param dateStr - Date string to format
  * @param lang - Language code
+ * @param options.capitalize - Upper-case the leading French, Spanish, Italian
+ *   or Russian weekday, as wanted for standalone labels. Set to false when the
+ *   date is inserted mid-sentence, where those languages write the weekday in
+ *   lowercase.
  * @returns Formatted date string
  */
-export function formatLocalizedDate(dateStr: string, lang?: string): string {
+export function formatLocalizedDate(
+  dateStr: string,
+  lang?: string,
+  { capitalize = true }: { capitalize?: boolean } = {}
+): string {
   if (!dateStr) return ''
   const date = dayjs(dateStr)
   const locale =
@@ -134,7 +142,7 @@ export function formatLocalizedDate(dateStr: string, lang?: string): string {
   }
 
   const formatted = date.locale(locale).format(getLongDateFormat(locale))
-  if (['fr', 'es', 'it', 'ru'].includes(locale)) {
+  if (capitalize && ['fr', 'es', 'it', 'ru'].includes(locale)) {
     return formatted.charAt(0).toUpperCase() + formatted.slice(1)
   }
   return formatted
