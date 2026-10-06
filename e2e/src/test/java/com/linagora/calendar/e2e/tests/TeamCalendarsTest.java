@@ -10,10 +10,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
+import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
 import com.linagora.calendar.e2e.backend.TeamCalendarProbe;
 import com.linagora.calendar.e2e.backend.TeamCalendarProbe.Right;
+import com.linagora.calendar.e2e.docker.E2EClock;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.EventFormModal;
@@ -292,7 +294,8 @@ class TeamCalendarsTest extends TwakeCalendarE2ETest {
     @Test
     @DisplayName("TEAM-19 A team event inviting another member shows as its organizer answered")
     void aTeamEventInvitingAMemberShowsAsItsOrganizerAnswered(Page page, E2EUser user, E2EUserFactory users,
-                                                              E2ESessions sessions, TeamCalendarProbe teams) {
+                                                              E2ESessions sessions, TeamCalendarProbe teams,
+                                                              CalendarProbe probe) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String name = unique("Attending team");
         String id = aTeamFor(teams, user, Right.READ_WRITE, name);
@@ -300,12 +303,31 @@ class TeamCalendarsTest extends TwakeCalendarE2ETest {
         sessions.pageFor(mate);
         teams.grant(id, mate, Right.READ_WRITE);
         awaitTeamVisible(page, name);
-        showTeam(calendar, name);
 
         String title = unique("Team event with a member");
-        calendar.createEvent().title(title)
-            .addGuest(mate.email())
-            .expand().calendar(name).save();
+        String uid = UUID.randomUUID().toString();
+        String day = E2EClock.today().toString().replace("-", "");
+        // the invited member is listed before the organizer: picking the first member who
+        // attends would show the pending answer of the invited member
+        probe.putEventIn(user, id, uid, """
+            BEGIN:VCALENDAR
+            VERSION:2.0
+            PRODID:-//linagora//twake-calendar-e2e//EN
+            BEGIN:VEVENT
+            UID:%s
+            DTSTAMP:%sT090000Z
+            DTSTART:%sT090000Z
+            DTEND:%sT100000Z
+            SUMMARY:%s
+            ORGANIZER:mailto:%s
+            ATTENDEE;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;ROLE=REQ-PARTICIPANT:mailto:%s
+            ATTENDEE;PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:%s
+            END:VEVENT
+            END:VCALENDAR
+            """.formatted(uid, day, day, day, title, user.email(), mate.email(), user.email())
+            .replace("\n", "\r\n"));
+        calendar.reload();
+        showTeam(calendar, name);
 
         Locator card = calendar.eventCard(title).first();
         PlaywrightAssertions.assertThat(card)

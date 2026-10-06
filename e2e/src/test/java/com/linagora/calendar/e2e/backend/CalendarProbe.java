@@ -121,8 +121,16 @@ public class CalendarProbe {
 
     /** Writes an event straight into the user's default calendar, bypassing the UI. */
     public void putEvent(E2EUser user, String eventUid, String icalendar) {
-        String href = defaultCalendarPath(user) + eventUid + ".ics";
-        HttpResponse<String> response = execute(user, "PUT", href, icalendar, "text/calendar");
+        putEventIn(user, requireOpenPaasId(user), eventUid, icalendar);
+    }
+
+    /**
+     * Writes an event straight into the default calendar of a home the user may write in, a team
+     * for instance, bypassing the UI.
+     */
+    public void putEventIn(E2EUser writer, String homeId, String eventUid, String icalendar) {
+        String href = defaultCalendarNode(homeId) + "/" + eventUid + ".ics";
+        HttpResponse<String> response = execute(writer, "PUT", href, icalendar, "text/calendar");
         if (response.statusCode() != 201 && response.statusCode() != 204) {
             throw new IllegalStateException("Failed to create event " + eventUid + ": "
                 + response.statusCode() + " " + response.body());
