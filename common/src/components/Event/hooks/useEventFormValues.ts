@@ -252,7 +252,8 @@ function useInitialOrganizer(
       return new userOrganiser({
         cal_address: eventOrganizer.cal_address,
         cn: eventOrganizer.cn,
-        sentBy: eventOrganizer.sentBy
+        sentBy: eventOrganizer.sentBy,
+        otherParams: eventOrganizer.otherParams
       })
     }
     return userOrganizer

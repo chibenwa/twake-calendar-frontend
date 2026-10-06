@@ -31,6 +31,7 @@ export interface UserOrganiserOptions {
   cn?: string
   cal_address?: string
   sentBy?: string
+  otherParams?: Record<string, string>
 }
 
 export class userOrganiser {
@@ -39,11 +40,24 @@ export class userOrganiser {
   // Set when a delegate scheduled on the organizer's behalf (SENT-BY), which
   // the user must be told about: the sender is not the stated organizer.
   sentBy?: string
+  // Parameters the server stamps on the ORGANIZER (e.g. SCHEDULE-STATUS once
+  // an attendee replied). Written back untouched: the scheduling plugin sees
+  // any difference as an attendee changing the ORGANIZER and answers 403.
+  otherParams?: Record<string, string>
 
-  constructor({ cn, cal_address, sentBy }: UserOrganiserOptions = {}) {
+  constructor({
+    cn,
+    cal_address,
+    sentBy,
+    otherParams
+  }: UserOrganiserOptions = {}) {
     this.cn = cn ?? ''
     this.cal_address = cal_address ?? ''
     this.sentBy = sentBy ? stripMailto(sentBy) : undefined
+    this.otherParams =
+      otherParams && Object.keys(otherParams).length > 0
+        ? otherParams
+        : undefined
   }
 
   asMailto(): string {
@@ -51,7 +65,7 @@ export class userOrganiser {
   }
 
   asJcal(): VObjectProperty {
-    const params: Record<string, string> = {}
+    const params: Record<string, string> = { ...this.otherParams }
 
     if (this.cn) {
       params.cn = this.cn

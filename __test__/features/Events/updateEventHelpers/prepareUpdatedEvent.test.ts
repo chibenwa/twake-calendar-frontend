@@ -6,6 +6,7 @@ import { prepareUpdatedEvent } from '@common/features/Events/hooks/submitUpdateH
 
 jest.mock('p-map', () => jest.fn())
 import { userAttendee } from '@common/features/User/models/attendee'
+import { userOrganiser } from '@common/features/User/userDataTypes'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { VAlarm } from '@common/types/VAlarm'
@@ -159,6 +160,61 @@ describe('prepareUpdatedEvent', () => {
       expect(updatedEvent.organizer?.cal_address).toBe(
         'mailto:prev@example.com'
       )
+    })
+  })
+
+  describe('server stamped organizer parameters', () => {
+    const attendeeCalendar = {
+      id: 'bob-cal',
+      owner: { emails: ['bob@example.com'] }
+    } as Calendar
+
+    const storedOrganizer = new userOrganiser({
+      cn: 'alice alice',
+      cal_address: 'alice@example.com',
+      otherParams: { 'schedule-status': '1.0' }
+    })
+
+    const update = (organizer: userOrganiser): CalendarEvent =>
+      prepareUpdatedEvent({
+        event: { ...baseEvent, organizer: storedOrganizer } as CalendarEvent,
+        values: baseValues,
+        organizer,
+        startISO: '2025-01-01T10:00:00.000Z',
+        endISO: '2025-01-01T11:00:00.000Z',
+        timeChanged: false,
+        targetCalendar: attendeeCalendar,
+        calId: 'bob-cal',
+        newCalId: 'bob-cal'
+      })
+
+    it('writes back the SCHEDULE-STATUS of the unchanged organizer', () => {
+      const updatedEvent = update(
+        new userOrganiser({
+          cn: 'alice alice',
+          cal_address: 'alice@example.com'
+        })
+      )
+
+      expect(updatedEvent.organizer?.asJcal()).toEqual([
+        'organizer',
+        { 'schedule-status': '1.0', cn: 'alice alice' },
+        'cal-address',
+        'mailto:alice@example.com'
+      ])
+    })
+
+    it('drops them when the organizer changes', () => {
+      const updatedEvent = update(
+        new userOrganiser({ cn: 'Carol', cal_address: 'carol@example.com' })
+      )
+
+      expect(updatedEvent.organizer?.asJcal()).toEqual([
+        'organizer',
+        { cn: 'Carol' },
+        'cal-address',
+        'mailto:carol@example.com'
+      ])
     })
   })
 
