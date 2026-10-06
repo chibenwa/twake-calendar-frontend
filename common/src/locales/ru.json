@@ -32,7 +32,9 @@
     "team": "Календари команды",
     "browseResources": "Просмотреть ресурсы",
     "searchTimezone": "Поиск часового пояса...",
-    "bookingLinks": "Ссылки для бронирования"
+    "bookingLinks": "Ссылки для бронирования",
+    "listTimeHint": "Время",
+    "listEventHint": "Событие"
   },
   "actions": {
     "modify": "Изменить",

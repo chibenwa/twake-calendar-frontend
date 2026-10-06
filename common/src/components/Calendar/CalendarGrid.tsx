@@ -127,7 +127,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   datesSet,
   ...otherProps
 }) => {
-  const { lang } = useI18n()
+  const { lang, t } = useI18n()
   const { isTooSmall: isMobile, isTablet } = useScreenSizeDetection()
   const isNotDesktop = isTablet || isMobile
 
@@ -207,6 +207,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           initialView={getInitialCalendarView(otherProps.currentView, isTablet)}
           initialDate={otherProps.selectedDate}
           locale={localeMap[lang]}
+          // Some FullCalendar locales (fr, it, ru) leave the list view headers in English
+          timeHint={t('calendar.listTimeHint')}
+          eventHint={t('calendar.listEventHint')}
           hiddenDays={otherProps.hiddenDays}
           timeZone={otherProps.timezone}
           select={otherProps.eventHandlers.handleDateSelect}

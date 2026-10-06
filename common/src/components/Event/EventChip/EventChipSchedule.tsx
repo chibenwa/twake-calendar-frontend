@@ -5,6 +5,7 @@ import { sortEventsByDateTime } from '@common/components/Calendar/utils/calendar
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
+import { useI18n } from 'twake-i18n'
 import { DesktopEventChipSchedule } from './DesktopEventChipSchedule'
 import { MobileEventChipSchedule } from './MobileEventChipSchedule'
 
@@ -61,7 +62,8 @@ const getEventInstanceKey = (e: EventApi): string => {
 
 const buildListDayData = (
   arg: EventContentArg,
-  timezone: string
+  timezone: string,
+  locale: string
 ): {
   isFirstRow: boolean
   isToday: boolean
@@ -93,7 +95,10 @@ const buildListDayData = (
     isToday,
     isInPast,
     dayNum: effectiveDayMoment.format('D'),
-    dayName: effectiveDayMoment.format('ddd')
+    dayName: effectiveDayMoment.toDate().toLocaleDateString(locale, {
+      weekday: 'short',
+      timeZone: timezone
+    })
   }
 }
 
@@ -104,8 +109,9 @@ export const EventChipSchedule: React.FC<EventChipScheduleProps> = ({
   timezone,
   upcommingEventId
 }) => {
+  const { t } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
-  const dayData = buildListDayData(arg, timezone)
+  const dayData = buildListDayData(arg, timezone, t('locale'))
 
   return isMobile ? (
     <MobileEventChipSchedule
