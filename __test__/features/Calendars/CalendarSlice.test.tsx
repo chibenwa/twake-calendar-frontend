@@ -9,6 +9,7 @@ import reducer, {
   getEvent,
   getEventByUid,
   getTempCalendarsList,
+  importEventFromFile,
   patchACLCalendar,
   removeEvent,
   removeTempCal,
@@ -656,6 +657,58 @@ describe('CalendarSlice', () => {
           null,
           'req15',
           { userId: 'u1', uid: 'e1' },
+          { message: 'Request failed with status code 500', status: 500 }
+        )
+      )
+      expect(state.error).toBe('Request failed with status code 500')
+    })
+
+    it('importEventFromFile.rejected by a network error stores the translated fallback', () => {
+      const state = reducer(
+        initialState,
+        importEventFromFile.rejected(
+          null,
+          'req16',
+          { calLink: '/calendars/u1/c1.json', file: new File([], 'a.ics') },
+          { message: 'Failed to fetch', status: undefined }
+        )
+      )
+      expect(state.error).toBe('TRANSLATION:error.importEventFromFileFailed')
+    })
+
+    it('importEventFromFile.rejected keeps a translated message', () => {
+      const state = reducer(
+        initialState,
+        importEventFromFile.rejected(
+          null,
+          'req17',
+          { calLink: '/calendars/u1/c1.json', file: new File([], 'a.ics') },
+          { message: 'TRANSLATION:error.uploadedFileMissingId' }
+        )
+      )
+      expect(state.error).toBe('TRANSLATION:error.uploadedFileMissingId')
+    })
+
+    it('addSharedCalendar.rejected by a network error stores the translated fallback', () => {
+      const state = reducer(
+        initialState,
+        addSharedCalendar.rejected(
+          null,
+          'req18',
+          { userId: 'u1', calId: 'c1', cal: {} as any },
+          { message: 'Failed to fetch', status: undefined }
+        )
+      )
+      expect(state.error).toBe('TRANSLATION:error.addSharedCalendarFailed')
+    })
+
+    it('addSharedCalendar.rejected keeps the message of an HTTP error', () => {
+      const state = reducer(
+        initialState,
+        addSharedCalendar.rejected(
+          null,
+          'req19',
+          { userId: 'u1', calId: 'c1', cal: {} as any },
           { message: 'Request failed with status code 500', status: 500 }
         )
       )

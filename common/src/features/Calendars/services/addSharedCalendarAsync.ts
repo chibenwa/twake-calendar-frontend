@@ -10,7 +10,7 @@ import { CalDavLink } from '@common/features/Calendars/types/CalendarApiTypes'
 import { OpenPaasUserData } from '@common/features/User/type/OpenPaasUserData'
 import { fetchUserById } from '@common/features/User/UserDao'
 import { Calendar, DelegationAccess } from '@common/types/CalendarTypes'
-import { toRejectedError } from '@common/utils/errorUtils'
+import { rejectedErrorMessage, toRejectedError } from '@common/utils/errorUtils'
 import {
   AsyncThunkConfig,
   AsyncThunkOptions,
@@ -134,10 +134,10 @@ export const addSharedCalendarThunk = (
       },
       rejected: (state, action) => {
         state.pending = false
-        state.error =
-          (action.payload as RejectedError)?.message ||
-          action.error.message ||
+        state.error = rejectedErrorMessage(
+          action.payload,
           'TRANSLATION:error.addSharedCalendarFailed'
+        )
       }
     }
   )

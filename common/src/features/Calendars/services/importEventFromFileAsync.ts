@@ -1,7 +1,10 @@
 import { RejectedError } from '@common/features/Calendars/types/RejectedError'
 import { importEvent } from '@common/features/Events/EventDao'
 import { importFile } from '@common/utils/apiUtils'
-import { formatReduxError } from '@common/utils/errorUtils'
+import {
+  formatReduxError,
+  rejectedErrorMessage
+} from '@common/utils/errorUtils'
 import { ReducerCreators } from '@reduxjs/toolkit'
 import { CalendarState } from '../CalendarSlice'
 
@@ -45,10 +48,10 @@ export const importEventFromFileThunk = (
       },
       rejected: (state, action) => {
         state.pending = false
-        state.error =
-          action.payload?.message ||
-          action.error.message ||
+        state.error = rejectedErrorMessage(
+          action.payload,
           'TRANSLATION:error.importEventFromFileFailed'
+        )
       }
     }
   )
