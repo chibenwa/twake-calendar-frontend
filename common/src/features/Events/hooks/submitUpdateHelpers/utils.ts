@@ -103,7 +103,8 @@ function getEventAttachments<T>(attachments?: T[]): T[] | undefined {
 
 // The form rebuilds the organizer: carry over the parameters the server
 // stamped on the stored one, otherwise an attendee saving their copy is
-// rejected for changing the ORGANIZER. A replacement organizer gets none:
+// rejected for changing the ORGANIZER (even by reordering its parameters,
+// hence the original order is kept too). A replacement organizer gets none:
 // they describe the previous one.
 function keepServerOrganizerParams(
   organizer: userOrganiser | undefined,
@@ -121,6 +122,9 @@ function keepServerOrganizerParams(
     sentBy: organizer.sentBy,
     otherParams: isSameOrganizer
       ? (organizer.otherParams ?? existingOrganizer?.otherParams)
+      : undefined,
+    paramOrder: isSameOrganizer
+      ? (organizer.paramOrder ?? existingOrganizer?.paramOrder)
       : undefined
   })
 }

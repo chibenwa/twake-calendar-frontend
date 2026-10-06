@@ -349,6 +349,7 @@ day, 23:45) — 48 tests.
 - [x] `ATT-13` A guest's answer reaches the organizer
 - [x] `ATT-14` A guest who declined is shown as "Declined"
 - [x] `ATT-15` Adding a guest to an existing event sends them the invitation
+- [x] `ATT-16` A guest who answered can still save their personal event settings ([#1533](https://github.com/linagora/twake-calendar-frontend/issues/1533))
 - [x] `ATT-17` The same guest cannot be added twice
 - [x] `ATT-18` "Show more" expands the full guest list beyond the fold
 - [x] `ATT-19` A guest invited to an event visible to participants only gets it, with its details

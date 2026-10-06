@@ -204,6 +204,37 @@ describe('prepareUpdatedEvent', () => {
       ])
     })
 
+    it('writes the parameters back in their stored order', () => {
+      // the scheduling plugin compares the serialized ORGANIZER: a reordering is a change
+      const updatedEvent = prepareUpdatedEvent({
+        event: {
+          ...baseEvent,
+          organizer: new userOrganiser({
+            cn: 'alice alice',
+            cal_address: 'alice@example.com',
+            otherParams: { 'schedule-status': '1.0' },
+            paramOrder: ['cn', 'schedule-status']
+          })
+        } as CalendarEvent,
+        values: baseValues,
+        organizer: new userOrganiser({
+          cn: 'alice alice',
+          cal_address: 'alice@example.com'
+        }),
+        startISO: '2025-01-01T10:00:00.000Z',
+        endISO: '2025-01-01T11:00:00.000Z',
+        timeChanged: false,
+        targetCalendar: attendeeCalendar,
+        calId: 'bob-cal',
+        newCalId: 'bob-cal'
+      })
+
+      expect(Object.keys(updatedEvent.organizer?.asJcal()[1] ?? {})).toEqual([
+        'cn',
+        'schedule-status'
+      ])
+    })
+
     it('drops them when the organizer changes', () => {
       const updatedEvent = update(
         new userOrganiser({ cn: 'Carol', cal_address: 'carol@example.com' })

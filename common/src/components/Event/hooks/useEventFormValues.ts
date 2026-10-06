@@ -253,7 +253,8 @@ function useInitialOrganizer(
         cal_address: eventOrganizer.cal_address,
         cn: eventOrganizer.cn,
         sentBy: eventOrganizer.sentBy,
-        otherParams: eventOrganizer.otherParams
+        otherParams: eventOrganizer.otherParams,
+        paramOrder: eventOrganizer.paramOrder
       })
     }
     return userOrganizer

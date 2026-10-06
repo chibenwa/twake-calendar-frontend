@@ -194,16 +194,14 @@ const PROPERTY_PARSERS: Record<
     event.location = safeString(value)
   },
   organizer: (params, value, event) => {
-    const {
-      cn,
-      'sent-by': sentBy,
-      ...otherParams
-    } = (params ?? {}) as Record<string, string>
+    const allParams = (params ?? {}) as Record<string, string>
+    const { cn, 'sent-by': sentBy, ...otherParams } = allParams
     event.organizer = new userOrganiser({
       cn: cn ?? '',
       cal_address: safeString(value).replace(/^mailto:/i, ''),
       sentBy,
-      otherParams
+      otherParams,
+      paramOrder: Object.keys(allParams)
     })
   },
   attendee: (params, value, event) => {

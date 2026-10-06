@@ -82,6 +82,26 @@ describe('organizer SENT-BY parsing', () => {
     ])
   })
 
+  it.each([
+    [['cn', 'schedule-status']],
+    [['schedule-status', 'cn']],
+    [['sent-by', 'schedule-status', 'cn']]
+  ])('writes the parameters back in the order they were read: %j', order => {
+    const values: Record<string, string> = {
+      cn: 'Alice',
+      'schedule-status': '1.0',
+      'sent-by': 'mailto:delegate@domain.tld'
+    }
+    const organizer = parseOrganizerOf([
+      'ORGANIZER',
+      Object.fromEntries(order.map(name => [name, values[name]])),
+      'cal-address',
+      'mailto:alice@example.com'
+    ])
+
+    expect(Object.keys(organizer?.asJcal()[1] ?? {})).toEqual(order)
+  })
+
   it('writes the delegate back as a mailto URI', () => {
     const organizer = new userOrganiser({
       cn: 'Alice',

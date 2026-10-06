@@ -32,6 +32,7 @@ export interface UserOrganiserOptions {
   cal_address?: string
   sentBy?: string
   otherParams?: Record<string, string>
+  paramOrder?: string[]
 }
 
 export class userOrganiser {
@@ -44,12 +45,16 @@ export class userOrganiser {
   // an attendee replied). Written back untouched: the scheduling plugin sees
   // any difference as an attendee changing the ORGANIZER and answers 403.
   otherParams?: Record<string, string>
+  // Order the parameters were read in. The plugin compares the serialized
+  // ORGANIZER, so a mere reordering of its parameters counts as a change.
+  paramOrder?: string[]
 
   constructor({
     cn,
     cal_address,
     sentBy,
-    otherParams
+    otherParams,
+    paramOrder
   }: UserOrganiserOptions = {}) {
     this.cn = cn ?? ''
     this.cal_address = cal_address ?? ''
@@ -58,6 +63,7 @@ export class userOrganiser {
       otherParams && Object.keys(otherParams).length > 0
         ? otherParams
         : undefined
+    this.paramOrder = paramOrder?.length ? paramOrder : undefined
   }
 
   asMailto(): string {
@@ -65,17 +71,31 @@ export class userOrganiser {
   }
 
   asJcal(): VObjectProperty {
-    const params: Record<string, string> = { ...this.otherParams }
+    const written: Record<string, string> = {}
 
     if (this.cn) {
-      params.cn = this.cn
+      written.cn = this.cn
     }
 
     if (this.sentBy) {
-      params['sent-by'] = `mailto:${this.sentBy}`
+      written['sent-by'] = `mailto:${this.sentBy}`
     }
 
-    return ['organizer', params, 'cal-address', this.asMailto()]
+    Object.assign(written, this.otherParams)
+
+    const params: Record<string, string> = {}
+    for (const name of this.paramOrder ?? []) {
+      if (name in written) {
+        params[name] = written[name]
+      }
+    }
+
+    return [
+      'organizer',
+      Object.assign(params, written),
+      'cal-address',
+      this.asMailto()
+    ]
   }
 }
 // Type for configuration item

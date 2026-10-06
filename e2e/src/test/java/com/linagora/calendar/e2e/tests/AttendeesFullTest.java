@@ -3,6 +3,7 @@ package com.linagora.calendar.e2e.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -265,6 +266,42 @@ class AttendeesFullTest extends TwakeCalendarE2ETest {
         guestCalendar.reload();
         PlaywrightAssertions.assertThat(guestCalendar.eventCard(title).first())
             .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(60_000));
+    }
+
+    @Test
+    @DisplayName("ATT-16 A guest who answered can still save their personal event settings (#1533)")
+    void aGuestWhoAnsweredCanSaveTheirPersonalSettings(Page page, E2EUser organizer, E2EUserFactory users,
+                                                       E2ESessions sessions, CalendarProbe probe) {
+        E2EUser guest = users.newUser();
+        CalendarPage guestCalendar = sessions.openFor(guest);
+        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+        String title = title("Answered");
+        calendar.createEvent().title(title).addGuest(guest.email()).save();
+        awaitAttached(calendar.eventCard(title));
+
+        guestCalendar.reload();
+        awaitAttached(guestCalendar.eventCard(title));
+        guestCalendar.openEvent(title).answer("Yes");
+        // once the reply is processed the server stamps SCHEDULE-STATUS on the ORGANIZER of
+        // the guest's copy: that stamped ORGANIZER is what the save must write back untouched
+        Awaitility.await().atMost(Duration.ofSeconds(45)).untilAsserted(() ->
+            assertThat(Ics.parameters(Ics.unfold(probe.singleEvent(guest)), "ORGANIZER"))
+                .contains("SCHEDULE-STATUS"));
+
+        guestCalendar.reload();
+        awaitAttached(guestCalendar.eventCard(title));
+        guestCalendar.openEvent(title).personalSettings().showMeAs("Free").trySave();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(Ics.property(Ics.unfold(probe.singleEvent(guest)), "TRANSP"))
+                .as("the guest's copy should be saved as free")
+                .contains("TRANSPARENT"));
+        assertThat(guestCalendar.page().locator("body").innerText())
+            .as("saving personal settings must not be refused by the scheduling plugin")
+            .doesNotContain("403");
+        assertThat(Ics.property(Ics.unfold(probe.singleEvent(organizer)), "TRANSP"))
+            .as("the organizer's copy is left alone")
+            .isNotEqualTo(Optional.of("TRANSPARENT"));
     }
 
     @Test
