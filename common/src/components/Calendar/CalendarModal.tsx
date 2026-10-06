@@ -3,6 +3,7 @@ import { ResponsiveDialog } from '@common/components/Dialog'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import {
   createCalendarAsync,
+  getCalendarsList,
   importEventFromFile,
   patchACLCalendar,
   patchCalendar,
@@ -201,6 +202,10 @@ function CalendarPopover({
         share: { set, remove }
       })
     ).unwrap()
+    // The Access tab is built from calendar.invite: reload the list so that it
+    // shows the saved shares, as no live update follows a share posted to the
+    // administrator's copy of a resource calendar.
+    void dispatch(getCalendarsList())
   }
 
   const createCalendar = async (
