@@ -187,7 +187,9 @@ describe('Event Full Display', () => {
     // EventDisplay modal doesn't have Repeat checkbox, only RepeatEvent component
     // which shows repetition settings when repetition data exists
     // Since test event has no repetition data, RepeatEvent component won't show Repeat checkbox
-    fireEvent.click(screen.getByRole('button', { name: /Show Less/i }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'eventPreview.showLess' })
+    )
   })
 
   it('can edit title when user is organizer', () => {

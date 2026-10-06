@@ -69,7 +69,8 @@
     "search": "Rechercher",
     "resource": "Ressource",
     "back": "Retour",
-    "show": "Afficher"
+    "show": "Afficher",
+    "open": "Ouvrir"
   },
   "tdrive": {
     "addAsAttachment": "Ajouter en pièce jointe"
@@ -575,6 +576,8 @@
   },
   "booking": {
     "title": "Titre",
+    "editBookingLink": "Modifier le lien de réservation",
+    "editNamedBookingLink": "Modifier %{name}",
     "addSlot": "Ajouter un créneau",
     "removeSlot": "Supprimer le créneau",
     "copySlot": "Copier pour tous",

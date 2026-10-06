@@ -69,7 +69,8 @@
     "search": "Suchen",
     "resource": "Ressource",
     "back": "Zurück",
-    "show": "Anzeigen"
+    "show": "Anzeigen",
+    "open": "Öffnen"
   },
   "tdrive": {
     "addAsAttachment": "Als Anhang hinzufügen"
@@ -575,6 +576,8 @@
   },
   "booking": {
     "title": "Titel",
+    "editBookingLink": "Buchungslink bearbeiten",
+    "editNamedBookingLink": "%{name} bearbeiten",
     "addSlot": "Zeitfenster hinzufügen",
     "removeSlot": "Zeitfenster entfernen",
     "copySlot": "Auf alle kopieren",

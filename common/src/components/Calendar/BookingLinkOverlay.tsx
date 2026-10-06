@@ -7,6 +7,7 @@ import React, {
 import type { MutableRefObject } from 'react'
 import type { CalendarApi } from '@fullcalendar/core'
 import { createPortal } from 'react-dom'
+import { useI18n } from 'twake-i18n'
 import type { BookingLink } from '@common/features/booking/types/BookingTypes'
 import { BaseBookingLinkChip } from '@common/components/Event/EventChip/BookingLinkEventChip'
 import {
@@ -222,6 +223,7 @@ const BookingLinkStrip: React.FC<BookingLinkStripProps> = ({
   onEdit,
   stripRef
 }) => {
+  const { t } = useI18n()
   const handleActivate = useCallback((): void => {
     if (position.linkId) onEdit(position.linkId)
   }, [onEdit, position.linkId])
@@ -251,7 +253,9 @@ const BookingLinkStrip: React.FC<BookingLinkStripProps> = ({
       role="button"
       tabIndex={0}
       aria-label={
-        position.linkName ? `Edit ${position.linkName}` : 'Edit booking link'
+        position.linkName
+          ? t('booking.editNamedBookingLink', { name: position.linkName })
+          : t('booking.editBookingLink')
       }
       onClick={handleClick}
       onKeyDown={handleKeyDown}

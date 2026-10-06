@@ -69,7 +69,8 @@
     "search": "Cerca",
     "resource": "Risorsa",
     "back": "Indietro",
-    "show": "Mostra"
+    "show": "Mostra",
+    "open": "Apri"
   },
   "tdrive": {
     "addAsAttachment": "Aggiungi come allegato"
@@ -575,6 +576,8 @@
   },
   "booking": {
     "title": "Titolo",
+    "editBookingLink": "Modifica il link di prenotazione",
+    "editNamedBookingLink": "Modifica %{name}",
     "addSlot": "Aggiungi fascia oraria",
     "removeSlot": "Rimuovi fascia oraria",
     "copySlot": "Copia in tutti",

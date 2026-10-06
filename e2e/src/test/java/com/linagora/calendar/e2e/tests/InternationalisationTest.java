@@ -41,6 +41,7 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
      */
     private static final String FR_CREATE = "Créer un nouvel événement";
     private static final String FR_REFRESH = "Actualiser";
+    private static final String FR_EXPAND = "Développer";
 
     /** Switches the interface language and comes back to the calendar. */
     private CalendarPage speaking(CalendarPage calendar, String language) {
@@ -150,7 +151,7 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
         Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
             page.getByLabel(FR_CREATE).click();
             page.getByLabel("Titre").first().waitFor();
-            page.getByLabel("expand").click();
+            page.getByLabel(FR_EXPAND).click();
             assertThat(page.getByTestId("start-date-input").inputValue())
                 .as("English read %s", english)
                 .isNotEqualTo(english)
@@ -167,7 +168,7 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
 
         page.getByLabel(FR_CREATE).click();
         page.getByLabel("Titre").first().fill(title("Invalide"));
-        page.getByLabel("expand").click();
+        page.getByLabel(FR_EXPAND).click();
         
         // Ensure start and end dates are identical so time validation triggers reliably
         String startDate = page.getByTestId("start-date-input").inputValue();

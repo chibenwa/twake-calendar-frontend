@@ -22,6 +22,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CloseIcon from '@mui/icons-material/Close'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
 import React, { ReactNode, useContext, useId, useMemo, useState } from 'react'
+import { useI18n } from 'twake-i18n'
 import useDynamicPosition from './useDynamicPosition'
 
 /** Open expanded dialogs sharing the fullscreen-view body class. */
@@ -212,6 +213,7 @@ function ResponsiveDialog({
   headerRightAction,
   ...otherDialogProps
 }: ResponsiveDialogProps): JSX.Element {
+  const { t } = useI18n()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isInIframe = useIsInIframe()
@@ -421,7 +423,7 @@ function ResponsiveDialog({
               {isExpanded && onExpandToggle && !isMobile ? (
                 <IconButton
                   onClick={onExpandToggle}
-                  aria-label="show less"
+                  aria-label={t('eventPreview.showLess')}
                   sx={{ marginLeft: '-8px' }}
                 >
                   <ArrowBackIcon sx={{ fontSize: 30 }} />
@@ -439,7 +441,7 @@ function ResponsiveDialog({
                       <Tooltip title={expandText}>
                         <IconButton
                           onClick={onExpandToggle}
-                          aria-label="expand"
+                          aria-label={t('tooltip.expand')}
                           size="small"
                           sx={{ marginRight: 1 }}
                         >
@@ -449,7 +451,7 @@ function ResponsiveDialog({
                     )}
                     <IconButton
                       onClick={onClose}
-                      aria-label="close"
+                      aria-label={t('actions.close')}
                       size="small"
                     >
                       <CloseIcon />

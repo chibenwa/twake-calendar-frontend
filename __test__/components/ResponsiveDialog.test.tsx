@@ -3,6 +3,10 @@ import { Button, TextField, TwakeMuiThemeProvider } from '@linagora/twake-mui'
 import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
+jest.mock('twake-i18n', () => ({
+  useI18n: () => ({ t: (key: string) => key })
+}))
+
 describe('ResponsiveDialog', () => {
   const mockOnClose = jest.fn()
   const mockOnExpandToggle = jest.fn()
@@ -40,7 +44,9 @@ describe('ResponsiveDialog', () => {
     )
 
     expect(screen.getByText('My Title')).toBeInTheDocument()
-    expect(screen.queryByLabelText('show less')).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('eventPreview.showLess')
+    ).not.toBeInTheDocument()
   })
 
   it('renders back arrow in extended mode', () => {
@@ -57,7 +63,7 @@ describe('ResponsiveDialog', () => {
     )
 
     expect(screen.queryByText('My Title')).not.toBeInTheDocument()
-    expect(screen.getByLabelText('show less')).toBeInTheDocument()
+    expect(screen.getByLabelText('eventPreview.showLess')).toBeInTheDocument()
   })
 
   it('calls onExpandToggle when back arrow is clicked', () => {
@@ -73,7 +79,7 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    const backButton = screen.getByLabelText('show less')
+    const backButton = screen.getByLabelText('eventPreview.showLess')
     fireEvent.click(backButton)
 
     expect(mockOnExpandToggle).toHaveBeenCalledTimes(1)
@@ -237,7 +243,9 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    expect(screen.queryByLabelText('show less')).not.toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('eventPreview.showLess')
+    ).not.toBeInTheDocument()
     expect(screen.getByText('Test Title')).toBeInTheDocument()
   })
 
@@ -297,7 +305,7 @@ describe('ResponsiveDialog', () => {
     )
 
     expect(screen.getByText('Extended Content')).toBeInTheDocument()
-    expect(screen.getByLabelText('show less')).toBeInTheDocument()
+    expect(screen.getByLabelText('eventPreview.showLess')).toBeInTheDocument()
   })
 
   it('renders expand and close icons in normal mode when showHeaderActions is true', () => {
@@ -314,8 +322,8 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    expect(screen.getByLabelText('expand')).toBeInTheDocument()
-    expect(screen.getByLabelText('close')).toBeInTheDocument()
+    expect(screen.getByLabelText('tooltip.expand')).toBeInTheDocument()
+    expect(screen.getByLabelText('actions.close')).toBeInTheDocument()
   })
 
   it('does not render header icons when showHeaderActions is false', () => {
@@ -332,8 +340,8 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    expect(screen.queryByLabelText('expand')).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('close')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('tooltip.expand')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('actions.close')).not.toBeInTheDocument()
     expect(screen.getByText('Test Title')).toBeInTheDocument()
   })
 
@@ -350,7 +358,7 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    const closeButton = screen.getByLabelText('close')
+    const closeButton = screen.getByLabelText('actions.close')
     fireEvent.click(closeButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)
@@ -370,7 +378,7 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    const expandButton = screen.getByLabelText('expand')
+    const expandButton = screen.getByLabelText('tooltip.expand')
     fireEvent.click(expandButton)
 
     expect(mockOnExpandToggle).toHaveBeenCalledTimes(1)
@@ -390,7 +398,7 @@ describe('ResponsiveDialog', () => {
     )
 
     expect(screen.getByText('Custom Right Action')).toBeInTheDocument()
-    expect(screen.queryByLabelText('close')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('actions.close')).not.toBeInTheDocument()
   })
 
   it('renders headerRightAction in desktop expanded mode', () => {
@@ -408,7 +416,7 @@ describe('ResponsiveDialog', () => {
     )
 
     expect(screen.getByText('Custom Right Action')).toBeInTheDocument()
-    expect(screen.getByLabelText('show less')).toBeInTheDocument()
+    expect(screen.getByLabelText('eventPreview.showLess')).toBeInTheDocument()
   })
 
   describe('fullscreen-view body class', () => {

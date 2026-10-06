@@ -1,6 +1,15 @@
 import React, { useMemo } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import {
+  deDE,
+  enUS,
+  esES,
+  frFR,
+  itIT,
+  ruRU,
+  viVN
+} from '@mui/x-date-pickers/locales'
 import { useI18n } from 'twake-i18n'
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -24,6 +33,26 @@ dayjs.extend(timezone)
  */
 export const toAdapterLocale = (locale?: string): string =>
   (locale || 'en').toLowerCase().split('-')[0]
+
+const PICKERS_LOCALES: Record<string, typeof enUS> = {
+  en: enUS,
+  fr: frFR,
+  de: deDE,
+  es: esES,
+  it: itIT,
+  ru: ruRU,
+  vi: viVN
+}
+
+/**
+ * The accessible names of the date pickers (month navigation, view switch...)
+ * shipped by MUI X for the given locale, English when none matches.
+ */
+export const pickersLocaleText = (
+  locale?: string
+): typeof enUS.components.MuiLocalizationProvider.defaultProps.localeText =>
+  (PICKERS_LOCALES[toAdapterLocale(locale)] ?? enUS).components
+    .MuiLocalizationProvider.defaultProps.localeText
 
 export interface TwakeLocalizationProviderProps {
   children: React.ReactNode
@@ -56,6 +85,7 @@ export const TwakeLocalizationProvider = ({
         dateAdapter={AdapterDayjs}
         adapterLocale={toAdapterLocale(locale)}
         localeText={{
+          ...pickersLocaleText(locale),
           okButtonLabel: t('common.ok'),
           cancelButtonLabel: t('common.cancel'),
           todayButtonLabel: t('menubar.today')

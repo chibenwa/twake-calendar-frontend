@@ -69,7 +69,8 @@
     "search": "Buscar",
     "resource": "Recurso",
     "back": "Volver",
-    "show": "Mostrar"
+    "show": "Mostrar",
+    "open": "Abrir"
   },
   "tdrive": {
     "addAsAttachment": "Añadir como archivo adjunto"
@@ -575,6 +576,8 @@
   },
   "booking": {
     "title": "Título",
+    "editBookingLink": "Editar el enlace de reserva",
+    "editNamedBookingLink": "Editar %{name}",
     "addSlot": "Añadir franja horaria",
     "removeSlot": "Quitar franja horaria",
     "copySlot": "Copiar a todos",

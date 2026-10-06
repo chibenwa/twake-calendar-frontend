@@ -69,7 +69,8 @@
     "search": "Search",
     "resource": "Resource",
     "back": "Back",
-    "show": "Show"
+    "show": "Show",
+    "open": "Open"
   },
   "tdrive": {
     "addAsAttachment": "Add as attachment"
@@ -575,6 +576,8 @@
   },
   "booking": {
     "title": "Title",
+    "editBookingLink": "Edit booking link",
+    "editNamedBookingLink": "Edit %{name}",
     "addSlot": "Add slot",
     "removeSlot": "Remove slot",
     "copySlot": "Copy to all",

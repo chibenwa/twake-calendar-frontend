@@ -69,7 +69,8 @@
     "search": "Поиск",
     "resource": "Ресурсы",
     "back": "Назад",
-    "show": "Показать"
+    "show": "Показать",
+    "open": "Открыть"
   },
   "tdrive": {
     "addAsAttachment": "Добавить как вложение"
@@ -574,6 +575,8 @@
   },
   "booking": {
     "title": "Название",
+    "editBookingLink": "Изменить ссылку для бронирования",
+    "editNamedBookingLink": "Изменить %{name}",
     "addSlot": "Добавить слот",
     "removeSlot": "Удалить слот",
     "copySlot": "Копировать для всех",

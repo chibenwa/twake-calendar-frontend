@@ -69,7 +69,8 @@
     "search": "Tìm kiếm",
     "resource": "Tài nguyên",
     "back": "Quay lại",
-    "show": "Hiển thị"
+    "show": "Hiển thị",
+    "open": "Mở"
   },
   "tdrive": {
     "addAsAttachment": "Thêm làm tệp đính kèm"
@@ -574,6 +575,8 @@
   },
   "booking": {
     "title": "Tiêu đề",
+    "editBookingLink": "Chỉnh sửa liên kết đặt lịch",
+    "editNamedBookingLink": "Chỉnh sửa %{name}",
     "addSlot": "Thêm khung giờ",
     "removeSlot": "Xóa khung giờ",
     "copySlot": "Sao chép cho tất cả",

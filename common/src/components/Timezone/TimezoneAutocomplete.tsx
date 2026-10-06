@@ -71,6 +71,9 @@ export function TimezoneAutocomplete({
       size={size}
       sx={width ? { width } : undefined}
       disableClearable={disableClearable}
+      clearText={t('common.clear')}
+      openText={t('common.open')}
+      closeText={t('actions.close')}
       renderInput={params => (
         <TextField
           {...params}

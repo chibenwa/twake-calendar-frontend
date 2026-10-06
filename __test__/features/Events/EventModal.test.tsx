@@ -166,7 +166,7 @@ describe('EventPopover', () => {
     fireEvent.click(screen.getByRole('button', { name: 'common.moreOptions' }))
 
     // Back button appears
-    expect(screen.getByLabelText('show less')).toBeInTheDocument()
+    expect(screen.getByLabelText('eventPreview.showLess')).toBeInTheDocument()
 
     // Extended labels appear
     expect(screen.getAllByText('event.form.repeat')).toHaveLength(1)
