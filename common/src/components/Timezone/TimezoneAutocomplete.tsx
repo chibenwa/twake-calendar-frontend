@@ -1,6 +1,7 @@
 import { Autocomplete, TextField } from '@linagora/twake-mui'
 import { PublicOutlined as TimezoneIcon } from '@mui/icons-material'
 import { useMemo } from 'react'
+import { useI18n } from 'twake-i18n'
 
 interface TimezoneOption {
   value: string
@@ -35,7 +36,7 @@ export function TimezoneAutocomplete({
   inputRef,
   width,
   size = 'small',
-  placeholder = 'Select timezone',
+  placeholder,
   inputFontSize,
   inputPadding,
   onClose,
@@ -43,6 +44,8 @@ export function TimezoneAutocomplete({
   hideBorder = false,
   openOnFocus = false
 }: TimezoneAutocompleteProps): React.ReactElement {
+  const { t } = useI18n()
+  const label = placeholder ?? t('event.form.timezonePlaceholder')
   const options = useMemo<TimezoneOption[]>(() => {
     return zones.map(tz => ({
       value: tz,
@@ -71,7 +74,7 @@ export function TimezoneAutocomplete({
       renderInput={params => (
         <TextField
           {...params}
-          placeholder={placeholder}
+          placeholder={label}
           onFocus={e => e.target.select()}
           variant="outlined"
           autoComplete="off"
@@ -119,6 +122,7 @@ export function TimezoneAutocomplete({
             },
             htmlInput: {
               ...params.slotProps.htmlInput,
+              'aria-label': label,
               autoComplete: 'new-password'
             }
           }}

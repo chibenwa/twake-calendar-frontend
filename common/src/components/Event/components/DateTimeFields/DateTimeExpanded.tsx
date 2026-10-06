@@ -159,7 +159,6 @@ const DateTimeControlsRow: React.FC<DateTimeControlsRowProps> = ({
             showIcon={false}
             width={220}
             size="small"
-            placeholder={t('event.form.timezonePlaceholder')}
             hideBorder
             inputPadding="8px 65px 8px 0px"
           />
