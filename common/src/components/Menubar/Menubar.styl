@@ -41,7 +41,10 @@
   height 60px
   min-height 60px
   background-color #fff
+  /* clip, unlike hidden, is not a scroll container: a focus change cannot
+     scroll the menubar and shift the menus anchored to it */
   overflow hidden
+  overflow clip
 
   &--mobile
     position sticky
@@ -103,7 +106,10 @@
   justify-content flex-end
   align-items center
   flex 1
+  /* hidden used to imply this; clip does not */
+  min-width 0
   overflow hidden
+  overflow clip
 
 
 .current-date-time
