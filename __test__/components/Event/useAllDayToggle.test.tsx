@@ -144,6 +144,18 @@ describe('toInclusiveAllDayEnd', () => {
     )
   })
 
+  it('moves a midnight end carrying seconds back to the previous day', () => {
+    expect(
+      toInclusiveAllDayEnd('2026-10-07T22:00', '2026-10-08T00:00:00')
+    ).toBe('2026-10-07T00:00')
+  })
+
+  it('keeps an end a few seconds after midnight', () => {
+    expect(
+      toInclusiveAllDayEnd('2026-10-07T22:00', '2026-10-08T00:00:30')
+    ).toBe('2026-10-08T00:00:30')
+  })
+
   it('never moves the end before the start', () => {
     expect(toInclusiveAllDayEnd('2026-10-07T00:00', '2026-10-07T00:00')).toBe(
       '2026-10-07T00:00'

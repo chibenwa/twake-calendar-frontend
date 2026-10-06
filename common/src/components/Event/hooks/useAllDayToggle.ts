@@ -8,6 +8,12 @@ import {
 const DATE_FORMAT = 'YYYY-MM-DD'
 const TIME_FORMAT = 'HH:mm'
 const MIDNIGHT = '00:00'
+// Seconds are checked too: 00:00:30 is not an exclusive midnight end
+const EXACT_MIDNIGHT = /^00:00(:00)?$/
+
+function isExactMidnight(datetime: string): boolean {
+  return EXACT_MIDNIGHT.test(datetime.split('T')[1] ?? '')
+}
 
 /**
  * A timed event ending at midnight does not occupy its end day: once converted
@@ -15,14 +21,14 @@ const MIDNIGHT = '00:00'
  */
 export function toInclusiveAllDayEnd(start: string, end: string): string {
   const { date: startDateOnly } = splitDateTime(start)
-  const { date: endDateOnly, time: endTimeOnly } = splitDateTime(end)
-  if (endTimeOnly !== MIDNIGHT || endDateOnly <= startDateOnly) {
+  const { date: endDateOnly } = splitDateTime(end)
+  if (!isExactMidnight(end) || endDateOnly <= startDateOnly) {
     return end
   }
   const previousDay = moment(endDateOnly, DATE_FORMAT)
     .subtract(1, 'day')
     .format(DATE_FORMAT)
-  return combineDateTime(previousDay, endTimeOnly)
+  return combineDateTime(previousDay, MIDNIGHT)
 }
 
 /**
