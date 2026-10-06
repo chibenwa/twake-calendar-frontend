@@ -52,6 +52,33 @@ describe('getCalendarOwnerAttendee', () => {
     ).toBe('ACCEPTED')
   })
 
+  it('picks the organizer of a team event inviting external participants', () => {
+    const attendees = [
+      attendee('outsider@external.test', 'NEEDS-ACTION'),
+      attendee('ghassen@example.com', 'NEEDS-ACTION'),
+      attendee('benoit@example.com', 'ACCEPTED')
+    ]
+
+    expect(
+      getCalendarOwnerAttendee(teamCalendar, attendees, {
+        cal_address: 'mailto:benoit@example.com'
+      })?.partstat
+    ).toBe('ACCEPTED')
+  })
+
+  it('falls back to the members on a team event organized from outside', () => {
+    const attendees = [
+      attendee('outsider@external.test', 'ACCEPTED'),
+      attendee('ghassen@example.com', 'DECLINED')
+    ]
+
+    expect(
+      getCalendarOwnerAttendee(teamCalendar, attendees, {
+        cal_address: 'outsider@external.test'
+      })?.partstat
+    ).toBe('DECLINED')
+  })
+
   it('finds nobody on a team event whose organizer does not attend', () => {
     const attendees = [attendee('ghassen@example.com', 'NEEDS-ACTION')]
 
