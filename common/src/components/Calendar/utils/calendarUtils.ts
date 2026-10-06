@@ -5,6 +5,7 @@ import { Calendar, DelegationAccess } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { formatDateToYYYYMMDDTHHMMSS } from '@common/utils/dateUtils'
 import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
+import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
 import { getEffectiveEmail } from '@common/utils/getEffectiveEmail'
 import { isEventOrganiser } from '@common/utils/isEventOrganiser'
 import { convertEventDateTimeToISO } from '@common/utils/timezone'
@@ -256,11 +257,11 @@ export const extractEvents = (
       event =>
         !(
           hideDeclinedEvents &&
-          event.attendee?.some(
-            a =>
-              calendars[event.calId].owner.emails.includes(a.cal_address) &&
-              a.partstat === 'DECLINED'
-          )
+          getCalendarOwnerAttendee(
+            calendars[event.calId],
+            event.attendee,
+            event.organizer
+          )?.partstat === 'DECLINED'
         )
     )
 }

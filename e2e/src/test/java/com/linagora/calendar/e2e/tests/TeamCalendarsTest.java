@@ -290,6 +290,35 @@ class TeamCalendarsTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("TEAM-19 A team event inviting another member shows as its organizer answered")
+    void aTeamEventInvitingAMemberShowsAsItsOrganizerAnswered(Page page, E2EUser user, E2EUserFactory users,
+                                                              E2ESessions sessions, TeamCalendarProbe teams) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String name = unique("Attending team");
+        String id = aTeamFor(teams, user, Right.READ_WRITE, name);
+        E2EUser mate = users.newUser("mate");
+        sessions.pageFor(mate);
+        teams.grant(id, mate, Right.READ_WRITE);
+        awaitTeamVisible(page, name);
+        showTeam(calendar, name);
+
+        String title = unique("Team event with a member");
+        calendar.createEvent().title(title)
+            .addGuest(mate.email())
+            .expand().calendar(name).save();
+
+        Locator card = calendar.eventCard(title).first();
+        PlaywrightAssertions.assertThat(card)
+            .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(PROPAGATION_MS));
+        // the organizer accepted: the pending answer of the invited member is not the one of the team
+        PlaywrightAssertions.assertThat(card.locator("[data-testid=HelpOutlineOutlinedIcon]"))
+            .hasCount(0);
+        PlaywrightAssertions.assertThat(page.locator(".fc-event.needs-action-event")
+                .filter(new Locator.FilterOptions().setHasText(title)))
+            .hasCount(0);
+    }
+
+    @Test
     @DisplayName("TEAM-16 A recurring team event carries its rule like any other")
     void aRecurringTeamEventCarriesItsRule(Page page, E2EUser user, TeamCalendarProbe teams) {
         CalendarPage calendar = LoginPage.loginAs(page, user);

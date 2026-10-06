@@ -1,6 +1,5 @@
 import { EventErrorHandler } from '@common/components/Error/EventErrorHandler'
 import { Calendar } from '@common/types/CalendarTypes'
-import { userAttendee } from '@common/features/User/models/attendee'
 import { EventContentArg } from '@fullcalendar/core'
 import { Theme, getContrastRatio, alpha } from '@linagora/twake-mui'
 import { getAccessiblePair } from '@common/utils/getAccessiblePair'
@@ -48,13 +47,6 @@ export function getEventTimes(
     endTime: moment.tz(event.end, timeZone).format('HH:mm')
   }
 }
-export function getOwnerAttendee(
-  attendees: userAttendee[],
-  ownerEmails: Set<string>
-): userAttendee | undefined {
-  return attendees.find(att => ownerEmails.has(att.cal_address.toLowerCase()))
-}
-
 export function getEffectiveColor(
   theme: Theme,
   calendar?: Calendar,

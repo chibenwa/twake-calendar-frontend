@@ -2,6 +2,7 @@ import { EventErrorHandler } from '@common/components/Error/EventErrorHandler'
 import { EventChip } from '@common/components/Event/EventChip/EventChip'
 import { Calendar } from '@common/types/CalendarTypes'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
 import {
   CalendarApi,
   DayHeaderContentArg,
@@ -23,21 +24,6 @@ const PARTSTAT_CLASS_MAP: Record<string, string> = {
   DECLINED: 'declined-event',
   TENTATIVE: 'tentative-event',
   'NEEDS-ACTION': 'needs-action-event'
-}
-
-const getOwnerPartstat = (
-  calendar?: Calendar,
-  attendees: userAttendee[] = []
-): string | undefined => {
-  const ownerEmailsList = calendar?.owner?.emails
-  if (!ownerEmailsList || ownerEmailsList.length === 0) return undefined
-
-  const ownerEmails = new Set(ownerEmailsList.map(email => email.toLowerCase()))
-  const ownerAttendee = attendees.find((att: userAttendee) =>
-    ownerEmails.has(att.cal_address.toLowerCase())
-  )
-
-  return ownerAttendee?.partstat
 }
 
 export interface ViewHandlersProps {
@@ -259,13 +245,15 @@ export const createViewHandlers = (props: ViewHandlersProps): ViewHandlers => {
 
     const extendedProps = arg.event._def.extendedProps as {
       attendee?: userAttendee[]
+      organizer?: { cal_address?: string }
       calId: string
     }
 
-    const partstat = getOwnerPartstat(
+    const partstat = getCalendarOwnerAttendee(
       calendars[extendedProps.calId],
-      extendedProps.attendee
-    )
+      extendedProps.attendee,
+      extendedProps.organizer
+    )?.partstat
     if (!partstat) return
 
     const statusClass = PARTSTAT_CLASS_MAP[partstat]

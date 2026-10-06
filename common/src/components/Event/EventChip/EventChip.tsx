@@ -20,12 +20,12 @@ import {
   getCardStyle,
   getEventDuration,
   getEventTimes,
-  getOwnerAttendee,
   getTitleStyle,
   IconDisplayConfig,
   useCompactMode
 } from './EventChipUtils'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
 import { EventDescriptionBuilder } from '@common/utils/EventDescriptionBuilder'
 import { BookingLinkEventChip } from './BookingLinkEventChip'
 
@@ -92,15 +92,15 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
 
     // Event properties
     const isPrivate = PRIVATE_CLASSIFICATIONS.includes(classification as string)
-    const ownerEmails = new Set(
-      calendar.owner?.emails?.map(e => e.toLowerCase())
-    )
-    // const delegated = calendar.delegated;
+    const organizer = props.organizer as
+      | { cn?: string; cal_address?: string }
+      | undefined
 
     // Determine owner attendee
-    const ownerAttendee = getOwnerAttendee(
+    const ownerAttendee = getCalendarOwnerAttendee(
+      calendar,
       attendees as userAttendee[],
-      ownerEmails
+      organizer
     )
 
     // Presentation trick: if owner is not an attendee (e.g. created from external app like Apple Calendar),
@@ -151,10 +151,6 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
     )
 
     // Organizer avatar
-    const organizer = event._def.extendedProps.organizer as
-      | { cn?: string; cal_address?: string }
-      | undefined
-
     const OrganizerAvatar = organizer
       ? stringAvatar(organizer.cn ?? organizer.cal_address ?? '')
       : { color: undefined, children: null }

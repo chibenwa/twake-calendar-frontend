@@ -446,7 +446,7 @@ day, 23:45) — 48 tests.
 - [x] `RES-17` A non administrator cannot edit the resource calendar
 - [x] `RES-18` `HIDE_RESOURCES` hides the Resources section entirely
 
-## TEAM — Team calendars (17)
+## TEAM — Team calendars (18)
 
 - [x] `TEAM-01` A team calendar appears in its own section
 - [x] `TEAM-02` A viewer member sees the events of the team
@@ -465,6 +465,7 @@ day, 23:45) — 48 tests.
 - [x] `TEAM-16` A recurring team event behaves like a personal recurring one
 - [x] `TEAM-17` The team calendar appears in the calendar picker of the form
 - [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
+- [x] `TEAM-19` A team event inviting another member shows as its organizer answered ([#1545](https://github.com/linagora/twake-calendar-frontend/issues/1545))
 
 ## SHARE — Sharing and delegation (29)
 
