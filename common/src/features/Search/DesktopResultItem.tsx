@@ -70,6 +70,7 @@ export default function DesktopResultItem({
           <RenderDate
             startDate={startDate}
             endDate={endDate}
+            allDay={!!eventData.data.allDay}
             t={t}
             timeZone={timeZone}
           />

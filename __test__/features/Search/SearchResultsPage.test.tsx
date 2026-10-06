@@ -221,4 +221,62 @@ describe('SearchResultsPage', () => {
 
     expect(screen.getByText('All Day Event')).toBeInTheDocument()
   })
+
+  const formatDay = (iso: string): string =>
+    new Date(iso).toLocaleDateString('en', {
+      day: '2-digit',
+      month: 'short',
+      timeZone: 'UTC'
+    })
+
+  it('should display a one-day all-day event on its single day', () => {
+    const mockResults = [
+      {
+        data: {
+          uid: '1',
+          summary: 'One Day Event',
+          start: '2026-10-14T00:00:00Z',
+          end: '2026-10-15T00:00:00Z',
+          allDay: true
+        }
+      }
+    ]
+
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      searchResult: { results: mockResults, hits: 1 }
+    })
+
+    expect(
+      screen.getByText(formatDay('2026-10-14T00:00:00Z'))
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText(formatDay('2026-10-15T00:00:00Z'), { exact: false })
+    ).not.toBeInTheDocument()
+  })
+
+  it('should display the last day of a multi-day all-day event', () => {
+    const mockResults = [
+      {
+        data: {
+          uid: '1',
+          summary: 'Ongoing',
+          start: '2026-10-04T00:00:00Z',
+          end: '2026-10-09T00:00:00Z',
+          allDay: true
+        }
+      }
+    ]
+
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      searchResult: { results: mockResults, hits: 1 }
+    })
+
+    expect(
+      screen.getByText(
+        `${formatDay('2026-10-04T00:00:00Z')} - ${formatDay('2026-10-08T00:00:00Z')}`
+      )
+    ).toBeInTheDocument()
+  })
 })

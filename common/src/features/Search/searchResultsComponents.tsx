@@ -17,6 +17,7 @@ import React from 'react'
 interface DateProps {
   startDate: Date
   endDate: Date
+  allDay: boolean
   t: (key: string) => string
   timeZone: string
 }
@@ -48,12 +49,22 @@ interface VideoJoinProps {
   t: (key: string) => string
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+
+// The end (DTEND) of an all-day event is the day following its last day
+const lastDayOf = (startDate: Date, endDate: Date, allDay: boolean): Date =>
+  allDay
+    ? new Date(Math.max(startDate.getTime(), endDate.getTime() - ONE_DAY_MS))
+    : endDate
+
 export const RenderDate: React.FC<DateProps> = ({
   startDate,
   endDate,
+  allDay,
   t,
   timeZone
 }) => {
+  const lastDay = lastDayOf(startDate, endDate, allDay)
   const dayKey = (d: Date): string =>
     d.toLocaleDateString('en-CA', {
       year: 'numeric',
@@ -68,10 +79,10 @@ export const RenderDate: React.FC<DateProps> = ({
         month: 'short',
         timeZone
       })}
-      {dayKey(startDate) !== dayKey(endDate) && (
+      {dayKey(startDate) !== dayKey(lastDay) && (
         <>
           {' - '}
-          {endDate.toLocaleDateString(t('locale'), {
+          {lastDay.toLocaleDateString(t('locale'), {
             day: '2-digit',
             month: 'short',
             timeZone
