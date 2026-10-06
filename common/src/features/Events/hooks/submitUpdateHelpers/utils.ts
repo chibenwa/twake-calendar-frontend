@@ -103,7 +103,8 @@ function getEventAttachments<T>(attachments?: T[]): T[] | undefined {
 
 // The form rebuilds the organizer: carry over the parameters the server
 // stamped on the stored one, otherwise an attendee saving their copy is
-// rejected for changing the ORGANIZER.
+// rejected for changing the ORGANIZER. A replacement organizer gets none:
+// they describe the previous one.
 function keepServerOrganizerParams(
   organizer: userOrganiser | undefined,
   existingOrganizer: CalendarEvent['organizer']
@@ -114,19 +115,13 @@ function keepServerOrganizerParams(
     normalizeIdentity(organizer.cal_address) ===
     normalizeIdentity(existingOrganizer?.cal_address)
 
-  if (
-    !isSameOrganizer ||
-    organizer.otherParams ||
-    !existingOrganizer?.otherParams
-  ) {
-    return organizer
-  }
-
   return new userOrganiser({
     cn: organizer.cn,
     cal_address: organizer.cal_address,
     sentBy: organizer.sentBy,
-    otherParams: existingOrganizer.otherParams
+    otherParams: isSameOrganizer
+      ? (organizer.otherParams ?? existingOrganizer?.otherParams)
+      : undefined
   })
 }
 

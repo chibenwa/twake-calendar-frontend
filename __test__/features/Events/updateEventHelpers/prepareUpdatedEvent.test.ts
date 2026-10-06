@@ -216,6 +216,23 @@ describe('prepareUpdatedEvent', () => {
         'mailto:carol@example.com'
       ])
     })
+
+    it('drops inherited parameters from a replacement organizer', () => {
+      const updatedEvent = update(
+        new userOrganiser({
+          cn: 'Carol',
+          cal_address: 'carol@example.com',
+          otherParams: { 'schedule-status': '1.0' }
+        })
+      )
+
+      expect(updatedEvent.organizer?.asJcal()).toEqual([
+        'organizer',
+        { cn: 'Carol' },
+        'cal-address',
+        'mailto:carol@example.com'
+      ])
+    })
   })
 
   it('sets alarm attendees and summary at VAlarm construction time', () => {
