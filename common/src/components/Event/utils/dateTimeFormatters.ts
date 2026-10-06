@@ -98,7 +98,7 @@ const LOCALIZED_LONG_DATE_FORMATS: Record<string, string> = {
   de: 'dddd, D. MMMM YYYY',
   it: 'dddd D MMMM YYYY',
   ru: 'dddd, D MMMM YYYY',
-  vi: 'dddd, D MMMM YYYY'
+  vi: 'dddd, D MMMM, YYYY'
 }
 
 /**
@@ -114,8 +114,8 @@ export function getLongDateFormat(locale?: string): string {
  * Format date with current locale.
  * @param dateStr - Date string to format
  * @param lang - Language code
- * @param options.capitalize - Upper-case the leading French, Spanish, Italian
- *   or Russian weekday, as wanted for standalone labels. Set to false when the
+ * @param options.capitalize - Upper-case the leading French, Spanish, Italian,
+ *   Russian or Vietnamese weekday, as wanted for standalone labels. Set to false when the
  *   date is inserted mid-sentence, where those languages write the weekday in
  *   lowercase.
  * @returns Formatted date string
@@ -132,17 +132,8 @@ export function formatLocalizedDate(
       ? lang
       : 'en'
 
-  if (locale === 'vi') {
-    const dow = date.day() // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const weekdayLabel = dow === 0 ? 'Chủ nhật' : `Thứ ${dow + 1}` // Mon=Thứ 2, Wed=Thứ 4, ...
-    const day = date.date()
-    const month = date.month() + 1
-    const year = date.year()
-    return `${weekdayLabel}, ${day} Tháng ${month}, ${year}`
-  }
-
   const formatted = date.locale(locale).format(getLongDateFormat(locale))
-  if (capitalize && ['fr', 'es', 'it', 'ru'].includes(locale)) {
+  if (capitalize && ['fr', 'es', 'it', 'ru', 'vi'].includes(locale)) {
     return formatted.charAt(0).toUpperCase() + formatted.slice(1)
   }
   return formatted

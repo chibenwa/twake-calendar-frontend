@@ -70,6 +70,16 @@ describe('formatLocalizedDate', () => {
     ).toBe('mardi 6 octobre 2026')
   })
 
+  it('writes the Vietnamese date like the date pickers do', () => {
+    const date = '2026-10-06T15:00:00'
+    const pickerText = dayjs(date).locale('vi').format(getLongDateFormat('vi'))
+
+    expect(formatLocalizedDate(date, 'vi')).toBe('Thứ ba, 6 tháng 10, 2026')
+    expect(formatLocalizedDate(date, 'vi').toLowerCase()).toBe(
+      pickerText.toLowerCase()
+    )
+  })
+
   it('keeps the Russian weekday lowercase inside a sentence', () => {
     expect(
       formatLocalizedDate('2026-10-06T15:00:00', 'ru', { capitalize: false })
