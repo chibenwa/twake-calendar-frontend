@@ -66,6 +66,22 @@ describe('organizer SENT-BY parsing', () => {
     expect(organizer?.sentBy).toBeUndefined()
   })
 
+  it('writes back the parameters stamped by the server', () => {
+    const organizer = parseOrganizerOf([
+      'ORGANIZER',
+      { cn: 'Alice', 'schedule-status': '1.0' },
+      'cal-address',
+      'mailto:alice@example.com'
+    ])
+
+    expect(organizer?.asJcal()).toEqual([
+      'organizer',
+      { cn: 'Alice', 'schedule-status': '1.0' },
+      'cal-address',
+      'mailto:alice@example.com'
+    ])
+  })
+
   it('writes the delegate back as a mailto URI', () => {
     const organizer = new userOrganiser({
       cn: 'Alice',

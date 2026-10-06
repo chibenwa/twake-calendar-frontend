@@ -32,7 +32,9 @@
     "team": "Calendari del team",
     "browseResources": "Sfoglia risorse",
     "searchTimezone": "Cerca fuso orario...",
-    "bookingLinks": "Link di prenotazione"
+    "bookingLinks": "Link di prenotazione",
+    "listTimeHint": "Ora",
+    "listEventHint": "Evento"
   },
   "actions": {
     "modify": "Modifica",

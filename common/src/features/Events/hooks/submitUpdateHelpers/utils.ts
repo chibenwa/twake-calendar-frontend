@@ -3,6 +3,7 @@ import { EventFormValues } from '@common/components/Event/EventFormFields.types'
 import { resolveEventISORange } from '@common/components/Event/utils/dateRangeUtils'
 import { updateAttendeesAfterTimeChange } from '@common/features/Events/updateEventHelpers/updateAttendeesAfterTimeChange'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { userOrganiser } from '@common/features/User/userDataTypes'
 import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
 import { Calendar } from '@common/types/CalendarTypes'
 import { VAlarm } from '@common/types/VAlarm'
@@ -18,6 +19,7 @@ import {
   PrepareUpdatedEventParams
 } from './types'
 import { hasNoAttendees } from '@common/utils/hasNoAttendees'
+import { normalizeIdentity } from '@common/utils/normalizeIdentity'
 
 export function getAlarmAttendees(
   values: EventFormValues,
@@ -99,6 +101,30 @@ function getEventAttachments<T>(attachments?: T[]): T[] | undefined {
   return attachments && attachments.length > 0 ? attachments : undefined
 }
 
+// The form rebuilds the organizer: carry over the parameters the server
+// stamped on the stored one, otherwise an attendee saving their copy is
+// rejected for changing the ORGANIZER. A replacement organizer gets none:
+// they describe the previous one.
+function keepServerOrganizerParams(
+  organizer: userOrganiser | undefined,
+  existingOrganizer: CalendarEvent['organizer']
+): CalendarEvent['organizer'] {
+  if (!organizer) return existingOrganizer
+
+  const isSameOrganizer =
+    normalizeIdentity(organizer.cal_address) ===
+    normalizeIdentity(existingOrganizer?.cal_address)
+
+  return new userOrganiser({
+    cn: organizer.cn,
+    cal_address: organizer.cal_address,
+    sentBy: organizer.sentBy,
+    otherParams: isSameOrganizer
+      ? (organizer.otherParams ?? existingOrganizer?.otherParams)
+      : undefined
+  })
+}
+
 function computeFinalAttendees(
   baseAttendees: userAttendee[],
   organizer: PrepareUpdatedEventParams['organizer'],
@@ -135,7 +161,7 @@ export function prepareUpdatedEvent({
   // (needed for proper ITIP mail routing)
   const shouldSetOrganizer = !(isTeamCalendar && noAttendees)
   const finalOrganizer = shouldSetOrganizer
-    ? (organizer ?? event.organizer)
+    ? keepServerOrganizerParams(organizer, event.organizer)
     : undefined
 
   const baseAttendees =

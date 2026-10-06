@@ -678,7 +678,8 @@ class RecurrenceEditionTest extends TwakeCalendarE2ETest {
     void movingASeriesToAnotherCalendarKeepsItsRule(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         String other = "Other " + UUID.randomUUID().toString().substring(0, 6);
-        calendar.addCalendar().name(other).create();
+        // a colour of its own: a random one may be the very colour of the default calendar
+        calendar.addCalendar().name(other).color("#F5CFD0").create();
         PlaywrightAssertions.assertThat(calendar.calendarCheckbox(other)).isVisible();
         String title = dailySeries(calendar, 4);
         int before = calendar.eventCard(title).count();

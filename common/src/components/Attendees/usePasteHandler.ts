@@ -40,7 +40,9 @@ export function usePasteHandler({
 
       event.preventDefault()
 
-      const existingEmails = new Set(selectedUsers.map(u => u.email))
+      const existingEmails = new Set(
+        selectedUsers.map(u => u.email.trim().toLowerCase())
+      )
       const validUsers: User[] = []
       const invalid: string[] = []
 

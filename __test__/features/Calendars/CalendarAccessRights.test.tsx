@@ -502,6 +502,50 @@ describe('CalendarModal – updateDelegationCalendar integration', () => {
     jest
       .spyOn(delegationThunks, 'updateDelegationCalendar')
       .mockImplementation(mockThunkWithUnwrap())
+    jest
+      .spyOn(eventThunks, 'getCalendarsList')
+      .mockImplementation(mockThunkWithUnwrap())
+  })
+
+  it('reloads the calendar list once the shares are saved so that the Access tab shows them', async () => {
+    const calendarWithInvite: Calendar = {
+      ...existingCalendar,
+      invite: [
+        {
+          href: 'mailto:bob@example.com',
+          principal: '/principals/users/bob123',
+          access: 2,
+          inviteStatus: 1
+        }
+      ]
+    }
+    ;(fetchUserById as jest.Mock).mockResolvedValue({
+      preferredEmail: 'bob@example.com',
+      firstname: 'Bob',
+      lastname: 'Smith',
+      emails: ['bob@example.com']
+    })
+
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={calendarWithInvite}
+      />,
+      {
+        ...userState,
+        calendars: { list: { 'user1/cal1': calendarWithInvite } }
+      }
+    )
+
+    fireEvent.click(screen.getByRole('tab', { name: /access/i }))
+    fireEvent.click(await screen.findByLabelText(/remove/i))
+    fireEvent.click(screen.getByRole('button', { name: /save/i }))
+
+    await waitFor(() =>
+      expect(delegationThunks.updateDelegationCalendar).toHaveBeenCalled()
+    )
+    await waitFor(() => expect(eventThunks.getCalendarsList).toHaveBeenCalled())
   })
 
   it('does NOT call updateDelegationCalendar when no users are added or removed', async () => {
@@ -519,6 +563,7 @@ describe('CalendarModal – updateDelegationCalendar integration', () => {
     await waitFor(() => expect(mockOnClose).toHaveBeenCalled())
 
     expect(delegationThunks.updateDelegationCalendar).not.toHaveBeenCalled()
+    expect(eventThunks.getCalendarsList).not.toHaveBeenCalled()
   })
 })
 

@@ -32,7 +32,9 @@
     "team": "Lịch nhóm",
     "browseResources": "Tìm kiếm tài nguyên",
     "searchTimezone": "Tìm kiếm múi giờ...",
-    "bookingLinks": "Liên kết đặt lịch"
+    "bookingLinks": "Liên kết đặt lịch",
+    "listTimeHint": "Thời gian",
+    "listEventHint": "Sự kiện"
   },
   "actions": {
     "modify": "Chỉnh sửa",

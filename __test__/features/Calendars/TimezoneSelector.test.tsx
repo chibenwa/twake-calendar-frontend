@@ -40,6 +40,26 @@ describe('TimezoneSelector', () => {
     })
   })
 
+  it('translates the search field placeholder and name', async () => {
+    renderWithProviders(
+      <TimezoneSelector
+        referenceDate={new Date()}
+        value="Europe/Paris"
+        onChange={mockOnChange}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button'))
+
+    const autocomplete = await screen.findByRole('combobox', {
+      name: 'event.form.timezonePlaceholder'
+    })
+    expect(autocomplete).toHaveAttribute(
+      'placeholder',
+      'event.form.timezonePlaceholder'
+    )
+  })
+
   it('calls onChange when a new timezone is selected', async () => {
     renderWithProviders(
       <TimezoneSelector
