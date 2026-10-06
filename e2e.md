@@ -647,6 +647,8 @@ day, 23:45) — 48 tests.
 - [x] `TZ-21` A range selected in a grid far ahead of the browser (UTC+13) is created where it was selected ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
 - [x] `TZ-22` Editing the end of such a selection keeps the draft of the grid on the edited slot ([#1398](https://github.com/linagora/twake-calendar-frontend/issues/1398))
 - [x] `TZ-23` A browser sitting elsewhere runs the calendar, and writes its events, in the detected timezone
+- [x] `TZ-24` Editing an event written in another zone than the grid keeps its zone ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
+- [x] `TZ-25` Editing an event written in another zone than the grid can change its zone ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
 
 ## DND — Drag, drop and resize (14)
 
@@ -664,6 +666,8 @@ day, 23:45) — 48 tests.
 - [x] `DND-14` Dragging in the month view changes the date without touching the time
 - [x] `DND-15` Dragging a range opens the prefilled creation form
 - [x] `DND-16` A drag followed by a reload shows the same position
+- [x] `DND-19` A drag keeps the timezone of an event written in another zone than the grid ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
+- [x] `DND-20` A resize keeps the timezone of an event written in another zone than the grid ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
 
 ## DEEP — Deep links (10)
 

@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -42,6 +45,9 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 class DragAndDropTest extends TwakeCalendarE2ETest {
 
     private static final String SHANGHAI = "Asia/Shanghai";
+    private static final String TOKYO = "Asia/Tokyo";
+    private static final DateTimeFormatter HH_MM = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter SLOT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     private static String uniqueTitle(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
@@ -360,6 +366,60 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
             assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T120000");
             assertThat(endTimeOf(calendar, title)).isEqualTo("12:00");
             assertThat(startTimeOf(calendar, title)).isEqualTo("09:00");
+        });
+    }
+
+    /** Creates a Tokyo event of the day, from a grid that stays in the zone of the browser. */
+    private String aTokyoEventAt(CalendarPage calendar, String prefix, LocalTime from, LocalTime to) {
+        String title = uniqueTitle(prefix);
+        calendar.createEvent().title(title).expand()
+            .timezone(TOKYO).startTime(from.format(HH_MM)).endTime(to.format(HH_MM)).save();
+        awaitAttached(calendar.eventCard(title));
+        return title;
+    }
+
+    /** The slot of the grid, in the zone of the browser, showing a Tokyo time of the day. */
+    private static String gridSlotOf(LocalTime tokyoTime) {
+        return ZonedDateTime.of(E2EClock.today(), tokyoTime, ZoneId.of(TOKYO))
+            .withZoneSameInstant(E2EClock.BROWSER_ZONE)
+            .toLocalTime()
+            .format(SLOT);
+    }
+
+    @Test
+    @DisplayName("DND-19 A drag keeps the timezone of an event written in another zone than the grid")
+    void aDragKeepsTheTimezoneOfTheEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = aTokyoEventAt(calendar, "Tokyo drag",
+            LocalTime.of(18, 0), LocalTime.of(19, 0));
+
+        calendar.dragEventToSlot(title, E2EClock.today(), gridSlotOf(LocalTime.of(21, 0)));
+
+        // the dropped event used to be written again in the zone of the grid
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=" + TOKYO);
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T210000");
+            assertThat(startTimeOf(calendar, title)).isEqualTo("21:00");
+        });
+    }
+
+    @Test
+    @DisplayName("DND-20 A resize keeps the timezone of an event written in another zone than the grid")
+    void aResizeKeepsTheTimezoneOfTheEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = aTokyoEventAt(calendar, "Tokyo resize",
+            LocalTime.of(18, 0), LocalTime.of(19, 0));
+
+        calendar.resizeEventEndTo(title, gridSlotOf(LocalTime.of(21, 0)));
+
+        Awaitility.await().atMost(Duration.ofSeconds(20)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=" + TOKYO);
+            assertThat(Ics.parameters(event, "DTEND")).contains("TZID=" + TOKYO);
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T180000");
+            assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T210000");
+            assertThat(endTimeOf(calendar, title)).isEqualTo("21:00");
         });
     }
 }

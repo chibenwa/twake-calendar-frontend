@@ -320,6 +320,50 @@ class TimezonesTest extends TwakeCalendarE2ETest {
             .contains("TZID=Asia/Tokyo");
     }
 
+    /** A Tokyo event of the day, created from the Paris grid of the suite. */
+    private String aTokyoEvent(CalendarPage calendar, CalendarProbe probe, E2EUser user, String prefix) {
+        String title = title(prefix);
+        calendar.createEvent().title(title).expand()
+            .timezone("Asia/Tokyo").startTime("18:00").endTime("19:00").save();
+        awaitAttached(calendar.eventCard(title));
+        awaitStored(probe, user, title);
+        return title;
+    }
+
+    @Test
+    @DisplayName("TZ-24 Editing an event written in another zone than the grid keeps its zone")
+    void editingKeepsTheTimezoneOfTheEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = aTokyoEvent(calendar, probe, user, "Tokyo edit");
+
+        var form = calendar.openEvent(title).edit().expand();
+        assertThat(form.timezone()).contains("Asia/Tokyo");
+        form.endTime("20:00").save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.property(event, "DTEND").orElseThrow()).endsWith("T200000");
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=Asia/Tokyo");
+            assertThat(Ics.parameters(event, "DTEND")).contains("TZID=Asia/Tokyo");
+            assertThat(Ics.property(event, "DTSTART").orElseThrow()).endsWith("T180000");
+        });
+    }
+
+    @Test
+    @DisplayName("TZ-25 Editing an event written in another zone than the grid can change its zone")
+    void editingCanChangeTheTimezoneOfTheEvent(Page page, E2EUser user, CalendarProbe probe) {
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String title = aTokyoEvent(calendar, probe, user, "Tokyo to New York");
+
+        calendar.openEvent(title).edit().expand().timezone("America/New_York").save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            String event = Ics.event(probe.singleEvent(user));
+            assertThat(Ics.parameters(event, "DTSTART")).contains("TZID=America/New_York");
+            assertThat(Ics.parameters(event, "DTEND")).contains("TZID=America/New_York");
+        });
+    }
+
     @Test
     @DisplayName("TZ-16 The banner offers to switch when the detected zone differs from the configured one")
     void theBannerOffersToSwitch(Page page, E2EUser user, RuntimeConfig config) {

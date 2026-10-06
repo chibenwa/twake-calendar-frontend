@@ -51,25 +51,26 @@ function resolveTimezoneFromVTimezone(
   return resolveTimezoneId(tzidProp[3] as string) ?? undefined
 }
 
-function resolveTimezoneFromDtstart(
+function findDtstart(
   targetVevent: VCalComponent
-): string | undefined {
-  const dtstartProp = (targetVevent[1] as VObjectProperty[]).find(
+): VObjectProperty | undefined {
+  return (targetVevent[1] as VObjectProperty[]).find(
     ([k]) => k.toLowerCase() === 'dtstart'
   )
-  const dtstartParams = dtstartProp?.[1] as Record<string, string> | undefined
-  const dtstartValue = dtstartProp?.[3]
+}
 
-  const tzParam = getTimeZone(dtstartParams)
+function resolveTimezoneFromDtstartTzid(
+  targetVevent: VCalComponent
+): string | undefined {
+  const dtstart = findDtstart(targetVevent)
+  return resolveTimezoneId(
+    getTimeZone(dtstart?.[1] as Record<string, string> | undefined)
+  )
+}
 
-  const resolved = resolveTimezoneId(tzParam)
-  if (resolved) {
-    return resolved
-  }
-  if (typeof dtstartValue === 'string' && dtstartValue.endsWith('Z')) {
-    return 'UTC'
-  }
-  return undefined
+function isUtcDtstart(targetVevent: VCalComponent): boolean {
+  const dtstartValue = findDtstart(targetVevent)?.[3]
+  return typeof dtstartValue === 'string' && dtstartValue.endsWith('Z')
 }
 
 function getTimeZone(
@@ -119,8 +120,14 @@ export function parseFetchedEvent(
     return event
   }
 
+  // The TZID of DTSTART is the zone the event is written in, and wins over the
+  // first VTIMEZONE of the object: a calendar object may bundle several, the
+  // first one being another zone than the one of the event. Reading that one
+  // made a drag and drop rewrite the event in it (#1547), where the grid and
+  // the form, which trust DTSTART first, kept the zone of the event.
+  const timezoneFromDtstart = resolveTimezoneFromDtstartTzid(targetVevent)
   const timezoneFromVTimezone = resolveTimezoneFromVTimezone(vtimezones)
-  const timezoneFromDtstart = resolveTimezoneFromDtstart(targetVevent)
+  const timezoneFromUtcValue = isUtcDtstart(targetVevent) ? 'UTC' : undefined
 
   const eventjson = parseCalendarEvent({
     data: targetVevent[1] as VObjectProperty[],
@@ -131,7 +138,11 @@ export function parseFetchedEvent(
   })
 
   const finalTimezone =
-    timezoneFromVTimezone ?? timezoneFromDtstart ?? eventjson.timezone ?? 'UTC'
+    timezoneFromDtstart ??
+    timezoneFromVTimezone ??
+    timezoneFromUtcValue ??
+    eventjson.timezone ??
+    'UTC'
 
   eventjson.timezone = finalTimezone
   applyTimezoneToDateFields(eventjson, finalTimezone)

@@ -715,5 +715,83 @@ describe('CalendarApp integration', () => {
       expect(updatedEvent.end).toBe('2025-11-14T16:31:00.000Z')
       expect(updatedEvent.timezone).toBe('Asia/Shanghai')
     })
+
+    it('keeps the zone of DTSTART when the event bundles the zone of the grid first', async () => {
+      const mockDispatch = jest.fn().mockReturnValue(
+        Object.assign(Promise.resolve({}), {
+          unwrap: () => Promise.resolve({})
+        })
+      ) as unknown as AppDispatch
+
+      const updateSpy = jest
+        .spyOn(eventThunks, 'putEvent')
+        .mockImplementation(payload => {
+          const promise = Promise.resolve(payload)
+          ;(promise as any).unwrap = () => promise
+          return () => promise as any
+        })
+
+      jest
+        .spyOn(EventDao, 'fetchEvent')
+        .mockImplementation(async event =>
+          jCalFromIcs(
+            [
+              'BEGIN:VCALENDAR',
+              'VERSION:2.0',
+              'BEGIN:VTIMEZONE',
+              'TZID:Europe/Paris',
+              'BEGIN:STANDARD',
+              'TZOFFSETFROM:+0100',
+              'TZOFFSETTO:+0100',
+              'DTSTART:19700101T000000',
+              'END:STANDARD',
+              'END:VTIMEZONE',
+              'BEGIN:VTIMEZONE',
+              'TZID:Asia/Tokyo',
+              'BEGIN:STANDARD',
+              'TZOFFSETFROM:+0900',
+              'TZOFFSETTO:+0900',
+              'DTSTART:19700101T000000',
+              'END:STANDARD',
+              'END:VTIMEZONE',
+              'BEGIN:VEVENT',
+              `UID:${event.uid}`,
+              'SUMMARY:Tokyo',
+              'DTSTART;TZID=Asia/Tokyo:20251114T193100',
+              'DTEND;TZID=Asia/Tokyo:20251114T203100',
+              'END:VEVENT',
+              'END:VCALENDAR'
+            ].join('\r\n')
+          )
+        )
+
+      const eventHandlers = createEventHandlers({
+        setSelectedRange: jest.fn(),
+        setOpenEventDisplay: jest.fn(),
+        dispatch: mockDispatch,
+        setEventDisplayedId: jest.fn(),
+        setEventDisplayedCalId: jest.fn(),
+        setEventDisplayedTemp: jest.fn(),
+        calendars: preloadedState.calendars.list,
+        setSelectedEvent: jest.fn(),
+        setAfterChoiceFunc: jest.fn(),
+        setOpenEditModePopup: jest.fn(),
+        timezone: 'Europe/Paris'
+      } as unknown as EventHandlersProps)
+
+      await eventHandlers.handleEventDrop({
+        event: {
+          extendedProps: {
+            uid: 'event1',
+            calId: '667037022b752d0026472254/cal1'
+          }
+        },
+        delta: { years: 0, months: 0, days: 0, milliseconds: 3600000 }
+      } as any)
+
+      const updatedEvent = updateSpy.mock.calls[0][0].newEvent
+      // the first VTIMEZONE is the one of the grid, not the one of the event
+      expect(updatedEvent.timezone).toBe('Asia/Tokyo')
+    })
   })
 })
