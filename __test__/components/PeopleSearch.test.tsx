@@ -1,5 +1,6 @@
 import { PeopleSearch } from '@common/components/Attendees/PeopleSearch'
 import { User } from '@common/components/Attendees/types'
+import { dedupeByEmail } from '@common/components/Attendees/usePeopleSearchState'
 import { SearchResponseItem } from '@common/types/SearchResponseItem'
 import { searchPeople } from '@common/features/User/UserDao'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
@@ -453,6 +454,27 @@ describe('PeopleSearch', () => {
       expect(input).toHaveValue('')
     })
 
+    it('does not add an email differing only by case on paste', async () => {
+      const existing: User = {
+        email: 'Already@Example.com',
+        displayName: 'Already Present'
+      }
+      const { onChange } = setup([existing], {
+        freeSolo: true,
+        enableEmailAutocompleteAndCommit: true
+      })
+      const input = screen.getByRole('combobox')
+
+      fireEvent.paste(input, {
+        clipboardData: {
+          getData: () => 'already@example.com'
+        }
+      })
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(input).toHaveValue('')
+    })
+
     it('does not add invalid single email on paste even with enableEmailAutocompleteAndCommit', async () => {
       const { onChange } = setup([], {
         freeSolo: true,
@@ -532,6 +554,62 @@ describe('PeopleSearch', () => {
         ])
       )
       expect(input).toHaveValue('')
+    })
+
+    it('does not add an email differing only by case when space is pressed', async () => {
+      const existing: User = {
+        email: 'bob@open-paas.org',
+        displayName: 'bob@open-paas.org'
+      }
+      const { onChange } = setup([existing], {
+        enableEmailAutocompleteAndCommit: true
+      })
+
+      const input = screen.getByRole('combobox')
+      await userEvent.type(input, 'BOB@Open-Paas.org')
+
+      fireEvent.keyDown(input, { key: ' ' })
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(input).toHaveValue('')
+    })
+
+    it('does not add an email differing only by case when Enter is pressed', async () => {
+      mockedSearchUsers.mockResolvedValue([])
+      const existing: User = {
+        email: 'bob@open-paas.org',
+        displayName: 'bob@open-paas.org'
+      }
+      const { onChange } = setup([existing], {
+        freeSolo: true,
+        enableEmailAutocompleteAndCommit: true
+      })
+
+      const input = screen.getByRole('combobox')
+      await userEvent.type(input, 'BOB@Open-Paas.org')
+      await act(async () => {
+        jest.advanceTimersByTime(300)
+      })
+
+      fireEvent.keyDown(input, { key: 'Enter' })
+
+      onChange.mock.calls.forEach(([, users]) => {
+        expect(users).toEqual([existing])
+      })
+    })
+
+    it('dedupes emails differing only by case, keeping the first one', () => {
+      const existing: User = {
+        email: 'bob@open-paas.org',
+        displayName: 'Bob'
+      }
+
+      expect(
+        dedupeByEmail([
+          existing,
+          { email: 'BOB@Open-Paas.org', displayName: 'BOB@Open-Paas.org' }
+        ])
+      ).toEqual([existing])
     })
 
     it('does not add email or clear input on space key if enableEmailAutocompleteAndCommit is false', async () => {

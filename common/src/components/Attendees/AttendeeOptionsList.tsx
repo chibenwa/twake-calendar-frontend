@@ -3,6 +3,7 @@ import React, { HTMLAttributes } from 'react'
 import { Typography, Box } from '@linagora/twake-mui'
 import { AttendeeAvatar } from './AttendeeAvatar'
 import { User } from './types'
+import { EmailAddress } from '@common/types/EmailAddress'
 import { useI18n } from 'twake-i18n'
 
 export interface AttendeeOptionsListProps extends HTMLAttributes<HTMLLIElement> {
@@ -21,7 +22,9 @@ export const AttendeeOptionsList: React.FC<AttendeeOptionsListProps> = ({
   return (
     <>
       {options.map(option => {
-        const isSelected = !!selectedUsers.find(u => u.email === option.email)
+        const isSelected = !!selectedUsers.find(u =>
+          EmailAddress.sameAddress(u.email, option.email)
+        )
         const isNotShowEmail = ['resource', 'team-calendar'].includes(
           option.objectType || ''
         )

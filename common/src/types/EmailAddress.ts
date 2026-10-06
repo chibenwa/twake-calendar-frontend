@@ -16,4 +16,8 @@ export class EmailAddress {
   toString(): string {
     return this.value
   }
+
+  static sameAddress(a: string, b: string): boolean {
+    return a.trim().toLowerCase() === b.trim().toLowerCase()
+  }
 }

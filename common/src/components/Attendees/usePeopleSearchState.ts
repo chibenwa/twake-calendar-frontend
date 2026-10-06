@@ -228,7 +228,10 @@ export const normaliseUser = (v: string | User): User =>
   typeof v === 'string' ? { email: v.trim(), displayName: v.trim() } : v
 
 export const dedupeByEmail = (users: User[]): User[] =>
-  users.filter((u, i, arr) => arr.findIndex(x => x.email === u.email) === i)
+  users.filter(
+    (u, i, arr) =>
+      arr.findIndex(x => EmailAddress.sameAddress(x.email, u.email)) === i
+  )
 
 interface ValidateUserResult {
   error: string | null
@@ -251,7 +254,7 @@ const validateAndAddUser = (
       shouldClearQuery: false
     }
   }
-  if (selectedUsers.some(u => u.email === email.value)) {
+  if (selectedUsers.some(u => EmailAddress.sameAddress(u.email, email.value))) {
     return { error: null, shouldClearQuery: true }
   }
   const newUser: User = { email: email.value, displayName: email.value }
@@ -402,7 +405,8 @@ const useDisplayOptions = ({
 
     if (!showWarningOnDuplicate) {
       baseOptions = baseOptions.filter(
-        opt => !selectedUsers.find(u => u.email === opt.email)
+        opt =>
+          !selectedUsers.some(u => EmailAddress.sameAddress(u.email, opt.email))
       )
     }
 
