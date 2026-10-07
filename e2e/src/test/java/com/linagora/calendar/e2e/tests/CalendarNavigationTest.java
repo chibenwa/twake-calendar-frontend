@@ -23,9 +23,12 @@ import com.linagora.calendar.e2e.docker.E2EClock;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 
 class CalendarNavigationTest extends TwakeCalendarE2ETest {
+    private static final LocatorAssertions.IsAttachedOptions PATIENTLY =
+        new LocatorAssertions.IsAttachedOptions().setTimeout(20_000);
 
     @Test
     @DisplayName("NAV-01 Next moves the week view to the following week")
@@ -124,14 +127,19 @@ class CalendarNavigationTest extends TwakeCalendarE2ETest {
     @DisplayName("NAV-08 Next from the day view moves forward one day")
     void nextFromDayMovesForwardOneDay(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
+        LocalDate today = E2EClock.today();
         calendar.switchView("Day");
-        List<String> today = calendar.visibleDayHeaders();
+        // the headers are read once the grid shows the day view, not while it still shows the week
+        PlaywrightAssertions.assertThat(page.locator(".fc-timeGridDay-view")).isAttached(PATIENTLY);
+        PlaywrightAssertions.assertThat(calendar.dayColumn(today).first()).isAttached(PATIENTLY);
+        List<String> todayHeaders = calendar.visibleDayHeaders();
 
         calendar.next();
 
-        assertThat(calendar.visibleDayHeaders()).hasSize(1).isNotEqualTo(today);
-        PlaywrightAssertions.assertThat(calendar.dayColumn(E2EClock.today().plusDays(1)).first())
-            .isAttached();
+        // and again once the grid has moved, not on the day it is leaving
+        PlaywrightAssertions.assertThat(calendar.dayColumn(today.plusDays(1)).first())
+            .isAttached(PATIENTLY);
+        assertThat(calendar.visibleDayHeaders()).hasSize(1).isNotEqualTo(todayHeaders);
     }
 
     @Test
