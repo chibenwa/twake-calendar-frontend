@@ -240,23 +240,25 @@ public class EventFormModal {
     }
 
     public EventFormModal timezone(String timezone) {
+        // the picker shows "America/New York" for America/New_York: type and match what it shows
+        String shown = timezone.replace('_', ' ');
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
                 // fill() does not reach the MUI autocomplete filter, its value is controlled:
                 // type it out instead
                 timezoneInput().click();
                 timezoneInput().fill("");
-                timezoneInput().pressSequentially(timezone,
+                timezoneInput().pressSequentially(shown,
                     new Locator.PressSequentiallyOptions().setDelay(40));
                 // wait for the option that matches what was typed, never for the first one to
                 // hand: under load the list is still showing the previous filter for a moment,
                 // and clicking it picks a zone nobody asked for
                 Locator wanted = page.locator("li[role=option]")
-                    .filter(new Locator.FilterOptions().setHasText(timezone));
+                    .filter(new Locator.FilterOptions().setHasText(shown));
                 wanted.first().waitFor(new Locator.WaitForOptions().setTimeout(15_000));
                 wanted.first().click();
                 awaitNoOverlay();
-                if (timezoneInput().inputValue().contains(timezone)) {
+                if (timezoneInput().inputValue().contains(shown)) {
                     return this;
                 }
             } catch (com.microsoft.playwright.TimeoutError retry) {

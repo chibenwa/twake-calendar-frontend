@@ -51,9 +51,7 @@ function resolveTimezoneFromVTimezone(
   return resolveTimezoneId(tzidProp[3] as string) ?? undefined
 }
 
-function findDtstart(
-  targetVevent: VCalComponent
-): VObjectProperty | undefined {
+function findDtstart(targetVevent: VCalComponent): VObjectProperty | undefined {
   return (targetVevent[1] as VObjectProperty[]).find(
     ([k]) => k.toLowerCase() === 'dtstart'
   )
