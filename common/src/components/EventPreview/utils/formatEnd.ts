@@ -1,3 +1,5 @@
+import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
+
 interface FormatEndParams {
   start: Date | string
   end: Date | string
@@ -16,8 +18,7 @@ export function formatEnd({
   const startDate = new Date(start)
   const endDate = new Date(end)
 
-  const formatDatePart = (d: Date): string =>
-    d.toLocaleDateString('en-CA', { timeZone }) // YYYY-MM-DD format
+  const formatDatePart = (d: Date): string => formatDateInTimezone(d, timeZone)
   if (allday) {
     const inclusiveEndDate = new Date(endDate)
     inclusiveEndDate.setDate(inclusiveEndDate.getDate() - 1)

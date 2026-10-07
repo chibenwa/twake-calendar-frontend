@@ -1,3 +1,4 @@
+import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { stringAvatar } from '@common/components/Event/utils/eventUtils'
 import Tooltip from '@common/components/Tooltip'
 import { EventDescriptionBuilder } from '@common/utils/EventDescriptionBuilder'
@@ -65,13 +66,7 @@ export const RenderDate: React.FC<DateProps> = ({
   timeZone
 }) => {
   const lastDay = lastDayOf(startDate, endDate, allDay)
-  const dayKey = (d: Date): string =>
-    d.toLocaleDateString('en-CA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      timeZone
-    })
+  const dayKey = (d: Date): string => formatDateInTimezone(d, timeZone)
   return (
     <Typography sx={{ fontSize: '22px', minWidth: '90px' }}>
       {startDate.toLocaleDateString(t('locale'), {

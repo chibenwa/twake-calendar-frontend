@@ -15,6 +15,7 @@ import { useI18n } from 'twake-i18n'
 import { useBookingData } from './hooks/useBookingData'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
+import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { BookingErrorBoundary } from './components/BookingErrorBoundary'
 
 export const BookingPage: React.FC = () => {
@@ -54,11 +55,6 @@ export const BookingPage: React.FC = () => {
   const [nowMs] = useState(Date.now)
   const [submitError, setSubmitError] = useState<number | string | null>(null)
 
-  const tzFormatter = useMemo(
-    () => new Intl.DateTimeFormat('en-CA', { timeZone: selectedTimezone }),
-    [selectedTimezone]
-  )
-
   // Group slots by calendar day for quick lookup when rendering the grid
   const slotsByDay = useMemo(() => {
     const map = new Map<string, Slot[]>()
@@ -66,13 +62,13 @@ export const BookingPage: React.FC = () => {
       if (new Date(slot.start).getTime() < nowMs) {
         return
       }
-      const key = tzFormatter.format(new Date(slot.start))
+      const key = formatDateInTimezone(new Date(slot.start), selectedTimezone)
       const existing = map.get(key) ?? []
       existing.push(slot)
       map.set(key, existing)
     })
     return map
-  }, [slots, tzFormatter, nowMs])
+  }, [slots, selectedTimezone, nowMs])
 
   const availableDays = useMemo(() => new Set(slotsByDay.keys()), [slotsByDay])
 

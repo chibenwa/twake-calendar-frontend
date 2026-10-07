@@ -25,23 +25,64 @@ export function formatLocalDateTime(date: Date, timeZone?: string): string {
   }
 
   if (timeZone) {
-    const formatter = new Intl.DateTimeFormat('en-CA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone
-    })
-    const formatted = formatter.format(date)
-    return formatted.replace(', ', 'T')
+    return formatDateTimePartsInTimezone(date, timeZone)
   }
 
   const pad = (n: number): string => n.toString().padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
     date.getDate()
   )}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+/**
+ * Read the numeric date/time fields of a Date as seen in a timezone.
+ * Relies on formatToParts: the layout returned by format() depends on the
+ * engine's CLDR data (WebKit renders 'en-CA' as MM/DD/YYYY), so it must
+ * never be parsed.
+ */
+function getDateTimePartsInTimezone(
+  date: Date,
+  timeZone: string
+): Record<'year' | 'month' | 'day' | 'hour' | 'minute', string> {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(date)
+  const getValue = (type: Intl.DateTimeFormatPartTypes): string =>
+    parts.find(p => p.type === type)?.value || ''
+
+  return {
+    year: getValue('year'),
+    month: getValue('month'),
+    day: getValue('day'),
+    // Some engines still render midnight as 24 despite hourCycle h23
+    hour: getValue('hour') === '24' ? '00' : getValue('hour'),
+    minute: getValue('minute')
+  }
+}
+
+function formatDateTimePartsInTimezone(date: Date, timeZone: string): string {
+  const { year, month, day, hour, minute } = getDateTimePartsInTimezone(
+    date,
+    timeZone
+  )
+  return `${year}-${month}-${day}T${hour}:${minute}`
+}
+
+/**
+ * Format the calendar day of a Date as seen in a timezone
+ * @param date - Date object to format
+ * @param timeZone - Target timezone
+ * @returns Formatted date string (YYYY-MM-DD)
+ */
+export function formatDateInTimezone(date: Date, timeZone: string): string {
+  const { year, month, day } = getDateTimePartsInTimezone(date, timeZone)
+  return `${year}-${month}-${day}`
 }
 
 /**
@@ -54,25 +95,7 @@ export function formatDateTimeInTimezone(
   isoString: string,
   timezone: string
 ): string {
-  // Parse the ISO string as UTC
-  const utcDate = new Date(isoString)
-
-  // Format the date in the target timezone
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
-
-  const parts = formatter.formatToParts(utcDate)
-  const getValue = (type: string): string =>
-    parts.find(p => p.type === type)?.value || ''
-
-  return `${getValue('year')}-${getValue('month')}-${getValue('day')}T${getValue('hour')}:${getValue('minute')}`
+  return formatDateTimePartsInTimezone(new Date(isoString), timezone)
 }
 
 /**

@@ -8,6 +8,7 @@ import React, { useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { BookingOwnerDisplay } from '@/components/Booking/BookingHeader/BookingOwnerInfo'
 import { StaticDateTimeSummary } from './StaticDateTimeSummary'
+import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { ResponsiveDialog } from '@common/components/Dialog'
 
 interface BookingConfirmDialogProps {
@@ -41,9 +42,6 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
       start.getTime() + (bookingInfo?.durationMinutes ?? 30) * 60000
     )
 
-    const dateFmt = new Intl.DateTimeFormat('en-CA', {
-      timeZone: selectedTimezone
-    })
     const timeFmt = new Intl.DateTimeFormat('en-GB', {
       timeZone: selectedTimezone,
       hour: '2-digit',
@@ -51,9 +49,9 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
       hour12: false
     })
 
-    startDateStr = dateFmt.format(start)
+    startDateStr = formatDateInTimezone(start, selectedTimezone)
     startTimeStr = timeFmt.format(start)
-    endDateStr = dateFmt.format(end)
+    endDateStr = formatDateInTimezone(end, selectedTimezone)
     endTimeStr = timeFmt.format(end)
   }
 
