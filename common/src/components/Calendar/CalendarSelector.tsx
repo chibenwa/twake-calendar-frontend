@@ -1,7 +1,15 @@
 import React, { useRef } from 'react'
 import { useAppSelector } from '@common/app/hooks'
 import { useUserPersonalCalendars } from '@common/features/Calendars/hooks/useUserPersonalCalendars'
-import { InputLabel, MenuItem, Select, Typography } from '@linagora/twake-mui'
+import {
+  InputLabel,
+  List,
+  ListItemButton,
+  ListItemText,
+  MenuItem,
+  Select,
+  Typography
+} from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { CalendarItemList } from './CalendarItemList'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
@@ -49,13 +57,24 @@ export const CalendarSelector: React.FC<{
             ) : null
           }
         >
-          <MenuItem
-            value="new"
-            onClick={() => handleMobileSelectCalendar('new')}
-          >
-            {t('calendar.new_calendar')}
-          </MenuItem>
-          {CalendarItemList(writableCalendars, handleMobileSelectCalendar)}
+          {/* A bottom sheet is not a Menu: MenuItems would throw in there */}
+          <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
+            <ListItemButton
+              selected={importTarget === 'new'}
+              onClick={() => handleMobileSelectCalendar('new')}
+            >
+              <ListItemText primary={t('calendar.new_calendar')} />
+            </ListItemButton>
+            {writableCalendars.map(calendar => (
+              <ListItemButton
+                key={calendar.id}
+                selected={importTarget === calendar.id}
+                onClick={() => handleMobileSelectCalendar(calendar.id)}
+              >
+                <CalendarName calendar={calendar} />
+              </ListItemButton>
+            ))}
+          </List>
         </MobileSelector>
       </>
     )
