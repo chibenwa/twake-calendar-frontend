@@ -69,7 +69,8 @@ describe('parseCalendarEvent', () => {
 
     expect(result.organizer).toEqual({
       cn: 'Alice',
-      cal_address: 'alice@example.com'
+      cal_address: 'alice@example.com',
+      paramOrder: ['cn']
     })
 
     expect(result.attendee).toEqual([
@@ -143,7 +144,8 @@ describe('parseCalendarEvent', () => {
 
     expect(result.organizer).toEqual({
       cn: 'Alice',
-      cal_address: 'alice@example.com'
+      cal_address: 'alice@example.com',
+      paramOrder: ['cn']
     })
 
     expect(result.attendee).toEqual([
@@ -205,7 +207,8 @@ describe('parseCalendarEvent', () => {
 
     expect(result.organizer).toEqual({
       cn: 'Alice',
-      cal_address: 'alice@example.com'
+      cal_address: 'alice@example.com',
+      paramOrder: ['cn']
     })
 
     expect(result.attendee).toEqual([
