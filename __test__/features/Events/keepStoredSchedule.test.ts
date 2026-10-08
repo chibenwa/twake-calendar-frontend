@@ -3,7 +3,11 @@ import { fetchEvent } from '@common/features/Events/EventDao'
 import { keepStoredSchedule } from '@common/features/Events/keepStoredSchedule'
 import { CalendarEvent } from '@common/types/EventsTypes'
 
-jest.mock('@common/features/Events/EventDao')
+// A factory keeps the real DAO out: its api client reads `window` on import,
+// which the node test environment does not provide
+jest.mock('@common/features/Events/EventDao', () => ({
+  fetchEvent: jest.fn()
+}))
 
 const mockedFetchEvent = fetchEvent as jest.MockedFunction<typeof fetchEvent>
 
