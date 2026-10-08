@@ -1,7 +1,7 @@
 import { useAppDispatch } from '@common/app/hooks'
 import { setView } from '@common/features/Settings/SettingsSlice'
+import { logOut } from '@common/features/User/logOut'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
-import { logOut } from '@linagora/twake-oidc'
 import { useEffect, useState } from 'react'
 
 export const useUtilMenus = (): {

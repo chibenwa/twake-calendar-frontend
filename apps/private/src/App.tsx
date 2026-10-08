@@ -21,7 +21,7 @@ import { default as NewEventDeepLink } from '@common/features/Events/NewEventDee
 import { CallbackResume } from '@/features/User/LoginCallback'
 import { useInitializeApp } from '@common/features/User/useInitializeApp'
 import { redirectTo } from '@common/utils/navigation'
-import { onSessionEndedElsewhere } from '@linagora/twake-oidc'
+import { onSessionEndedElsewhere } from '@common/features/User/logOut'
 import { WebSocketGate } from '@common/websocket/WebSocketGate'
 import { makeCalendarOverrides } from '@common/theme/makeCalendarOverrides'
 
