@@ -13,11 +13,15 @@ import {
 let loggingOutHere = false
 
 /**
- * Ends the session here and on the SSO, then leaves the application.
+ * Ends the session here and on the SSO, then leaves the application. When
+ * that fails, the announcements of other tabs are followed again.
  */
 export function logOut(): Promise<void> {
   loggingOutHere = true
-  return endSession()
+  return endSession().catch((error: unknown) => {
+    loggingOutHere = false
+    throw error
+  })
 }
 
 /**

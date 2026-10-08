@@ -48,6 +48,18 @@ describe('logOut', () => {
     expect(onEnded).not.toHaveBeenCalled()
   })
 
+  it('follows other tabs again when this logout fails', async () => {
+    const failure = new Error('BroadcastChannel closed')
+    ;(endSession as jest.Mock).mockReturnValueOnce(Promise.reject(failure))
+    const onEnded = jest.fn()
+    onSessionEndedElsewhere(onEnded)
+
+    await expect(logOut()).rejects.toBe(failure)
+    announceSessionEnded()
+
+    expect(onEnded).toHaveBeenCalledTimes(1)
+  })
+
   it('returns the function that stops listening', () => {
     const stopListening = jest.fn()
     ;(onSessionEnded as jest.Mock).mockReturnValueOnce(stopListening)
