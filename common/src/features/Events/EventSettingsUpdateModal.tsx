@@ -15,6 +15,7 @@ import { userAttendee } from '../User/models/attendee'
 import moment from 'moment'
 import { formatLocalDateTime } from '@common/components/Event/utils/dateTimeFormatters'
 import { EventFormValues } from '@common/components/Event/EventFormFields.types'
+import { keepStoredSchedule } from './keepStoredSchedule'
 
 export interface EventSettingsUpdateModalProps {
   eventId: string
@@ -162,7 +163,11 @@ const EventSettingsUpdateModalInternal: React.FC<
       typeOfAction
     })
 
-    await handleSubmit(valuesWithMergedAlarms)
+    await handleSubmit(
+      typeOfAction !== 'all'
+        ? await keepStoredSchedule(valuesWithMergedAlarms, originalEvent)
+        : valuesWithMergedAlarms
+    )
   }, [
     handleSubmit,
     formValues,
