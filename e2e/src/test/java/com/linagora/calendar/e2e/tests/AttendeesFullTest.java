@@ -400,4 +400,41 @@ class AttendeesFullTest extends TwakeCalendarE2ETest {
         PlaywrightAssertions.assertThat(guestCalendar.eventCard(title).first())
             .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(45_000));
     }
+
+    @Test
+    @DisplayName("ATT-21 A guest in another timezone can save their personal event settings (#1562)")
+    void aGuestInAnotherTimezoneCanSaveTheirPersonalSettings(Page page, E2EUser organizer, E2EUserFactory users,
+                                                             E2ESessions sessions, CalendarProbe probe) {
+        E2EUser guest = users.newUser();
+        CalendarPage tokyo = sessions.openFor(guest, "Asia/Tokyo");
+        tokyo.openSettings().selectTimezone("Asia/Tokyo").backToCalendar();
+        CalendarPage paris = LoginPage.loginAs(page, organizer);
+        String title = title("Elsewhere");
+        paris.createEvent().title(title).addGuest(guest.email()).save();
+        awaitAttached(paris.eventCard(title));
+        String organizerStart = startLine(probe.singleEvent(organizer));
+
+        tokyo.reload();
+        awaitAttached(tokyo.eventCard(title));
+        // the grid holds the event in Tokyo time: the save must not write that zone back,
+        // Sabre refuses an attendee any change of DTSTART
+        tokyo.openEvent(title).personalSettings().showMeAs("Free").trySave();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(Ics.property(Ics.unfold(probe.singleEvent(guest)), "TRANSP"))
+                .as("the guest's copy should be saved as free")
+                .contains("TRANSPARENT"));
+        assertThat(tokyo.page().locator("body").innerText())
+            .as("saving personal settings must not be refused by the scheduling plugin")
+            .doesNotContain("403");
+        assertThat(startLine(probe.singleEvent(guest)))
+            .as("the guest's copy keeps the start the organizer wrote, zone included")
+            .isEqualTo(organizerStart)
+            .contains("TZID=Europe/Paris");
+    }
+
+    private static String startLine(String ical) {
+        String event = Ics.event(ical);
+        return Ics.parameters(event, "DTSTART") + ":" + Ics.property(event, "DTSTART").orElseThrow();
+    }
 }

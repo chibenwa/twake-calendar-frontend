@@ -354,6 +354,7 @@ day, 23:45) — 48 tests.
 - [x] `ATT-18` "Show more" expands the full guest list beyond the fold
 - [x] `ATT-19` A guest invited to an event visible to participants only gets it, with its details
 - [x] `ATT-20` A guest added later to an event visible to participants only gets it, with its details
+- [x] `ATT-21` A guest in another timezone can save their personal event settings ([#1562](https://github.com/linagora/twake-calendar-frontend/issues/1562))
 
 ## CAL — Personal calendars (15)
 
