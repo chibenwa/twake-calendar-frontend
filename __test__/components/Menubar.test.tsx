@@ -7,7 +7,7 @@ import { renderWithProviders } from '../utils/Renderwithproviders'
 
 jest.mock('@linagora/twake-oidc', () => ({
   ...jest.requireActual('@linagora/twake-oidc'),
-  logOut: jest.fn()
+  logOut: jest.fn(() => Promise.resolve())
 }))
 
 describe('Calendar App Component Display Tests', () => {
