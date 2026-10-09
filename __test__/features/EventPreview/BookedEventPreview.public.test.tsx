@@ -44,6 +44,10 @@ jest.mock('@public/features/booking/BookingDao', () => ({
   cancelBookedEvent: jest.fn()
 }))
 
+jest.mock('@common/components/Loading/Loading', () => ({
+  Loading: () => null
+}))
+
 jest.mock('@common/components/EventPreview/EventPreviewTitleRow', () => ({
   EventPreviewTitleRow: ({ timezone }: { timezone: string }) => (
     <div data-testid="title-row-timezone">{timezone}</div>
