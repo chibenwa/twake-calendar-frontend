@@ -55,6 +55,7 @@ const MobileSearchBar: React.FC = () => {
               onEnter={() => void handleSearch(query, filters)}
               onClear={() => {
                 setQuery('')
+                setInputQuery('')
                 void handleSearch('', filters)
               }}
             />

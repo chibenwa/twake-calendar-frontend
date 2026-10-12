@@ -51,6 +51,7 @@ export const SearchTextField: React.FC<SearchTextFieldProps> = ({
       }}
       variant="outlined"
       slotProps={{
+        ...params.slotProps,
         input: {
           ...params.slotProps.input,
           startAdornment: (
