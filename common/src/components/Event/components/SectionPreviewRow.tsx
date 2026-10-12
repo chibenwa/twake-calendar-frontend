@@ -7,6 +7,8 @@ export interface SectionPreviewRowProps {
   children: React.ReactNode
   onClick: () => void
   iconColor?: string
+  /** Accessible name of the row, when its text content does not read well. */
+  ariaLabel?: string
 }
 
 /**
@@ -17,7 +19,8 @@ export const SectionPreviewRow: React.FC<SectionPreviewRowProps> = ({
   icon,
   children,
   onClick,
-  iconColor
+  iconColor,
+  ariaLabel
 }) => {
   const theme = useTheme()
   const color = iconColor ?? alpha(theme.palette.grey[900], 0.9)
@@ -33,6 +36,7 @@ export const SectionPreviewRow: React.FC<SectionPreviewRowProps> = ({
     <Box
       role="button"
       tabIndex={0}
+      aria-label={ariaLabel}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       sx={{

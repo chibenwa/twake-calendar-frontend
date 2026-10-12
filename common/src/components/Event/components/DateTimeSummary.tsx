@@ -84,6 +84,15 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
   const timezoneText = formatTimezoneWithOffset(timezone, startDate)
   const repeatText = formatRepeat(repetition)
   const startDateInPast = isDateInPast(startDate)
+  const ariaLabel = [
+    dateText,
+    timeText,
+    timezoneText,
+    repeatText,
+    startDateInPast ? t('event.validation.startDateInPast') : ''
+  ]
+    .filter(Boolean)
+    .join(', ')
 
   // Don't render if no date
   if (!startDate) {
@@ -104,6 +113,7 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
         </Box>
       }
       onClick={onClick}
+      ariaLabel={ariaLabel}
     >
       <Box>
         <Typography component="p" sx={primaryStyle}>
