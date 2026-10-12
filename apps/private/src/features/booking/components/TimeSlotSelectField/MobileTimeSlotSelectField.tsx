@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import {
   ListItemText,
   ListItemButton,
@@ -6,7 +6,10 @@ import {
   List
 } from '@linagora/twake-mui'
 import { TIME_SLOT_OPTIONS, TimeSlotSelectFieldProps } from './index.type'
-import { MobileSelector } from '@common/components/MobileSelector'
+import {
+  MobileSelector,
+  MobileSelectorHandle
+} from '@common/components/MobileSelector'
 import { useI18n } from 'twake-i18n'
 
 export const MobileTimeSlotSelectField: React.FC<TimeSlotSelectFieldProps> = ({
@@ -14,6 +17,12 @@ export const MobileTimeSlotSelectField: React.FC<TimeSlotSelectFieldProps> = ({
   setDuration
 }) => {
   const { t } = useI18n()
+  const selectorRef = useRef<MobileSelectorHandle>(null)
+
+  const handleSelect = (value: number): void => {
+    setDuration(value)
+    selectorRef.current?.onClose()
+  }
 
   const currentLabel = useMemo(() => {
     const selectedOption = TIME_SLOT_OPTIONS.find(
@@ -24,6 +33,7 @@ export const MobileTimeSlotSelectField: React.FC<TimeSlotSelectFieldProps> = ({
 
   return (
     <MobileSelector
+      ref={selectorRef}
       displayText={<span style={{ fontSize: 16 }}>{currentLabel}</span>}
     >
       <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
@@ -32,7 +42,7 @@ export const MobileTimeSlotSelectField: React.FC<TimeSlotSelectFieldProps> = ({
             <ListItemButton
               selected={duration === value}
               aria-selected={duration === value}
-              onClick={() => setDuration(value)}
+              onClick={() => handleSelect(value)}
               sx={{ py: 1 }}
             >
               <ListItemText primary={t(label)} />
