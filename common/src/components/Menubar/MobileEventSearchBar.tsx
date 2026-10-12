@@ -7,6 +7,21 @@ import { useFilterSearch } from './useMobileSearch'
 
 const SEARCH_OBJECT_TYPES = ['user', 'contact']
 
+// The menubar is a single row: keep the Clear button beside the typed text
+// instead of wrapping it onto a second line below the header.
+const SINGLE_LINE_INPUT_STYLES = {
+  '& .MuiAutocomplete-inputRoot.MuiOutlinedInput-root': {
+    py: 0,
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    flexDirection: 'row'
+  },
+  '& .MuiInputBase-input': {
+    maxWidth: 'none'
+  }
+}
+
 const MobileSearchBar: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -41,6 +56,7 @@ const MobileSearchBar: React.FC = () => {
           onSearchStateChange={handleSearchChange}
           objectTypes={SEARCH_OBJECT_TYPES}
           onToggleEventPreview={() => {}}
+          inputStyles={SINGLE_LINE_INPUT_STYLES}
           customRenderInput={(
             params: AutocompleteRenderInputParams,
             query: string,
