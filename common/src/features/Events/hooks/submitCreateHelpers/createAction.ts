@@ -5,6 +5,7 @@ import { resolveEventISORange } from '@common/components/Event/utils/dateRangeUt
 import { putEvent } from '@common/features/Calendars/CalendarSlice'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { eventDavPath } from '@common/features/Calendars/utils/calendarDavPath'
+import { alignStartToWeekdays } from '@common/features/Events/utils/alignStartToWeekdays'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { RepetitionObject } from '@common/types/Repetition'
@@ -37,7 +38,7 @@ function buildAttendees({
 }
 
 export function buildNewEvent({
-  values,
+  values: formValues,
   targetCalendar,
   showMore,
   organizer,
@@ -51,6 +52,7 @@ export function buildNewEvent({
   newEventUID: string
   t?: (key: string) => string
 }): CalendarEvent {
+  const values = alignStartToWeekdays(formValues)
   const { startISO, endISO } = resolveEventISORange({
     start: values.start,
     end: values.end,

@@ -7,6 +7,7 @@ import { buildNewEvent } from '@common/features/Events/hooks/submitCreateHelpers
 import { userAttendee } from '@common/features/User/models/attendee'
 import { userOrganiser } from '@common/features/User/userDataTypes'
 import { Calendar } from '@common/types/CalendarTypes'
+import { CalendarEvent } from '@common/types/EventsTypes'
 import { RepetitionObject } from '@common/types/Repetition'
 import { VAlarm } from '@common/types/VAlarm'
 import { Valarms } from '@common/types/Valarms'
@@ -246,5 +247,73 @@ describe('buildNewEvent - title (#1515)', () => {
     })
 
     expect(newEvent.title).toBe('Standup')
+  })
+})
+
+describe('buildNewEvent - weekly series on chosen weekdays (#1581)', () => {
+  const weeklyOn = (byday: string[]): RepetitionObject =>
+    new RepetitionObject({ freq: 'weekly', interval: 1, occurrences: 6, byday })
+
+  const build = (values: Partial<typeof baseValues>): CalendarEvent =>
+    buildNewEvent({
+      values: { ...baseValues, ...values },
+      targetCalendar: baseCalendar,
+      showMore: true,
+      newEventUID: 'uid',
+      t: (key: string) => key
+    })
+
+  it('moves a Sunday start to the first selected weekday', () => {
+    const newEvent = build({
+      start: '2026-10-11T21:00',
+      end: '2026-10-11T22:00',
+      repetition: weeklyOn(['MO', 'WE', 'FR'])
+    })
+
+    expect(newEvent.start).toBe('2026-10-12T19:00:00.000Z')
+    expect(newEvent.end).toBe('2026-10-12T20:00:00.000Z')
+  })
+
+  it('keeps a start already on a selected weekday', () => {
+    const newEvent = build({
+      start: '2026-10-14T21:00',
+      end: '2026-10-14T22:00',
+      repetition: weeklyOn(['MO', 'WE', 'FR'])
+    })
+
+    expect(newEvent.start).toBe('2026-10-14T19:00:00.000Z')
+  })
+
+  it('moves an all-day series past the week end', () => {
+    const newEvent = build({
+      allday: true,
+      start: '2026-10-16',
+      end: '2026-10-16',
+      repetition: weeklyOn(['TU'])
+    })
+
+    expect(newEvent.start).toBe('2026-10-20T00:00:00.000Z')
+    expect(newEvent.end).toBe('2026-10-21T00:00:00.000Z')
+  })
+
+  it('keeps an event spanning midnight together', () => {
+    const newEvent = build({
+      start: '2026-10-11T23:00',
+      end: '2026-10-12T01:00',
+      repetition: weeklyOn(['WE'])
+    })
+
+    expect(newEvent.start).toBe('2026-10-14T21:00:00.000Z')
+    expect(newEvent.end).toBe('2026-10-14T23:00:00.000Z')
+  })
+
+  it('leaves a daily series alone', () => {
+    const newEvent = build({
+      start: '2026-10-11T21:00',
+      end: '2026-10-11T22:00',
+      repetition: new RepetitionObject({ freq: 'daily', interval: 1 })
+    })
+
+    expect(newEvent.start).toBe('2026-10-11T19:00:00.000Z')
   })
 })

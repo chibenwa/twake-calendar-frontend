@@ -7,6 +7,7 @@ import {
 } from './updateActions'
 import { prepareUpdateData } from './utils'
 import { PerformUpdateActionParams, HandleUpdateSubmitParams } from './types'
+import { alignStartToWeekdays } from '@common/features/Events/utils/alignStartToWeekdays'
 import { moveEventBetweenCalendars } from '@common/features/Events/updateEventHelpers/moveEventBetweenCalendars'
 
 export async function performUpdateAction(
@@ -64,9 +65,18 @@ export async function performUpdateAction(
   }
 }
 
-export async function handleUpdateSubmit(
+// A single occurrence keeps its own date, only a series is realigned
+function alignSeriesStart(
   params: HandleUpdateSubmitParams
+): HandleUpdateSubmitParams {
+  if (params.typeOfAction === 'solo') return params
+  return { ...params, values: alignStartToWeekdays(params.values) }
+}
+
+export async function handleUpdateSubmit(
+  submitParams: HandleUpdateSubmitParams
 ): Promise<void> {
+  const params = alignSeriesStart(submitParams)
   const updateData = prepareUpdateData(params)
 
   if (!updateData) return
