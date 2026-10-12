@@ -172,6 +172,18 @@ describe('RepeatEvent Component', () => {
     )
   })
 
+  it('widens the until date field so that a long date is not cut', () => {
+    setupRepeatEvent({ freq: 'daily', endDate: '2026-12-30' })
+
+    expect(screen.getByTestId('event-repeat-end-date')).toHaveValue(
+      'Wednesday, December 30, 2026'
+    )
+    expect(screen.getByTestId('event-repeat-end-date-container')).toHaveStyle({
+      width: 'calc(28ch + 40px)',
+      minWidth: '220px'
+    })
+  })
+
   it('allows selecting repetition frequency', () => {
     const { setRepetition } = setupRepeatEvent()
 

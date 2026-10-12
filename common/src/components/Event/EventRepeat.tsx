@@ -18,7 +18,10 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { ReadOnlyDateField } from './components/ReadOnlyPickerField'
-import { getLongDateFormat } from './utils/dateTimeFormatters'
+import {
+  formatLocalizedDate,
+  getLongDateFormat
+} from './utils/dateTimeFormatters'
 import { FC_DAYS, WeekDaySelector } from './WeekDaySelector'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import {
@@ -31,6 +34,10 @@ import {
   isValidRepeatInterval,
   MAX_REPEAT_INTERVAL
 } from './utils/formValidation'
+// Horizontal input padding (14px each side) plus room for proportional glyphs
+// wider than the "0" a `ch` measures, such as "W" or "M".
+const END_DATE_FIELD_PADDING = 40
+
 const numericSlotProps = {
   htmlInput: {
     inputMode: 'numeric'
@@ -69,6 +76,13 @@ export const RepeatEvent: React.FC<{
   const endOption = getEndOption()
 
   const defaultEndDate = dayjs(eventStart).add(1, 'day').format('YYYY-MM-DD')
+  // The field grows with the long date it shows, which is wider on touch
+  // screens where the font is larger, so that no part of it gets cut.
+  const endDateFontSize = isMobile ? 16 : 14
+  const endDateLabel = formatLocalizedDate(
+    repetition.endDate || defaultEndDate,
+    lang
+  )
 
   // Keep the raw input so that empty or out-of-range values stay visible
   // and can be flagged instead of being silently coerced.
@@ -267,13 +281,17 @@ export const RepeatEvent: React.FC<{
                   </Typography>
                   <TwakeLocalizationProvider>
                     <Box
+                      data-testid="event-repeat-end-date-container"
                       sx={{
-                        width: 220,
+                        fontSize: endDateFontSize,
+                        width: `calc(${endDateLabel.length}ch + ${END_DATE_FIELD_PADDING}px)`,
+                        minWidth: 220,
+                        maxWidth: '100%',
                         '& .MuiInputBase-root': {
-                          fontSize: isMobile ? 16 : 14
+                          fontSize: endDateFontSize
                         },
                         '& .MuiInputBase-input': {
-                          fontSize: isMobile ? 16 : 14
+                          fontSize: endDateFontSize
                         }
                       }}
                     >
