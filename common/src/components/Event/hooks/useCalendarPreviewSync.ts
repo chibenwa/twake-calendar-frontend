@@ -41,6 +41,38 @@ function toExclusiveEndDay(inclusiveEnd: string): string {
     .format('YYYY-MM-DD')
 }
 
+interface RangeBound {
+  str: string
+  date: Date
+}
+
+/**
+ * An all day preview starts at the midnight opening its first day.
+ */
+function startBound(
+  start: string,
+  allDay: boolean,
+  timezone?: string
+): RangeBound {
+  const str = allDay ? start.split('T')[0] : start
+  return {
+    str,
+    date: toInstant(allDay ? `${str}T00:00:00` : start, timezone)
+  }
+}
+
+/**
+ * An all day preview ends at the midnight closing its last day, whether all
+ * day was ticked before or after the end was edited.
+ */
+function endBound(end: string, allDay: boolean, timezone?: string): RangeBound {
+  const str = allDay ? toExclusiveEndDay(end) : end
+  return {
+    str,
+    date: toInstant(allDay ? `${str}T00:00:00` : end, timezone)
+  }
+}
+
 /**
  * Pure helper to calculate the new date range when toggling all-day mode.
  */
@@ -51,15 +83,15 @@ function calculateAllDayRange(
   newEnd: string,
   timezone?: string
 ): DateSelectArg {
-  const startStr = newAllDay ? newStart.split('T')[0] : newStart
-  const endStr = newAllDay ? toExclusiveEndDay(newEnd) : newEnd
+  const start = startBound(newStart, newAllDay, timezone)
+  const end = endBound(newEnd, newAllDay, timezone)
 
   return {
     ...prev,
-    startStr,
-    endStr,
-    start: toInstant(newAllDay ? `${startStr}T00:00:00` : newStart, timezone),
-    end: toInstant(newAllDay ? `${endStr}T00:00:00` : newEnd, timezone),
+    startStr: start.str,
+    endStr: end.str,
+    start: start.date,
+    end: end.date,
     allDay: newAllDay
   } as DateSelectArg
 }
@@ -85,10 +117,11 @@ export function useCalendarPreviewSync({
       const allday = values?.allday ?? false
       startTransition(() => {
         setSelectedRange(prev => {
+          const start = startBound(newStart, allday, values?.timezone)
           const newRange = {
             ...prev,
-            start: toInstant(newStart, values?.timezone),
-            startStr: newStart,
+            start: start.date,
+            startStr: start.str,
             allDay: allday
           } as DateSelectArg
           syncCalendarSelection(calendarRef, newRange)
@@ -105,10 +138,11 @@ export function useCalendarPreviewSync({
       const allday = values?.allday ?? false
       startTransition(() => {
         setSelectedRange(prev => {
+          const end = endBound(newEnd, allday, values?.timezone)
           const newRange = {
             ...prev,
-            end: toInstant(newEnd, values?.timezone),
-            endStr: newEnd,
+            end: end.date,
+            endStr: end.str,
             allDay: allday
           } as DateSelectArg
           syncCalendarSelection(calendarRef, newRange)

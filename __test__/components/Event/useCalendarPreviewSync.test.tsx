@@ -8,13 +8,16 @@ const TONGATAPU = 'Pacific/Tongatapu'
 
 type RangeUpdate = (prev: DateSelectArg | null) => DateSelectArg
 
-function renderWithFormIn(timezone: string): {
+function renderWithFormIn(
+  timezone: string,
+  allday = false
+): {
   result: { current: ReturnType<typeof useCalendarPreviewSync> }
   nextRange: () => DateSelectArg
 } {
   const formRef = {
     current: {
-      getValues: () => ({ allday: false, timezone })
+      getValues: () => ({ allday, timezone })
     }
   } as unknown as React.RefObject<EventFormHandle | null>
   const calendarRef = { current: null } as React.RefObject<CalendarApi | null>
@@ -97,5 +100,27 @@ describe('useCalendarPreviewSync all day toggle (#1491)', () => {
     result.current.handleAllDayChange(true, '2026-10-31', '2026-10-31')
 
     expect(nextRange().endStr).toBe('2026-11-01')
+  })
+})
+
+describe('useCalendarPreviewSync edits after ticking all day (#1596)', () => {
+  it('keeps the last day when the end date changes after all day is ticked', () => {
+    const { result, nextRange } = renderWithFormIn(TONGATAPU, true)
+
+    result.current.handleEndChange('2026-10-09T10:00')
+
+    expect(nextRange().allDay).toBe(true)
+    expect(nextRange().endStr).toBe('2026-10-10')
+    expect(nextRange().end.toISOString()).toBe('2026-10-09T11:00:00.000Z')
+  })
+
+  it('starts on the opening midnight when the start date changes after all day is ticked', () => {
+    const { result, nextRange } = renderWithFormIn(TONGATAPU, true)
+
+    result.current.handleStartChange('2026-10-07T10:00')
+
+    expect(nextRange().allDay).toBe(true)
+    expect(nextRange().startStr).toBe('2026-10-07')
+    expect(nextRange().start.toISOString()).toBe('2026-10-06T11:00:00.000Z')
   })
 })
