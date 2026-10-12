@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { CalendarItemList } from '@common/components/Calendar/CalendarItemList'
 import { CalendarName } from '@common/components/Calendar/CalendarName'
+import { SelectSeparator } from '@common/components/Calendar/SelectSeparator'
 import {
   useCalendars,
   useFilterSearch
@@ -85,7 +86,7 @@ export const SearchInFilter: React.FC<Props> = ({ mode }) => {
             {t('search.filter.allCalendar')}
           </Typography>
         </MenuItem>
-        <Divider />
+        <SelectSeparator />
         <MenuItem
           value="my-calendars"
           sx={{ color: 'text.secondary', fontSize: '12px' }}
@@ -93,7 +94,7 @@ export const SearchInFilter: React.FC<Props> = ({ mode }) => {
           {t('search.filter.myCalendar')}
         </MenuItem>
         {CalendarItemList(personalCalendars)}
-        <Divider />
+        <SelectSeparator />
         <MenuItem
           value="shared-calendars"
           sx={{ color: 'text.secondary', fontSize: '12px' }}
@@ -101,7 +102,7 @@ export const SearchInFilter: React.FC<Props> = ({ mode }) => {
           {t('search.filter.sharedCalendars')}
         </MenuItem>
         {CalendarItemList(sharedCalendars)}
-        <Divider />
+        <SelectSeparator />
         <MenuItem
           value="team-calendars"
           sx={{ color: 'text.secondary', fontSize: '12px' }}

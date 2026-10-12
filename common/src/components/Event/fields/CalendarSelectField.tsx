@@ -5,7 +5,6 @@ import { makeDisplayName } from '@common/utils/makeDisplayName'
 import { renameDefault } from '@common/utils/renameDefault'
 import {
   Box,
-  Divider,
   FormControl,
   Select,
   SelectChangeEvent,
@@ -15,6 +14,7 @@ import SquareRoundedIcon from '@mui/icons-material/SquareRounded'
 import React, { useEffect, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { CalendarItemList } from '@common/components/Calendar/CalendarItemList'
+import { SelectSeparator } from '@common/components/Calendar/SelectSeparator'
 import { OwnerCaption } from '@common/components/Calendar/OwnerCaption'
 import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
 import { SectionPreviewRow } from '@common/components/Event/components/SectionPreviewRow'
@@ -136,7 +136,7 @@ const CalendarSelectFieldExpanded: React.FC<{
       >
         {CalendarItemList(personalCalendars)}
         {delegatedCalendars.length > 0 && personalCalendars.length > 0 && (
-          <Divider component="li" />
+          <SelectSeparator />
         )}
         {CalendarItemList(delegatedCalendars)}
       </Select>
