@@ -459,7 +459,7 @@
     "error": "Произошла ошибка в обновлениях в реальном времени: %{error}",
     "closedUnexpectedly": "Обновления в реальном времени были прерваны. Пробуем переподключиться…",
     "importCompleted": "Импорт завершён. %{imported}, %{errors}",
-    "importedItems": "импортирован %{smart_count} элемент |||| импортировано %{smart_count} элемента |||| импортировано %{smart_count} элементов",
+    "importedItems": "Импортирован %{smart_count} элемент |||| Импортировано %{smart_count} элемента |||| Импортировано %{smart_count} элементов",
     "importErrors": "%{smart_count} ошибка |||| %{smart_count} ошибки |||| %{smart_count} ошибок",
     "importFailed": "Импорт не удался."
   },
