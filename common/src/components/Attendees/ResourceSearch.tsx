@@ -241,6 +241,9 @@ export function ResourceSearch({
         fullWidth
         noOptionsText={t('resourceSearch.noResults')}
         loadingText={t('resourceSearch.loading')}
+        clearText={t('common.clear')}
+        openText={t('common.open')}
+        closeText={t('actions.close')}
         getOptionLabel={(option: Resource | string) => {
           if (typeof option === 'object') {
             return option.displayName

@@ -44,6 +44,14 @@ describe('ResourceSearch', () => {
     jest.useRealTimers()
   })
 
+  it('names its popup button through the translations', () => {
+    setup()
+
+    expect(
+      screen.getByRole('button', { name: 'common.open' })
+    ).toBeInTheDocument()
+  })
+
   it('calls searchUsers after debounce when typing', async () => {
     mockedSearchUsers.mockResolvedValueOnce([
       baseResource

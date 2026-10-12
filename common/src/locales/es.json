@@ -119,6 +119,7 @@
   },
   "colorPicker": {
     "selectCustom": "Seleccionar un color personalizado",
+    "selectPreset": "Seleccionar el color %{color}",
     "title": "Elegir un color personalizado",
     "subtitle": "Elija un color de fondo para este calendario",
     "hex": "Hex"

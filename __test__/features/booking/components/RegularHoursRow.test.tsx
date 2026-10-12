@@ -132,6 +132,28 @@ describe('RegularHoursRow', () => {
     expect(mockHandleCopySlot).toHaveBeenCalledWith('MON', 0)
   })
 
+  it('names its slot buttons through the translations', () => {
+    customRender(
+      <RegularHoursRow
+        {...defaultProps}
+        slots={[
+          { start: '09:00', end: '12:00' },
+          { start: '14:00', end: '18:00' }
+        ]}
+      />
+    )
+
+    expect(
+      screen.getByRole('button', { name: 'booking.addSlot' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'booking.removeSlot' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('button', { name: 'booking.copySlot' })
+    ).toHaveLength(2)
+  })
+
   it('reports an error when the end time is before the start time', () => {
     customRender(
       <RegularHoursRow

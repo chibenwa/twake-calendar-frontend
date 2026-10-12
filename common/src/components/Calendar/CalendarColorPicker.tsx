@@ -69,10 +69,11 @@ function ColorBox({
   onChange: (color: Record<string, string>) => void
   selectedColor: Record<string, string>
 }): JSX.Element {
+  const { t } = useI18n()
   return (
     <Box
       role="button"
-      aria-label={`select color ${color.light}`}
+      aria-label={t('colorPicker.selectPreset', { color: color.light })}
       onClick={() => onChange(color)}
       style={{
         width: '46px',

@@ -119,6 +119,7 @@
   },
   "colorPicker": {
     "selectCustom": "Chọn màu tùy chỉnh",
+    "selectPreset": "Chọn màu %{color}",
     "title": "Chọn màu tùy chỉnh",
     "subtitle": "Chọn màu nền cho lịch này",
     "hex": "Hex"

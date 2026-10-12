@@ -50,7 +50,7 @@ public class CalendarModal {
 
     /** Picks one of the preset colours, by its hexadecimal value. */
     public CalendarModal color(String hex) {
-        page.getByLabel("select color " + hex).click();
+        page.getByLabel("Select color " + hex).click();
         return this;
     }
 
@@ -180,7 +180,7 @@ public class CalendarModal {
 
     /** Takes a right back. */
     public CalendarModal revokeAccess(String email) {
-        accessRow(email).getByLabel("remove").first().click();
+        accessRow(email).getByLabel("Remove").first().click();
         return this;
     }
 

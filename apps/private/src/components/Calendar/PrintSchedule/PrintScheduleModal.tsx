@@ -260,7 +260,11 @@ export const PrintScheduleModal: React.FC<PrintScheduleModalProps> = ({
         }}
       >
         {t('print.title')}
-        <IconButton onClick={onClose} aria-label="close" size="small">
+        <IconButton
+          onClick={onClose}
+          aria-label={t('actions.close')}
+          size="small"
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>

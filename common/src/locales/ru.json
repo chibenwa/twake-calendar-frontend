@@ -119,6 +119,7 @@
   },
   "colorPicker": {
     "selectCustom": "Выбрать цвет",
+    "selectPreset": "Выбрать цвет %{color}",
     "title": "Выберите цвет",
     "subtitle": "Выберите цвет фона",
     "hex": "Hex"

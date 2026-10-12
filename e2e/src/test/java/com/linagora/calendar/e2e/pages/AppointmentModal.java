@@ -245,7 +245,7 @@ public class AppointmentModal {
      */
     private Locator actionOn(String day, String action) {
         return page.locator("xpath=//input[@data-testid='start-time-" + day
-            + "-0']/following::button[@aria-label='" + action + "'][1]");
+            + "-0']/following::button[@data-testid='" + action + "'][1]");
     }
 
     private Locator dayCheckbox(String day) {

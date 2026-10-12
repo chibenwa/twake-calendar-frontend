@@ -119,6 +119,7 @@
   },
   "colorPicker": {
     "selectCustom": "Select custom color",
+    "selectPreset": "Select color %{color}",
     "title": "Choose custom color",
     "subtitle": "Choose a background color for this calendar",
     "hex": "Hex"

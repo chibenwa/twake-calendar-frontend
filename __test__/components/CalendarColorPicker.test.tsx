@@ -32,4 +32,16 @@ describe('ColorPicker', () => {
 
     expect(screen.getByDisplayValue(loadedColor.light)).toBeInTheDocument()
   })
+
+  it('names each preset swatch through the translations', () => {
+    renderWithProviders(
+      <ColorPicker selectedColor={defaultColors[0]} onChange={jest.fn()} />
+    )
+
+    expect(
+      screen.getByRole('button', {
+        name: `colorPicker.selectPreset(color=${defaultColors[0].light})`
+      })
+    ).toBeInTheDocument()
+  })
 })

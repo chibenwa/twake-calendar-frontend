@@ -131,7 +131,7 @@ describe('CalendarAccessRights', () => {
       { ...userState }
     )
 
-    fireEvent.click(screen.getByLabelText(/remove/i))
+    fireEvent.click(screen.getByLabelText('actions.remove'))
     expect(mockOnChange).toHaveBeenCalledWith([])
   })
 
