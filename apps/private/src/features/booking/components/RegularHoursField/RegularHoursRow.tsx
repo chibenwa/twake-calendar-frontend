@@ -57,7 +57,11 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
   const endValue = parseTime(slot.end)
   const hasError = isEnabled && isInvalidSlot(slot)
   const errorId = `slot-error-${day}-${index}`
-  const width = isMobile ? '100%' : 110
+  // On phones the row leaves ~70px per field: the default 14px side padding
+  // of the medium input clips "09:00", so it is halved there.
+  const timeFieldSx = isMobile
+    ? { width: '100%', '& .MuiInputBase-input': { px: 1 } }
+    : { width: 110 }
 
   const isFirst = index === 0
   const actionTitle = isFirst ? t('booking.addSlot') : t('booking.removeSlot')
@@ -68,7 +72,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ width }}>
+        <Box sx={timeFieldSx}>
           <TimePickerField
             testId={`start-time-${day}-${index}`}
             label={t('dateTimeFields.startTime')}
@@ -80,7 +84,7 @@ const TimeSlotItem: React.FC<TimeSlotItemProps> = ({
           />
         </Box>
         <Typography sx={{ mx: isMobile ? 0.5 : 1 }}>-</Typography>
-        <Box sx={{ width }}>
+        <Box sx={timeFieldSx}>
           <TimePickerField
             testId={`end-time-${day}-${index}`}
             label={t('dateTimeFields.endTime')}

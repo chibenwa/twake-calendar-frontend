@@ -16,6 +16,7 @@ jest.mock(
   () => ({
     TimePickerField: jest.fn(({ value, onChange, testId, disabled }) => (
       <input
+        className="MuiInputBase-input"
         data-testid={testId || 'mock-time-picker'}
         value={value ? value.format('HH:mm') : ''}
         disabled={disabled}
@@ -30,6 +31,14 @@ jest.mock(
     ))
   })
 )
+
+const mockIsTooSmall = jest.fn(() => false)
+jest.mock('@common/useScreenSizeDetection', () => ({
+  useScreenSizeDetection: () => ({
+    isTooSmall: mockIsTooSmall(),
+    isTablet: false
+  })
+}))
 
 const customRender = (ui: React.ReactElement, options?: any) =>
   render(ui, {
@@ -170,6 +179,25 @@ describe('RegularHoursRow', () => {
   it('does not report an error for a valid slot', () => {
     customRender(<RegularHoursRow {...defaultProps} />)
     expect(screen.queryByTestId('slot-error-MON-0')).not.toBeInTheDocument()
+  })
+
+  it('narrows the time inputs side padding on mobile so the time is not clipped', () => {
+    mockIsTooSmall.mockReturnValue(true)
+    customRender(<RegularHoursRow {...defaultProps} />)
+    ;['start-time-MON-0', 'end-time-MON-0'].forEach(testId =>
+      expect(screen.getByTestId(testId)).toHaveStyle({
+        paddingLeft: '8px',
+        paddingRight: '8px'
+      })
+    )
+  })
+
+  it('keeps the default time inputs padding on desktop', () => {
+    mockIsTooSmall.mockReturnValue(false)
+    customRender(<RegularHoursRow {...defaultProps} />)
+    expect(screen.getByTestId('start-time-MON-0')).not.toHaveStyle({
+      paddingLeft: '8px'
+    })
   })
 
   it('does not report an error for a disabled day', () => {
