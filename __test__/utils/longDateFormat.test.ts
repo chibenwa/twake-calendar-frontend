@@ -1,5 +1,7 @@
 import {
+  DATE_FORMAT,
   formatLocalizedDate,
+  getDateFormat,
   getLongDateFormat,
   LONG_DATE_FORMAT
 } from '@common/components/Event/utils/dateTimeFormatters'
@@ -55,6 +57,26 @@ describe('getLongDateFormat', () => {
   it('falls back to the default format for unknown locales', () => {
     expect(getLongDateFormat('xx')).toBe(LONG_DATE_FORMAT)
     expect(getLongDateFormat(undefined)).toBe(LONG_DATE_FORMAT)
+  })
+})
+
+describe('getDateFormat', () => {
+  const date = dayjs('2026-10-07')
+
+  it.each([
+    ['de', '7. Oktober 2026'],
+    ['fr', '7 octobre 2026'],
+    ['es', '7 de octubre de 2026'],
+    ['it', '7 ottobre 2026'],
+    ['ru', '7 октября 2026'],
+    ['en', 'October 7, 2026']
+  ])('writes the %s date in the language pattern', (locale, expected) => {
+    expect(date.locale(locale).format(getDateFormat(locale))).toBe(expected)
+  })
+
+  it('falls back to the default format for unknown locales', () => {
+    expect(getDateFormat('xx')).toBe(DATE_FORMAT)
+    expect(getDateFormat(undefined)).toBe(DATE_FORMAT)
   })
 })
 

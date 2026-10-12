@@ -133,6 +133,28 @@ export function getLongDateFormat(locale?: string): string {
   return (locale && LOCALIZED_LONG_DATE_FORMATS[locale]) || LONG_DATE_FORMAT
 }
 
+/** Date display format without the weekday */
+export const DATE_FORMAT = 'MMMM D, YYYY'
+
+const LOCALIZED_DATE_FORMATS: Record<string, string> = {
+  fr: 'D MMMM YYYY',
+  es: 'D [de] MMMM [de] YYYY',
+  de: 'D. MMMM YYYY',
+  it: 'D MMMM YYYY',
+  ru: 'D MMMM YYYY',
+  vi: 'D MMMM, YYYY'
+}
+
+/**
+ * Date display format, without the weekday, following the day/month ordering
+ * of the locale
+ * @param locale - Language code (en, fr, es, de, it, ru, vi)
+ * @returns dayjs format string
+ */
+export function getDateFormat(locale?: string): string {
+  return (locale && LOCALIZED_DATE_FORMATS[locale]) || DATE_FORMAT
+}
+
 /**
  * Format date with current locale.
  * @param dateStr - Date string to format

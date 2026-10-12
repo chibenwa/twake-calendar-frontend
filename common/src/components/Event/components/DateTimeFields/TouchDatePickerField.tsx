@@ -15,6 +15,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat'
 import React, { useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { ReadOnlyDateField } from '@common/components/Event/components/ReadOnlyPickerField'
+import { getDateFormat } from '@common/components/Event/utils/dateTimeFormatters'
 import { DatePickerFieldProps } from './DatePickerField'
 import {
   dateCalendarLayoutSx,
@@ -23,8 +24,6 @@ import {
 } from './dateTimePickerSlotProps'
 
 dayjs.extend(customParseFormat)
-
-const DISPLAY_FORMAT = 'D MMMM, YYYY'
 
 interface DatePickerDialogProps {
   value: PickerValue
@@ -56,7 +55,7 @@ const DatePickerDialogContent: React.FC<DatePickerDialogProps> = ({
 
   const formattedDate =
     dayjs.isDayjs(internalValue) && internalValue.isValid()
-      ? internalValue.locale(lang).format(DISPLAY_FORMAT)
+      ? internalValue.locale(lang).format(getDateFormat(lang))
       : ''
   const displayDate = formattedDate
     ? formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
