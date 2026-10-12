@@ -221,6 +221,14 @@ const CalendarAccordion: React.FC<{
   )
 }
 
+// Row actions are revealed on hover; touch screens cannot hover and keyboard
+// users focus them, so they stay visible there.
+const rowActionsSx = {
+  '& .MoreBtn': { opacity: 0 },
+  '&:hover, &:focus-within': { '& .MoreBtn': { opacity: 1 } },
+  '@media (hover: none)': { '& .MoreBtn': { opacity: 1 } }
+}
+
 const getBookingLinkUrl = (publicId: string): URL => {
   if (!window.PUBLIC_PAGE_BASE) {
     throw new Error('No public base page setup')
@@ -284,11 +292,8 @@ const BookingLinkChip: React.FC<{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          '& .MoreBtn': { opacity: 0 },
-          '&:hover': {
-            backgroundColor: '#F3F3F6',
-            '& .MoreBtn': { opacity: 1 }
-          }
+          ...rowActionsSx,
+          '&:hover': { backgroundColor: '#F3F3F6' }
         }}
       >
         <div
@@ -342,7 +347,12 @@ const BookingLinkChip: React.FC<{
               <LinkIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <IconButton className="MoreBtn" size="small" onClick={handleMenuOpen}>
+          <IconButton
+            className="MoreBtn"
+            size="small"
+            aria-label={t('common.moreOptions')}
+            onClick={handleMenuOpen}
+          >
             <MoreHorizIcon fontSize="small" />
           </IconButton>
         </div>
@@ -796,11 +806,8 @@ const CalendarSelector: React.FC<{
           alignItems: 'center',
           justifyContent: 'space-between',
           transition: 'background-color 0.2s ease',
-          '& .MoreBtn': { opacity: 0 },
-          '&:hover': {
-            backgroundColor: '#F3F3F6',
-            '& .MoreBtn': { opacity: 1 }
-          }
+          ...rowActionsSx,
+          '&:hover': { backgroundColor: '#F3F3F6' }
         }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -854,7 +861,11 @@ const CalendarSelector: React.FC<{
           </label>
         </Tooltip>
         {!isMobile && (
-          <IconButton className="MoreBtn" onClick={handleClick}>
+          <IconButton
+            className="MoreBtn"
+            aria-label={t('common.moreOptions')}
+            onClick={handleClick}
+          >
             <MoreHorizIcon />
           </IconButton>
         )}

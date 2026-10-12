@@ -8,7 +8,8 @@ import {
   cleanup,
   fireEvent,
   screen,
-  waitFor
+  waitFor,
+  within
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from '../utils/Renderwithproviders'
@@ -496,5 +497,52 @@ describe('CalendarSelection', () => {
     expect(
       screen.getByRole('checkbox', { name: 'Engineering Team' })
     ).toBeChecked()
+  })
+  describe('booking link row actions', () => {
+    const bookingLink = {
+      publicId: 'consult-id',
+      calendarUrl: '/calendars/user1/cal1.json',
+      durationMinutes: 30,
+      active: true,
+      autoAccept: false,
+      name: 'Consult'
+    }
+
+    const renderWithBookingLink = async (): Promise<void> => {
+      ;(listBookingLinks as jest.Mock).mockResolvedValueOnce([bookingLink])
+      renderWithProviders(
+        <CalendarSelection
+          selectedCalendars={[]}
+          setSelectedCalendars={jest.fn()}
+        />,
+        { user: baseUser, calendars: { list: calendarsMock, pending: false } }
+      )
+      await screen.findByText('Consult')
+    }
+
+    it('names the booking link menu button', async () => {
+      await renderWithBookingLink()
+
+      const row = screen.getByText('Consult').closest('li') as HTMLElement
+      const moreButton = within(row).getByRole('button', {
+        name: 'common.moreOptions'
+      })
+      fireEvent.click(moreButton)
+
+      expect(await screen.findByRole('menu')).toBeInTheDocument()
+    })
+
+    it('keeps row actions visible on screens that cannot hover', async () => {
+      await renderWithBookingLink()
+
+      const rules = Array.from(document.styleSheets)
+        .flatMap(sheet => Array.from(sheet.cssRules))
+        .map(rule => rule.cssText)
+      expect(rules).toContainEqual(
+        expect.stringMatching(
+          /@media \(hover: ?none\)\s*\{[^}]*\.MoreBtn\s*\{\s*opacity:\s*1/
+        )
+      )
+    })
   })
 })
