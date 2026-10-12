@@ -246,6 +246,57 @@ const getBookingLinkIcon = (active: boolean, iconColor: string): ReactNode => {
   )
 }
 
+const BookingLinkLabel: React.FC<{ name: string }> = ({ name }) => {
+  const theme = useTheme()
+  return (
+    <Tooltip title={name} enterDelay={500} placement="bottom-start">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
+      >
+        <span
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            fontSize: '0.875rem',
+            color: alpha(theme.palette.grey[900], 0.9)
+          }}
+        >
+          {name}
+        </span>
+      </div>
+    </Tooltip>
+  )
+}
+
+const BookingLinkRowActions: React.FC<{
+  onCopy: () => void
+  onMenuOpen: (event: React.MouseEvent<HTMLButtonElement>) => void
+}> = ({ onCopy, onMenuOpen }) => {
+  const { t } = useI18n()
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <Tooltip title={t('tooltip.copyBookingLink')}>
+        <IconButton className="MoreBtn" onClick={onCopy} size="small">
+          <LinkIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <IconButton
+        className="MoreBtn"
+        size="small"
+        aria-label={t('common.moreOptions')}
+        onClick={onMenuOpen}
+      >
+        <MoreHorizIcon fontSize="small" />
+      </IconButton>
+    </div>
+  )
+}
+
 const BookingLinkChip: React.FC<{
   link: BookingLink
   onDelete: (link: BookingLink) => void
@@ -310,52 +361,17 @@ const BookingLinkChip: React.FC<{
             {getBookingLinkIcon(link.active, iconColor)}
           </div>
 
-          <Tooltip title={linkName} enterDelay={500} placement="bottom-start">
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden'
-              }}
-            >
-              <span
-                style={{
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  fontSize: '0.875rem',
-                  color: alpha(theme.palette.grey[900], 0.9)
-                }}
-              >
-                {linkName}
-              </span>
-            </div>
-          </Tooltip>
+          <BookingLinkLabel name={linkName} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title={t('tooltip.copyBookingLink')}>
-            <IconButton
-              className="MoreBtn"
-              onClick={() =>
-                handleCopyLink(
-                  getBookingLinkUrl(link.publicId),
-                  setCopySnackbarOpen
-                )
-              }
-              size="small"
-            >
-              <LinkIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <IconButton
-            className="MoreBtn"
-            size="small"
-            aria-label={t('common.moreOptions')}
-            onClick={handleMenuOpen}
-          >
-            <MoreHorizIcon fontSize="small" />
-          </IconButton>
-        </div>
+        <BookingLinkRowActions
+          onCopy={() =>
+            handleCopyLink(
+              getBookingLinkUrl(link.publicId),
+              setCopySnackbarOpen
+            )
+          }
+          onMenuOpen={handleMenuOpen}
+        />
       </ListItem>
       <BookingLinkSelectorMenu
         anchorEl={menuAnchorEl}
