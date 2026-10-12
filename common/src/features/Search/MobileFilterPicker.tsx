@@ -1,7 +1,10 @@
 import { AttendeeOptionsList } from '@common/components/Attendees/AttendeeOptionsList'
 import { PeopleSearch } from '@common/components/Attendees/PeopleSearch'
 import { User } from '@common/components/Attendees/types'
-import { SearchState } from '@common/components/Calendar/utils/tempSearchUtil'
+import {
+  hasFoundNothing,
+  SearchState
+} from '@common/components/Calendar/utils/tempSearchUtil'
 import { SearchTextField } from '@common/components/Menubar/MobileSearchFieldText'
 import { UseFilterSearchResult } from '@common/components/Menubar/useMobileSearch'
 import { MobileSelector } from '@common/components/MobileSelector'
@@ -11,6 +14,7 @@ import {
   SwipeableDrawer
 } from '@linagora/twake-mui'
 import { useEffect, useRef } from 'react'
+import { useI18n } from 'twake-i18n'
 
 interface MobileFilterPickerProps {
   displayText: string
@@ -49,7 +53,9 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
   clearAll,
   objectTypes
 }) => {
+  const { t } = useI18n()
   const inputRef = useRef<HTMLInputElement>(null)
+  const foundNothing = hasFoundNothing(searchState)
 
   useEffect(() => {
     if (open) {
@@ -100,10 +106,13 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
           )}
         />
       </Box>
-      {searchState.options && searchState.options.length > 0 && (
+      {(!!searchState.options?.length || foundNothing) && (
         <Box sx={{ flex: 1, m: 1 }}>
           <AttendeeOptionsList
-            options={searchState.options}
+            options={searchState.options ?? []}
+            noResultsText={
+              foundNothing ? t('peopleSearch.noResults') : undefined
+            }
             selectedUsers={selectedContacts}
             onOptionClick={user => {
               handleContactSelect([

@@ -8,6 +8,14 @@ export interface SearchState {
   loading?: boolean
 }
 
+export function hasFoundNothing({
+  query,
+  options,
+  loading
+}: SearchState): boolean {
+  return !!query?.trim() && !loading && !options?.length
+}
+
 export function buildEmailToCalendarMap(
   calRecord: Record<string, Calendar>
 ): Map<string, string[]> {

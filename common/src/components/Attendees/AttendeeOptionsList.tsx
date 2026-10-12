@@ -10,15 +10,28 @@ export interface AttendeeOptionsListProps extends HTMLAttributes<HTMLLIElement> 
   options: User[]
   onOptionClick?: (user: User) => void
   selectedUsers: User[]
+  noResultsText?: string
 }
 
 export const AttendeeOptionsList: React.FC<AttendeeOptionsListProps> = ({
   options,
   onOptionClick,
   selectedUsers,
+  noResultsText,
   ...props
 }) => {
   const { t } = useI18n()
+  if (options.length === 0 && noResultsText) {
+    return (
+      <Typography
+        variant="body2"
+        role="status"
+        sx={{ color: 'text.secondary', py: 1 }}
+      >
+        {noResultsText}
+      </Typography>
+    )
+  }
   return (
     <>
       {options.map(option => {
