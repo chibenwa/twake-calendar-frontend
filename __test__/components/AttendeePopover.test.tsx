@@ -1,8 +1,16 @@
 import React from 'react'
-import { fireEvent, screen, act } from '@testing-library/react'
+import { fireEvent, screen, act, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../utils/Renderwithproviders'
 import { AttendeePopover } from '@common/components/Attendees/AttendeePopover'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
+
+jest.mock('@common/useScreenSizeDetection', () => ({
+  useScreenSizeDetection: jest.fn(() => ({
+    isTooSmall: false,
+    isTablet: false
+  }))
+}))
 
 describe('AttendeePopover (Private)', () => {
   beforeEach(() => {
@@ -131,5 +139,55 @@ describe('AttendeePopover (Private)', () => {
     expect(screen.getByText('attendees.sendMail')).toBeInTheDocument()
 
     jest.useRealTimers()
+  })
+
+  describe('placement', () => {
+    const openCard = (): HTMLElement => {
+      renderWithProviders(
+        <AttendeePopover
+          attendee={new userAttendee({ cal_address: 'bob@example.com' })}
+        >
+          <span>Open Popover</span>
+        </AttendeePopover>,
+        {
+          user: {
+            userData: {
+              email: 'user@example.com',
+              workplaceFqdn: 'example.com'
+            }
+          }
+        }
+      )
+      fireEvent.click(screen.getByText('Open Popover'))
+      return screen.getByRole('tooltip')
+    }
+
+    afterEach(() => {
+      ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+        isTooSmall: false,
+        isTablet: false
+      })
+    })
+
+    it('opens the contact card on the right of the attendee on desktop', async () => {
+      const card = openCard()
+
+      await waitFor(() =>
+        expect(card).toHaveAttribute('data-popper-placement', 'right')
+      )
+    })
+
+    it('opens the contact card below the attendee on mobile so it stays on screen', async () => {
+      ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+        isTooSmall: true,
+        isTablet: false
+      })
+
+      const card = openCard()
+
+      await waitFor(() =>
+        expect(card).toHaveAttribute('data-popper-placement', 'bottom-start')
+      )
+    })
   })
 })

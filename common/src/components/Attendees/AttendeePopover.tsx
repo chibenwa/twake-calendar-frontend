@@ -19,6 +19,9 @@ import { stringAvatar } from '../Event/utils/eventUtils'
 import { SnackbarAlert } from '../Loading/SnackBarAlert'
 import { AttendeeActions } from '@injected/components/Attendees/AttendeeActions'
 import { useAppSelector } from '@common/app/hooks'
+import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
+
+const VIEWPORT_MARGIN = 8
 
 interface AttendeePopoverProps {
   attendee: userAttendee
@@ -80,6 +83,7 @@ export function AttendeePopover({
 }: AttendeePopoverProps): React.ReactElement {
   const theme = useTheme()
   const userEmail = useAppSelector(state => state.user.userData?.email)
+  const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const openTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -183,13 +187,20 @@ export function AttendeePopover({
         <Popper
           open={open}
           anchorEl={anchorEl}
-          placement="right"
+          placement={isMobile ? 'bottom-start' : 'right'}
           style={{ zIndex: 1300 }}
           modifiers={[
             {
               name: 'offset',
               options: {
                 offset: [0, 8]
+              }
+            },
+            {
+              name: 'preventOverflow',
+              options: {
+                altAxis: true,
+                padding: VIEWPORT_MARGIN
               }
             }
           ]}
@@ -204,7 +215,9 @@ export function AttendeePopover({
               flexDirection: 'column',
               gap: 2,
               position: 'relative',
-              minWidth: 320,
+              minWidth: `min(320px, calc(100vw - ${2 * VIEWPORT_MARGIN}px))`,
+              maxWidth: `calc(100vw - ${2 * VIEWPORT_MARGIN}px)`,
+              boxSizing: 'border-box',
               borderRadius: 2
             }}
           >
