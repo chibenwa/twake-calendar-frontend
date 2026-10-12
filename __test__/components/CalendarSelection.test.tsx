@@ -1,8 +1,15 @@
 import CalendarSelection from '../../apps/private/src/components/Calendar/CalendarSelection'
 import { listBookingLinks } from '@common/features/booking/BookingDao'
 import * as calendarThunks from '@common/features/Calendars/CalendarSlice'
+import { setTokens } from '@common/features/User/UserSlice'
 import '@testing-library/jest-dom'
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderWithProviders } from '../utils/Renderwithproviders'
 
@@ -128,6 +135,40 @@ describe('CalendarSelection', () => {
 
     expect(screen.getByText('calendar.bookingLinks')).toBeInTheDocument()
     expect(listBookingLinks).toHaveBeenCalled()
+  })
+
+  it('does not fetch booking links before the session is established', () => {
+    renderWithProviders(
+      <CalendarSelection
+        selectedCalendars={[]}
+        setSelectedCalendars={jest.fn()}
+      />,
+      {
+        user: { ...baseUser, tokens: null },
+        calendars: { list: calendarsMock, pending: false }
+      }
+    )
+
+    expect(listBookingLinks).not.toHaveBeenCalled()
+  })
+
+  it('fetches booking links once the session is established', async () => {
+    const { store } = renderWithProviders(
+      <CalendarSelection
+        selectedCalendars={[]}
+        setSelectedCalendars={jest.fn()}
+      />,
+      {
+        user: { ...baseUser, tokens: null },
+        calendars: { list: calendarsMock, pending: false }
+      }
+    )
+
+    act(() => {
+      store.dispatch(setTokens({ accessToken: 'token' }))
+    })
+
+    await waitFor(() => expect(listBookingLinks).toHaveBeenCalledTimes(1))
   })
 
   it.each([[undefined], [false]])(

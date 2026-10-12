@@ -494,12 +494,16 @@ const CalendarSelection: React.FC<{
   const [editingBookingLink, setEditingBookingLink] =
     useState<BookingLink | null>(null)
 
-  // Fetch booking links on mount
+  // On reload the session is restored after the layout mounts: wait for the
+  // tokens, a request sent without them is rejected
+  const isAuthenticated = useAppSelector(state => Boolean(state.user.tokens))
+
+  // Fetch booking links once the session is established
   useEffect(() => {
-    if (bookingLinkEnabled) {
+    if (bookingLinkEnabled && isAuthenticated) {
       void dispatch(listBookingLinks())
     }
-  }, [dispatch, bookingLinkEnabled])
+  }, [dispatch, bookingLinkEnabled, isAuthenticated])
 
   const handleDeleteBookingLink = (link: BookingLink): void => {
     void dispatch(deleteBookingLink(link.publicId))
