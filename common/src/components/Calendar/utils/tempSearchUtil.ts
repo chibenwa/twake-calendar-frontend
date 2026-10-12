@@ -6,14 +6,16 @@ export interface SearchState {
   query?: string
   options?: User[]
   loading?: boolean
+  hasSearched?: boolean
 }
 
 export function hasFoundNothing({
   query,
   options,
-  loading
+  loading,
+  hasSearched
 }: SearchState): boolean {
-  return !!query?.trim() && !loading && !options?.length
+  return !!query?.trim() && !loading && !!hasSearched && !options?.length
 }
 
 export function buildEmailToCalendarMap(

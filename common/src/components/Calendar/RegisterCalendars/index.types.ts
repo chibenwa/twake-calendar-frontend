@@ -22,6 +22,7 @@ export interface SearchState {
   query?: string
   options?: User[]
   loading?: boolean
+  hasSearched?: boolean
 }
 
 export interface SplittedSearchInputProps extends Omit<

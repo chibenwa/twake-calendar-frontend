@@ -62,6 +62,7 @@ const useSearchStateSync = ({
   query,
   options,
   loading,
+  hasSearched,
   inputValue,
   setQuery,
   onSearchStateChangeRef
@@ -71,6 +72,7 @@ const useSearchStateSync = ({
   query: string
   options: User[]
   loading: boolean
+  hasSearched: boolean
   inputValue?: string
   setQuery: (val: string) => void
   onSearchStateChangeRef: React.MutableRefObject<
@@ -82,9 +84,22 @@ const useSearchStateSync = ({
   useEffect(() => {
     if (hideOptions && queryTime !== lastQueryTimeRef.current) {
       lastQueryTimeRef.current = queryTime
-      onSearchStateChangeRef.current?.({ query, options, loading })
+      onSearchStateChangeRef.current?.({
+        query,
+        options,
+        loading,
+        hasSearched
+      })
     }
-  }, [queryTime, query, options, loading, hideOptions, onSearchStateChangeRef])
+  }, [
+    queryTime,
+    query,
+    options,
+    loading,
+    hasSearched,
+    hideOptions,
+    onSearchStateChangeRef
+  ])
 
   useEffect(() => {
     if (inputValue !== undefined) {
@@ -454,6 +469,7 @@ export const usePeopleSearchState = ({
     query: userSearch.query,
     options: userSearch.options,
     loading: userSearch.loading,
+    hasSearched: userSearch.hasSearched,
     inputValue,
     setQuery: userSearch.setQuery,
     onSearchStateChangeRef

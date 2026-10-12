@@ -33,11 +33,33 @@ describe('SearchCalendarsDialog', () => {
   it('shows no results message when the search found nothing', () => {
     setup()
 
-    act(() => emitSearchState({ query: 'zzqq', options: [], loading: false }))
+    act(() =>
+      emitSearchState({
+        query: 'zzqq',
+        options: [],
+        loading: false,
+        hasSearched: true
+      })
+    )
 
     expect(screen.getByRole('status')).toHaveTextContent(
       'peopleSearch.noResults'
     )
+  })
+
+  it('does not show no results message when the search failed', () => {
+    setup()
+
+    act(() =>
+      emitSearchState({
+        query: 'zzqq',
+        options: [],
+        loading: false,
+        hasSearched: false
+      })
+    )
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('does not show no results message before any search', () => {
@@ -53,7 +75,8 @@ describe('SearchCalendarsDialog', () => {
       emitSearchState({
         query: 'Room',
         options: [{ displayName: 'Room A', email: 'room-a@test.com' }],
-        loading: false
+        loading: false,
+        hasSearched: true
       })
     )
 

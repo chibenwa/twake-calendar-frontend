@@ -171,7 +171,7 @@ function useSearchChangeHandler(
   setSearchState: React.Dispatch<React.SetStateAction<SearchState>>
 ): ({ query, options, loading }: SearchState) => void {
   return useCallback(
-    ({ query, options, loading }: SearchState): void => {
+    ({ query, options, loading, hasSearched }: SearchState): void => {
       if (!query) {
         setDialogOpen(false)
         setSearchState({ query: '', options: [], loading: false })
@@ -181,7 +181,8 @@ function useSearchChangeHandler(
       setSearchState(prev => ({
         query,
         options: options ?? prev.options,
-        loading: loading ?? prev.loading
+        loading: loading ?? prev.loading,
+        hasSearched: hasSearched ?? prev.hasSearched
       }))
     },
     [setDialogOpen, setSearchState]

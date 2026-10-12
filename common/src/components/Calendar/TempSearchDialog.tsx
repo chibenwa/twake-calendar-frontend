@@ -54,11 +54,12 @@ export default function TempSearchDialog({
   const { handleUserChange } = useTempSearch({ setTempUsers, tempUsers })
 
   const handleSearchChange = useCallback(
-    ({ query, options, loading }: SearchState): void => {
+    ({ query, options, loading, hasSearched }: SearchState): void => {
       setSearchState(prev => ({
         query: query ?? prev.query,
         options: options ?? prev.options,
-        loading: loading ?? prev.loading
+        loading: loading ?? prev.loading,
+        hasSearched: hasSearched ?? prev.hasSearched
       }))
     },
     []
