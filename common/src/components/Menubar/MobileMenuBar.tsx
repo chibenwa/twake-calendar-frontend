@@ -105,7 +105,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
               <IconButton
                 onClick={onOpenSidebar}
                 aria-label={t('menubar.toggleSidebar')}
-                sx={{ mr: 2 }}
+                sx={{ mr: 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -115,10 +115,21 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                   onNavigate={handleNavigation}
                 />
               </div>
-              <div className="menu-items">
-                <Stack direction="row" className="current-date-time">
+              <div className="menu-items date-title">
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  className="current-date-time"
+                >
                   <Typography
-                    sx={{ lineHeight: 'unset' }}
+                    sx={{
+                      minWidth: 0,
+                      lineHeight: 1.2,
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical'
+                    }}
                     onClick={onToggleDatePicker}
                   >
                     {dateLabel}
@@ -126,6 +137,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                   <Tooltip title={toggleDatePickerTitle}>
                     <IconButton
                       size="small"
+                      sx={{ flexShrink: 0 }}
                       onClick={onToggleDatePicker}
                       aria-label={toggleDatePickerTitle}
                       aria-expanded={openDatePicker}

@@ -51,6 +51,22 @@
     top 0
     margin-bottom 8px
 
+    /* the period title gives way on narrow screens so that it never
+       covers the Search button of the right menu */
+    .left-menu
+      flex 1 1 auto
+      min-width 0
+
+      > *
+        flex-shrink 0
+
+      > .date-title
+        flex-shrink 1
+        min-width 0
+
+    .right-menu
+      flex 0 0 auto
+
 .menubar-item
   display flex
   align-items center
