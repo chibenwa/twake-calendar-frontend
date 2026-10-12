@@ -262,7 +262,7 @@
     "label": "Поиск по имени или email",
     "placeholder": "Введите имя или email",
     "emailAlreadyAdded": "Этот email уже добавлен",
-    "availabilityPlaceholder": "Поск людей",
+    "availabilityPlaceholder": "Поиск людей",
     "invalidEmail": "%{email} — некорректный адрес",
     "searchError": "Не удалось загрузить контакты. Попробуйте ещё раз.",
     "noResults": "Нет результатов",
