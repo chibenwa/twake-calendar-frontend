@@ -4,7 +4,13 @@ import static com.linagora.calendar.e2e.pages.EventFormModal.Scope.ALL_EVENTS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneOffsetTransition;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.awaitility.Awaitility;
@@ -15,8 +21,12 @@ import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
+import com.linagora.calendar.e2e.backend.Ical;
 import com.linagora.calendar.e2e.backend.Ics;
+import com.linagora.calendar.e2e.docker.E2EClock;
 import com.linagora.calendar.e2e.docker.E2ESessions;
+import com.linagora.calendar.e2e.pages.EventFormModal;
+import com.linagora.calendar.e2e.pages.EventPreviewPopover;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
@@ -131,5 +141,41 @@ class PastTimezoneTest extends TwakeCalendarE2ETest {
         assertThat(Ics.property(Ics.event(ical), "DTSTART").orElseThrow())
             .as("05:00 in Jakarta, not 05:00 converted from the browser timezone")
             .endsWith("T050000");
+    }
+
+    @Test
+    @DisplayName("PAST-52 (#1455) An all day event on the day the clocks fall back ends on that same day")
+    void anAllDayEventOnTheFallBackDayEndsThatDay(E2EUser user, CalendarProbe probe, E2ESessions sessions) {
+        LocalDate day = nextFallBack("America/New_York");
+        String title = title("Fall back");
+        String uid = UUID.randomUUID().toString();
+        probe.putEvent(user, uid, Ical.allDayEvent(uid, title, day, day));
+
+        // the browser crosses the clock change, the display timezone sits on UTC: one hour back
+        // in the browser is a whole day back once shown in London
+        CalendarPage calendar = sessions.openFor(user, "America/New_York");
+        calendar.openSettings().selectTimezone("Europe/London").backToCalendar();
+        calendar.goToDate(day);
+        awaitAttached(calendar.eventCardOn(title, day));
+
+        EventPreviewPopover preview = calendar.openEventOn(title, day);
+        assertThat(preview.text())
+            .as("a single day off has no end date of its own, least of all the day before")
+            .doesNotContain(day.minusDays(1).format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.UK)));
+
+        EventFormModal form = preview.edit().expand();
+        assertThat(form.endDate())
+            .as("the inclusive end of a one day event is its start, not the day before")
+            .isEqualTo(form.startDate());
+    }
+
+    /** The day a clock change brings an hour back, the next one from today. */
+    private static LocalDate nextFallBack(String zone) {
+        Instant from = E2EClock.today().atStartOfDay(ZoneOffset.UTC).toInstant();
+        ZoneOffsetTransition transition = ZoneId.of(zone).getRules().nextTransition(from);
+        while (!transition.isOverlap()) {
+            transition = ZoneId.of(zone).getRules().nextTransition(transition.getInstant());
+        }
+        return transition.getDateTimeBefore().toLocalDate();
     }
 }

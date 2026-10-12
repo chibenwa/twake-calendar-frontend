@@ -21,7 +21,7 @@ export function formatEnd({
   const formatDatePart = (d: Date): string => formatDateInTimezone(d, timeZone)
   if (allday) {
     const inclusiveEndDate = new Date(endDate)
-    inclusiveEndDate.setDate(inclusiveEndDate.getDate() - 1)
+    inclusiveEndDate.setUTCDate(inclusiveEndDate.getUTCDate() - 1)
     const sameDay =
       formatDatePart(startDate) === formatDatePart(inclusiveEndDate)
     return sameDay

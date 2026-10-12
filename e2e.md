@@ -67,12 +67,13 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-17` The preview of a recurring event states its rule, including interval and count ([#442](https://github.com/linagora/twake-calendar-frontend/issues/442))
 - [x] `PAST-18` The recurrence interval never accepts a float ([#961](https://github.com/linagora/twake-calendar-frontend/issues/961))
 
-## PAST — Timezones (4)
+## PAST — Timezones (5)
 
 - [x] `PAST-19` The update modal reopens an event in the timezone it was created with ([#490](https://github.com/linagora/twake-calendar-frontend/issues/490))
 - [x] `PAST-20` Answering an invitation twice never normalises `DTSTART` to UTC and drops its `TZID` ([#1031](https://github.com/linagora/twake-calendar-frontend/issues/1031))
 - [x] `PAST-21` A user in Asia/Jakarta sees a Monday event on Monday ([#632](https://github.com/linagora/twake-calendar-frontend/issues/632))
 - [x] `PAST-22` Picking an explicit timezone in the form creates the event at that timezone's hour, not the local one ([#896](https://github.com/linagora/twake-calendar-frontend/issues/896))
+- [x] `PAST-52` An all day event on the day the clocks fall back ends on that same day, in the preview and in the form ([#1455](https://github.com/linagora/twake-calendar-frontend/pull/1455))
 
 ## PAST — All day events (4)
 
