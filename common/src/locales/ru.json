@@ -589,7 +589,7 @@
     },
     "success": {
       "title": "Встреча создана",
-      "subtitle": "Ваша встреча с %{owner} назначена на %{date} в %{time}",
+      "subtitle": "Ваша встреча с %{owner} назначена: %{date} в %{time}",
       "subsubtitle": "Приглашение отправлено на вашу почту.",
       "needChanges": "Нужно внести изменения?",
       "cancelMeeting": "отменить",

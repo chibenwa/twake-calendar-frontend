@@ -3,6 +3,7 @@ import {
   getLongDateFormat,
   LONG_DATE_FORMAT
 } from '@common/components/Event/utils/dateTimeFormatters'
+import ru from '@common/locales/ru.json'
 import dayjs from 'dayjs'
 import 'dayjs/locale/fr'
 import 'dayjs/locale/es'
@@ -84,5 +85,19 @@ describe('formatLocalizedDate', () => {
     expect(
       formatLocalizedDate('2026-10-06T15:00:00', 'ru', { capitalize: false })
     ).toMatch(/^вторник/)
+  })
+
+  it('does not put the nominative Russian weekday after "на" in the booking confirmation', () => {
+    const subtitle = ru.booking.success.subtitle
+      .replace(
+        '%{date}',
+        formatLocalizedDate('2026-10-14T09:30:00', 'ru', { capitalize: false })
+      )
+      .replace('%{owner}', 'alice')
+      .replace('%{time}', '09:30')
+
+    expect(subtitle).toBe(
+      'Ваша встреча с alice назначена: среда, 14 октября 2026 в 09:30'
+    )
   })
 })
