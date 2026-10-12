@@ -2,6 +2,7 @@ import {
   DateTimeFields,
   DateTimeFieldsProps
 } from '@common/components/Event/components/DateTimeFields/DateTimeFields'
+import { InvalidTimeInputProvider } from '@common/components/Event/components/DateTimeFields/InvalidTimeInputContext'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -113,6 +114,30 @@ describe('DateTimeFields', () => {
     await waitFor(() =>
       expect(mockHandlers.onEndTimeChange).toHaveBeenCalledWith('11:00')
     )
+  })
+
+  it('puts the last valid time back when Tab leaves an invalid time with the list open', async () => {
+    const onInvalidTimeInputChange = jest.fn()
+    await act(async () =>
+      render(
+        <InvalidTimeInputProvider onChange={onInvalidTimeInputChange}>
+          <DateTimeFields {...defaultProps} />
+          <button>next</button>
+        </InvalidTimeInputProvider>
+      )
+    )
+
+    const endTimeInput = screen.getByTestId('end-time-input')
+    await userEvent.click(endTimeInput)
+    await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument())
+    await userEvent.type(endTimeInput, '{selectall}12:75')
+    expect(onInvalidTimeInputChange).toHaveBeenLastCalledWith(true)
+
+    await userEvent.tab()
+
+    await waitFor(() => expect(endTimeInput).toHaveValue('10:00'))
+    expect(onInvalidTimeInputChange).toHaveBeenLastCalledWith(false)
+    expect(mockHandlers.onEndTimeChange).not.toHaveBeenCalled()
   })
 
   it('does not propagate Escape closing the time list', async () => {

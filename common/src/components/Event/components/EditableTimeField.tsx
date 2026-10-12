@@ -7,6 +7,7 @@ import {
   usePickerContext,
   useSplitFieldProps
 } from '@mui/x-date-pickers/hooks'
+import { pickerPopperClasses } from '@mui/x-date-pickers/internals'
 import { PickerFieldSlotProps } from '@mui/x-date-pickers/models'
 import { TimePickerFieldProps } from '@mui/x-date-pickers/TimePicker'
 import {
@@ -45,6 +46,19 @@ function isUnparsableTimeInput(value: string, isFocused: boolean): boolean {
   const trimmed = value.trim()
   if (!trimmed || parseTimeInput(trimmed, null)) return false
   return !isFocused || COMPLETE_TIME_INPUT.test(trimmed)
+}
+
+/**
+ * Focus going to another control than the dropdown (e.g. Tab). A click on a
+ * non focusable spot gives no target: the dropdown closing commits the input.
+ * The dropdown is matched by class: MUI focuses its selected item before the
+ * popup ref is attached.
+ */
+function isLeavingPicker(nextFocused: EventTarget | null): boolean {
+  return (
+    nextFocused instanceof Element &&
+    !nextFocused.closest(`.${pickerPopperClasses.root}`)
+  )
 }
 
 /**
@@ -271,14 +285,14 @@ function EditableTimePickerField(props: GenericPickerFieldProps) {
     dispatchCloseOtherPickers()
   }
 
-  const handleBlur = (_e: React.FocusEvent<HTMLInputElement>) => {
-    // If dropdown is open, don't parse input
-    // MUI will handle selection and sync value via useEffect
-    if (open) {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Focus moving into the open dropdown: MUI will handle selection and sync
+    // value via useEffect
+    if (open && !isLeavingPicker(e.relatedTarget)) {
       return
     }
 
-    // Dropdown is closed - parse input and update value
+    // Focus left the field (e.g. Tab): parse input and update value
     setIsFocused(false)
     parseAndUpdateTime(inputValue)
   }
