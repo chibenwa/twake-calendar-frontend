@@ -60,9 +60,10 @@ export const EventPreviewActionMenu: React.FC<EventPreviewActionMenuProps> = ({
       )}
       {composeUrl && (
         <MenuItem
-          onClick={() =>
+          onClick={() => {
+            onClose()
             window.open(composeUrl, '_blank', 'noopener,noreferrer')
-          }
+          }}
         >
           {t('eventPreview.emailAttendees')}
         </MenuItem>

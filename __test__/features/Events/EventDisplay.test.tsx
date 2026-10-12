@@ -700,6 +700,32 @@ describe('Event Preview Display', () => {
     )
   })
 
+  it('message button closes the more menu', async () => {
+    window.MAIL_SPA_URL = 'test'
+    window.open = jest.fn()
+
+    renderWithProviders(
+      <EventPreviewModal
+        open={true}
+        onClose={mockOnClose}
+        calId="667037022b752d0026472254/cal1"
+        eventId="event1"
+      />,
+      preloadedState
+    )
+
+    fireEvent.click(screen.getByTestId('MoreVertIcon'))
+    fireEvent.click(
+      screen.getByRole('menuitem', { name: 'eventPreview.emailAttendees' })
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('menuitem', { name: 'eventPreview.emailAttendees' })
+      ).not.toBeInTheDocument()
+    })
+  })
+
   it('message button encodes special characters in event title correctly', () => {
     window.MAIL_SPA_URL = 'test'
     const mockOpen = jest.fn()
