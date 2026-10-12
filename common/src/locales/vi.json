@@ -592,7 +592,7 @@
       "subtitle": "Cuộc họp của bạn với %{owner} được lên lịch vào %{date} lúc %{time}",
       "subsubtitle": "Thư mời đã được gửi đến email của bạn.",
       "needChanges": "Cần thay đổi?",
-      "cancelMeeting": "hủy",
+      "cancelMeeting": "Hủy",
       "copyLink": "Sao chép liên kết",
       "yourMeetingSuffix": "cuộc họp của bạn"
     },

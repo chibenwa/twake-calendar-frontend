@@ -592,7 +592,7 @@
       "subtitle": "Ваша встреча с %{owner} назначена на %{date} в %{time}",
       "subsubtitle": "Приглашение отправлено на вашу почту.",
       "needChanges": "Нужно внести изменения?",
-      "cancelMeeting": "отменить",
+      "cancelMeeting": "Отменить",
       "copyLink": "Копировать ссылку",
       "yourMeetingSuffix": "вашу встречу"
     },
