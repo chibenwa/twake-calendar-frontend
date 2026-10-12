@@ -71,6 +71,12 @@ function getDateCalendarRootOverrides(theme: Theme) {
       margin: '0',
       color: alpha(theme.palette.grey[900], 0.9)
     },
+    // The colour above outranks MUI's own disabled colour: restore it so
+    // days outside minDate/maxDate do not look selectable.
+    '.MuiDateCalendar-root .MuiPickerDay-root.Mui-disabled:not(.Mui-selected)':
+      {
+        color: theme.palette.text.disabled
+      },
     '.MuiDateCalendar-root .MuiPickerDay-root.MuiPickerDay-today': {
       border: 'none',
       outline: 'none'
