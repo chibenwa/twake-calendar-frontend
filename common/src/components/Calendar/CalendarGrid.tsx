@@ -34,6 +34,7 @@ import { CALENDAR_VIEWS } from './utils/constants'
 import { NoEventsContent } from './NoEventsContent'
 import { WeekNumberContent } from './WeekNumberContent'
 import { DayCellContent } from './DayCellContent'
+import { MoreLinkContent } from './MoreLinkContent'
 import { EventErrorHandler } from '@common/components/Error/EventErrorHandler'
 import { useCalendarGridState } from './hooks/useCalendarGridState'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
@@ -219,6 +220,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           nowIndicatorContent={viewHandlers.handleNowIndicatorContent}
           noEventsContent={() => <NoEventsContent isPending={isPending} />}
           moreLinkClick={otherProps.handleMoreLinkClick}
+          moreLinkContent={arg => (
+            <MoreLinkContent
+              text={arg.text}
+              shortText={arg.shortText}
+              isCompact={isMobile}
+            />
+          )}
           events={events}
           eventOrder={(a: unknown, b: unknown) =>
             sortEventsByDateTime(a as EventApi, b as EventApi)
