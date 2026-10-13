@@ -23,6 +23,42 @@ const NO_VALIDATION_ERROR: ValidationResult = {
   warnings: { date: { start: '' } }
 }
 
+const PROPOSAL_IN_PAST = 'eventPreview.proposalInPast'
+
+// Mirrors the backend, which sends no mail for an already started event: an
+// all day DTSTART is read as midnight UTC, a timed one in the event zone.
+function isProposalInPast({
+  startDate,
+  startTime,
+  allday,
+  timezone
+}: {
+  startDate: string
+  startTime: string
+  allday: boolean
+  timezone: string
+}): boolean {
+  const start = allday
+    ? moment.utc(startDate, 'YYYY-MM-DD')
+    : moment.tz(`${startDate}T${startTime}`, 'YYYY-MM-DDTHH:mm', timezone)
+  return start.isValid() && start.isBefore(moment())
+}
+
+function rejectProposalInPast(
+  result: ValidationResult,
+  allday: boolean
+): ValidationResult {
+  const field = allday ? 'date' : 'time'
+  return {
+    ...result,
+    isValid: false,
+    errors: {
+      ...result.errors,
+      [field]: { ...result.errors[field], start: PROPOSAL_IN_PAST }
+    }
+  }
+}
+
 export function EventCounterModal({
   open,
   setOpen,
@@ -105,9 +141,14 @@ export function EventCounterModal({
       hasEndDateChanged,
       showMore
     })
-    setValidation(result)
+    const checked =
+      result.isValid &&
+      isProposalInPast({ startDate, startTime, allday, timezone })
+        ? rejectProposalInPast(result, allday)
+        : result
+    setValidation(checked)
     setSubmitError('')
-    return result.isValid
+    return checked.isValid
   }
 
   const handleSubmit = async (): Promise<void> => {

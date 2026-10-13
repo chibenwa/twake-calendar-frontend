@@ -77,6 +77,13 @@ public class EventPreviewPopover {
             new Page.GetByRoleOptions().setName(answer).setExact(true)).last().click();
     }
 
+    /** Opens the dialog a guest uses to propose another time to the organizer. */
+    public ProposalDialog proposeNewTime() {
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("New time").setExact(true)).last().click();
+        return new ProposalDialog(page).waitUntilOpen();
+    }
+
     /** Answers on a series: the scope dialog comes up in between. */
     public void answer(String answer, EventFormModal.Scope scope) {
         answer(answer);

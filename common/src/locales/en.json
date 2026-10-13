@@ -384,6 +384,7 @@
     "optionalMessage": "Add optional message to the organizer",
     "sendProposal": "Send proposal",
     "proposalSubmitted": "New time proposal submitted",
+    "proposalInPast": "The proposed time is already past, propose a time to come",
     "ACCEPTED": "Yes",
     "TENTATIVE": "Maybe",
     "DECLINED": "No",

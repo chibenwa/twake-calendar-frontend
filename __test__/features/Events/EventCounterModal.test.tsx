@@ -69,6 +69,73 @@ describe('EventCounterModal', () => {
     expect(EventDao.postCounterProposal).not.toHaveBeenCalled()
   })
 
+  it('refuses a proposed slot that is already past', async () => {
+    const setOpen = jest.fn()
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={setOpen}
+        contextualizedEvent={makeContext(
+          '2000-01-15T20:00:00Z',
+          '2000-01-15T21:00:00Z'
+        )}
+      />
+    )
+
+    fireEvent.click(screen.getByText('eventPreview.sendProposal'))
+
+    expect(
+      await screen.findByText('eventPreview.proposalInPast')
+    ).toBeInTheDocument()
+    expect(EventDao.postCounterProposal).not.toHaveBeenCalled()
+    expect(setOpen).not.toHaveBeenCalledWith(false)
+    expect(
+      screen.queryByText('eventPreview.proposalSubmitted')
+    ).not.toBeInTheDocument()
+  })
+
+  it('refuses an all day proposal starting in the past', async () => {
+    const context = makeContext('2000-01-15', '2000-01-16')
+    context.event.allday = true
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={jest.fn()}
+        contextualizedEvent={context}
+      />
+    )
+
+    fireEvent.click(screen.getByText('eventPreview.sendProposal'))
+
+    expect(
+      await screen.findByText('eventPreview.proposalInPast')
+    ).toBeInTheDocument()
+    expect(EventDao.postCounterProposal).not.toHaveBeenCalled()
+  })
+
+  it('sends a proposed slot to come', async () => {
+    ;(EventDao.postCounterProposal as jest.Mock).mockResolvedValue({ ok: true })
+    const setOpen = jest.fn()
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={setOpen}
+        contextualizedEvent={makeContext(
+          '2099-01-15T20:00:00Z',
+          '2099-01-15T21:00:00Z'
+        )}
+      />
+    )
+
+    fireEvent.click(screen.getByText('eventPreview.sendProposal'))
+
+    await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false))
+    expect(EventDao.postCounterProposal).toHaveBeenCalledTimes(1)
+    expect(
+      screen.queryByText('eventPreview.proposalInPast')
+    ).not.toBeInTheDocument()
+  })
+
   it('shows an error when sending the proposal fails', async () => {
     ;(EventDao.postCounterProposal as jest.Mock).mockRejectedValue(
       new Error('boom')

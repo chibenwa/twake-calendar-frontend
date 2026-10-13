@@ -384,6 +384,7 @@
     "optionalMessage": "Thêm tin nhắn tùy chọn cho người tổ chức",
     "sendProposal": "Gửi đề xuất",
     "proposalSubmitted": "Đề xuất thời gian mới đã được gửi",
+    "proposalInPast": "Thời gian đề xuất đã qua, hãy đề xuất một thời gian trong tương lai",
     "ACCEPTED": "Có",
     "TENTATIVE": "Có thể",
     "DECLINED": "Không",

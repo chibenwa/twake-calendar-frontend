@@ -14,9 +14,11 @@ import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
 import com.linagora.calendar.e2e.backend.Ics;
+import com.linagora.calendar.e2e.docker.E2EClock;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
+import com.linagora.calendar.e2e.pages.ProposalDialog;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitForSelectorState;
@@ -155,5 +157,33 @@ class PastAttendanceTest extends TwakeCalendarE2ETest {
             .as("a guest is not the chair of the meeting")
             .contains("ROLE=REQ-PARTICIPANT");
         assertThat(attendeeLine(ical, organizer.email())).contains("ROLE=CHAIR");
+    }
+
+    @Test
+    @DisplayName("PAST-52 (#1637) A new time already past is refused, not claimed sent")
+    void aNewTimeAlreadyPastIsRefused(Page page, E2EUser organizer, E2EUserFactory users,
+                                      E2ESessions sessions) {
+        E2EUser guest = users.newUser();
+        CalendarPage guestCalendar = sessions.openFor(guest);
+        CalendarPage calendar = LoginPage.loginAs(page, organizer);
+
+        String title = title("Too late");
+        calendar.createEvent().title(title).addGuest(guest.email()).save();
+        awaitAttached(calendar.eventCard(title));
+
+        guestCalendar.reload();
+        ProposalDialog proposal = guestCalendar.openEvent(title).proposeNewTime()
+            .startDate(E2EClock.today().minusDays(7))
+            .send();
+
+        assertThat(proposal.awaitMessage("The proposed time is already past"))
+            .as("the backend sends no mail for a slot already past, the dialog must say so")
+            .contains("The proposed time is already past");
+        assertThat(proposal.isOpen())
+            .as("the proposal was not sent, the dialog stays open to pick another time")
+            .isTrue();
+        assertThat(guestCalendar.page().getByText("New time proposal submitted").count())
+            .as("nothing was sent, no toast may claim otherwise")
+            .isZero();
     }
 }

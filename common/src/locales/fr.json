@@ -384,6 +384,7 @@
     "optionalMessage": "Ajouter un message optionnel à l'organisateur",
     "sendProposal": "Envoyer la proposition",
     "proposalSubmitted": "Proposition de nouvel horaire envoyée",
+    "proposalInPast": "L'horaire proposé est déjà passé, proposez un horaire à venir",
     "ACCEPTED": "Oui",
     "TENTATIVE": "Peut-être",
     "DECLINED": "Non",

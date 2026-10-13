@@ -384,6 +384,7 @@
     "optionalMessage": "Optionale Nachricht an den Organisator hinzufügen",
     "sendProposal": "Vorschlag senden",
     "proposalSubmitted": "Vorschlag für eine neue Zeit gesendet",
+    "proposalInPast": "Die vorgeschlagene Zeit liegt in der Vergangenheit, schlagen Sie eine zukünftige Zeit vor",
     "ACCEPTED": "Ja",
     "TENTATIVE": "Vielleicht",
     "DECLINED": "Nein",
