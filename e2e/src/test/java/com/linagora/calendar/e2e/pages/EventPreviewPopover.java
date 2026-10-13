@@ -129,6 +129,15 @@ public class EventPreviewPopover {
         return new EventFormModal(page);
     }
 
+    /** Opens the dialog in which a guest proposes another time to the organizer. */
+    public EventFormModal proposeNewTime() {
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("New time").setExact(true)).last().click();
+        page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+            new Page.GetByRoleOptions().setName("Send proposal")).last().waitFor();
+        return new EventFormModal(page);
+    }
+
     /** Duplicates the event, which opens the creation modal on the copy. */
     public EventFormModal duplicate() {
         moreOptions();

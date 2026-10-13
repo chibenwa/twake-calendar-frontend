@@ -1,4 +1,5 @@
 import { EventCounterModal } from '@common/features/Events/AttendanceValidation/EventCounterModal'
+import { makeCounterProposalPayload } from '@common/features/Events/transformers/makeCounterProposalPayload'
 import * as EventDao from '@common/features/Events/EventDao'
 import { ContextualizedEvent } from '@common/types/EventsTypes'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
@@ -15,7 +16,11 @@ jest.mock(
   })
 )
 
-const makeContext = (start: string, end: string): ContextualizedEvent =>
+const makeContext = (
+  start: string,
+  end: string,
+  timezone = 'UTC'
+): ContextualizedEvent =>
   ({
     event: {
       uid: 'event-1',
@@ -23,7 +28,7 @@ const makeContext = (start: string, end: string): ContextualizedEvent =>
       title: 'Secret plan',
       start,
       end,
-      timezone: 'UTC',
+      timezone,
       allday: false,
       organizer: { cal_address: 'carol@example.com' },
       attendee: [{ cal_address: 'bob@example.com', partstat: 'NEEDS-ACTION' }]
@@ -94,5 +99,37 @@ describe('EventCounterModal', () => {
       expect(EventDao.postCounterProposal).toHaveBeenCalledTimes(1)
     )
     expect(setOpen).not.toHaveBeenCalledWith(false)
+  })
+
+  it('shows the event and the proposal in the user time zone, not the organizer one', async () => {
+    ;(EventDao.postCounterProposal as jest.Mock).mockResolvedValue(undefined)
+
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={jest.fn()}
+        contextualizedEvent={makeContext(
+          '2099-01-15T08:00:00Z',
+          '2099-01-15T09:00:00Z',
+          'Europe/Paris'
+        )}
+      />,
+      { settings: { timeZone: 'Asia/Tokyo' } } as never
+    )
+
+    expect(screen.getByText(/UTC\+9/)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('17:00')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('18:00')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('eventPreview.sendProposal'))
+
+    await waitFor(() =>
+      expect(makeCounterProposalPayload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          proposedStart: '2099-01-15T08:00:00.000Z',
+          proposedEnd: '2099-01-15T09:00:00.000Z'
+        })
+      )
+    )
   })
 })

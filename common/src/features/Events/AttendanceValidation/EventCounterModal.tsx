@@ -1,3 +1,4 @@
+import { useAppSelector } from '@common/app/hooks'
 import { formatEventChipTitle } from '@common/components/Calendar/utils/calendarUtils'
 import { ResponsiveDialog } from '@common/components/Dialog'
 import { DateTimeFields } from '@common/components/Event/components/DateTimeFields/DateTimeFields'
@@ -16,6 +17,7 @@ import { postCounterProposal } from '@common/features/Events/EventDao'
 import { EventTimeSubtitle } from '@common/components/EventPreview/EventTimeSubtitle'
 import { ContextualizedEvent } from '@common/types/EventsTypes'
 import { makeCounterProposalPayload } from '@common/features/Events/transformers/makeCounterProposalPayload'
+import { browserDefaultTimeZone } from '@common/utils/timezone'
 
 const NO_VALIDATION_ERROR: ValidationResult = {
   isValid: true,
@@ -38,7 +40,11 @@ export function EventCounterModal({
 
   const allday = contextualizedEvent.event.allday ?? false
 
-  const timezone = contextualizedEvent.event.timezone
+  const timezone =
+    useAppSelector(state => state.settings.timeZone) ?? browserDefaultTimeZone
+
+  const toProposedInstant = (date: string, time: string): string =>
+    allday ? date : moment.tz(`${date}T${time}`, timezone).toISOString()
 
   const startSplit = splitDateTime(
     moment
@@ -125,12 +131,8 @@ export function EventCounterModal({
         event: contextualizedEvent.event,
         senderEmail: contextualizedEvent.currentUserAttendee.cal_address,
         recipientEmail: contextualizedEvent.event.organizer.cal_address,
-        proposedStart: contextualizedEvent.event.allday
-          ? startDate
-          : `${startDate}T${startTime}`,
-        proposedEnd: contextualizedEvent.event.allday
-          ? endDate
-          : `${endDate}T${endTime}`,
+        proposedStart: toProposedInstant(startDate, startTime),
+        proposedEnd: toProposedInstant(endDate, endTime),
         message
       })
       await postCounterProposal(contextualizedEvent.event, counterProposal)
@@ -201,7 +203,7 @@ export function EventCounterModal({
 
         <EventTimeSubtitle
           event={contextualizedEvent.event}
-          timezone={contextualizedEvent.event.timezone}
+          timezone={timezone}
         />
 
         {/* Your proposal label */}

@@ -433,6 +433,36 @@ class AttendeesFullTest extends TwakeCalendarE2ETest {
             .contains("TZID=Europe/Paris");
     }
 
+    @Test
+    @DisplayName("ATT-22 A guest in another timezone reads the event in their own zone in the personal settings and New time dialogs (#1638)")
+    void aGuestInAnotherTimezoneReadsTheirOwnZoneInTheDialogs(Page page, E2EUser organizer, E2EUserFactory users,
+                                                              E2ESessions sessions) {
+        E2EUser guest = users.newUser();
+        CalendarPage tokyo = sessions.openFor(guest, "Asia/Tokyo");
+        tokyo.openSettings().selectTimezone("Asia/Tokyo").backToCalendar();
+        CalendarPage paris = LoginPage.loginAs(page, organizer);
+        String title = title("Elsewhere");
+        paris.createEvent().title(title).addGuest(guest.email())
+            .expand().startTime("10:00").endTime("11:00").save();
+        awaitAttached(paris.eventCard(title));
+
+        tokyo.reload();
+        awaitAttached(tokyo.eventCard(title));
+
+        var personal = tokyo.openEvent(title).personalSettings();
+        assertThat(personal.text())
+            .as("10:00 in Paris is 17:00 in Tokyo, as in the preview and the grid")
+            .contains("17:00 – 18:00 UTC+9");
+        personal.cancel();
+
+        var proposal = tokyo.openEvent(title).proposeNewTime();
+        assertThat(proposal.text()).contains("17:00 – 18:00 UTC+9");
+        assertThat(proposal.startTime())
+            .as("the proposal starts from the time the guest reads, in their own zone")
+            .isEqualTo("17:00");
+        assertThat(proposal.endTime()).isEqualTo("18:00");
+    }
+
     private static String startLine(String ical) {
         String event = Ics.event(ical);
         return Ics.parameters(event, "DTSTART") + ":" + Ics.property(event, "DTSTART").orElseThrow();

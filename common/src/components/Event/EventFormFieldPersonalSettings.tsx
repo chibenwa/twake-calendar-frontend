@@ -1,3 +1,4 @@
+import { useAppSelector } from '@common/app/hooks'
 import { Calendar } from '@common/types/CalendarTypes'
 import { Box, Typography } from '@linagora/twake-mui'
 import React, { useCallback } from 'react'
@@ -10,6 +11,17 @@ import { EventFormValues } from './EventFormFields.types'
 import { CalendarSelectField } from './fields/CalendarSelectField'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { useI18n } from 'twake-i18n'
+import moment from 'moment-timezone'
+import { browserDefaultTimeZone } from '@common/utils/timezone'
+
+// Form values hold wall-clock times in the event zone: turn them into
+// instants so they can be displayed in the user's zone
+function toDisplayedEvent(v: EventFormValues): EventFormValues {
+  if (v.allday) return v
+  const toInstant = (dateTime: string): string =>
+    dateTime ? moment.tz(dateTime, v.timezone).toISOString() : dateTime
+  return { ...v, start: toInstant(v.start), end: toInstant(v.end) }
+}
 
 export function EventFormFieldPersonalSettings({
   v,
@@ -35,6 +47,8 @@ export function EventFormFieldPersonalSettings({
   user: userAttendee
 }): React.ReactNode {
   const { t } = useI18n()
+  const userTimezone =
+    useAppSelector(state => state.settings.timeZone) ?? browserDefaultTimeZone
 
   const setAlarmsWithUser = useCallback(
     (alarms: Valarms) => {
@@ -75,7 +89,10 @@ export function EventFormFieldPersonalSettings({
           {formatEventChipTitle(v, t)}
         </Typography>
       </Box>
-      <EventTimeSubtitle event={v} timezone={v.timezone} />
+      <EventTimeSubtitle
+        event={toDisplayedEvent(v)}
+        timezone={v.allday ? v.timezone : userTimezone}
+      />
 
       {typeOfAction !== 'solo' && (
         <CalendarSelectField

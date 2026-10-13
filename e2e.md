@@ -355,6 +355,7 @@ day, 23:45) — 48 tests.
 - [x] `ATT-19` A guest invited to an event visible to participants only gets it, with its details
 - [x] `ATT-20` A guest added later to an event visible to participants only gets it, with its details
 - [x] `ATT-21` A guest in another timezone can save their personal event settings ([#1562](https://github.com/linagora/twake-calendar-frontend/issues/1562))
+- [x] `ATT-22` A guest in another timezone reads the event in their own zone in the personal settings and New time dialogs ([#1638](https://github.com/linagora/twake-calendar-frontend/issues/1638))
 
 ## CAL — Personal calendars (15)
 
