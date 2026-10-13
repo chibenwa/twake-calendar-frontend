@@ -42,4 +42,12 @@ describe('MobileMenubar', () => {
       overflow: 'hidden'
     })
   })
+
+  it('vertically centres the period title with its date-picker arrow', () => {
+    const container = renderMobileMenubar('January 2026')
+
+    expect(container.querySelector('.current-date-time')).toHaveStyle({
+      alignItems: 'center'
+    })
+  })
 })

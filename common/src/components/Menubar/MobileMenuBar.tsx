@@ -118,7 +118,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
               <div className="menu-items date-title">
                 <Stack
                   direction="row"
-                  alignItems="center"
+                  sx={{ alignItems: 'center' }}
                   className="current-date-time"
                 >
                   <Typography
