@@ -442,6 +442,12 @@
       "monthly": "Cada mes |||| Cada %{smart_count} meses",
       "yearly": "Cada año |||| Cada %{smart_count} años"
     },
+    "everyFreq": {
+      "daily": "Cada día",
+      "weekly": "Cada semana",
+      "monthly": "Cada mes",
+      "yearly": "Cada año"
+    },
     "forOccurrences": "%{smart_count} vez |||| %{smart_count} veces",
     "until": "hasta el %{date}",
     "days": "días",

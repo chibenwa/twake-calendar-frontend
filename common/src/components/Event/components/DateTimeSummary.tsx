@@ -59,7 +59,7 @@ export const DateTimeSummary: React.FC<DateTimeSummaryProps> = ({
       makeRecurrenceString({
         repetition: rep,
         t,
-        startText: rep.interval === 1 ? t('event.repeat.every') : '',
+        startText: '',
         joinChar: '',
         enableStrForOneTimeInterval: true
       }) || ''

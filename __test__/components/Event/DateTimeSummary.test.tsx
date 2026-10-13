@@ -33,4 +33,23 @@ describe('DateTimeSummary', () => {
     expect(name).not.toMatch(/22:00/)
     expect(name).toMatch(/2099, .*Europe\/Paris/)
   })
+
+  it('summarises a weekly repetition with a full-sentence frequency', () => {
+    const repetition = new RepetitionObject({
+      freq: 'weekly',
+      interval: 1,
+      byday: ['TH']
+    })
+    renderWithProviders(
+      <DateTimeSummary {...baseProps} repetition={repetition} />
+    )
+
+    const name = screen.getByRole('button').getAttribute('aria-label')
+
+    expect(name).toContain(
+      'eventPreview.everyFreq.weekly eventPreview.recurrenceOnDays(days=eventPreview.onDays.TH)'
+    )
+    expect(name).not.toContain('event.repeat.every')
+    expect(name).not.toContain('event.repeat.frequency')
+  })
 })

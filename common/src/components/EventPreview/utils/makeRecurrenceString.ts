@@ -10,14 +10,7 @@ interface MakeRecurrenceStringParams {
   enableStrForOneTimeInterval?: boolean
 }
 
-const getRecurType = (
-  t: (k: string, p?: Record<string, unknown>) => string
-): Record<string, string> => ({
-  daily: t('event.repeat.frequency.days'),
-  weekly: t('event.repeat.frequency.weeks'),
-  monthly: t('event.repeat.frequency.months'),
-  yearly: t('event.repeat.frequency.years')
-})
+const SUPPORTED_FREQS = ['daily', 'weekly', 'monthly', 'yearly']
 
 const getIntervalText = (
   repetition: RepetitionObject,
@@ -25,16 +18,15 @@ const getIntervalText = (
   enableStrForOneTimeInterval?: boolean
 ): string | undefined => {
   const interval = repetition.interval ?? 1
-  const recurType = getRecurType(t)
+  const isSupportedFreq = SUPPORTED_FREQS.includes(repetition.freq)
 
   if (interval === 1 && enableStrForOneTimeInterval) {
-    return recurType[repetition.freq]
+    return isSupportedFreq
+      ? t(`eventPreview.everyFreq.${repetition.freq}`)
+      : undefined
   }
 
-  if (
-    interval > 1 &&
-    Object.prototype.hasOwnProperty.call(recurType, repetition.freq)
-  ) {
+  if (interval > 1 && isSupportedFreq) {
     return t(`eventPreview.everyIntervalByFreq.${repetition.freq}`, {
       smart_count: interval
     })

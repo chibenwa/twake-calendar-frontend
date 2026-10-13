@@ -426,13 +426,13 @@
       "yearly": "yearly"
     },
     "onDays": {
-      "MO": "monday",
-      "TU": "tuesday",
-      "WE": "wednesday",
-      "TH": "thursday",
-      "FR": "friday",
-      "SA": "saturday",
-      "SU": "sunday"
+      "MO": "Monday",
+      "TU": "Tuesday",
+      "WE": "Wednesday",
+      "TH": "Thursday",
+      "FR": "Friday",
+      "SA": "Saturday",
+      "SU": "Sunday"
     },
     "recurrenceOnDays": "on %{days}",
     "everyInterval": "Every %{interval} %{unit}",
@@ -441,6 +441,12 @@
       "weekly": "Every week |||| Every %{smart_count} weeks",
       "monthly": "Every month |||| Every %{smart_count} months",
       "yearly": "Every year |||| Every %{smart_count} years"
+    },
+    "everyFreq": {
+      "daily": "Every day",
+      "weekly": "Every week",
+      "monthly": "Every month",
+      "yearly": "Every year"
     },
     "forOccurrences": "for %{smart_count} occurrence |||| for %{smart_count} occurrences",
     "until": "until %{date}",

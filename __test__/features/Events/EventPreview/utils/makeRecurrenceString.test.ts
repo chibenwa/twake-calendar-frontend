@@ -1,5 +1,14 @@
 import { makeRecurrenceString } from '@common/components/EventPreview/utils/makeRecurrenceString'
+import de from '@common/locales/de.json'
+import en from '@common/locales/en.json'
+import es from '@common/locales/es.json'
+import fr from '@common/locales/fr.json'
+import italian from '@common/locales/it.json'
+import ru from '@common/locales/ru.json'
+import vi from '@common/locales/vi.json'
 import { RepetitionObject } from '@common/types/Repetition'
+
+const LOCALES = { de, en, es, fr, it: italian, ru, vi }
 
 describe('makeRecurrenceString', () => {
   const freqUnits: Record<string, string> = {
@@ -30,10 +39,10 @@ describe('makeRecurrenceString', () => {
     }
 
     const translations: Record<string, string> = {
-      'event.repeat.frequency.days': 'days',
-      'event.repeat.frequency.weeks': 'weeks',
-      'event.repeat.frequency.months': 'months',
-      'event.repeat.frequency.years': 'years',
+      'eventPreview.everyFreq.daily': 'Every day',
+      'eventPreview.everyFreq.weekly': 'Every week',
+      'eventPreview.everyFreq.monthly': 'Every month',
+      'eventPreview.everyFreq.yearly': 'Every year',
       'eventPreview.onDays.MO': 'Monday',
       'eventPreview.onDays.TU': 'Tuesday',
       'eventPreview.onDays.WE': 'Wednesday',
@@ -62,7 +71,7 @@ describe('makeRecurrenceString', () => {
       enableStrForOneTimeInterval: true
     })
 
-    expect(result).toBe('Repeats, days')
+    expect(result).toBe('Repeats, Every day')
   })
 
   it('formats string when interval is undefined', () => {
@@ -74,7 +83,7 @@ describe('makeRecurrenceString', () => {
       enableStrForOneTimeInterval: true
     })
 
-    expect(result).toBe('Repeats, days')
+    expect(result).toBe('Repeats, Every day')
   })
 
   it('formats string for interval > 1', () => {
@@ -171,5 +180,81 @@ describe('makeRecurrenceString', () => {
     })
 
     expect(result).toBe('Repeats; Every 2 weeks; for 10 times')
+  })
+
+  it('ignores unsupported frequencies for interval === 1', () => {
+    const repetition: RepetitionObject = { freq: 'hourly', interval: 1 }
+    const result = makeRecurrenceString({
+      repetition,
+      t: mockT,
+      startText,
+      enableStrForOneTimeInterval: true
+    })
+
+    expect(result).toBe('Repeats')
+  })
+
+  describe('with the real locales, as in the collapsed event form', () => {
+    const makeLocaleT =
+      (locale: Record<string, unknown>) =>
+      (key: string, params?: Record<string, unknown>): string => {
+        const value = key
+          .split('.')
+          .reduce<unknown>(
+            (node, part) => (node as Record<string, unknown>)?.[part],
+            locale
+          )
+        return Object.entries(params ?? {}).reduce(
+          (text, [name, param]) => text.replace(`%{${name}}`, String(param)),
+          typeof value === 'string' ? value : key
+        )
+      }
+
+    const summarize = (
+      locale: Record<string, unknown>,
+      repetition: RepetitionObject
+    ): string | undefined =>
+      makeRecurrenceString({
+        repetition,
+        t: makeLocaleT(locale),
+        startText: '',
+        joinChar: '',
+        enableStrForOneTimeInterval: true
+      })
+
+    const weeklyOnThursday: RepetitionObject = {
+      freq: 'weekly',
+      interval: 1,
+      byday: ['TH']
+    }
+
+    it.each([
+      ['en', 'Every week on Thursday'],
+      ['fr', 'Toutes les semaines le jeudi'],
+      ['ru', 'Каждую неделю по четвергам'],
+      ['de', 'Jede Woche am Donnerstag'],
+      ['es', 'Cada semana los jueves'],
+      ['it', 'Ogni settimana il giovedì'],
+      ['vi', 'Hàng tuần vào thứ năm']
+    ] as const)('reads as a sentence in %s', (lang, expected) => {
+      expect(summarize(LOCALES[lang], weeklyOnThursday)).toBe(expected)
+    })
+
+    it.each(Object.entries(LOCALES))(
+      'translates every frequency with an interval of 1 in %s',
+      (_lang, locale) => {
+        expect(Object.keys(locale.eventPreview.everyFreq)).toEqual([
+          'daily',
+          'weekly',
+          'monthly',
+          'yearly'
+        ])
+        Object.entries(locale.eventPreview.everyFreq).forEach(
+          ([freq, expected]) => {
+            expect(summarize(locale, { freq, interval: 1 })).toBe(expected)
+          }
+        )
+      }
+    )
   })
 })

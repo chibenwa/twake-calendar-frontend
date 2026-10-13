@@ -442,6 +442,12 @@
       "monthly": "Mỗi %{smart_count} tháng",
       "yearly": "Mỗi %{smart_count} năm"
     },
+    "everyFreq": {
+      "daily": "Hàng ngày",
+      "weekly": "Hàng tuần",
+      "monthly": "Hàng tháng",
+      "yearly": "Hàng năm"
+    },
     "forOccurrences": "trong %{smart_count} lần",
     "until": "đến %{date}",
     "days": "ngày",

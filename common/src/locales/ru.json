@@ -426,13 +426,13 @@
       "yearly": "ежегодно"
     },
     "onDays": {
-      "MO": "ПН",
-      "TU": "ВТ",
-      "WE": "СР",
-      "TH": "ЧТ",
-      "FR": "ПТ",
-      "SA": "СБ",
-      "SU": "ВС"
+      "MO": "понедельникам",
+      "TU": "вторникам",
+      "WE": "средам",
+      "TH": "четвергам",
+      "FR": "пятницам",
+      "SA": "субботам",
+      "SU": "воскресеньям"
     },
     "recurrenceOnDays": "по %{days}",
     "everyInterval": "Каждые %{interval} %{unit}",
@@ -441,6 +441,12 @@
       "weekly": "Каждую %{smart_count} неделю |||| Каждые %{smart_count} недели |||| Каждые %{smart_count} недель",
       "monthly": "Каждый %{smart_count} месяц |||| Каждые %{smart_count} месяца |||| Каждые %{smart_count} месяцев",
       "yearly": "Каждый %{smart_count} год |||| Каждые %{smart_count} года |||| Каждые %{smart_count} лет"
+    },
+    "everyFreq": {
+      "daily": "Каждый день",
+      "weekly": "Каждую неделю",
+      "monthly": "Каждый месяц",
+      "yearly": "Каждый год"
     },
     "forOccurrences": "в течение %{smart_count} повторения |||| в течение %{smart_count} повторений |||| в течение %{smart_count} повторений",
     "until": "до %{date}",
