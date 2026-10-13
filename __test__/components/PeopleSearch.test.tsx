@@ -156,6 +156,43 @@ describe('PeopleSearch', () => {
     expect(noResults).toBeInTheDocument()
   })
 
+  it('reports the cleared query when options are hidden', async () => {
+    mockedSearchUsers.mockResolvedValueOnce([])
+    const onSearchStateChange = jest.fn()
+    setup([], { hideOptions: true, onSearchStateChange })
+
+    const input = screen.getByRole('combobox')
+    await userEvent.type(input, 'zz')
+    await act(async () => {
+      jest.advanceTimersByTime(300)
+    })
+    await waitFor(() =>
+      expect(onSearchStateChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ query: 'zz', hasSearched: true })
+      )
+    )
+
+    await userEvent.clear(input)
+
+    expect(onSearchStateChange).toHaveBeenLastCalledWith({
+      query: '',
+      options: [],
+      loading: false,
+      hasSearched: false
+    })
+  })
+
+  it('does not report an empty query before anything was typed', async () => {
+    const onSearchStateChange = jest.fn()
+    setup([], { hideOptions: true, onSearchStateChange })
+
+    await act(async () => {
+      jest.advanceTimersByTime(300)
+    })
+
+    expect(onSearchStateChange).not.toHaveBeenCalled()
+  })
+
   it('does not clear options when search fails and shows error snackbar', async () => {
     mockedSearchUsers.mockResolvedValueOnce([baseUser])
     setup()

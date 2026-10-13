@@ -101,6 +101,23 @@ const useSearchStateSync = ({
     onSearchStateChangeRef
   ])
 
+  // Clearing the field runs no search (queryTime does not move): report the
+  // empty query so callers drop the results of the previous one.
+  const hadQueryRef = useRef(false)
+
+  useEffect(() => {
+    const hasQuery = !!query.trim()
+    if (hideOptions && hadQueryRef.current && !hasQuery) {
+      onSearchStateChangeRef.current?.({
+        query,
+        options: [],
+        loading: false,
+        hasSearched: false
+      })
+    }
+    hadQueryRef.current = hasQuery
+  }, [query, hideOptions, onSearchStateChangeRef])
+
   useEffect(() => {
     if (inputValue !== undefined) {
       setQuery(inputValue)
