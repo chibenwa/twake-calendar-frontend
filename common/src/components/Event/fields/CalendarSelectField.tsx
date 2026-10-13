@@ -79,7 +79,8 @@ const CalendarSelectFieldCollapsed: React.FC<{
             showCaption={
               isSelectedDelegated &&
               selectedCalendar.name !== '#default' &&
-              !selectedCalendar.owner?.teamCalendar
+              !selectedCalendar.owner?.teamCalendar &&
+              !selectedCalendar.owner?.resource
             }
             ownerDisplayName={selectedOwnerDisplayName}
           />
