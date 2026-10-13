@@ -121,22 +121,12 @@ const useHandleBlurCommit = (
       const trimmed = query.trim()
       if (!trimmed) return
       const result = validateAndAddUser(trimmed, selectedUsers, t)
-      if (result.error !== null) {
-        if (!trimmed.includes('@')) {
-          setQuery('')
-          setInputError(null)
-          return
-        }
-        setInputError(result.error)
+      if (result.error !== null && !trimmed.includes('@')) {
+        setQuery('')
+        setInputError(null)
         return
       }
-      setInputError(null)
-      if (result.updatedUsers) {
-        onChange(event, result.updatedUsers)
-      }
-      if (result.shouldClearQuery) {
-        setQuery('')
-      }
+      applyValidationResult(result, event, onChange, setInputError, setQuery)
     },
     [query, selectedUsers, onChange, t, setInputError, setQuery]
   )
@@ -150,7 +140,7 @@ const useHandleAutocompleteChange = (
 ): ((event: SyntheticEvent, value: (string | User)[]) => void) => {
   return useCallback(
     (event: SyntheticEvent, value: (string | User)[]) => {
-      const error = getAutocompleteError(value[value.length - 1], t)
+      const error = getAutocompleteError(value, t)
       if (error) {
         setInputError(error)
         return
@@ -181,17 +171,7 @@ const useHandleKeyDown = (
         }
         event.preventDefault()
         const result = validateAndAddUser(trimmed, selectedUsers, t)
-        if (result.error !== null) {
-          setInputError(result.error)
-          return
-        }
-        setInputError(null)
-        if (result.updatedUsers) {
-          onChange(event, result.updatedUsers)
-        }
-        if (result.shouldClearQuery) {
-          setQuery('')
-        }
+        applyValidationResult(result, event, onChange, setInputError, setQuery)
       }
     },
     [
@@ -208,19 +188,16 @@ const useHandleKeyDown = (
 
 const useHandleInputChange = (
   setQuery: (val: string) => void,
-  setInputError: (val: string | null) => void,
-  enableEmailAutocompleteAndCommit?: boolean
+  setInputError: (val: string | null) => void
 ): ((_event: SyntheticEvent, value: string, reason: string) => void) => {
   return useCallback(
     (_event: SyntheticEvent, value: string, reason: string) => {
       setQuery(value)
-      if (!enableEmailAutocompleteAndCommit) return
-
       if (['input', 'clear'].includes(reason) || !value.trim()) {
         setInputError(null)
       }
     },
-    [setQuery, setInputError, enableEmailAutocompleteAndCommit]
+    [setQuery, setInputError]
   )
 }
 
@@ -269,8 +246,11 @@ const validateAndAddUser = (
       shouldClearQuery: false
     }
   }
-  if (selectedUsers.some(u => EmailAddress.sameAddress(u.email, email.value))) {
-    return { error: null, shouldClearQuery: true }
+  if (isAlreadyAdded(email.value, selectedUsers)) {
+    return {
+      error: t('peopleSearch.emailAlreadyAdded'),
+      shouldClearQuery: true
+    }
   }
   const newUser: User = { email: email.value, displayName: email.value }
   return {
@@ -280,12 +260,37 @@ const validateAndAddUser = (
   }
 }
 
+const applyValidationResult = (
+  result: ValidateUserResult,
+  event: SyntheticEvent,
+  onChange: (event: SyntheticEvent, users: User[]) => void,
+  setInputError: (val: string | null) => void,
+  setQuery: (val: string) => void
+): void => {
+  setInputError(result.error)
+  if (result.updatedUsers) {
+    onChange(event, result.updatedUsers)
+  }
+  if (result.shouldClearQuery) {
+    setQuery('')
+  }
+}
+
+const isAlreadyAdded = (email: string, users: User[]): boolean =>
+  users.some(u => EmailAddress.sameAddress(u.email, email))
+
 const getAutocompleteError = (
-  lastValue: string | User | undefined,
+  value: (string | User)[],
   t: (key: string) => string
 ): string | null => {
+  const lastValue = value[value.length - 1]
+  if (lastValue === undefined) return null
   if (typeof lastValue === 'string' && !EmailAddress.parse(lastValue)) {
     return t('peopleSearch.invalidEmail').replace('%{email}', lastValue)
+  }
+  const previousUsers = value.slice(0, -1).map(normaliseUser)
+  if (isAlreadyAdded(normaliseUser(lastValue).email, previousUsers)) {
+    return t('peopleSearch.emailAlreadyAdded')
   }
   return null
 }
@@ -357,11 +362,7 @@ const usePeopleSearchHandlers = ({
     enableEmailAutocompleteAndCommit
   )
 
-  const handleInputChange = useHandleInputChange(
-    setQuery,
-    setInputError,
-    enableEmailAutocompleteAndCommit
-  )
+  const handleInputChange = useHandleInputChange(setQuery, setInputError)
 
   const handleSnackbarOpenChange = useHandleSnackbarOpenChange(
     setSnackbarOpen,

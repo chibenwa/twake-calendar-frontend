@@ -572,6 +572,9 @@ describe('PeopleSearch', () => {
 
       expect(onChange).not.toHaveBeenCalled()
       expect(input).toHaveValue('')
+      expect(
+        screen.getByText('peopleSearch.emailAlreadyAdded')
+      ).toBeInTheDocument()
     })
 
     it('does not add an email differing only by case when Enter is pressed', async () => {
@@ -596,6 +599,81 @@ describe('PeopleSearch', () => {
       onChange.mock.calls.forEach(([, users]) => {
         expect(users).toEqual([existing])
       })
+      expect(
+        await screen.findByText('peopleSearch.emailAlreadyAdded')
+      ).toBeInTheDocument()
+    })
+
+    it('tells why a suggestion already added is refused on Enter', async () => {
+      mockedSearchUsers.mockResolvedValue([baseUser])
+      const existing: User = {
+        email: 'test@example.com',
+        displayName: 'Test User'
+      }
+      const { onChange } = setup([existing], {
+        freeSolo: true,
+        enableEmailAutocompleteAndCommit: true,
+        showWarningOnDuplicate: true
+      })
+
+      const input = screen.getByRole('combobox')
+      await userEvent.type(input, 'TEST@Example.com')
+      await act(async () => {
+        jest.advanceTimersByTime(300)
+      })
+      await screen.findByRole('option')
+
+      fireEvent.keyDown(input, { key: 'Enter' })
+
+      onChange.mock.calls.forEach(([, users]) => {
+        expect(users).toEqual([existing])
+      })
+      expect(input).toHaveValue('')
+      expect(
+        await screen.findByText('peopleSearch.emailAlreadyAdded')
+      ).toBeInTheDocument()
+    })
+
+    it('tells why a suggestion already added is refused on click', async () => {
+      mockedSearchUsers.mockResolvedValue([baseUser])
+      const existing: User = {
+        email: 'test@example.com',
+        displayName: 'Test User'
+      }
+      const { onChange } = setup([existing], { showWarningOnDuplicate: true })
+
+      const input = screen.getByRole('combobox')
+      await userEvent.type(input, 'Test')
+      await act(async () => {
+        jest.advanceTimersByTime(300)
+      })
+      await userEvent.click(await screen.findByRole('option'))
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(
+        await screen.findByText('peopleSearch.emailAlreadyAdded')
+      ).toBeInTheDocument()
+    })
+
+    it('hides the already added message once the user types again', async () => {
+      const existing: User = {
+        email: 'bob@open-paas.org',
+        displayName: 'bob@open-paas.org'
+      }
+      setup([existing], { enableEmailAutocompleteAndCommit: true })
+
+      const input = screen.getByRole('combobox')
+      await userEvent.type(input, 'bob@open-paas.org')
+      fireEvent.keyDown(input, { key: ' ' })
+      expect(
+        screen.getByText('peopleSearch.emailAlreadyAdded')
+      ).toBeInTheDocument()
+
+      await userEvent.type(input, 'a')
+
+      expect(
+        screen.queryByText('peopleSearch.emailAlreadyAdded')
+      ).not.toBeInTheDocument()
     })
 
     it('dedupes emails differing only by case, keeping the first one', () => {
