@@ -283,6 +283,7 @@ export const BookingPage: React.FC = () => {
               eventLink={`${window.location.origin}/booking/confirmed/${bookingConfirmationToken}`}
               bookingConfirmationToken={bookingConfirmationToken}
               onCancelMeeting={() => void handleCancelMeeting()}
+              selectedTimezone={selectedTimezone}
             />
           </Box>
           <SnackbarAlert

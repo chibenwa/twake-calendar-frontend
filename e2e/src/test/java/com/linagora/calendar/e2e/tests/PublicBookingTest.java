@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +34,9 @@ import com.microsoft.playwright.assertions.PlaywrightAssertions;
  * session into the public page could not go unnoticed.
  */
 class PublicBookingTest extends TwakeCalendarE2ETest {
+    private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+    private static final ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
+    private static final DateTimeFormatter HH_MM = DateTimeFormatter.ofPattern("HH:mm");
 
     private static String uniqueName(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
@@ -212,6 +219,53 @@ class PublicBookingTest extends TwakeCalendarE2ETest {
         assertThat(confirmation).contains("Meeting created");
         assertThat(confirmation).contains("14:00");
         assertThat(confirmation).contains(String.valueOf(day.getDayOfMonth()));
+    }
+
+    @Test
+    @DisplayName("PUB-24 The confirmation tells the meeting in the zone the visitor picked")
+    void theConfirmationUsesTheZoneThePageShows(Page page, E2EUser user, E2ESessions sessions) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String publicId = publish(owner, uniqueName("Far east"), day, "09:00", "11:00");
+        // the schedule is in the zone of the owner's browser, Paris, and Tokyo has no DST
+        ZonedDateTime inTokyo = day.atTime(LocalTime.of(9, 0)).atZone(PARIS)
+            .withZoneSameInstant(TOKYO);
+
+        Page visitor = sessions.blankPage();
+        String confirmation = PublicBookingPage.open(visitor, publicId)
+            .selectTimezone("Asia/Tokyo")
+            .selectDay(inTokyo.toLocalDate())
+            .pickSlot(inTokyo.format(HH_MM))
+            .bookAs("Far Visitor", "far.visitor@open-paas.org")
+            .successMessage();
+
+        assertThat(confirmation)
+            .as("the time and the zone must be the ones the visitor booked in, not the browser's")
+            .contains("at " + inTokyo.format(HH_MM))
+            .contains("(UTC+9) Asia/Tokyo")
+            .doesNotContain("Europe/Paris");
+    }
+
+    @Test
+    @DisplayName("PUB-25 The confirmation labels the meeting with the offset of its own date")
+    void theConfirmationUsesTheOffsetOfTheMeetingDate(Page page, E2EUser user,
+                                                      E2ESessions sessions) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String publicId = publish(owner, uniqueName("Offset of the day"), day, "09:00", "11:00");
+        // around a DST switch, the offset of the meeting differs from the one of today
+        int hours = day.atTime(LocalTime.of(9, 0)).atZone(PARIS)
+            .getOffset().getTotalSeconds() / 3600;
+
+        Page visitor = sessions.blankPage();
+        String confirmation = PublicBookingPage.open(visitor, publicId)
+            .selectDay(day).pickSlot("09:00")
+            .bookAs("Dst Visitor", "dst.visitor@open-paas.org")
+            .successMessage();
+
+        assertThat(confirmation)
+            .contains("at 09:00")
+            .contains("(UTC+" + hours + ") Europe/Paris");
     }
 
     @Test

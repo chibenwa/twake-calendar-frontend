@@ -6,7 +6,6 @@ import {
   Slot
 } from '@common/features/booking/types/BookingTypes'
 import { VCalComponent } from '@common/features/Calendars/types/CalendarData'
-import { formatTimezoneLabel } from '@common/utils/timezone'
 import {
   Box,
   Button,
@@ -21,12 +20,15 @@ import CloseIcon from '@mui/icons-material/Close'
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined'
 import LinkIcon from '@mui/icons-material/Link'
 import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined'
-import dayjs from 'dayjs'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { BookingOwnerDisplay } from '@/components/Booking/BookingHeader/BookingOwnerInfo'
 import { getBookedEvent } from '../BookingDao'
-import { formatLocalizedDate } from '@common/components/Event/utils/dateTimeFormatters'
+import {
+  formatDateInTimezone,
+  formatLocalizedDate,
+  formatTimezoneWithOffset
+} from '@common/components/Event/utils/dateTimeFormatters'
 
 interface BookingSuccessDialogProps {
   open: boolean
@@ -36,11 +38,13 @@ interface BookingSuccessDialogProps {
   eventLink?: string
   bookingConfirmationToken?: string | null
   onCancelMeeting?: () => void
+  selectedTimezone: string
 }
 
 interface SlotTime {
   date: string
   time: string
+  timeZoneLabel: string
 }
 
 interface SuccessHeaderProps {
@@ -219,7 +223,8 @@ export const BookingSuccessDialog: React.FC<BookingSuccessDialogProps> = ({
   bookingInfo,
   eventLink,
   bookingConfirmationToken,
-  onCancelMeeting
+  onCancelMeeting,
+  selectedTimezone
 }) => {
   const { t, lang } = useI18n()
 
@@ -264,16 +269,25 @@ export const BookingSuccessDialog: React.FC<BookingSuccessDialogProps> = ({
 
   const slotTime = useMemo<SlotTime | null>(() => {
     if (!selectedSlot) return null
-    const startDate = dayjs(selectedSlot.start)
+    const start = new Date(selectedSlot.start)
+    const startDate = formatDateInTimezone(start, selectedTimezone)
     return {
-      date: formatLocalizedDate(selectedSlot.start, lang, {
-        capitalize: false
-      }),
-      time: startDate.format('HH:mm')
+      date: formatLocalizedDate(startDate, lang, { capitalize: false }),
+      time: new Intl.DateTimeFormat('en-GB', {
+        timeZone: selectedTimezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(start),
+      timeZoneLabel: formatTimezoneWithOffset(
+        selectedTimezone,
+        selectedSlot.start
+      )
     }
-  }, [selectedSlot, lang])
+  }, [selectedSlot, selectedTimezone, lang])
 
-  const timeZoneLabel = formatTimezoneLabel()
+  const timeZoneLabel =
+    slotTime?.timeZoneLabel ?? formatTimezoneWithOffset(selectedTimezone)
   const showFooter = Boolean(onCancelMeeting)
 
   return (

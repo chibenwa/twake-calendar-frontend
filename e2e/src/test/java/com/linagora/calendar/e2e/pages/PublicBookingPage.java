@@ -2,10 +2,12 @@ package com.linagora.calendar.e2e.pages;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 /**
  * The booking page of the public application, as a visitor with no account sees it.
@@ -111,6 +113,25 @@ public class PublicBookingPage {
         }
         return java.time.YearMonth.parse(matcher.group(1) + " " + matcher.group(2),
             java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.ENGLISH));
+    }
+
+    /** Shows the schedule in another zone, through the offset button of the page header. */
+    public PublicBookingPage selectTimezone(String timezone) {
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
+                .setName(Pattern.compile("^UTC([+-]\\d+(:\\d{2})?)?$")))
+            .first().click();
+        // the picker shows "America/New York" for America/New_York: type and match what it shows
+        String shown = timezone.replace('_', ' ');
+        Locator input = page.getByPlaceholder("Select timezone");
+        input.fill("");
+        // fill() does not reach the MUI autocomplete filter, its value is controlled
+        input.pressSequentially(shown, new Locator.PressSequentiallyOptions().setDelay(40));
+        Locator wanted = page.locator("li[role=option]")
+            .filter(new Locator.FilterOptions().setHasText(shown));
+        wanted.first().waitFor(new Locator.WaitForOptions().setTimeout(15_000));
+        wanted.first().click();
+        input.waitFor(new Locator.WaitForOptions().setState(WaitForSelectorState.HIDDEN));
+        return this;
     }
 
     public PublicBookingPage pickSlot(String hhmm) {
