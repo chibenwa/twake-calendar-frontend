@@ -45,7 +45,8 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
         <Typography
           variant="h3"
           sx={{
-            overflowWrap: 'break-word'
+            minWidth: 0,
+            overflowWrap: 'anywhere'
           }}
         >
           {formatEventChipTitle(event, t)}
