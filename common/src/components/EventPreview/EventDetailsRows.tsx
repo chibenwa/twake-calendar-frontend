@@ -209,17 +209,20 @@ export const EventRepetitionRow: React.FC<{
   const { t } = useI18n()
   if (!repetition) return null
 
+  // Same sentence as the collapsed event form, lower-cased after the "·"
+  const rule =
+    makeRecurrenceString({
+      repetition,
+      t,
+      startText: '',
+      joinChar: '',
+      enableStrForOneTimeInterval: true
+    }) || t(`eventPreview.freq.${repetition.freq}`, { _: repetition.freq })
+
   return (
     <BaseEventRow
       icon={<RepeatIcon />}
-      text={makeRecurrenceString({
-        repetition,
-        t,
-        startText: `${t('eventPreview.recurrentEvent')} · ${t(
-          `eventPreview.freq.${repetition.freq}`,
-          { defaultValue: repetition.freq }
-        )}`
-      })}
+      text={`${t('eventPreview.recurrentEvent')} · ${rule.charAt(0).toLowerCase()}${rule.slice(1)}`}
     />
   )
 }
