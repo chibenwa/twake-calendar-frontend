@@ -95,10 +95,22 @@ export function EventCounterModal({
       )
       .format('YYYY-MM-DDTHH:mm')
   )
+  // An all day DTEND is exclusive: the form shows the last day of the event,
+  // as the event form does, and sends the day after it.
+  const initialEndDate = allday
+    ? moment
+        .max(
+          moment.utc(startSplit.date),
+          moment.utc(endSplit.date).subtract(1, 'day')
+        )
+        .format('YYYY-MM-DD')
+    : endSplit.date
+  const toProposedEndDate = (date: string): string =>
+    allday ? moment.utc(date).add(1, 'day').format('YYYY-MM-DD') : date
 
   const [startDate, setStartDate] = useState(startSplit.date)
   const [startTime, setStartTime] = useState(startSplit.time)
-  const [endDate, setEndDate] = useState(endSplit.date)
+  const [endDate, setEndDate] = useState(initialEndDate)
   const [endTime, setEndTime] = useState(endSplit.time)
   const [showMore, setShowMore] = useState(false)
   const [hasEndDateChanged, setHasEndDateChanged] = useState(false)
@@ -173,7 +185,7 @@ export function EventCounterModal({
         senderEmail: contextualizedEvent.currentUserAttendee.cal_address,
         recipientEmail: contextualizedEvent.event.organizer.cal_address,
         proposedStart: toProposedInstant(startDate, startTime),
-        proposedEnd: toProposedInstant(endDate, endTime),
+        proposedEnd: toProposedInstant(toProposedEndDate(endDate), endTime),
         message
       })
       await postCounterProposal(contextualizedEvent.event, counterProposal)
@@ -191,14 +203,14 @@ export function EventCounterModal({
     if (!open) return
     setStartDate(startSplit.date)
     setStartTime(startSplit.time)
-    setEndDate(endSplit.date)
+    setEndDate(initialEndDate)
     setEndTime(endSplit.time)
     setShowMore(false)
     setHasEndDateChanged(false)
     setMessage('')
     setValidation(NO_VALIDATION_ERROR)
     setSubmitError('')
-  }, [open, startSplit.date, startSplit.time, endSplit.date, endSplit.time])
+  }, [open, startSplit.date, startSplit.time, initialEndDate, endSplit.time])
 
   return (
     <>

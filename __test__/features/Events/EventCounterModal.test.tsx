@@ -118,6 +118,53 @@ describe('EventCounterModal', () => {
     expect(EventDao.postCounterProposal).not.toHaveBeenCalled()
   })
 
+  it('shows the last day of a one day all day event as its end date', () => {
+    const context = makeContext('2099-01-15', '2099-01-16')
+    context.event.allday = true
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={jest.fn()}
+        contextualizedEvent={context}
+      />
+    )
+
+    expect(
+      screen.getAllByDisplayValue('Thursday, January 15, 2099')
+    ).toHaveLength(2)
+    expect(
+      screen.queryByDisplayValue('Friday, January 16, 2099')
+    ).not.toBeInTheDocument()
+  })
+
+  it('sends the exclusive end date of an all day proposal', async () => {
+    ;(EventDao.postCounterProposal as jest.Mock).mockResolvedValue({ ok: true })
+    const context = makeContext('2099-01-15', '2099-01-17')
+    context.event.allday = true
+    renderWithProviders(
+      <EventCounterModal
+        open
+        setOpen={jest.fn()}
+        contextualizedEvent={context}
+      />
+    )
+
+    expect(
+      screen.getByDisplayValue('Friday, January 16, 2099')
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('eventPreview.sendProposal'))
+
+    await waitFor(() =>
+      expect(makeCounterProposalPayload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          proposedStart: '2099-01-15',
+          proposedEnd: '2099-01-17'
+        })
+      )
+    )
+  })
+
   it('sends a proposed slot to come', async () => {
     ;(EventDao.postCounterProposal as jest.Mock).mockResolvedValue({ ok: true })
     const setOpen = jest.fn()
