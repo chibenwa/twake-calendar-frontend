@@ -1,8 +1,10 @@
 import moment from 'moment-timezone'
 import ICAL from 'ical.js'
 
+// All-day dates travel as UTC midnight: reading them in the zone of the
+// browser moves them to the previous day when that zone is behind UTC.
 export function formatDateToICal(date: Date): string {
-  return moment(date).format('YYYY-MM-DD')
+  return moment.utc(date).format('YYYY-MM-DD')
 }
 
 export function formatDateTimeToICal(date: Date, timezone?: string): string {

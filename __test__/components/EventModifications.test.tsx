@@ -793,5 +793,86 @@ describe('CalendarApp integration', () => {
       // the first VTIMEZONE is the one of the grid, not the one of the event
       expect(updatedEvent.timezone).toBe('Asia/Tokyo')
     })
+
+    it('moves an all-day event to the dropped day, whatever the zone of the grid (#1651)', async () => {
+      const mockDispatch = jest.fn().mockReturnValue(
+        Object.assign(Promise.resolve({}), {
+          unwrap: () => Promise.resolve({})
+        })
+      ) as unknown as AppDispatch
+
+      const updateSpy = jest
+        .spyOn(eventThunks, 'putEvent')
+        .mockImplementation(payload => {
+          const promise = Promise.resolve(payload)
+          ;(promise as any).unwrap = () => promise
+          return () => promise as any
+        })
+
+      jest
+        .spyOn(EventDao, 'fetchEvent')
+        .mockImplementation(async event =>
+          jCalFromIcs(
+            [
+              'BEGIN:VCALENDAR',
+              'VERSION:2.0',
+              'BEGIN:VTIMEZONE',
+              'TZID:Europe/Paris',
+              'BEGIN:STANDARD',
+              'TZOFFSETFROM:+0100',
+              'TZOFFSETTO:+0100',
+              'DTSTART:19700101T000000',
+              'END:STANDARD',
+              'END:VTIMEZONE',
+              'BEGIN:VEVENT',
+              `UID:${event.uid}`,
+              'SUMMARY:Mid allday',
+              'DTSTART;VALUE=DATE:20261021',
+              'DTEND;VALUE=DATE:20261022',
+              'END:VEVENT',
+              'END:VCALENDAR'
+            ].join('\r\n')
+          )
+        )
+
+      const calId = '667037022b752d0026472254/cal1'
+      const eventHandlers = createEventHandlers({
+        setSelectedRange: jest.fn(),
+        setOpenEventDisplay: jest.fn(),
+        dispatch: mockDispatch,
+        setEventDisplayedId: jest.fn(),
+        setEventDisplayedCalId: jest.fn(),
+        setEventDisplayedTemp: jest.fn(),
+        calendars: {
+          [calId]: {
+            id: calId,
+            events: {
+              allday1: {
+                uid: 'allday1',
+                calId,
+                title: 'Mid allday',
+                start: '2026-10-21',
+                end: '2026-10-22',
+                allday: true
+              }
+            }
+          }
+        },
+        setSelectedEvent: jest.fn(),
+        setAfterChoiceFunc: jest.fn(),
+        setOpenEditModePopup: jest.fn(),
+        timezone: 'Europe/Paris'
+      } as unknown as EventHandlersProps)
+
+      await eventHandlers.handleEventDrop({
+        event: { extendedProps: { uid: 'allday1', calId } },
+        delta: { years: 0, months: 0, days: 1, milliseconds: 0 }
+      } as any)
+
+      const updatedEvent = updateSpy.mock.calls[0][0].newEvent
+      // all-day dates are serialized from UTC midnight
+      expect(updatedEvent.start).toBe('2026-10-22T00:00:00.000Z')
+      expect(updatedEvent.end).toBe('2026-10-23T00:00:00.000Z')
+    })
   })
 })

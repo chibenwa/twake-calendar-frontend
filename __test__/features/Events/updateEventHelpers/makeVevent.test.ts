@@ -5,6 +5,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 import { RepetitionObject } from '@common/types/Repetition'
 import { VAlarm } from '@common/types/VAlarm'
 import { Valarms } from '@common/types/Valarms'
+import moment from 'moment-timezone'
 
 const TZID = 'Europe/Paris'
 const OWNER = 'owner@example.com'
@@ -128,6 +129,43 @@ describe('RFC 5545 – DTEND', () => {
     const vevent = makeVevent(baseEvent(), TZID)
     const dtend = getProp(vevent, 'dtend')
     expect((dtend![1] as Record<string, string>).tzid).toBe(TZID)
+  })
+})
+
+describe('all-day dates in a browser behind UTC (#1651)', () => {
+  // Stands for the zone of the browser, jest runs in UTC
+  beforeEach(() => {
+    moment.tz.setDefault('America/New_York')
+  })
+
+  afterEach(() => {
+    moment.tz.setDefault()
+  })
+
+  it('keeps the picked day for UTC midnight dates', () => {
+    const event = baseEvent({
+      allday: true,
+      start: '2026-11-01T00:00:00.000Z',
+      end: '2026-11-02T00:00:00.000Z'
+    })
+    const vevent = makeVevent(event, 'Europe/London')
+    expect(getProp(vevent, 'dtstart')![3]).toBe('2026-11-01')
+    expect(getProp(vevent, 'dtend')![3]).toBe('2026-11-02')
+  })
+
+  it('keeps the day of date only values', () => {
+    const event = baseEvent({
+      allday: true,
+      start: '2026-10-21',
+      end: '2026-10-22',
+      recurrenceId: '2026-10-21',
+      exdates: ['2026-10-28']
+    })
+    const vevent = makeVevent(event, 'Europe/London')
+    expect(getProp(vevent, 'dtstart')![3]).toBe('2026-10-21')
+    expect(getProp(vevent, 'dtend')![3]).toBe('2026-10-22')
+    expect(getProp(vevent, 'recurrence-id')![3]).toBe('2026-10-21')
+    expect(getProp(vevent, 'exdate')![3]).toBe('2026-10-28')
   })
 })
 

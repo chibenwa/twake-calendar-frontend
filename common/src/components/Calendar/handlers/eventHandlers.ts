@@ -54,6 +54,14 @@ export interface EventHandlersProps {
   onEditBookingLink?: (link: BookingLink) => void
 }
 
+// All-day dates are anchored on UTC midnight, like the event form does: the
+// serialized DATE is read back in UTC whatever the zone of the event.
+const momentInEventZone = (
+  date: string,
+  timezone: string,
+  allday?: boolean
+): moment.Moment => (allday ? moment.utc(date) : moment.tz(date, timezone))
+
 export const createEventHandlers = (
   props: EventHandlersProps
 ): {
@@ -269,20 +277,26 @@ export const createEventHandlers = (
     const master = parseFetchedEvent(masterEventToFetch, response, true)
 
     const masterTz = master.timezone || timezone
-    const instanceDefaultStart = event.recurrenceId
-      ? moment.tz(event.recurrenceId, master.timezone || masterTz)
-      : moment.tz(event.start, master.timezone || masterTz)
+    const instanceDefaultStart = momentInEventZone(
+      event.recurrenceId ?? event.start,
+      masterTz,
+      master.allday
+    )
 
     const seriesDeltaMs =
       moment(computedNewStart).valueOf() - instanceDefaultStart.valueOf()
 
-    const masterStart = moment
-      .tz(master.start, masterTz)
-      .add(seriesDeltaMs, 'ms')
+    const masterStart = momentInEventZone(
+      master.start,
+      masterTz,
+      master.allday
+    ).add(seriesDeltaMs, 'ms')
     const masterEnd = master.end
-      ? moment.tz(master.end, masterTz).add(seriesDeltaMs, 'ms')
-      : moment
-          .tz(master.start, masterTz)
+      ? momentInEventZone(master.end, masterTz, master.allday).add(
+          seriesDeltaMs,
+          'ms'
+        )
+      : momentInEventZone(master.start, masterTz, master.allday)
           .add(seriesDeltaMs, 'ms')
           .add(moment(computedNewEnd).diff(moment(computedNewStart)))
 
@@ -386,9 +400,13 @@ export const createEventHandlers = (
     const eventTz = fullEvent.timezone || timezone
 
     const { startDeltaMs, endDeltaMs } = getDeltas()
-    const originalStart = moment.tz(event.start, eventTz)
+    const originalStart = momentInEventZone(event.start, eventTz, event.allday)
     const computedNewStart = new Date(originalStart.valueOf() + startDeltaMs)
-    const originalEnd = moment.tz(event.end ?? event.start, eventTz)
+    const originalEnd = momentInEventZone(
+      event.end ?? event.start,
+      eventTz,
+      event.allday
+    )
     const computedNewEnd = new Date(originalEnd.valueOf() + endDeltaMs)
 
     await processTimeChange({
