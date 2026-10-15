@@ -54,7 +54,11 @@ interface VideoJoinProps {
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
 // The end (DTEND) of an all-day event is the day following its last day
-const lastDayOf = (startDate: Date, endDate: Date, allDay: boolean): Date =>
+export const lastDayOf = (
+  startDate: Date,
+  endDate: Date,
+  allDay: boolean
+): Date =>
   allDay
     ? new Date(Math.max(startDate.getTime(), endDate.getTime() - ONE_DAY_MS))
     : endDate
