@@ -9,6 +9,8 @@
     "caldav_access": "CalDAV-Zugriff",
     "secretUrl": "Geheime URL",
     "secretUrlDesc": "Mit der geheimen Adresse können alle Termine des Kalenders auch ohne Zugriffsrechte angezeigt werden. Sie können Ihre aktuelle geheime Adresse zurücksetzen und eine neue erhalten.",
+    "copyCaldavAccess": "CalDAV-Adresse kopieren",
+    "copySecretUrl": "Geheime URL kopieren",
     "exportCalendar": "Kalender exportieren",
     "exportDesc": "Exportieren Sie Ihren Kalender in eine Datei im iCalendar-Format (.ics), die Sie in andere Anwendungen importieren können.",
     "import_file_description": "Importieren Sie Termine aus einer ICS-Datei in einen Ihrer Kalender.",

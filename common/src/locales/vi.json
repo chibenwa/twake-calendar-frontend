@@ -9,6 +9,8 @@
     "caldav_access": "Truy cập CalDAV",
     "secretUrl": "URL bí mật",
     "secretUrlDesc": "Địa chỉ bí mật có thể được dùng để xem tất cả sự kiện trong lịch ngay cả khi không có quyền truy cập. Bạn có thể đặt lại địa chỉ bí mật và nhận địa chỉ mới.",
+    "copyCaldavAccess": "Sao chép địa chỉ CalDAV",
+    "copySecretUrl": "Sao chép URL bí mật",
     "exportCalendar": "Xuất lịch",
     "exportDesc": "Xuất lịch của bạn thành tệp định dạng iCalendar (.ics) để nhập vào các ứng dụng khác.",
     "import_file_description": "Nhập sự kiện từ tệp ICS vào một trong các lịch của bạn.",

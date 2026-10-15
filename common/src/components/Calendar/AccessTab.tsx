@@ -20,6 +20,7 @@ import { useI18n } from 'twake-i18n'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
 import { SnackbarAlert } from '@common/components/Loading/SnackBarAlert'
+import Tooltip from '@common/components/Tooltip'
 import { CalendarAccessRights, UserWithAccess } from './CalendarAccessRights'
 
 interface AccessTabProps {
@@ -130,17 +131,20 @@ export function AccessTab({
                   'aria-label': t('calendar.caldav_access'),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() =>
-                          handleCopyLink(
-                            new URL(calDAVLink, window.location.origin),
-                            setOpen
-                          )
-                        }
-                        edge="end"
-                      >
-                        <ContentCopyIcon fontSize="small" />
-                      </IconButton>
+                      <Tooltip title={t('calendar.copyCaldavAccess')}>
+                        <IconButton
+                          onClick={() =>
+                            handleCopyLink(
+                              new URL(calDAVLink, window.location.origin),
+                              setOpen
+                            )
+                          }
+                          edge="end"
+                          aria-label={t('calendar.copyCaldavAccess')}
+                        >
+                          <ContentCopyIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </InputAdornment>
                   )
                 }
@@ -163,17 +167,20 @@ export function AccessTab({
                 'aria-label': t('calendar.secretUrl'),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={() =>
-                        handleCopyLink(
-                          new URL(secretLink, window.location.origin),
-                          setOpen
-                        )
-                      }
-                      edge="end"
-                    >
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
+                    <Tooltip title={t('calendar.copySecretUrl')}>
+                      <IconButton
+                        onClick={() =>
+                          handleCopyLink(
+                            new URL(secretLink, window.location.origin),
+                            setOpen
+                          )
+                        }
+                        edge="end"
+                        aria-label={t('calendar.copySecretUrl')}
+                      >
+                        <ContentCopyIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </InputAdornment>
                 )
               }
