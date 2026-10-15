@@ -139,6 +139,7 @@
     },
     "repeat": {
       "repeatEvery": "Lặp lại mỗi",
+      "frequencyAriaLabel": "Tần suất lặp lại",
       "frequency": {
         "days": "Ngày",
         "weeks": "Tuần",

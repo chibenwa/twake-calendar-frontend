@@ -139,6 +139,7 @@
     },
     "repeat": {
       "repeatEvery": "Repeat every",
+      "frequencyAriaLabel": "Repeat frequency",
       "frequency": {
         "days": "Day(s)",
         "weeks": "Week(s)",

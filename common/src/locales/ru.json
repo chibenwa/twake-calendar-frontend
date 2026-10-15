@@ -139,6 +139,7 @@
     },
     "repeat": {
       "repeatEvery": "Повторять каждые",
+      "frequencyAriaLabel": "Частота повторения",
       "frequency": {
         "days": "день(дней)",
         "weeks": "неделю(ль)",

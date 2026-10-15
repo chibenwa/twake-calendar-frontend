@@ -175,6 +175,18 @@ describe('EventPopover', () => {
     expect(screen.getAllByText('event.form.showMeAs')).toHaveLength(1)
   })
 
+  it('gives the notification and show me as selects an accessible name', () => {
+    renderPopover()
+    fireEvent.click(screen.getByRole('button', { name: 'common.moreOptions' }))
+
+    expect(
+      screen.getByRole('combobox', { name: 'event.form.notification' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('combobox', { name: 'event.form.showMeAs' })
+    ).toBeInTheDocument()
+  })
+
   it('hides visibleTo field when DISABLE_PUBLIC_VISIBILITY is true', () => {
     window.DISABLE_PUBLIC_VISIBILITY = true
     renderPopover()
