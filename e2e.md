@@ -654,6 +654,8 @@ day, 23:45) — 48 tests.
 - [x] `TZ-23` A browser sitting elsewhere runs the calendar, and writes its events, in the detected timezone
 - [x] `TZ-24` Editing an event written in another zone than the grid keeps its zone ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
 - [x] `TZ-25` Editing an event written in another zone than the grid can change its zone ([#1547](https://github.com/linagora/twake-calendar-frontend/issues/1547))
+- [x] `TZ-26` An all day event created from a browser behind UTC lands on the picked day ([#1651](https://github.com/linagora/twake-calendar-frontend/issues/1651))
+- [x] `TZ-27` Dragging an all day event from a browser behind UTC moves it to the dropped day ([#1651](https://github.com/linagora/twake-calendar-frontend/issues/1651))
 
 ## DND — Drag, drop and resize (14)
 

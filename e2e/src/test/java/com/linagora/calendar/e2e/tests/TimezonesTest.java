@@ -35,6 +35,9 @@ class TimezonesTest extends TwakeCalendarE2ETest {
     /** Thirteen hours ahead of UTC, eleven ahead of the Paris browser of the suite: the day differs too. */
     private static final String TONGATAPU = "Pacific/Tongatapu";
 
+    /** Behind UTC: UTC midnight is still the day before there. */
+    private static final String NEW_YORK = "America/New_York";
+
     private static String title(String prefix) {
         return prefix + " " + UUID.randomUUID().toString().substring(0, 8);
     }
@@ -318,6 +321,57 @@ class TimezonesTest extends TwakeCalendarE2ETest {
         assertThat(Ics.parameters(Ics.event(probe.singleEvent(user)), "DTSTART"))
             .as("and what reaches CalDAV is written against that same zone")
             .contains("TZID=Asia/Tokyo");
+    }
+
+    /** The DATE values of an all day event, as CalDAV stores them. */
+    private static java.util.List<String> allDayDates(CalendarProbe probe, E2EUser user) {
+        String event = Ics.event(probe.singleEvent(user));
+        return java.util.List.of(Ics.property(event, "DTSTART").orElseThrow(),
+            Ics.property(event, "DTEND").orElseThrow());
+    }
+
+    private static String icalDate(LocalDate day) {
+        return day.toString().replace("-", "");
+    }
+
+    @Test
+    @DisplayName("TZ-26 (#1651) An all day event created from a browser behind UTC lands on the picked day")
+    void anAllDayEventCreatedBehindUtcLandsOnThePickedDay(E2EUser user, E2ESessions sessions, CalendarProbe probe) {
+        CalendarPage newYork = sessions.openFor(user, NEW_YORK);
+        LocalDate day = newYork.anotherDayOfTheWeekOnScreen();
+        String title = title("Day off in New York");
+
+        newYork.createEvent().title(title).expand().allDay().startDate(day).save();
+        awaitStored(probe, user, title);
+
+        // all day dates travel as UTC midnight, which is the evening before in New York
+        assertThat(allDayDates(probe, user))
+            .as("the day picked in the form is the day stored, not the one before")
+            .containsExactly(icalDate(day), icalDate(day.plusDays(1)));
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(newYork.eventDates(title)).containsExactly(day.toString()));
+    }
+
+    @Test
+    @DisplayName("TZ-27 (#1651) Dragging an all day event from a browser behind UTC moves it to the dropped day")
+    void draggingAnAllDayEventBehindUtcMovesItToTheDroppedDay(E2EUser user, E2ESessions sessions,
+                                                             CalendarProbe probe) {
+        CalendarPage newYork = sessions.openFor(user, NEW_YORK);
+        // both days taken from the week on screen, which the month grid always holds whole
+        LocalDate start = newYork.firstVisibleDate().plusDays(3);
+        LocalDate destination = start.minusDays(1);
+        String title = title("Moved in New York");
+        newYork.createEvent().title(title).expand().allDay().startDate(start).save();
+        awaitStored(probe, user, title);
+
+        newYork.switchView("Month");
+        awaitAttached(newYork.eventCard(title));
+        newYork.dragMonthEventToDay(title, destination);
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(allDayDates(probe, user))
+                .as("one day back means one day back, not two")
+                .containsExactly(icalDate(destination), icalDate(start)));
     }
 
     /** A Tokyo event of the day, created from the Paris grid of the suite. */
