@@ -242,4 +242,42 @@ describe('updateCalendars', () => {
 
     expect(mockRefreshCalendarWithSyncToken).not.toHaveBeenCalled()
   })
+
+  describe('unregistered calendars', () => {
+    const unregisterCal1 = {
+      [WS_INBOUND_EVENTS.CLIENT_UNREGISTERED]: ['/calendars/cal1/entry1']
+    }
+
+    beforeEach(() => {
+      localStorage.setItem(
+        'selectedCalendars',
+        JSON.stringify(['cal1/entry1', 'cal2/entry2'])
+      )
+    })
+
+    afterEach(() => {
+      localStorage.removeItem('selectedCalendars')
+      window.history.pushState({}, '', '/')
+    })
+
+    it('hides them from the selection of the full application', () => {
+      window.history.pushState({}, '', '/calendar')
+
+      updateCalendars(unregisterCal1, mockDispatch, mockAccumulators)
+
+      expect(
+        JSON.parse(localStorage.getItem('selectedCalendars') ?? '[]')
+      ).toEqual(['cal2/entry2'])
+    })
+
+    it('leaves the selection of the full application untouched on an embed route', () => {
+      window.history.pushState({}, '', '/embed/calendars/team1')
+
+      updateCalendars(unregisterCal1, mockDispatch, mockAccumulators)
+
+      expect(
+        JSON.parse(localStorage.getItem('selectedCalendars') ?? '[]')
+      ).toEqual(['cal1/entry1', 'cal2/entry2'])
+    })
+  })
 })

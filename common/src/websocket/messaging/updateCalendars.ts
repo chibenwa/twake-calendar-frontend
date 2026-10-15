@@ -7,6 +7,7 @@ import {
 import { refreshCalendarWithSyncToken } from '@common/features/Calendars/CalendarSlice'
 import { listBookingLinks } from '@common/features/booking/BookingLinksSlice'
 import { calendarDavPath } from '@common/features/Calendars/utils/calendarDavPath'
+import { isEmbedPath } from '@common/features/Embed/embeddedCalendar'
 import { Calendar } from '@common/types/CalendarTypes'
 import { findCalendarById, getDisplayedCalendarRange } from '@common/utils'
 import { formatDateToYYYYMMDDTHHMMSS } from '@common/utils/dateUtils'
@@ -543,6 +544,9 @@ function accumulateCalendarsToHide(
 
 function processCalendarsToHide(calendarsToHideSnapshot: Set<string>): void {
   if (calendarsToHideSnapshot.size === 0) return
+  // An embed route unregisters the user's calendars to show its own only: the
+  // selection kept for the full application must survive it
+  if (isEmbedPath(window.location.pathname)) return
 
   let currentSelectedCalendars: string[]
 
