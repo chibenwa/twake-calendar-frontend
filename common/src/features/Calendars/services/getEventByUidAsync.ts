@@ -9,54 +9,32 @@ import { calendarDavPath } from '@common/features/Calendars/utils/calendarDavPat
 import { extractCalendarEvents } from '@common/features/Calendars/utils/extractCalendarEvents'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
-import { toRejectedError } from '@common/utils/errorUtils'
+import { httpStatusOf, toRejectedError } from '@common/utils/errorUtils'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
 import { ReducerCreators } from '@reduxjs/toolkit'
 import { CalendarState } from '../CalendarSlice'
 
 const EVENT_NOT_FOUND_ERROR = 'TRANSLATION:error.eventNotFound'
 
+type FoundEvent = { calId: string; events: CalendarEvent[] }
+
 export const getEventByUidThunk = (create: ReducerCreators<CalendarState>) =>
   create.asyncThunk<
-    { calId: string; events: CalendarEvent[] } | null,
-    { userId: string; uid: string; signal?: AbortSignal },
+    FoundEvent | null,
+    // calId: the only calendar the event may belong to (the embed route)
+    { userId: string; uid: string; calId?: string; signal?: AbortSignal },
     { rejectValue: RejectedError }
   >(
-    async ({ userId, uid, signal }, { rejectWithValue, getState }) => {
+    async ({ userId, uid, calId, signal }, { rejectWithValue, getState }) => {
+      const listed = Object.values((getState() as RootState).calendars.list)
+      const calendars = calId ? listed.filter(cal => cal.id === calId) : listed
       try {
-        const result = (await fetchEventByUid(
-          userId,
+        return await findEventInHomes(
+          searchedHomes(userId, calendars, Boolean(calId)),
           uid,
+          calendars,
           signal
-        )) as CalendarData
-        const items = result._embedded?.['dav:item']
-        if (!Array.isArray(items) || items.length === 0) {
-          return null
-        }
-        // A UID resolves to a single event (its master VEVENT plus any
-        // recurrence overrides), so the first item holds everything we need.
-        const item = items[0]
-        const eventURL = item._links?.self?.href
-        if (!eventURL) {
-          return null
-        }
-        // The href names the calendar the user read it through: for a calendar
-        // shared with them, their own instance of it rather than its id.
-        const calendarPath = `/calendars/${calendarIdFromEventHref(eventURL)}`
-        const state = getState() as RootState
-        const calendarStored: Calendar | undefined = Object.values(
-          state.calendars.list
-        ).find(cal => calendarDavPath(cal) === calendarPath)
-        if (!calendarStored) {
-          return null
-        }
-        const calId: string = calendarStored.id
-        const events = extractCalendarEvents(item, {
-          cal: calendarStored,
-          color: calendarStored.color
-        })
-
-        return { calId, events }
+        )
       } catch (err) {
         return rejectWithValue(toRejectedError(err))
       }
@@ -100,3 +78,83 @@ export const getEventByUidThunk = (create: ReducerCreators<CalendarState>) =>
       }
     }
   )
+
+// The homes a UID lookup is sent to. The user's home does not search the team
+// calendars the user reads, only the team's home does: the full app tries the
+// user's home first, then the home of each other calendar it lists. The embed
+// route only asks the home of its calendar.
+function searchedHomes(
+  userId: string,
+  calendars: Calendar[],
+  onlyTheseCalendars: boolean
+): string[] {
+  const homes = calendars.map(cal => homeOf(calendarDavPath(cal)))
+  return [...new Set(onlyTheseCalendars ? homes : [userId, ...homes])]
+}
+
+// "/calendars/{home}/{calendar}" → "{home}"
+function homeOf(davPath: string): string {
+  return davPath.split('/').filter(Boolean)[1]
+}
+
+// A home that does not hold the event answers 404 (403 when the user may not
+// search it), so the next one is tried. When every home answers so, the first
+// error is thrown: an unknown UID still reads "event not found".
+async function findEventInHomes(
+  homes: string[],
+  uid: string,
+  calendars: Calendar[],
+  signal?: AbortSignal
+): Promise<FoundEvent | null> {
+  let firstMiss: Error | undefined
+  let answered = false
+  for (const home of homes) {
+    try {
+      const result = (await fetchEventByUid(home, uid, signal)) as CalendarData
+      answered = true
+      const found = resolveEvent(result, calendars)
+      if (found) return found
+    } catch (err) {
+      if (!isMissingFromHome(err)) throw err
+      firstMiss = firstMiss ?? (err as Error)
+    }
+  }
+  if (!answered && firstMiss) throw firstMiss
+  return null
+}
+
+function isMissingFromHome(err: unknown): boolean {
+  const status = httpStatusOf(err)
+  return status === 404 || status === 403
+}
+
+function resolveEvent(
+  result: CalendarData,
+  calendars: Calendar[]
+): FoundEvent | null {
+  const items = result._embedded?.['dav:item']
+  if (!Array.isArray(items) || items.length === 0) {
+    return null
+  }
+  // A UID resolves to a single event (its master VEVENT plus any
+  // recurrence overrides), so the first item holds everything we need.
+  const item = items[0]
+  const eventURL = item._links?.self?.href
+  if (!eventURL) {
+    return null
+  }
+  // The href names the calendar the user read it through: for a calendar
+  // shared with them, their own instance of it rather than its id.
+  const calendarPath = `/calendars/${calendarIdFromEventHref(eventURL)}`
+  const calendarStored = calendars.find(
+    cal => calendarDavPath(cal) === calendarPath
+  )
+  if (!calendarStored) {
+    return null
+  }
+  const events = extractCalendarEvents(item, {
+    cal: calendarStored,
+    color: calendarStored.color
+  })
+  return { calId: calendarStored.id, events }
+}

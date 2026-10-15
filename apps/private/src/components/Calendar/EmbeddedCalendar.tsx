@@ -134,6 +134,7 @@ function TeamCalendar({ calendarId }: { calendarId: string }): JSX.Element {
             onPeriodChange={setDisplayedPeriod}
             onViewChange={noop}
             eventUid={eventUid}
+            eventCalendarId={calendarId}
             onCloseEvent={closeEvent}
           />
         </div>
