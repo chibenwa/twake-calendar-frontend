@@ -20,17 +20,19 @@ export function formatEnd({
 
   const formatDatePart = (d: Date): string => formatDateInTimezone(d, timeZone)
   if (allday) {
+    // All-day dates are floating YYYY-MM-DD values parsed as UTC midnight
     const inclusiveEndDate = new Date(endDate)
     inclusiveEndDate.setUTCDate(inclusiveEndDate.getUTCDate() - 1)
     const sameDay =
-      formatDatePart(startDate) === formatDatePart(inclusiveEndDate)
+      formatDateInTimezone(startDate, 'UTC') ===
+      formatDateInTimezone(inclusiveEndDate, 'UTC')
     return sameDay
       ? null
       : inclusiveEndDate.toLocaleDateString(t('locale'), {
           year: 'numeric',
           month: 'short',
           day: 'numeric',
-          timeZone
+          timeZone: 'UTC'
         })
   } else {
     const sameDay = formatDatePart(startDate) === formatDatePart(endDate)
