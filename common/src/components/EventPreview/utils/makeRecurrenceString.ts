@@ -8,6 +8,7 @@ interface MakeRecurrenceStringParams {
   startText: string
   joinChar?: string
   enableStrForOneTimeInterval?: boolean
+  fallbackIntervalText?: string
 }
 
 const SUPPORTED_FREQS = ['daily', 'weekly', 'monthly', 'yearly']
@@ -82,17 +83,16 @@ export function makeRecurrenceString({
   t,
   startText,
   joinChar,
-  enableStrForOneTimeInterval
+  enableStrForOneTimeInterval,
+  fallbackIntervalText
 }: MakeRecurrenceStringParams): string | undefined {
   if (!repetition) return
 
   const recur: string[] = [startText]
 
-  const intervalText = getIntervalText(
-    repetition,
-    t,
-    enableStrForOneTimeInterval
-  )
+  const intervalText =
+    getIntervalText(repetition, t, enableStrForOneTimeInterval) ??
+    fallbackIntervalText
   if (intervalText) recur.push(intervalText)
 
   const byDayText = getByDayText(repetition, t)

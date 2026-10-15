@@ -210,14 +210,18 @@ export const EventRepetitionRow: React.FC<{
   if (!repetition) return null
 
   // Same sentence as the collapsed event form, lower-cased after the "·"
+  // Unphrasable intervals (e.g. hourly) fall back to the frequency name
   const rule =
     makeRecurrenceString({
       repetition,
       t,
       startText: '',
       joinChar: '',
-      enableStrForOneTimeInterval: true
-    }) || t(`eventPreview.freq.${repetition.freq}`, { _: repetition.freq })
+      enableStrForOneTimeInterval: true,
+      fallbackIntervalText: t(`eventPreview.freq.${repetition.freq}`, {
+        _: repetition.freq
+      })
+    }) ?? ''
 
   return (
     <BaseEventRow

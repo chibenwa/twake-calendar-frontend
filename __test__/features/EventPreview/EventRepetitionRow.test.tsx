@@ -70,4 +70,14 @@ describe('EventRepetitionRow', () => {
 
     expect(screen.getByText('Recurrent Event · hourly')).toBeInTheDocument()
   })
+
+  it('keeps the frequency name next to an end condition', () => {
+    renderRow(
+      new RepetitionObject({ freq: 'hourly', interval: 1, occurrences: 4 })
+    )
+
+    expect(
+      screen.getByText('Recurrent Event · hourly for 4 occurrences')
+    ).toBeInTheDocument()
+  })
 })
