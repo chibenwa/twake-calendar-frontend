@@ -30,6 +30,18 @@ public class ProposalDialog {
         return this;
     }
 
+    public String startTime() {
+        return page.getByTestId("start-time-input").last().inputValue();
+    }
+
+    public String endTime() {
+        return page.getByTestId("end-time-input").last().inputValue();
+    }
+
+    public String text() {
+        return page.locator("[role=dialog]").last().innerText();
+    }
+
     public ProposalDialog send() {
         sendButton().click();
         return this;
