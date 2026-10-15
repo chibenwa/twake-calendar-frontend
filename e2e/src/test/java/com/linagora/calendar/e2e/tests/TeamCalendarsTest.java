@@ -385,7 +385,7 @@ class TeamCalendarsTest extends TwakeCalendarE2ETest {
             .isAttached(new LocatorAssertions.IsAttachedOptions().setTimeout(PROPAGATION_MS));
         assertThat(calendar.openEvent(title).text())
             .as("a series in a team calendar spells its rule out like any other")
-            .containsIgnoringCase("dai");
+            .containsIgnoringCase("every day");
     }
 
     @Test
