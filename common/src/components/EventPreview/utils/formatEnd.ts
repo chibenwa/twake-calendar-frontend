@@ -20,19 +20,21 @@ export function formatEnd({
 
   const formatDatePart = (d: Date): string => formatDateInTimezone(d, timeZone)
   if (allday) {
+    // All-day dates are floating YYYY-MM-DD values parsed as UTC midnight
     const inclusiveEndDate = new Date(endDate)
     inclusiveEndDate.setUTCDate(inclusiveEndDate.getUTCDate() - 1)
     // YYYY-MM-DD strings compare chronologically. An end on or before the
     // start (DTEND <= DTSTART, accepted by the server) shows the start only.
     const noLaterDay =
-      formatDatePart(inclusiveEndDate) <= formatDatePart(startDate)
+      formatDateInTimezone(inclusiveEndDate, 'UTC') <=
+      formatDateInTimezone(startDate, 'UTC')
     return noLaterDay
       ? null
       : inclusiveEndDate.toLocaleDateString(t('locale'), {
           year: 'numeric',
           month: 'short',
           day: 'numeric',
-          timeZone
+          timeZone: 'UTC'
         })
   } else {
     if (endDate < startDate) {

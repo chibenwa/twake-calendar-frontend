@@ -99,12 +99,14 @@ public class CalendarModal {
 
     /** The CalDAV address of this calendar, as the Access tab shows it. */
     public String caldavUrl() {
-        return dialog().getByLabel("CalDAV access").inputValue();
+        return dialog().getByLabel("CalDAV access",
+            new Locator.GetByLabelOptions().setExact(true)).inputValue();
     }
 
     /** The address that opens the calendar without credentials, token included. */
     public String secretUrl() {
-        Locator field = dialog().getByLabel("Secret URL");
+        // exact: the "Copy secret URL" button next to the field matches a substring search
+        Locator field = dialog().getByLabel("Secret URL", new Locator.GetByLabelOptions().setExact(true));
         // the tab fetches the address once open: until it answers, the field stands empty
         com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat(field)
             .hasValue(java.util.regex.Pattern.compile(".+"),
@@ -186,6 +188,19 @@ public class CalendarModal {
 
     public boolean hasAccessRow(String email) {
         return accessRow(email).count() > 0;
+    }
+
+    /**
+     * Whether the row of that grantee shows up. On a reopened dialog the rows are only drawn
+     * once every grantee has been looked up in the directory, so they are waited for.
+     */
+    public boolean awaitAccessRow(String email) {
+        try {
+            accessRow(email).waitFor(new Locator.WaitForOptions().setTimeout(20_000));
+            return true;
+        } catch (com.microsoft.playwright.TimeoutError missing) {
+            return false;
+        }
     }
 
     /** The rights the picker offers, which say what the product can actually grant. */

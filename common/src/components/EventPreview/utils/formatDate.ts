@@ -5,12 +5,13 @@ export function formatDate(
   allday?: boolean
 ): string {
   if (allday) {
+    // All-day dates are floating YYYY-MM-DD values parsed as UTC midnight
     return new Date(date).toLocaleDateString(t('locale'), {
       year: 'numeric',
       month: 'long',
       weekday: 'long',
       day: 'numeric',
-      timeZone
+      timeZone: 'UTC'
     })
   } else {
     return new Date(date).toLocaleString(t('locale'), {

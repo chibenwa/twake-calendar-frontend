@@ -141,6 +141,9 @@ export const RepeatEvent: React.FC<{
             <Select
               value={repetition.freq ?? 'daily'}
               disabled={!isOwn}
+              SelectDisplayProps={{
+                'aria-label': t('event.repeat.frequencyAriaLabel')
+              }}
               onChange={(e: SelectChangeEvent) => {
                 if (e.target.value === 'weekly') {
                   const jsDay = day.getDay()

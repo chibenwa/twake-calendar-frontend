@@ -461,12 +461,9 @@ describe('CalendarPopover - Tabs Scenarios', () => {
     const input = screen.getByLabelText('calendar.caldav_access')
     expect(input).toHaveValue('https://cal.example.org/calendars/user1/cal1')
 
-    // Click copy button (find button containing ContentCopyIcon)
-    const copyIcon = screen.getAllByTestId('ContentCopyIcon')[0]
-    const copyButton = copyIcon.closest('button')
-    if (copyButton) {
-      fireEvent.click(copyButton)
-    }
+    fireEvent.click(
+      screen.getByRole('button', { name: 'calendar.copyCaldavAccess' })
+    )
 
     expect(navigator.clipboard.writeText as jest.Mock).toHaveBeenCalledWith(
       'https://cal.example.org/calendars/user1/cal1'
@@ -475,6 +472,41 @@ describe('CalendarPopover - Tabs Scenarios', () => {
     // Snackbar should appear
     await waitFor(() =>
       expect(screen.getByText('common.link_copied')).toBeInTheDocument()
+    )
+  })
+
+  it('copies secret URL from Access tab', async () => {
+    window.DAV_BASE_URL = 'https://cal.example.org'
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) }
+    })
+    ;(fetchSecretLink as jest.Mock).mockResolvedValue({
+      secretLink: 'https://example.org/secret/initial'
+    })
+
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={existingCalendar}
+      />,
+      { user: baseUser }
+    )
+
+    fireEvent.click(screen.getByRole('tab', { name: /Access/i }))
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('calendar.secretUrl')).toHaveValue(
+        'https://example.org/secret/initial'
+      )
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'calendar.copySecretUrl' })
+    )
+
+    expect(navigator.clipboard.writeText as jest.Mock).toHaveBeenCalledWith(
+      'https://example.org/secret/initial'
     )
   })
 

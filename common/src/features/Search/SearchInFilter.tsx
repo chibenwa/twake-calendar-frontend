@@ -22,7 +22,7 @@ import {
   Typography
 } from '@linagora/twake-mui'
 import { ListItemText } from '@common/ds/ListItemText/ListItemText'
-import { useRef } from 'react'
+import { useId, useRef } from 'react'
 import { useI18n } from 'twake-i18n'
 import { Calendar } from '@common/types/CalendarTypes'
 import { useResponsiveInputSize } from '@common/hooks/useResponsiveInputSize'
@@ -38,6 +38,7 @@ export const SearchInFilter: React.FC<Props> = ({ mode }) => {
   const searchParams = useAppSelector(state => state.searchResult.searchParams)
   const { personalCalendars, sharedCalendars, teamCalendars } = useCalendars()
 
+  const labelId = useId()
   const selectorRef = useRef<MobileSelectorHandle>(null)
   const mobileSearch = useFilterSearch('organizers', () => {})
 
@@ -73,8 +74,11 @@ export const SearchInFilter: React.FC<Props> = ({ mode }) => {
         alignItems: 'center'
       }}
     >
-      <InputLabel sx={{ m: 0 }}>{t('search.searchIn')}</InputLabel>
+      <InputLabel id={labelId} sx={{ m: 0 }}>
+        {t('search.searchIn')}
+      </InputLabel>
       <Select
+        labelId={labelId}
         size={inputSize}
         displayEmpty
         value={searchParams.filters.searchIn}

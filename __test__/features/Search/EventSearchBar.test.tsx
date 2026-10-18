@@ -195,6 +195,17 @@ describe('EventSearchBar', () => {
     })
   })
 
+  it('names the "Search in" select after its label', async () => {
+    renderWithProviders(<SearchBar />, preloadedState)
+
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByTestId('TuneIcon'))
+
+    expect(
+      await screen.findByRole('combobox', { name: 'search.searchIn' })
+    ).toBeInTheDocument()
+  })
+
   it('should clear search value when clear button is clicked', () => {
     renderWithProviders(<SearchBar />, preloadedState)
 

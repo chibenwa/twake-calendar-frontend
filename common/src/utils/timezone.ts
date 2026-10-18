@@ -52,6 +52,21 @@ export function resolveTimezone(tzName: string): string {
   return tzName
 }
 
+/**
+ * Whether the browser knows the zone: Intl throws a RangeError on any other,
+ * and a stored configuration may well hold one (written by another client, or
+ * dropped from the browser's tz database).
+ */
+export function isValidTimeZone(tzName: unknown): tzName is string {
+  if (typeof tzName !== 'string' || !tzName) return false
+  try {
+    new Intl.DateTimeFormat(undefined, { timeZone: tzName })
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function resolveTimezoneId(tzid?: string): string | undefined {
   if (!tzid) return undefined
   return resolveTimezone(tzid)

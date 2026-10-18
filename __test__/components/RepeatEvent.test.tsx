@@ -172,6 +172,14 @@ describe('RepeatEvent Component', () => {
     )
   })
 
+  it('gives the frequency select an accessible name', () => {
+    setupRepeatEvent({ freq: 'weekly' })
+
+    expect(
+      screen.getByRole('combobox', { name: 'event.repeat.frequencyAriaLabel' })
+    ).toBeInTheDocument()
+  })
+
   it('widens the until date field so that a long date is not cut', () => {
     setupRepeatEvent({ freq: 'daily', endDate: '2026-12-30' })
 

@@ -766,4 +766,40 @@ describe('The backend carries the automatic detection flag', () => {
     expect(settingsState.isBrowserDefaultTimeZone).toBe(false)
     expect(settingsState.timeZone).toBe('America/New_York')
   })
+
+  test('An unknown zone falls back to the zone in use instead of crashing', async () => {
+    const store = freshStore()
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(
+        backendAnswering({ timeZone: 'Mars/Phobos', autoDetect: false }),
+        '',
+        undefined
+      )
+    )
+
+    const { settings, user } = store.getState()
+    expect(settings.isBrowserDefaultTimeZone).toBe(false)
+    expect(settings.timeZone).toBe(browserDefaultTimeZone)
+    expect(user.coreConfig.datetime.timeZone).toBeNull()
+    expect(localStorage.getItem('timeZone')).toBe(browserDefaultTimeZone)
+  })
+
+  test('An unknown zone without the flag keeps the detection on', async () => {
+    const store = freshStore()
+    store.dispatch(setIsBrowserDefaultTimeZone(false))
+    store.dispatch(getOpenPaasUserData.pending('', undefined))
+
+    await store.dispatch(
+      getOpenPaasUserData.fulfilled(
+        backendAnswering({ timeZone: 'Mars/Phobos' }),
+        '',
+        undefined
+      )
+    )
+
+    const settingsState = store.getState().settings
+    expect(settingsState.isBrowserDefaultTimeZone).toBe(true)
+    expect(settingsState.timeZone).toBe(browserDefaultTimeZone)
+  })
 })

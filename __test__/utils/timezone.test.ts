@@ -1,4 +1,24 @@
-import { convertEventDateTimeToISO } from '@common/utils/timezone'
+import {
+  convertEventDateTimeToISO,
+  isValidTimeZone
+} from '@common/utils/timezone'
+
+describe('isValidTimeZone', () => {
+  it('accepts a zone known to the browser', () => {
+    expect(isValidTimeZone('Europe/Paris')).toBe(true)
+  })
+
+  it('rejects a zone unknown to the browser', () => {
+    expect(isValidTimeZone('Mars/Phobos')).toBe(false)
+  })
+
+  it('rejects missing and non string values', () => {
+    expect(isValidTimeZone(null)).toBe(false)
+    expect(isValidTimeZone(undefined)).toBe(false)
+    expect(isValidTimeZone('')).toBe(false)
+    expect(isValidTimeZone(12345)).toBe(false)
+  })
+})
 
 describe('convertEventDateTimeToISO', () => {
   it('should format a basic date-time string in UTC correctly', () => {

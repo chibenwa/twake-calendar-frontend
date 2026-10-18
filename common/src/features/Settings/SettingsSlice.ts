@@ -4,7 +4,7 @@ import {
   ModuleConfiguration
 } from '@common/features/User/userDataTypes'
 import { getOpenPaasUserData } from '@common/features/User/UserSlice'
-import { browserDefaultTimeZone } from '@common/utils/timezone'
+import { browserDefaultTimeZone, isValidTimeZone } from '@common/utils/timezone'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { businessHoursFromIso } from './businessHoursDays'
 
@@ -31,9 +31,9 @@ const savedLang = localStorage.getItem('lang')
 const defaultLang = savedLang ?? window.LANG ?? 'en'
 
 const savedTimeZone = localStorage.getItem('timeZone')
-// If savedTimeZone is the string "null" or doesn't exist, use null
-const defaultTimeZone =
-  savedTimeZone === 'null' || !savedTimeZone ? null : savedTimeZone
+// If savedTimeZone is the string "null", doesn't exist or is unknown to the
+// browser (an earlier load may have saved it from the backend), use null
+const defaultTimeZone = isValidTimeZone(savedTimeZone) ? savedTimeZone : null
 
 const AUTO_DETECT_TIME_ZONE_KEY = 'autoDetectTimeZone'
 
@@ -76,10 +76,20 @@ const optedOutTimeZone = (
   timeZoneInUse: string | null
 ): string => datetime?.timeZone ?? timeZoneInUse ?? browserDefaultTimeZone
 
+// An unknown zone crashes every date formatting: drop it, as if the backend
+// had sent none, so the calendar and its settings stay reachable.
+const withKnownTimeZone = (
+  datetime: DatetimeConfiguration | undefined
+): DatetimeConfiguration | undefined =>
+  datetime && !isValidTimeZone(datetime.timeZone)
+    ? { ...datetime, timeZone: null }
+    : datetime
+
 const applyServerTimeZone = (
   state: SettingsState,
-  datetime: DatetimeConfiguration | undefined
+  serverDatetime: DatetimeConfiguration | undefined
 ): void => {
+  const datetime = withKnownTimeZone(serverDatetime)
   if (isOptedOut(datetime, !state.isBrowserDefaultTimeZone)) {
     state.timeZone = optedOutTimeZone(datetime, state.timeZone)
     state.isBrowserDefaultTimeZone = false

@@ -15,6 +15,8 @@ interface UseOpenEventFromUrlProps {
   // The event of the embed route (null: the route shows none), in place of the
   // one a deep link of the full page saved, which the embed leaves alone
   uid?: string | null
+  // The calendar of the embed route: its event is looked up there only
+  calId?: string
 }
 
 /**
@@ -31,7 +33,8 @@ export function useOpenEventFromUrl({
   setEventDisplayedCalId,
   setEventDisplayedTemp,
   setOpenEventDisplay,
-  uid
+  uid,
+  calId
 }: UseOpenEventFromUrlProps): void {
   const processedRef = useRef<string | null>(null)
 
@@ -63,9 +66,13 @@ export function useOpenEventFromUrl({
     void (async () => {
       try {
         const result = await dispatch(
-          getEventByUid({ userId, uid: pendingUid })
+          getEventByUid({ userId, uid: pendingUid, calId })
         ).unwrap()
-        if (!result || !calendars[result.calId]) {
+        if (
+          !result ||
+          !calendars[result.calId] ||
+          (calId && result.calId !== calId)
+        ) {
           return
         }
         const target =
@@ -91,6 +98,7 @@ export function useOpenEventFromUrl({
     setEventDisplayedCalId,
     setEventDisplayedTemp,
     setOpenEventDisplay,
-    uid
+    uid,
+    calId
   ])
 }

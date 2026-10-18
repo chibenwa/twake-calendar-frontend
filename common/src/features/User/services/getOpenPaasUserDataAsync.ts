@@ -1,4 +1,5 @@
 import { toRejectedError } from '@common/utils/errorUtils'
+import { isValidTimeZone } from '@common/utils/timezone'
 import { ReducerCreators } from '@reduxjs/toolkit'
 import { fetchCurrentUser } from '../UserDao'
 import { RejectedError, UserState } from '../UserSlice'
@@ -80,7 +81,11 @@ function applyDatetimeConfig(
     datetimeConfig?.value && typeof datetimeConfig.value === 'object'
       ? (datetimeConfig.value as { timeZone?: string })
       : {}
-  const timeZone = datetimeValue.timeZone ?? null
+  // An unknown zone would crash every render that formats a date: treat it as
+  // no zone at all, so the user can still reach the settings and pick one.
+  const timeZone = isValidTimeZone(datetimeValue.timeZone)
+    ? datetimeValue.timeZone
+    : null
 
   state.coreConfig.datetime = {
     ...state.coreConfig.datetime,

@@ -5,15 +5,18 @@ import type { Calendar } from '@common/types/CalendarTypes'
 import { renderHook, waitFor } from '@testing-library/react'
 
 const calendars = {
-  'team1/team1': { id: 'team1/team1' }
+  'team1/team1': { id: 'team1/team1' },
+  'alice/alice': { id: 'alice/alice' }
 } as unknown as Record<string, Calendar>
 
-const setup = (uid: string | null) => {
+const setup = (
+  uid: string | null,
+  { calId, foundIn = 'team1/team1' }: { calId?: string; foundIn?: string } = {}
+) => {
   const dispatch = jest.fn((thunk: unknown) => {
     void thunk
     return {
-      unwrap: () =>
-        Promise.resolve({ calId: 'team1/team1', events: [{ uid: 'e1' }] })
+      unwrap: () => Promise.resolve({ calId: foundIn, events: [{ uid: 'e1' }] })
     }
   }) as unknown as AppDispatch
   const setOpenEventDisplay = jest.fn()
@@ -28,7 +31,8 @@ const setup = (uid: string | null) => {
         setEventDisplayedCalId: jest.fn(),
         setEventDisplayedTemp: jest.fn(),
         setOpenEventDisplay,
-        uid
+        uid,
+        calId
       }),
     { initialProps: { uid } }
   )
@@ -57,6 +61,17 @@ describe('useOpenEventFromUrl on the embed route', () => {
     rerender({ uid: null })
     rerender({ uid: 'e1' })
     await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(2))
+  })
+
+  it('does not open an event of another calendar', async () => {
+    const { dispatch, setOpenEventDisplay } = setup('e1', {
+      calId: 'team1/team1',
+      foundIn: 'alice/alice'
+    })
+
+    await waitFor(() => expect(dispatch).toHaveBeenCalledTimes(1))
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(setOpenEventDisplay).not.toHaveBeenCalled()
   })
 
   it('leaves the deep link of the full page alone on the bare route', async () => {
