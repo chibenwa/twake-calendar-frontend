@@ -128,6 +128,7 @@ export const AttendeeSearch: React.FC<{
   disabled?: boolean
   inputSlot?: (params: ExtendedAutocompleteRenderInputParams) => React.ReactNode
   placeholder?: string
+  label?: string
   start?: string
   end?: string
   timezone?: string
@@ -139,6 +140,7 @@ export const AttendeeSearch: React.FC<{
   disabled,
   inputSlot,
   placeholder,
+  label,
   start,
   end,
   timezone,
@@ -185,6 +187,7 @@ export const AttendeeSearch: React.FC<{
       disabled={disabled}
       inputSlot={inputSlot}
       placeholder={placeholder}
+      label={label}
       getChipIcon={(user): JSX.Element =>
         start && end ? (
           <FreeBusyIndicator status={statusMap[user.email] ?? 'unknown'} />

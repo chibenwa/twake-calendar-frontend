@@ -206,6 +206,20 @@ describe('EventSearchBar', () => {
     ).toBeInTheDocument()
   })
 
+  it('names the Organizers and Participants fields after their labels', async () => {
+    renderWithProviders(<SearchBar />, preloadedState)
+
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByTestId('TuneIcon'))
+
+    expect(
+      await screen.findByRole('combobox', { name: 'search.organizers' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('combobox', { name: 'search.participants' })
+    ).toBeInTheDocument()
+  })
+
   it('should clear search value when clear button is clicked', () => {
     renderWithProviders(<SearchBar />, preloadedState)
 

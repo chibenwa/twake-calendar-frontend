@@ -43,6 +43,7 @@ export const OrganizersFilter: React.FC<Props> = ({ mode, onErrorClear }) => {
     >
       <InputLabel sx={{ m: 0 }}>{t('search.organizers')}</InputLabel>
       <UserSearch
+        label={t('search.organizers')}
         attendees={searchParams.filters.organizers}
         setAttendees={(users: userAttendee[]) => {
           dispatch(setFilters({ organizers: users }))

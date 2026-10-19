@@ -42,6 +42,7 @@ export const AttendeesFilter: React.FC<Props> = ({ mode, onErrorClear }) => {
     >
       <InputLabel sx={{ m: 0 }}>{t('search.participants')}</InputLabel>
       <UserSearch
+        label={t('search.participants')}
         attendees={filters.attendees}
         setAttendees={(users: userAttendee[]) => {
           dispatch(setFilters({ attendees: users }))
