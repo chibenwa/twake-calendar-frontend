@@ -31,6 +31,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Checkbox,
   IconButton,
   ListItem,
@@ -106,55 +107,81 @@ const CollapsibleSection: React.FC<{
   if (itemCount === 0 && !onAddClick) return null
 
   return (
-    <Accordion
-      defaultExpanded={defaultExpanded}
-      expanded={expanded}
-      sx={{
-        width: '100%',
-        padding: 0,
-        margin: 0,
-        marginBottom: '12px',
-        boxShadow: 'none',
-        '&::before': {
-          display: 'none'
-        }
-      }}
-    >
-      <AccordionSummary
-        expandIcon={
-          itemCount > 0 ? (
-            <Tooltip
-              title={expanded ? t('tooltip.collapse') : t('tooltip.expand')}
-            >
-              <ExpandMoreIcon />
-            </Tooltip>
-          ) : null
-        }
-        aria-controls={`${title}-content`}
-        id={`${title}-header`}
-        className="calendarListHeader"
-        onClick={() => {
-          if (itemCount > 0) {
-            setExpanded(!expanded)
-          }
-        }}
+    <Box sx={{ position: 'relative' }}>
+      <Accordion
+        defaultExpanded={defaultExpanded}
+        expanded={expanded}
         sx={{
-          '& .MuiAccordionSummary-content': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
+          width: '100%',
+          padding: 0,
+          margin: 0,
+          marginBottom: '12px',
+          boxShadow: 'none',
+          '&::before': {
+            display: 'none'
           }
         }}
       >
-        <Typography variant="body2">{title}</Typography>
-        {onAddClick && (
-          <Tooltip title={addBtnTooltip}>
+        <AccordionSummary
+          expandIcon={
+            itemCount > 0 ? (
+              <Tooltip
+                title={expanded ? t('tooltip.collapse') : t('tooltip.expand')}
+              >
+                <ExpandMoreIcon />
+              </Tooltip>
+            ) : null
+          }
+          aria-controls={`${title}-content`}
+          id={`${title}-header`}
+          className="calendarListHeader"
+          onClick={() => {
+            if (itemCount > 0) {
+              setExpanded(!expanded)
+            }
+          }}
+          sx={{
+            '& .MuiAccordionSummary-content': {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }
+          }}
+        >
+          <Typography variant="body2">{title}</Typography>
+          {/* Keeps the room of the add button, laid over it below: inside the
+            toggle, it would be a button nested in another one */}
+          {onAddClick && (
             <IconButton
               component="span"
               size="xsmall"
-              onClick={e => {
-                if (expanded) {
-                  e.stopPropagation()
+              aria-hidden
+              tabIndex={-1}
+              sx={{ visibility: 'hidden' }}
+            >
+              <AddIcon />
+            </IconButton>
+          )}
+        </AccordionSummary>
+        <AccordionDetails style={{ textAlign: 'left', padding: 0 }}>
+          {children}
+        </AccordionDetails>
+      </Accordion>
+      {onAddClick && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            // the expand icon (16px) and its margin follow the add button
+            right: itemCount > 0 ? '24px' : 0
+          }}
+        >
+          <Tooltip title={addBtnTooltip}>
+            <IconButton
+              size="xsmall"
+              onClick={() => {
+                if (!expanded && itemCount > 0) {
+                  setExpanded(true)
                 }
                 onAddClick()
               }}
@@ -162,12 +189,9 @@ const CollapsibleSection: React.FC<{
               <AddIcon />
             </IconButton>
           </Tooltip>
-        )}
-      </AccordionSummary>
-      <AccordionDetails style={{ textAlign: 'left', padding: 0 }}>
-        {children}
-      </AccordionDetails>
-    </Accordion>
+        </Box>
+      )}
+    </Box>
   )
 }
 

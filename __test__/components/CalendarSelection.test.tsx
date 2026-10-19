@@ -251,8 +251,9 @@ describe('CalendarSelection', () => {
       }
     )
 
-    const addButtons = screen.getAllByRole('button')
-    fireEvent.click(addButtons[3])
+    fireEvent.click(
+      screen.getByRole('button', { name: 'tooltip.addPersonalCalendar' })
+    )
 
     await waitFor(() =>
       expect(
@@ -365,6 +366,27 @@ describe('CalendarSelection', () => {
     expect(screen.queryByText(/#default/)).not.toBeInTheDocument()
   })
 
+  it('keeps the add buttons out of the section toggles (#1717)', () => {
+    renderWithProviders(
+      <CalendarSelection
+        selectedCalendars={[]}
+        setSelectedCalendars={jest.fn()}
+      />,
+      {
+        user: baseUser,
+        calendars: { list: calendarsMock, pending: false }
+      }
+    )
+
+    const toggle = screen.getByRole('button', { name: 'calendar.personal' })
+    const add = screen.getByRole('button', {
+      name: 'tooltip.addPersonalCalendar'
+    })
+    expect(toggle).toHaveAttribute('aria-expanded')
+    expect(toggle).not.toContainElement(add)
+    expect(add.tagName).toBe('BUTTON')
+  })
+
   it('opens CalendarSearch modal when Other Add button is clicked', () => {
     renderWithProviders(
       <CalendarSelection
@@ -377,8 +399,9 @@ describe('CalendarSelection', () => {
       }
     )
 
-    const addButtons = screen.getAllByTestId('AddIcon')
-    fireEvent.click(addButtons[2]) // seccond Add button (other)
+    fireEvent.click(
+      screen.getByRole('button', { name: 'tooltip.registerOtherCalendars' })
+    )
 
     expect(
       screen.getByText('calendar.browseOtherCalendars')
