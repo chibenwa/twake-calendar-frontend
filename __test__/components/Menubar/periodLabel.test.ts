@@ -18,8 +18,11 @@ const MONTHS = [
   'December'
 ]
 
-const t = (key: string): string =>
-  MONTHS[Number(key.replace('months.standalone.', ''))]
+const t = (key: string): string => {
+  const [, format, index] = key.split('.')
+  const month = MONTHS[Number(index)]
+  return format === 'short' ? month.slice(0, 3) : month
+}
 
 const calendarShowing = (
   start: Date,
@@ -84,6 +87,18 @@ describe('formatPeriodLabel', () => {
   it('falls back to the given date without displayed period', () => {
     expect(formatPeriodLabel(undefined, new Date(2024, 3, 15), t)).toBe(
       'April 2024'
+    )
+  })
+
+  it('uses short month names when asked to, for the narrowest phones', () => {
+    const month = calendarShowing(new Date(2026, 9, 1), new Date(2026, 10, 1))
+    const week = calendarShowing(new Date(2026, 8, 28), new Date(2026, 9, 5))
+
+    expect(formatPeriodLabel(month, new Date(2026, 9, 2), t, 'short')).toBe(
+      'Oct 2026'
+    )
+    expect(formatPeriodLabel(week, new Date(2026, 9, 2), t, 'short')).toBe(
+      'Sep – Oct 2026'
     )
   })
 })

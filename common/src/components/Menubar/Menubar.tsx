@@ -149,6 +149,12 @@ export const Menubar: React.FC<MenubarProps> = ({
         currentDate={currentDate}
         currentView={currentView}
         dateLabel={dateLabel}
+        shortDateLabel={formatPeriodLabel(
+          displayedPeriod,
+          currentDate,
+          t,
+          'short'
+        )}
         onDateChange={onDateChange}
         handleNavigation={handleNavigation}
         onOpenSidebar={onToggleSidebar}

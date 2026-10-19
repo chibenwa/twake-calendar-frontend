@@ -24,16 +24,24 @@ const yearMonthIn = (timeZone: string | undefined, date: Date): YearMonth => {
   return { year: part('year'), month: part('month') - 1 }
 }
 
-const monthLabel = (date: YearMonth, t: Translate): string =>
-  t(`months.standalone.${date.month}`)
+// "short" ("Oct") fits the narrowest phones, where full names get clipped
+export type MonthFormat = 'standalone' | 'short'
+
+const monthLabel = (
+  date: YearMonth,
+  t: Translate,
+  format: MonthFormat
+): string => t(`months.${format}.${date.month}`)
 
 // The title depends on the displayed period only, not on how it was reached:
 // FullCalendar's current date is today after "Today" but the period start otherwise
 export const formatPeriodLabel = (
   period: DisplayedPeriod | undefined,
   fallbackDate: Date,
-  t: Translate
+  t: Translate,
+  monthFormat: MonthFormat = 'standalone'
 ): string => {
+  const month = (date: YearMonth): string => monthLabel(date, t, monthFormat)
   const timeZone = period?.timeZone
   const first = yearMonthIn(timeZone, period ? period.start : fallbackDate)
   const last = yearMonthIn(
@@ -42,10 +50,10 @@ export const formatPeriodLabel = (
   )
 
   if (first.year !== last.year) {
-    return `${monthLabel(first, t)} ${first.year} – ${monthLabel(last, t)} ${last.year}`
+    return `${month(first)} ${first.year} – ${month(last)} ${last.year}`
   }
   if (first.month !== last.month) {
-    return `${monthLabel(first, t)} – ${monthLabel(last, t)} ${last.year}`
+    return `${month(first)} – ${month(last)} ${last.year}`
   }
-  return `${monthLabel(first, t)} ${first.year}`
+  return `${month(first)} ${first.year}`
 }

@@ -2,7 +2,12 @@ import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { clearSearch } from '@common/features/Search/SearchSlice'
 import { setView } from '@common/features/Settings/SettingsSlice'
 import { CalendarApi } from '@fullcalendar/core'
-import { IconButton, Stack, Typography } from '@linagora/twake-mui'
+import {
+  IconButton,
+  Stack,
+  Typography,
+  useMediaQuery
+} from '@linagora/twake-mui'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
@@ -21,6 +26,8 @@ export interface MobileMenubarProps {
   currentDate: Date
   currentView: string
   dateLabel: string
+  // With short month names, for the narrowest phones
+  shortDateLabel?: string
   onDateChange?: (date: Date) => void
   handleNavigation: (action: 'prev' | 'next' | 'today') => void
   onOpenSidebar: () => void
@@ -31,11 +38,14 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
   currentDate,
   currentView,
   dateLabel,
+  shortDateLabel,
   onDateChange,
   handleNavigation,
   onOpenSidebar
 }) => {
   const { t } = useI18n()
+  // Below 360px the title gets too narrow for a full month name
+  const isNarrow = useMediaQuery('(max-width: 359.95px)')
   const dispatch = useAppDispatch()
 
   const view = useAppSelector(state => state.settings.view)
@@ -135,12 +145,13 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                     }}
                     onClick={onToggleDatePicker}
                   >
-                    {dateLabel}
+                    {isNarrow && shortDateLabel ? shortDateLabel : dateLabel}
                   </Typography>
                   <Tooltip title={toggleDatePickerTitle}>
                     <IconButton
                       size="small"
-                      sx={{ flexShrink: 0 }}
+                      // narrow phones: leave the title room for "2026"
+                      sx={{ flexShrink: 0, ...(isNarrow && { px: 0.5 }) }}
                       onClick={onToggleDatePicker}
                       aria-label={toggleDatePickerTitle}
                       aria-expanded={openDatePicker}
