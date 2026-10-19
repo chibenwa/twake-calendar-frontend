@@ -145,6 +145,9 @@ export const RSVPButton: React.FC<RSVPButtonProps> = ({
                 : {}
           }}
           onClick={() => void handleClick()}
+          // The current answer is disabled: tell assistive technologies it
+          // is the selected one, not an unavailable choice
+          aria-pressed={isCurrentlyActive}
           disabled={isLoading || isReadDelegated || isCurrentlyActive}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

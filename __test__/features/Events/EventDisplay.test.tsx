@@ -407,6 +407,67 @@ describe('Event Preview Display', () => {
     ).toBeInTheDocument()
   })
 
+  it('exposes the current answer as the pressed one (#1714)', () => {
+    const rsvpStateIsOrga = {
+      ...preloadedState,
+      calendars: {
+        ...preloadedState.calendars,
+        list: {
+          ...preloadedState.calendars.list,
+          '667037022b752d0026472254/cal1': {
+            ...preloadedState.calendars.list['667037022b752d0026472254/cal1'],
+            events: {
+              event1: {
+                ...preloadedState.calendars.list[
+                  '667037022b752d0026472254/cal1'
+                ].events.event1,
+                attendee: [
+                  new userAttendee({
+                    cal_address: 'organizer@test.com',
+                    cn: 'Test Organizer',
+                    partstat: 'NEEDS-ACTION'
+                  })
+                ],
+                organizer: {
+                  cal_address: 'organizer@test.com'
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    renderWithProviders(
+      <EventPreviewModal
+        open={true}
+        onClose={mockOnClose}
+        calId="667037022b752d0026472254/cal1"
+        eventId="event1"
+      />,
+      rsvpStateIsOrga
+    )
+
+    expect(
+      screen.getByRole('button', {
+        name: 'eventPreview.ACCEPTED',
+        pressed: true
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'eventPreview.TENTATIVE',
+        pressed: false
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'eventPreview.DECLINED',
+        pressed: false
+      })
+    ).toBeInTheDocument()
+  })
+
   it('handles RSVP Accept click', async () => {
     jest.spyOn(EventDao, 'fetchEventJCal').mockResolvedValue(storedEventJCal())
     const spy = jest
