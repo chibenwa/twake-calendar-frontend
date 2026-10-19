@@ -243,7 +243,7 @@ export const EventChip: React.FC<EventChipProps> = ({ arg, errorHandler }) => {
                   verticalAlign: 'middle'
                 }}
               >
-                {startTime} {!showCompact && ` - ${endTime}`}
+                {startTime} {!showCompact && endTime && ` - ${endTime}`}
               </Typography>
             )
           }

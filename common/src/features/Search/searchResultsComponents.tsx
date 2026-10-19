@@ -46,15 +46,19 @@ interface VideoJoinProps {
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
-// The end (DTEND) of an all-day event is the day following its last day
+// The end (DTEND) of an all-day event is the day following its last day.
+// An end before the start (accepted by the server) falls back to the start.
 export const lastDayOf = (
   startDate: Date,
   endDate: Date,
   allDay: boolean
 ): Date =>
-  allDay
-    ? new Date(Math.max(startDate.getTime(), endDate.getTime() - ONE_DAY_MS))
-    : endDate
+  new Date(
+    Math.max(
+      startDate.getTime(),
+      allDay ? endDate.getTime() - ONE_DAY_MS : endDate.getTime()
+    )
+  )
 
 export const RenderDate: React.FC<DateProps> = ({
   startDate,
@@ -109,12 +113,16 @@ export const RenderTime: React.FC<TimeProps> = ({
         minute: '2-digit',
         timeZone
       })}
-      {' - '}
-      {endDate.toLocaleTimeString(t('locale'), {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone
-      })}
+      {endDate >= startDate && (
+        <>
+          {' - '}
+          {endDate.toLocaleTimeString(t('locale'), {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone
+          })}
+        </>
+      )}
     </Typography>
   )
 }

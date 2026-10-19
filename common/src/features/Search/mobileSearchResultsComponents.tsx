@@ -84,6 +84,9 @@ export const formatMobileEventSpan = (
   if (allDay) {
     return isMultiDay ? `${formatDay(startDate)} - ${formatDay(lastDay)}` : null
   }
+  if (endDate < startDate) {
+    return formatTime(startDate)
+  }
   if (isMultiDay) {
     return `${formatDay(startDate)} ${formatTime(startDate)} - ${formatDay(endDate)} ${formatTime(endDate)}`
   }

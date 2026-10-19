@@ -40,11 +40,14 @@ export function getEventTimes(
   timeZone: string
 ): {
   startTime: string
-  endTime: string
+  endTime: string | null
 } {
+  // FullCalendar drops an end that is not after the start (DTEND before
+  // DTSTART, accepted by the server): such events show their start only
+  const hasEnd = !!event.end && !!event.start && event.end > event.start
   return {
     startTime: moment.tz(event.start, timeZone).format('HH:mm'),
-    endTime: moment.tz(event.end, timeZone).format('HH:mm')
+    endTime: hasEnd ? moment.tz(event.end, timeZone).format('HH:mm') : null
   }
 }
 export function getEffectiveColor(
