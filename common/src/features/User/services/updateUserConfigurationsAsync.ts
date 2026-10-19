@@ -98,12 +98,10 @@ export const updateUserConfigurationsThunk = (
       }
     },
     {
+      // A failure is not stored in `state.error`, which sends the user to the
+      // error page: each caller rolls its change back and tells the user
       fulfilled: (state, action) => {
         applyUpdates(state, action.payload)
-      },
-      rejected: (state, action) => {
-        state.error =
-          action.payload?.message || 'Failed to update user configurations'
       }
     }
   )
