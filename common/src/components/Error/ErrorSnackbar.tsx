@@ -3,6 +3,7 @@ import { clearError as calendarClearError } from '@common/features/Calendars/Cal
 import { clearError as userClearError } from '@common/features/User/UserSlice'
 import { Alert, Button, Snackbar } from '@linagora/twake-mui'
 import { translateErrorMessage } from '@common/utils/translateErrorMessage'
+import { useState } from 'react'
 import { useI18n } from 'twake-i18n'
 
 export function ErrorSnackbar({
@@ -14,14 +15,18 @@ export function ErrorSnackbar({
 }) {
   const { t } = useI18n()
   const dispatch = useAppDispatch()
+  // The error is cleared as soon as the snackbar closes, while its exit
+  // transition still shows it: keep displaying the last one meanwhile
+  const [shownError, setShownError] = useState(error)
+  if (error && error !== shownError) setShownError(error)
 
   const handleCloseSnackbar = () => {
     dispatch(type === 'calendar' ? calendarClearError() : userClearError())
   }
 
   const getErrorMessage = () => {
-    if (!error) return t('error.unknown')
-    return translateErrorMessage(error, t)
+    if (!shownError) return t('error.unknown')
+    return translateErrorMessage(shownError, t)
   }
 
   return (
