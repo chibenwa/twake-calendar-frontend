@@ -25,6 +25,15 @@ import React, { ReactNode, useContext, useId, useMemo, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import useDynamicPosition from './useDynamicPosition'
 
+const visuallyHidden: SxProps<Theme> = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap'
+}
+
 /** Open expanded dialogs sharing the fullscreen-view body class. */
 let expandedDialogCount = 0
 
@@ -220,6 +229,9 @@ function ResponsiveDialog({
 
   const uid = useId()
   const titleId = `responsive-dialog-title-${uid}`
+  // Names the dialog: the title only, without the header buttons
+  const titleTextId = `${titleId}-text`
+  const showsBackButton = isExpanded && !!onExpandToggle && !isMobile
 
   const isDraggable = draggable && !isMobile && !isExpanded
 
@@ -400,7 +412,7 @@ function ResponsiveDialog({
         }
         style={isExpanded ? { zIndex: 1200 } : undefined}
         PaperComponent={DraggablePaper}
-        aria-labelledby={titleId}
+        aria-labelledby={titleTextId}
       >
         <DialogTitle
           {...dialogTitleProps}
@@ -425,7 +437,7 @@ function ResponsiveDialog({
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {isExpanded && onExpandToggle && !isMobile ? (
+              {showsBackButton && (
                 <IconButton
                   onClick={onExpandToggle}
                   aria-label={t('eventPreview.showLess')}
@@ -434,36 +446,42 @@ function ResponsiveDialog({
                 >
                   <ArrowBackIcon sx={{ fontSize: 30 }} />
                 </IconButton>
-              ) : (
-                title
               )}
+              {/* The back button replaces the title on screen, but the
+                  dialog keeps it as its name */}
+              <Box
+                component="span"
+                id={titleTextId}
+                sx={showsBackButton ? visuallyHidden : { display: 'contents' }}
+              >
+                {title}
+              </Box>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {headerRightAction}
-              {showHeaderActions &&
-                !(isExpanded && onExpandToggle && !isMobile) && (
-                  <>
-                    {onExpandToggle && !isMobile && (
-                      <Tooltip title={expandText}>
-                        <IconButton
-                          onClick={onExpandToggle}
-                          aria-label={t('tooltip.expand')}
-                          size="xsmall"
-                          sx={{ marginRight: 1 }}
-                        >
-                          <OpenInFullIcon sx={{ padding: '2px' }} />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    <IconButton
-                      onClick={onClose}
-                      aria-label={t('actions.close')}
-                      size="xsmall"
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </>
-                )}
+              {showHeaderActions && !showsBackButton && (
+                <>
+                  {onExpandToggle && !isMobile && (
+                    <Tooltip title={expandText}>
+                      <IconButton
+                        onClick={onExpandToggle}
+                        aria-label={t('tooltip.expand')}
+                        size="xsmall"
+                        sx={{ marginRight: 1 }}
+                      >
+                        <OpenInFullIcon sx={{ padding: '2px' }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <IconButton
+                    onClick={onClose}
+                    aria-label={t('actions.close')}
+                    size="xsmall"
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </>
+              )}
             </Box>
           </Box>
         </DialogTitle>

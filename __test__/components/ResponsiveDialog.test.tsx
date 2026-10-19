@@ -62,8 +62,38 @@ describe('ResponsiveDialog', () => {
       </ResponsiveDialog>
     )
 
-    expect(screen.queryByText('My Title')).not.toBeInTheDocument()
     expect(screen.getByLabelText('eventPreview.showLess')).toBeInTheDocument()
+  })
+
+  it('keeps the title as the name of the expanded dialog (#1713)', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title="My Title"
+        isExpanded={true}
+        onExpandToggle={mockOnExpandToggle}
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    expect(screen.getByRole('dialog', { name: 'My Title' })).toBeInTheDocument()
+  })
+
+  it('names the dialog after its title only, not its header buttons', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title="My Title"
+        onExpandToggle={mockOnExpandToggle}
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    expect(screen.getByRole('dialog', { name: 'My Title' })).toBeInTheDocument()
   })
 
   it('calls onExpandToggle when back arrow is clicked', () => {
