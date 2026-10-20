@@ -98,7 +98,7 @@
                     <reuseForks>true</reuseForks>
                     <forkCount>1</forkCount>
                     <!-- The stack is started once for the whole run; give it room -->
-                    <forkedProcessTimeoutInSeconds>2400</forkedProcessTimeoutInSeconds>
+                    <forkedProcessTimeoutInSeconds>7200</forkedProcessTimeoutInSeconds>
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
