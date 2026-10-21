@@ -149,9 +149,10 @@ export function useEventPreviewState(
   const effectiveEmail = user
     ? getEffectiveEmail(calendar, isWriteDelegated, user.email)
     : ''
+  // without an organizer, whoever may write the calendar organizes, as its owner does
   const isOrganizer = event?.organizer
     ? isEventOrganiser(event, effectiveEmail, calendar)
-    : isOwn
+    : isOwn || isWriteDelegated
   const isNotPrivate = !isMaskedClassification(event?.class)
   const isTeamCalendar = Boolean(calendar?.owner?.teamCalendar)
 

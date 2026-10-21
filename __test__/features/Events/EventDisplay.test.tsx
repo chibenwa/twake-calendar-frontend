@@ -1791,6 +1791,43 @@ describe('Event Preview Display', () => {
         expect(screen.queryByTestId('EditIcon')).not.toBeInTheDocument()
       })
 
+      it('shows edit button for an event without organizer of a write-delegated calendar', () => {
+        renderWithProviders(
+          <EventPreviewModal
+            eventId="event-1"
+            calId="user2/cal1"
+            open={true}
+            onClose={mockOnClose}
+          />,
+          makeDelegatedState({ organizer: undefined, attendee: [] })
+        )
+        expect(
+          screen.getByTestId('EditIcon').closest('button')
+        ).toBeInTheDocument()
+      })
+
+      it('does not show edit button for an event without organizer when delegated read-only', () => {
+        renderWithProviders(
+          <EventPreviewModal
+            eventId="event-1"
+            calId="user2/cal1"
+            open={true}
+            onClose={mockOnClose}
+          />,
+          makeDelegatedState(
+            { organizer: undefined, attendee: [] },
+            {
+              write: false,
+              freebusy: false,
+              read: true,
+              'write-properties': false,
+              all: false
+            }
+          )
+        )
+        expect(screen.queryByTestId('EditIcon')).not.toBeInTheDocument()
+      })
+
       it.each(['PRIVATE', 'CONFIDENTIAL'])(
         'does not offer to edit a masked %s event of a write-delegated calendar',
         classification => {
