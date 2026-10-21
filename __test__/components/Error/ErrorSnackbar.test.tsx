@@ -1,5 +1,5 @@
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
 
 describe('ErrorSnackbar', () => {
@@ -31,5 +31,31 @@ describe('ErrorSnackbar', () => {
 
     expect(screen.getByText('Second failure')).toBeInTheDocument()
     expect(screen.queryByText('First failure')).not.toBeInTheDocument()
+  })
+
+  it('stays until it is dismissed', () => {
+    jest.useFakeTimers()
+    try {
+      const { store } = renderWithProviders(
+        <ErrorSnackbar error="Something broke" type="user" />,
+        {
+          user: {
+            userData: null,
+            tokens: null,
+            loading: false,
+            error: 'Something broke',
+            coreConfig: { language: 'en' }
+          }
+        }
+      )
+
+      act(() => {
+        jest.advanceTimersByTime(10000)
+      })
+
+      expect(store.getState().user.error).toBe('Something broke')
+    } finally {
+      jest.useRealTimers()
+    }
   })
 })

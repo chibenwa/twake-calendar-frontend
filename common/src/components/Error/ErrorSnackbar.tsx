@@ -30,8 +30,10 @@ export function ErrorSnackbar({
   }
 
   return (
+    // twake-mui hides every snackbar after 2s by default: an error stays until "Ok"
     <Snackbar
       open={!!error}
+      autoHideDuration={null}
       onClose={handleCloseSnackbar}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >

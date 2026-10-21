@@ -6,7 +6,7 @@ import {
   Stack,
   Typography
 } from '@linagora/twake-mui'
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppSelector } from '@common/app/hooks'
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -25,15 +25,16 @@ export const Error: React.FC<ErrorProps> = ({
   const { t } = useI18n()
   const userError = useAppSelector(state => state.user.error)
   const calendarError = useAppSelector(state => state.calendars.error)
-  const initialError = useRef(userError || calendarError)
+  const [initialError] = useState(userError || calendarError)
 
   useEffect(() => {
-    if (!initialError.current && !isCrashFallback) {
+    if (!initialError && !isCrashFallback) {
       window.location.replace('/')
     }
-  }, [isCrashFallback])
+  }, [initialError, isCrashFallback])
 
-  const storeError = userError || calendarError
+  // closing the snackbar clears the store error: keep showing the one that led here
+  const storeError = userError || calendarError || initialError
   const errorMessage = storeError
     ? translateErrorMessage(storeError, t)
     : isCrashFallback
