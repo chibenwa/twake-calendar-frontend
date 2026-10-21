@@ -4,6 +4,12 @@ import { renderWithProviders } from '../utils/Renderwithproviders'
 import { AttendeePopover } from '@common/components/Attendees/AttendeePopover'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
+import { searchPeople } from '@common/features/User/UserDao'
+
+jest.mock('@common/features/User/UserDao')
+const mockedSearchPeople = searchPeople as jest.MockedFunction<
+  typeof searchPeople
+>
 
 jest.mock('@common/useScreenSizeDetection', () => ({
   useScreenSizeDetection: jest.fn(() => ({
@@ -49,6 +55,43 @@ describe('AttendeePopover (Private)', () => {
         'tooltip.createEventWithAttendee(attendee=John Doe)'
       )
     ).toBeInTheDocument()
+  })
+
+  it('names its close and chat buttons', async () => {
+    window.CHAT_SPA_URL = 'https://chat.example.com'
+    mockedSearchPeople.mockResolvedValue([{ email: 'john@example.com' }])
+    try {
+      const attendee = new userAttendee({
+        cal_address: 'john@example.com',
+        cn: 'John Doe'
+      })
+
+      renderWithProviders(
+        <AttendeePopover attendee={attendee}>
+          <span>Open Popover</span>
+        </AttendeePopover>,
+        {
+          user: {
+            userData: {
+              email: 'user@example.com',
+              workplaceFqdn: 'example.com'
+            }
+          }
+        }
+      )
+      fireEvent.click(screen.getByText('Open Popover'))
+
+      expect(
+        screen.getByRole('button', { name: 'actions.close' })
+      ).toBeInTheDocument()
+      expect(
+        await screen.findByRole('button', {
+          name: 'tooltip.openChat(attendee=John Doe)'
+        })
+      ).toBeEnabled()
+    } finally {
+      window.CHAT_SPA_URL = undefined
+    }
   })
 
   it('opens popover after pending hover delay on mouse enter and closes on mouse leave', () => {

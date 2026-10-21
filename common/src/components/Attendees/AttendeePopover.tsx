@@ -80,6 +80,7 @@ export function AttendeePopover({
   children,
   openOnHover = true
 }: AttendeePopoverProps): React.ReactElement {
+  const { t } = useI18n()
   const theme = useTheme()
   const userEmail = useAppSelector(state => state.user.userData?.email)
   const { isTooSmall: isMobile } = useScreenSizeDetection()
@@ -223,6 +224,7 @@ export function AttendeePopover({
             <IconButton
               size="small"
               onClick={handleClose}
+              aria-label={t('actions.close')}
               sx={{
                 position: 'absolute',
                 top: 8,

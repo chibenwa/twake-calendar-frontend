@@ -48,6 +48,10 @@ export function AttendeeActions({
     chatSpaUrl
   )
 
+  const chatLabel = !isInternalUser
+    ? t('tooltip.cannotOpenChatExternalUser')
+    : t('tooltip.openChat', { attendee: attendee.cn })
+
   const handleSendMail = (): void => {
     if (!mailSpaUrl) return
     const composeUrl = buildMailComposerUrl(mailSpaUrl, [attendee.cal_address])
@@ -84,17 +88,14 @@ export function AttendeeActions({
           {t('attendees.sendMail')}
         </Button>
       )}
+      {/* the span lets the tooltip show on a disabled button, and takes its
+      aria-label: the button is named too */}
       {chatSpaUrl && (
-        <Tooltip
-          title={
-            !isInternalUser
-              ? t('tooltip.cannotOpenChatExternalUser')
-              : t('tooltip.openChat', { attendee: attendee.cn })
-          }
-        >
+        <Tooltip title={chatLabel}>
           <Box component="span" sx={{ display: 'inline-flex' }}>
             <IconButton
               onClick={handleOpenChat}
+              aria-label={chatLabel}
               sx={{
                 border: '1px solid',
                 borderColor: 'divider',
