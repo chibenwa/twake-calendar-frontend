@@ -11,7 +11,7 @@ import {
   PickerValue
 } from '@mui/x-date-pickers/internals'
 import dayjs from 'dayjs'
-import { forwardRef, useEffect, useState } from 'react'
+import { forwardRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 
 const NextIconButton = forwardRef<
@@ -78,16 +78,7 @@ export const MiniCalendar: React.FC<{
   setSelectedMiniDate: (d: Date) => void
 }> = ({ calendarRef, selectedDate, setSelectedMiniDate }) => {
   const dispatch = useAppDispatch()
-  const [visibleDate, setVisibleDate] = useState(selectedDate ?? new Date())
-
-  useEffect(() => {
-    const handleVisibleDateChange = (): void => {
-      if (selectedDate) {
-        setVisibleDate(selectedDate)
-      }
-    }
-    handleVisibleDateChange()
-  }, [selectedDate])
+  const [today] = useState(() => new Date())
 
   const handleChange = (
     dateMoment: PickerValue,
@@ -105,12 +96,11 @@ export const MiniCalendar: React.FC<{
   return (
     <TwakeLocalizationProvider>
       <DateCalendar
-        value={dayjs(visibleDate)}
+        // the value is the day the grid shows: browsing the months of the header
+        // must not change it, or it lands on the 1st of the month
+        value={dayjs(selectedDate ?? today)}
         onChange={handleChange}
         showDaysOutsideCurrentMonth
-        onMonthChange={month => {
-          setVisibleDate(month.toDate())
-        }}
         views={['month', 'day']}
         slots={{
           switchViewIcon: KeyboardArrowDownIcon,
