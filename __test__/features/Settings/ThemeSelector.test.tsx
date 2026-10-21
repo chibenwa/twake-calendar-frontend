@@ -1,10 +1,17 @@
 import SettingsPage from '@common/features/Settings/SettingsPage'
+import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { api } from '@common/utils/apiUtils'
 import '@testing-library/jest-dom'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
 
 jest.mock('@common/utils/apiUtils')
+jest.mock('@common/useScreenSizeDetection', () => ({
+  useScreenSizeDetection: jest.fn(() => ({
+    isTooSmall: false,
+    isTablet: false
+  }))
+}))
 
 function makeState(theme?: 'light' | 'dark' | 'auto' | null): object {
   return {
@@ -45,6 +52,10 @@ async function chooseTheme(name: RegExp): Promise<void> {
 describe('ThemeSelector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+      isTooSmall: false,
+      isTablet: false
+    })
     window.HIDE_THEME_SELECTOR = false
   })
 
@@ -89,5 +100,26 @@ describe('ThemeSelector', () => {
     renderWithProviders(<SettingsPage />, makeState('dark'))
 
     expect(screen.queryByLabelText('settings.themeSelector')).toBe(null)
+  })
+
+  it('opens a bottom sheet of the themes on a phone, as Language does', async () => {
+    ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+      isTooSmall: true,
+      isTablet: false
+    })
+    ;(api.patch as jest.Mock).mockResolvedValue({ status: 204 })
+    const { store } = renderWithProviders(<SettingsPage />, makeState('light'))
+
+    expect(screen.queryByLabelText('settings.themeSelector')).toBe(null)
+    fireEvent.click(
+      screen.getByRole('button', { name: /settings.themes.light/ })
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: /settings.themes.dark/ })
+    )
+
+    await waitFor(() => {
+      expect(store.getState().user.coreConfig.theme).toBe('dark')
+    })
   })
 })
