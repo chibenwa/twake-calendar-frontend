@@ -17,6 +17,7 @@ import type { CalendarApi } from '@fullcalendar/core'
 import AddIcon from '@mui/icons-material/Add'
 import { useMemo, useRef, useState } from 'react'
 import { replace } from 'redux-first-history'
+import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { useI18n } from 'twake-i18n'
 import CalendarController, { CalendarControllerRef } from './CalendarController'
 
@@ -77,6 +78,7 @@ function TeamCalendar({ calendarId }: { calendarId: string }): JSX.Element {
 
   const dispatch = useAppDispatch()
   const eventUid = useEmbeddedEventUid()
+  const { isTooSmall, isTablet } = useScreenSizeDetection()
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [displayedPeriod, setDisplayedPeriod] = useState<DisplayedPeriod>()
@@ -110,13 +112,17 @@ function TeamCalendar({ calendarId }: { calendarId: string }): JSX.Element {
                 </Typography>
               </div>
             </div>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => controllerRef.current?.handleCreateEvent()}
-            >
-              {t('event.createEvent')}
-            </Button>
+            {/* the floating Create button stands for it on a phone or a
+            tablet, where it would not fit next to the month */}
+            {!isTooSmall && !isTablet && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => controllerRef.current?.handleCreateEvent()}
+              >
+                {t('event.createEvent')}
+              </Button>
+            )}
           </header>
           <CalendarController
             calendarRef={calendarRef}
