@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
-import { selectCalendars } from '@common/app/selectors/selectCalendars'
 import { PeopleSearch } from '@common/components/Attendees/PeopleSearch'
 import { User } from '@common/components/Attendees/types'
+import { useCalendars } from '@common/components/Menubar/useMobileSearch'
 import { Tooltip } from '@common/components/Tooltip'
 import { AttendeesFilter } from '@common/features/Search/AttendeesFilter'
 import { KeywordsFilter } from '@common/features/Search/KeywordsFilter'
@@ -15,7 +15,6 @@ import {
 import { buildQuery } from '@common/features/Search/searchUtils'
 import { setView } from '@common/features/Settings/SettingsSlice'
 import { userAttendee } from '@common/features/User/models/attendee'
-import { extractEventBaseUuid } from '@common/utils/extractEventBaseUuid'
 import {
   Box,
   Button,
@@ -54,15 +53,8 @@ const SearchBar: React.FC<{
 }> = ({ onToggleSearch }) => {
   const { t } = useI18n()
   const dispatch = useAppDispatch()
-  const calendars = useAppSelector(selectCalendars)
-  const userId = useAppSelector(state => state.user.userData?.openpaasId)
-  const personnalCalendars = userId
-    ? calendars.filter(c => extractEventBaseUuid(c.id) === userId)
-    : []
-
-  const sharedCalendars = userId
-    ? calendars.filter(c => extractEventBaseUuid(c.id) !== userId)
-    : []
+  const { calendars, personalCalendars, sharedCalendars, teamCalendars } =
+    useCalendars()
 
   const filters = useAppSelector(
     state => state.searchResult.searchParams.filters
@@ -135,8 +127,9 @@ const SearchBar: React.FC<{
       searchQuery,
       currentFilters,
       calendars.map(calendar => calendar.id),
-      personnalCalendars.map(calendar => calendar.id),
-      sharedCalendars.map(calendar => calendar.id)
+      personalCalendars.map(calendar => calendar.id),
+      sharedCalendars.map(calendar => calendar.id),
+      teamCalendars.map(calendar => calendar.id)
     )
     if (cleanedQuery) {
       await dispatch(searchEvents(cleanedQuery))

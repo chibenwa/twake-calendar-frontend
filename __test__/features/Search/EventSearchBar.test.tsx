@@ -260,6 +260,74 @@ describe('EventSearchBar', () => {
     })
   })
 
+  describe('Search in', () => {
+    const withTeamCalendar = (searchIn: string): Record<string, unknown> => ({
+      ...preloadedState,
+      calendars: {
+        ...preloadedState.calendars,
+        list: {
+          ...preloadedState.calendars.list,
+          'team1/cal1': {
+            name: 'Team A',
+            id: 'team1/cal1',
+            color: { light: '#FF0000', dark: '#000' },
+            owner: { emails: ['team-a@example.com'], teamCalendar: true },
+            events: {}
+          }
+        }
+      },
+      searchResult: {
+        searchParams: {
+          search: '',
+          filters: { searchIn, keywords: '', organizers: [], attendees: [] }
+        },
+        hits: 0,
+        results: [],
+        error: null,
+        loading: false
+      }
+    })
+
+    const searchFor = (keyword: string): void => {
+      fireEvent.click(screen.getByRole('button'))
+      const searchInput = screen.getByPlaceholderText('common.search')
+      fireEvent.change(searchInput, { target: { value: keyword } })
+      fireEvent.keyDown(searchInput, { key: 'Enter' })
+    }
+
+    it('searches the team calendars for "Team calendars"', async () => {
+      const searchSpy = jest.spyOn(searchThunk, 'searchEvents')
+      renderWithProviders(<SearchBar />, withTeamCalendar('team-calendars'))
+
+      searchFor('standup')
+
+      await waitFor(() => {
+        expect(searchSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            filters: expect.objectContaining({ searchIn: ['team1/cal1'] })
+          })
+        )
+      })
+    })
+
+    it('leaves the team calendars out of "Shared calendars"', async () => {
+      const searchSpy = jest.spyOn(searchThunk, 'searchEvents')
+      renderWithProviders(<SearchBar />, withTeamCalendar('shared-calendars'))
+
+      searchFor('standup')
+
+      await waitFor(() => {
+        expect(searchSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            filters: expect.objectContaining({
+              searchIn: ['user2/cal1', 'user3/cal1']
+            })
+          })
+        )
+      })
+    })
+  })
+
   it('should search the keyword in the field, not the previous one, on a second search', async () => {
     const searchSpy = jest.spyOn(searchThunk, 'searchEvents')
 
