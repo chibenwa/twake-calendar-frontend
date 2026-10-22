@@ -42,6 +42,7 @@ function MobileThemeSelector({
   return (
     <MobileSelector
       ref={selectorRef}
+      label={t('settings.theme')}
       displayText={t(`settings.themes.${value}`)}
     >
       <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>

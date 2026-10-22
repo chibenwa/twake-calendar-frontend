@@ -122,4 +122,25 @@ describe('ThemeSelector', () => {
       expect(store.getState().user.coreConfig.theme).toBe('dark')
     })
   })
+
+  it('names the phone Theme and Language fields after what they set', () => {
+    ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+      isTooSmall: true,
+      isTablet: false
+    })
+    renderWithProviders(<SettingsPage />, makeState('dark'))
+
+    const theme = screen.getByRole('button', {
+      name: 'settings.theme: settings.themes.dark'
+    })
+    expect(theme).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(theme).toHaveAttribute('aria-expanded', 'false')
+    expect(
+      screen.getByRole('button', { name: 'settings.language: English' })
+    ).toHaveAttribute('aria-haspopup', 'dialog')
+
+    fireEvent.click(theme)
+
+    expect(theme).toHaveAttribute('aria-expanded', 'true')
+  })
 })

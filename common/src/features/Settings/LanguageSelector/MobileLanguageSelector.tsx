@@ -15,11 +15,13 @@ import {
 } from '@linagora/twake-mui'
 import { ListItemText } from '@common/ds/ListItemText/ListItemText'
 import { Check as CheckIcon } from '@mui/icons-material'
+import { useI18n } from 'twake-i18n'
 
 export const MobileLanguageSelector: React.FC<LanguageSelectorInputProps> = ({
   currentLanguage,
   onChange
 }) => {
+  const { t } = useI18n()
   const theme = useTheme()
   const selectorRef = useRef<MobileSelectorHandle>(null)
 
@@ -33,7 +35,11 @@ export const MobileLanguageSelector: React.FC<LanguageSelectorInputProps> = ({
   }
 
   return (
-    <MobileSelector ref={selectorRef} displayText={currentLabel}>
+    <MobileSelector
+      ref={selectorRef}
+      label={t('settings.language')}
+      displayText={currentLabel}
+    >
       <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
         {AVAILABLE_LANGUAGES.map(({ code, label }) => (
           <ListItem key={code} value={code} disablePadding>

@@ -48,6 +48,8 @@ interface MobileSelectorProps {
   fullscreen?: boolean
   selectorButtonSx?: React.ComponentProps<typeof ButtonBase>['sx']
   disabled?: boolean
+  /** What the field sets, e.g. "Theme": names the button "Theme: Dark" */
+  label?: string
 }
 
 export const MobileSelector = forwardRef<
@@ -61,7 +63,8 @@ export const MobileSelector = forwardRef<
       bottomSheetChildren,
       fullscreen,
       selectorButtonSx,
-      disabled
+      disabled,
+      label
     },
     ref
   ) => {
@@ -78,6 +81,13 @@ export const MobileSelector = forwardRef<
           onClick={() => !disabled && setOpen(true)}
           disabled={disabled}
           sx={selectorButtonSx}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label={
+            label && typeof displayText === 'string'
+              ? `${label}: ${displayText}`
+              : label
+          }
         >
           {typeof displayText === 'string' ? (
             <Typography variant="body1" noWrap>
