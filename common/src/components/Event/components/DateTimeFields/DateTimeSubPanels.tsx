@@ -67,7 +67,7 @@ export const DateTimeRepeatPanel: React.FC<DateTimeRepeatPanelProps> = ({
     <FieldWithLabel label="" isExpanded={showMore && !isMobile}>
       <RepeatEvent
         repetition={repetition}
-        eventStart={new Date(start)}
+        eventStart={start}
         setRepetition={setRepetition}
         isOwn={typeOfAction !== 'solo'}
       />

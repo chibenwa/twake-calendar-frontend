@@ -1,4 +1,5 @@
 import { RepetitionObject } from '@common/types/Repetition'
+import { formValueWeekday } from '@common/components/Event/utils/formValueWeekday'
 import { getTimezoneOffset } from '@common/utils/timezone'
 import {
   Box,
@@ -8,6 +9,7 @@ import {
   Typography
 } from '@linagora/twake-mui'
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown'
+import dayjs from 'dayjs'
 import React, { useCallback, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
@@ -65,11 +67,9 @@ const DateTimeControlsRow: React.FC<DateTimeControlsRowProps> = ({
     const newShowRepeat = !showRepeat
     setShowRepeat(newShowRepeat)
     if (newShowRepeat) {
-      const days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-      const parsed = new Date(start)
-      const eventStartDate = isNaN(parsed.getTime()) ? new Date() : parsed
-      const jsDay = eventStartDate.getDay()
-      const icsDay = days[(jsDay + 6) % 7]
+      const icsDay =
+        formValueWeekday(start) ??
+        formValueWeekday(dayjs().format('YYYY-MM-DD'))
       setRepetition({
         freq: 'weekly',
         interval: 1,

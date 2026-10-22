@@ -1,11 +1,5 @@
 import { RepetitionObject } from '@common/types/Repetition'
-
-const ICS_DAYS = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
-
-function icsWeekday(value: string): string | null {
-  const date = new Date(value)
-  return isNaN(date.getTime()) ? null : ICS_DAYS[date.getDay()]
-}
+import { formValueWeekday } from './formValueWeekday'
 
 /**
  * Repetition to keep when the start of the event moves. A weekly repetition
@@ -22,8 +16,8 @@ export function followStartWeekday(
   if (repetition?.freq !== 'weekly' || repetition.byday?.length !== 1) {
     return repetition
   }
-  const previousDay = icsWeekday(previousStart)
-  const nextDay = icsWeekday(nextStart)
+  const previousDay = formValueWeekday(previousStart)
+  const nextDay = formValueWeekday(nextStart)
   if (!previousDay || !nextDay || previousDay === nextDay) return repetition
   if (repetition.byday[0] !== previousDay) return repetition
 

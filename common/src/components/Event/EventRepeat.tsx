@@ -23,6 +23,7 @@ import {
   getLongDateFormat
 } from './utils/dateTimeFormatters'
 import { FC_DAYS, WeekDaySelector } from './WeekDaySelector'
+import { formValueWeekday } from './utils/formValueWeekday'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import {
   preventFloatNumber,
@@ -49,15 +50,13 @@ const parseInterval = (raw: string): number =>
 
 export const RepeatEvent: React.FC<{
   repetition: RepetitionObject
-  eventStart: Date
+  eventStart: string
   setRepetition: (repetition: RepetitionObject) => void
   isOwn?: boolean
 }> = ({ repetition, eventStart, setRepetition, isOwn = true }) => {
   const { t, lang } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
   const inputSize = useResponsiveInputSize()
-  const days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
-  const day = new Date(eventStart)
   const dateCalendarLayoutSx = {
     '& .MuiDateCalendar-root.MuiDateCalendar-root': {
       width: '260px',
@@ -146,13 +145,12 @@ export const RepeatEvent: React.FC<{
               }}
               onChange={(e: SelectChangeEvent) => {
                 if (e.target.value === 'weekly') {
-                  const jsDay = day.getDay()
-                  const icsDay = days[(jsDay + 6) % 7]
+                  const icsDay = formValueWeekday(eventStart)
                   setRepetition(
                     new RepetitionObject({
                       ...repetition,
                       freq: e.target.value,
-                      byday: [icsDay]
+                      byday: icsDay ? [icsDay] : null
                     })
                   )
                 } else {

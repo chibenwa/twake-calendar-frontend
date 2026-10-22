@@ -2,6 +2,7 @@ import { followStartWeekday } from '@common/components/Event/utils/followStartWe
 import { useEventFormValues } from '@common/components/Event/hooks/useEventFormValues'
 import { RepetitionObject } from '@common/types/Repetition'
 import { act, renderHook } from '@testing-library/react'
+import { mockBrowserWestOfUtc } from '../../../utils/browserWestOfUtc'
 
 // 2026-10-17 is a Saturday, 2026-11-02 a Monday
 const SATURDAY = '2026-10-17T16:00'
@@ -49,6 +50,18 @@ describe('followStartWeekday', () => {
     const repetition = new RepetitionObject({ freq: 'daily', interval: 1 })
 
     expect(followStartWeekday(repetition, SATURDAY, MONDAY)).toBe(repetition)
+  })
+
+  it('reads all-day starts as calendar dates west of UTC', () => {
+    mockBrowserWestOfUtc()
+    try {
+      // 2026-11-16 is a Monday, 2026-11-18 a Wednesday
+      expect(
+        followStartWeekday(weekly(['MO']), '2026-11-16', '2026-11-18').byday
+      ).toEqual(['WE'])
+    } finally {
+      jest.restoreAllMocks()
+    }
   })
 
   it('leaves the repetition alone when a start cannot be read', () => {

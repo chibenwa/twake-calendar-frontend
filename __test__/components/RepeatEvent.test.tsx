@@ -6,6 +6,7 @@ import { RepetitionObject } from '@common/types/Repetition'
 import { CalendarApi, DateSelectArg } from '@fullcalendar/core'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { renderWithProviders } from '../utils/Renderwithproviders'
+import { mockBrowserWestOfUtc } from '../utils/browserWestOfUtc'
 
 const baseRepetition: RepetitionObject = {
   freq: '',
@@ -61,13 +62,14 @@ const defaultSelectedRange = {
 
 function setupRepeatEvent(
   props?: Partial<RepetitionObject>,
-  state?: RootState
+  state?: RootState,
+  eventStart: string = defaultSelectedRange.startStr
 ) {
   const setRepetition = jest.fn()
   renderWithProviders(
     <RepeatEvent
       repetition={{ ...baseRepetition, ...props }}
-      eventStart={defaultSelectedRange.start}
+      eventStart={eventStart}
       setRepetition={setRepetition}
       isOwn={true}
     />,
@@ -76,7 +78,10 @@ function setupRepeatEvent(
   return { setRepetition }
 }
 
-async function setupEventPopover() {
+async function setupEventPopover(
+  selectedRange: DateSelectArg = defaultSelectedRange,
+  timeZone = 'UTC'
+) {
   jest
     .spyOn(crypto, 'randomUUID')
     .mockReturnValue('fixed-uuid-with-correct-format')
@@ -84,14 +89,14 @@ async function setupEventPopover() {
     new Intl.DateTimeFormat().resolvedOptions()
   jest.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').mockReturnValue({
     ...originalDateResolvedOptions,
-    timeZone: 'UTC'
+    timeZone
   })
 
   renderWithProviders(
     <EventPopover
       open={true}
       onClose={mockOnClose}
-      selectedRange={defaultSelectedRange}
+      selectedRange={selectedRange}
       setSelectedRange={mockSetSelectedRange}
       calendarRef={mockCalendarRef}
     />,
@@ -118,7 +123,9 @@ async function setupEventPopover() {
   })
 }
 
-async function expectRRule(expected: Partial<RepetitionObject>) {
+async function expectRRule(
+  expected: Partial<RepetitionObject>
+): Promise<{ start: string }> {
   const spy = jest
     .spyOn(eventThunks, 'putEvent')
     .mockImplementation(payload => {
@@ -132,6 +139,7 @@ async function expectRRule(expected: Partial<RepetitionObject>) {
 
   const received = spy.mock.calls[0][0]
   expect(received.newEvent.repetition).toMatchObject(expected)
+  return received.newEvent
 }
 
 describe('RepeatEvent Component', () => {
@@ -205,6 +213,23 @@ describe('RepeatEvent Component', () => {
 
     expect(setRepetition).toHaveBeenCalledWith(
       expect.objectContaining({ freq: 'weekly' })
+    )
+  })
+
+  it('proposes the weekday of an all-day start west of UTC', () => {
+    mockBrowserWestOfUtc()
+    // 2026-11-16 is a Monday
+    const { setRepetition } = setupRepeatEvent(
+      undefined,
+      undefined,
+      '2026-11-16'
+    )
+
+    fireEvent.mouseDown(screen.getByRole('combobox'))
+    fireEvent.click(screen.getByText('event.repeat.frequency.weeks'))
+
+    expect(setRepetition).toHaveBeenCalledWith(
+      expect.objectContaining({ freq: 'weekly', byday: ['MO'] })
     )
   })
 
@@ -399,6 +424,33 @@ describe('Repeat Event Integration Tests', () => {
       byday: ['FR', 'TH']
     })
     expect(mockOnClose).toHaveBeenCalledWith(true)
+  })
+
+  it('keeps a weekly all-day series on the day picked west of UTC', async () => {
+    mockBrowserWestOfUtc()
+    // 2026-11-16 is a Monday
+    await setupEventPopover(
+      {
+        startStr: '2026-11-16',
+        endStr: '2026-11-17',
+        start: new Date(2026, 10, 16),
+        end: new Date(2026, 10, 17),
+        allDay: true
+      } as unknown as DateSelectArg,
+      'America/New_York'
+    )
+
+    expect(screen.getByLabelText('event.repeat.days.monday')).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    expect(screen.getByLabelText('event.repeat.days.sunday')).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    )
+
+    const newEvent = await expectRRule({ freq: 'weekly', byday: ['MO'] })
+    expect(newEvent.start).toMatch(/^2026-11-16/)
   })
 
   it('sends correct API payload for repeat weekly with 3 week interval', async () => {
