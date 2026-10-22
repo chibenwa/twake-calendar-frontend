@@ -481,6 +481,16 @@ public class CalendarPage {
         return page.locator("[role=dialog]").last().innerText();
     }
 
+    /** Adds the calendars the dialog offers for the person picked in it. */
+    public CalendarPage addBrowsedCalendars() {
+        page.locator("[role=dialog]").last()
+            .getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Add").setExact(true))
+            .click();
+        page.getByPlaceholder("Start typing a name or email").waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+        return this;
+    }
+
     /**
      * Calls the search off. Cancel is the way a user does it, but a suggestion list opened over
      * the button leaves it unclickable, so Escape stands in when that happens: what the caller

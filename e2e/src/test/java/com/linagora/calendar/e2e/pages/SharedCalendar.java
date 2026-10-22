@@ -110,6 +110,21 @@ public class SharedCalendar {
         return this;
     }
 
+    /** Removes the calendar from the sidebar, through its menu and the confirmation. */
+    public void remove() {
+        Locator row = row().first();
+        row.hover();
+        row.locator("button").last().click();
+        grantee.getByRole(com.microsoft.playwright.options.AriaRole.MENUITEM,
+            new Page.GetByRoleOptions().setName("Remove")).click();
+        grantee.getByRole(com.microsoft.playwright.options.AriaRole.DIALOG)
+            .getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Remove").setExact(true))
+            .click();
+        row().first().waitFor(new Locator.WaitForOptions()
+            .setState(com.microsoft.playwright.options.WaitForSelectorState.DETACHED));
+    }
+
     /** What the overflow menu of the row offers. */
     public List<String> menu() {
         Locator row = row().first();

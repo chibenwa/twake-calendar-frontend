@@ -483,10 +483,10 @@ day, 23:45) — 48 tests.
 - [x] `SHARE-07` Revoking a right removes the calendar from the grantee
 - [x] `SHARE-08` The owner is identified in the list of rights
 - [x] `SHARE-11` A private event shows "Details are hidden" to the delegate
-- [ ] `SHARE-12` Browsing a user's public calendars offers them for subscription
-- [ ] `SHARE-13` Subscribing to a public calendar adds it to the sidebar
-- [ ] `SHARE-14` Unsubscribing from a public calendar removes it without deleting it
-- [ ] `SHARE-15` A user with no public calendar shows the matching message
+- [x] `SHARE-12` Browsing a user's public calendars offers them for subscription
+- [x] `SHARE-13` Subscribing to a public calendar adds it to the sidebar
+- [x] `SHARE-14` Unsubscribing from a public calendar removes it without deleting it
+- [x] `SHARE-15` A user with no public calendar shows the matching message
 - [ ] `SHARE-16` The colours of a shared calendar are per subscriber
 - [x] `SHARE-17` Creating an event in a delegated calendar sets the right organizer
 - [ ] `SHARE-18` The preview offers "Edit in <calendar>" for a delegated event

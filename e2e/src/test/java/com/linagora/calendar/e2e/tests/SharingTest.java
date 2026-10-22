@@ -266,6 +266,92 @@ class SharingTest extends TwakeCalendarE2ETest {
     }
 
     @Test
+    @DisplayName("SHARE-12 Browsing a user offers their public calendar for subscription")
+    void browsingAUserOffersTheirPublicCalendar(Page page, E2EUser user, E2EUserFactory users,
+                                                E2ESessions sessions) {
+        E2EUser owner = users.newUser("owner");
+        CalendarPage ownerCalendar = sessions.openFor(owner);
+        ownerCalendar.modifyCalendar(OWN_CALENDAR).newEventsVisibleTo("All").save();
+
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String answer = calendar.browseOtherCalendars().pickInOtherCalendars(owner.email());
+
+        assertThat(answer)
+            .as("the dialog lists the public calendar of the owner, ready to be added")
+            .contains(owner.email())
+            .doesNotContain("No publicly available calendars");
+        PlaywrightAssertions.assertThat(page.locator("[role=dialog]").last()
+            .getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Add").setExact(true))).isEnabled();
+        calendar.cancelBrowsing();
+    }
+
+    @Test
+    @DisplayName("SHARE-13 Subscribing to a public calendar adds it to the sidebar, read only")
+    void subscribingToAPublicCalendar(Page page, E2EUser user, E2EUserFactory users,
+                                      E2ESessions sessions, CalendarProbe probe) {
+        E2EUser owner = users.newUser("owner");
+        CalendarPage ownerCalendar = sessions.openFor(owner);
+        String title = seedOwnerEvent(probe, owner, "Public stand-up", 9);
+        ownerCalendar.modifyCalendar(OWN_CALENDAR).newEventsVisibleTo("All").save();
+
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.browseOtherCalendars().pickInOtherCalendars(owner.email());
+        calendar.addBrowsedCalendars();
+
+        SharedCalendar subscription = new SharedCalendar(page, owner).awaitEvent(title);
+        PlaywrightAssertions.assertThat(subscription.row().first().locator("input[type=checkbox]").first())
+            .isChecked();
+        EventPreviewPopover preview = calendar.openEvent(title);
+        // a public calendar is lent for reading: nothing in it can be changed by the subscriber
+        PlaywrightAssertions.assertThat(preview.content().getByLabel("Edit event")).hasCount(0);
+        PlaywrightAssertions.assertThat(preview.content().getByLabel("Delete event")).hasCount(0);
+        assertThat(probe.eventSummaries(user))
+            .as("a subscription, not a copy into the subscriber's calendar").doesNotContain(title);
+    }
+
+    @Test
+    @DisplayName("SHARE-14 Unsubscribing from a public calendar removes it without deleting it")
+    void unsubscribingKeepsTheSource(Page page, E2EUser user, E2EUserFactory users,
+                                     E2ESessions sessions, CalendarProbe probe) {
+        E2EUser owner = users.newUser("owner");
+        sessions.openFor(owner);
+        String title = seedOwnerEvent(probe, owner, "Still mine", 9);
+        probe.setPublicRight(owner, CalendarProbe.PublicRight.READ);
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        calendar.browseOtherCalendars().pickInOtherCalendars(owner.email());
+        calendar.addBrowsedCalendars();
+        SharedCalendar subscription = new SharedCalendar(page, owner).awaitEvent(title);
+
+        subscription.remove();
+
+        PlaywrightAssertions.assertThat(calendar.eventCard(title)).hasCount(0);
+        calendar.reload();
+        PlaywrightAssertions.assertThat(subscription.row()).hasCount(0);
+        assertThat(probe.eventSummaries(owner))
+            .as("Remove unsubscribes, it never deletes the source").contains(title);
+        String answer = calendar.browseOtherCalendars().pickInOtherCalendars(owner.email());
+        assertThat(answer)
+            .as("the calendar can be added back later")
+            .doesNotContain("No publicly available calendars");
+        calendar.cancelBrowsing();
+    }
+
+    @Test
+    @DisplayName("SHARE-15 Browsing a user without public calendar says so")
+    void browsingAUserWithoutPublicCalendarSaysSo(Page page, E2EUser user, E2EUserFactory users,
+                                                  E2ESessions sessions) {
+        E2EUser owner = users.newUser("owner");
+        sessions.openFor(owner);
+
+        CalendarPage calendar = LoginPage.loginAs(page, user);
+        String answer = calendar.browseOtherCalendars().pickInOtherCalendars(owner.email());
+
+        assertThat(answer).contains("No publicly available calendars");
+        calendar.cancelBrowsing();
+    }
+
+    @Test
     @DisplayName("SHARE-30 A private calendar nobody shared cannot be added by another user "
         + "of the domain: browsing its owner offers no calendar")
     void aPrivateCalendarCannotBeBrowsedWithoutAShare(Page page, E2EUser user,
