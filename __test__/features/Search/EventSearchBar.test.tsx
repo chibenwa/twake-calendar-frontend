@@ -220,6 +220,18 @@ describe('EventSearchBar', () => {
     ).toBeInTheDocument()
   })
 
+  it('names the Keywords field after its label and marks it required', async () => {
+    renderWithProviders(<SearchBar />, preloadedState)
+
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.click(screen.getByTestId('TuneIcon'))
+
+    const keywords = await screen.findByRole('textbox', {
+      name: 'search.keywords'
+    })
+    expect(keywords).toBeRequired()
+  })
+
   it('should clear search value when clear button is clicked', () => {
     renderWithProviders(<SearchBar />, preloadedState)
 

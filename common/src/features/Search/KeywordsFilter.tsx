@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from '@common/app/hooks'
 import { MobileSelector } from '@common/components/MobileSelector'
 import { setFilters } from '@common/features/Search/SearchSlice'
 import { Box, InputLabel, TextField } from '@linagora/twake-mui'
+import { useId } from 'react'
 import { useI18n } from 'twake-i18n'
 
 interface Props {
@@ -21,12 +22,14 @@ export const KeywordsFilter: React.FC<Props> = ({
 }) => {
   const { t } = useI18n()
   const dispatch = useAppDispatch()
+  const inputId = useId()
   const filters = useAppSelector(
     state => state.searchResult.searchParams.filters
   )
 
   const field = (
     <TextField
+      id={inputId}
       fullWidth
       error={error}
       helperText={error ? t('search.error.emptySearch') : ''}
@@ -45,6 +48,11 @@ export const KeywordsFilter: React.FC<Props> = ({
         }
       }}
       size="small"
+      slotProps={{
+        // not `required`: the popover is no form, and an empty keywords
+        // field is reported by the search itself
+        htmlInput: { 'aria-required': true }
+      }}
     />
   )
 
@@ -52,7 +60,7 @@ export const KeywordsFilter: React.FC<Props> = ({
     return (
       <MobileSelector
         ref={null}
-        displayText={t('search.keywords')}
+        displayText={`${t('search.keywords')}*`}
         bottomSheetChildren={() => <Box sx={{ p: 2 }}>{field}</Box>}
       />
     )
@@ -67,7 +75,9 @@ export const KeywordsFilter: React.FC<Props> = ({
         alignItems: 'center'
       }}
     >
-      <InputLabel sx={{ m: 0 }}>{t('search.keywords')}</InputLabel>
+      <InputLabel htmlFor={inputId} required sx={{ m: 0 }}>
+        {t('search.keywords')}
+      </InputLabel>
       {field}
     </Box>
   )
