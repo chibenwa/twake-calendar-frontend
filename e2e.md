@@ -398,7 +398,7 @@ day, 23:45) — 48 tests.
 - [x] `SEARCH-02` A search with no match shows "No events found"
 - [x] `SEARCH-03` The search also covers the description
 - [x] `SEARCH-04` The search also covers the location
-- [x] `SEARCH-05` The "My calendars" filter narrows the search scope
+- [x] `SEARCH-05` The "Search in" filter narrows the search scope
 - [x] `SEARCH-06` The organizer filter narrows the results
 - [x] `SEARCH-07` The participant filter narrows the results
 - [x] `SEARCH-08` Clicking a result opens the event preview

@@ -840,6 +840,11 @@ public class CalendarPage {
         return this;
     }
 
+    /** Opens the Filters panel of the search. A search must have been run first. */
+    public SearchFilters searchFilters() {
+        return new SearchFilters(page).open();
+    }
+
     /** Empties the search field, which takes the user back to the calendar. */
     public CalendarPage clearSearch() {
         Locator input = page.getByPlaceholder("Search");

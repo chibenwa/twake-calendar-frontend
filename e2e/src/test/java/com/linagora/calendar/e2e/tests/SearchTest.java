@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.E2EUser;
 import com.linagora.calendar.e2e.backend.E2EUserFactory;
+import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.microsoft.playwright.Locator;
@@ -81,48 +82,86 @@ class SearchTest extends TwakeCalendarE2ETest {
     }
 
     @Test
-    @DisplayName("SEARCH-05 The My calendars filter narrows the search scope")
-    void theCalendarFilterNarrowsTheScope(Page page, E2EUser user) {
+    @DisplayName("SEARCH-05 The Search in filter narrows the search to one calendar")
+    void theSearchInFilterNarrowsTheScope(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
-        String title = unique("Scoped");
-        calendar.createEvent(title);
-        calendar.searchUntil(title, title);
+        String keyword = unique("Scoped");
+        String side = unique("Side ");
+        calendar.addCalendar().name(side).create();
+        calendar.showCalendar(side);
+        String inMine = keyword + " in mine";
+        String inSide = keyword + " in side";
+        calendar.createEvent(inMine);
+        calendar.createEvent().title(inSide).expand().calendar(side).save();
+        calendar.searchUntil(keyword, inMine);
+        calendar.searchUntil(keyword, inSide);
 
-        page.getByLabel("Filters").click();
-        page.waitForTimeout(1200);
+        calendar.searchFilters().searchIn(side).search();
 
-        assertThat(page.locator("body").innerText())
-            .as("the scope of a search must be visible and changeable")
-            .contains("Search in");
+        PlaywrightAssertions.assertThat(page.getByText(inSide).first()).isVisible();
+        // the event of the other calendar is out of the scope
+        PlaywrightAssertions.assertThat(page.getByText(inMine)).hasCount(0);
+
+        calendar.searchFilters().searchIn("My calendars").search();
+
+        PlaywrightAssertions.assertThat(page.getByText(inMine).first()).isVisible();
+        PlaywrightAssertions.assertThat(page.getByText(inSide).first()).isVisible();
     }
 
     @Test
-    @DisplayName("SEARCH-06 The organizer filter is offered")
-    void theOrganizerFilterIsOffered(Page page, E2EUser user) {
+    @DisplayName("SEARCH-06 The organizer filter narrows the results")
+    void theOrganizerFilterNarrowsTheResults(Page page, E2EUser user, E2EUserFactory users,
+                                             E2ESessions sessions) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
-        calendar.createEvent(unique("Organised"));
+        E2EUser organizer = users.newUser("orga");
+        CalendarPage theirs = sessions.openFor(organizer);
+        String keyword = unique("Quarterly");
+        String mine = keyword + " mine";
+        String fromThem = keyword + " theirs";
+        theirs.createEvent().title(fromThem).addGuest(user.email()).save();
+        calendar.createEvent(mine);
+        calendar.searchUntil(keyword, fromThem);
+        calendar.searchUntil(keyword, mine);
 
-        calendar.search("Organised");
-        page.getByLabel("Filters").click();
-        page.waitForTimeout(1200);
+        calendar.searchFilters().organizer(organizer.email()).search();
 
-        assertThat(page.locator("body").innerText()).contains("Organizers");
+        PlaywrightAssertions.assertThat(page.getByText(fromThem).first()).isVisible();
+        // the user organized this one: the filter must drop it
+        PlaywrightAssertions.assertThat(page.getByText(mine)).hasCount(0);
+
+        calendar.searchFilters().remove(organizer.email()).search();
+
+        PlaywrightAssertions.assertThat(page.getByText(fromThem).first()).isVisible();
+        PlaywrightAssertions.assertThat(page.getByText(mine).first()).isVisible();
     }
 
     @Test
-    @DisplayName("SEARCH-07 The participant filter is offered")
-    void theParticipantFilterIsOffered(Page page, E2EUser user, E2EUserFactory users) {
+    @DisplayName("SEARCH-07 The participant filter narrows the results")
+    void theParticipantFilterNarrowsTheResults(Page page, E2EUser user, E2EUserFactory users,
+                                               E2ESessions sessions) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
-        E2EUser guest = users.newUser();
-        String title = unique("WithGuest");
-        calendar.createEvent().title(title).addGuest(guest.email()).save();
-        awaitAttached(calendar.eventCard(title));
+        E2EUser organizer = users.newUser("orga");
+        E2EUser guest = users.newUser("guest");
+        sessions.openFor(guest);
+        CalendarPage theirs = sessions.openFor(organizer);
+        String keyword = unique("Review");
+        String mine = keyword + " mine";
+        String withGuest = keyword + " with guest";
+        theirs.createEvent().title(withGuest).addGuest(user.email()).addGuest(guest.email()).save();
+        calendar.createEvent(mine);
+        calendar.searchUntil(keyword, withGuest);
+        calendar.searchUntil(keyword, mine);
 
-        calendar.search(title);
-        page.getByLabel("Filters").click();
-        page.waitForTimeout(1200);
+        calendar.searchFilters().participant(guest.email()).search();
 
-        assertThat(page.locator("body").innerText()).contains("Participants");
+        PlaywrightAssertions.assertThat(page.getByText(withGuest).first()).isVisible();
+        // the guest is not invited to this one: the filter must drop it
+        PlaywrightAssertions.assertThat(page.getByText(mine)).hasCount(0);
+
+        calendar.searchFilters().organizer(user.email()).search();
+
+        // the user organizes nothing the guest is invited to
+        PlaywrightAssertions.assertThat(page.getByText("No events found").first()).isVisible();
     }
 
     @Test
