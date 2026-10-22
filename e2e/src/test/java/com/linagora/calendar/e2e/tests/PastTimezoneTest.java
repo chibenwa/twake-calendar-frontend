@@ -3,12 +3,14 @@ package com.linagora.calendar.e2e.tests;
 import static com.linagora.calendar.e2e.pages.EventFormModal.Scope.ALL_EVENTS;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.time.zone.ZoneOffsetTransition;
 import java.util.Locale;
 import java.util.UUID;
@@ -29,6 +31,7 @@ import com.linagora.calendar.e2e.pages.EventFormModal;
 import com.linagora.calendar.e2e.pages.EventPreviewPopover;
 import com.linagora.calendar.e2e.pages.CalendarPage;
 import com.linagora.calendar.e2e.pages.LoginPage;
+import com.linagora.calendar.e2e.pages.RecurrenceSection;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.LocatorAssertions;
@@ -167,6 +170,59 @@ class PastTimezoneTest extends TwakeCalendarE2ETest {
         assertThat(form.endDate())
             .as("the inclusive end of a one day event is its start, not the day before")
             .isEqualTo(form.startDate());
+    }
+
+    @Test
+    @DisplayName("PAST-54 (#1760) West of UTC, a weekly all day series created on a Monday repeats on Mondays from that Monday")
+    void aWeeklyAllDaySeriesWestOfUtcKeepsItsWeekday(E2EUser user, CalendarProbe probe, E2ESessions sessions) {
+        LocalDate monday = aMondayAhead();
+        String title = title("NY weekly");
+
+        // a click on the all day row starts the form on a bare date: read as midnight UTC, it is
+        // still Sunday in New York
+        CalendarPage calendar = sessions.openFor(user, "America/New_York");
+        calendar.goToDate(monday);
+        EventFormModal form = calendar.selectAllDayCell(monday).title(title).expand();
+        RecurrenceSection repeat = form.repeat();
+        assertThat(repeat.isWeekdaySelected("MO"))
+            .as("ticking Repeat proposes the weekday of the event")
+            .isTrue();
+        assertThat(repeat.isWeekdaySelected("SU"))
+            .as("not the day before it")
+            .isFalse();
+        repeat.endsAfter(3);
+        form.save();
+
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            String master = Ics.master(probe.singleEvent(user));
+            assertThat(Ics.property(master, "DTSTART"))
+                .as("the series starts on the Monday picked, not on the next Sunday")
+                .hasValue(monday.format(DateTimeFormatter.BASIC_ISO_DATE));
+            assertThat(Ics.rulePart(Ics.property(master, "RRULE").orElseThrow(), "BYDAY")).hasValue("MO");
+        });
+        calendar.goToDate(monday);
+        awaitAttached(calendar.eventCardOn(title, monday));
+    }
+
+    @Test
+    @DisplayName("PAST-55 (#1760) West of UTC, switching an all day repetition to weekly proposes the weekday of the event")
+    void switchingToWeeklyWestOfUtcProposesTheWeekdayOfTheEvent(E2EUser user, E2ESessions sessions) {
+        LocalDate monday = aMondayAhead();
+
+        CalendarPage calendar = sessions.openFor(user, "America/New_York");
+        calendar.goToDate(monday);
+        EventFormModal form = calendar.selectAllDayCell(monday).title(title("NY switch")).expand();
+        RecurrenceSection repeat = form.repeat().frequency(RecurrenceSection.DAILY).frequency(RecurrenceSection.WEEKLY);
+
+        assertThat(repeat.isWeekdaySelected("MO"))
+            .as("the event is on a Monday, the browser being west of UTC changes nothing to that")
+            .isTrue();
+        assertThat(repeat.isWeekdaySelected("SU")).isFalse();
+    }
+
+    /** A Monday at least a week ahead, so that the series is created in the future. */
+    private static LocalDate aMondayAhead() {
+        return E2EClock.today().with(TemporalAdjusters.next(DayOfWeek.MONDAY)).plusWeeks(1);
     }
 
     /** The day a clock change brings an hour back, the next one from today. */

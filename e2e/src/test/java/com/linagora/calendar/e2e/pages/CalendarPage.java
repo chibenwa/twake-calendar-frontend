@@ -770,6 +770,13 @@ public class CalendarPage {
         return box;
     }
 
+    /** Clicks the all day row of a day in the week view, which starts an all day event on that day. */
+    public EventFormModal selectAllDayCell(java.time.LocalDate day) {
+        page.locator(".fc-timeGridWeek-view .fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame")
+            .first().click();
+        return new EventFormModal(page).waitUntilOpen();
+    }
+
     /** Clicks a day cell of the month grid, which starts an all day event on that day. */
     public EventFormModal selectMonthCell(java.time.LocalDate day) {
         page.locator(".fc-daygrid-day[data-date='" + day + "'] .fc-daygrid-day-frame").first()
