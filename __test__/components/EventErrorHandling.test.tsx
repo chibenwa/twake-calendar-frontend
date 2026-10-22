@@ -64,6 +64,13 @@ describe('Event Error Handling', () => {
 
   it('BUGFIX: does not re-report errors after clearing error snackbar', async () => {
     const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation()
+    // other warnings (API retries...) come and go with the timing of the run
+    const reportCount = (): number =>
+      consoleWarnSpy.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' &&
+          message.startsWith('[EventErrorHandler]')
+      ).length
 
     await act(async () => renderWithProviders(<CalendarLayout />, erroredState))
 
@@ -77,7 +84,7 @@ describe('Event Error Handling', () => {
     const closeButton = screen.queryByRole('button', { name: 'common.ok' })
 
     if (closeButton) {
-      const initialWarnCount = consoleWarnSpy.mock.calls.length
+      const initialWarnCount = reportCount()
 
       await act(async () => {
         fireEvent.click(closeButton)
@@ -90,7 +97,7 @@ describe('Event Error Handling', () => {
         { timeout: 5000 }
       )
 
-      const afterCloseWarnCount = consoleWarnSpy.mock.calls.length
+      const afterCloseWarnCount = reportCount()
 
       expect(afterCloseWarnCount).toBe(initialWarnCount)
     }
