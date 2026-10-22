@@ -98,7 +98,15 @@ describe('formatPeriodLabel', () => {
       'Oct 2026'
     )
     expect(formatPeriodLabel(week, new Date(2026, 9, 2), t, 'short')).toBe(
-      'Sep – Oct 2026'
+      'Sep–Oct\n2026'
+    )
+  })
+
+  it('puts the year of a short two-year title on a line of its own (#1763)', () => {
+    const week = calendarShowing(new Date(2026, 11, 28), new Date(2027, 0, 4))
+
+    expect(formatPeriodLabel(week, new Date(2026, 11, 28), t, 'short')).toBe(
+      'Dec–Jan\n2026–27'
     )
   })
 })

@@ -1,7 +1,7 @@
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 import { MobileMenubar } from '@common/components/Menubar/MobileMenuBar'
 import '@testing-library/jest-dom'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { renderWithProviders } from '../utils/Renderwithproviders'
 
 describe('MobileMenubar', () => {
@@ -70,6 +70,39 @@ describe('MobileMenubar', () => {
       renderMobileMenubar('October 2026', 'Oct 2026')
 
       expect(screen.getByText('October 2026')).toBeInTheDocument()
+    })
+
+    it('falls back to the short title when the full one overflows (#1763)', () => {
+      mockViewportWidth(390)
+      // two lines of room, and a full title that needs three
+      const scrollHeight = jest
+        .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+        .mockReturnValue(60)
+      const clientHeight = jest
+        .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+        .mockReturnValue(40)
+      // a browser reports the size of an observed element right away
+      const originalResizeObserver = window.ResizeObserver
+      window.ResizeObserver = class {
+        constructor(private readonly callback: ResizeObserverCallback) {}
+        observe(): void {
+          act(() => this.callback([], this as unknown as ResizeObserver))
+        }
+        unobserve(): void {}
+        disconnect(): void {}
+      }
+      try {
+        renderMobileMenubar('October – November 2026', 'Oct–Nov\n2026')
+
+        expect(screen.getByText(/Oct–Nov/)).toBeInTheDocument()
+        expect(
+          screen.queryByText('October – November 2026')
+        ).not.toBeInTheDocument()
+      } finally {
+        scrollHeight.mockRestore()
+        clientHeight.mockRestore()
+        window.ResizeObserver = originalResizeObserver
+      }
     })
   })
 

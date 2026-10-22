@@ -13,7 +13,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp'
 import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { Tooltip } from '../Tooltip'
 import { DatePickerMobile } from './components/DatePickerMobile'
@@ -52,6 +52,24 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
 
   const [openDatePicker, setOpenDatePicker] = useState(false)
   const [openEventSearch, setOpenEventSearch] = useState(false)
+
+  // The full title, when it overflows its two lines: up to 390px a period
+  // across two months does, whatever the language
+  const titleRef = useRef<HTMLElement>(null)
+  const [overflowingLabel, setOverflowingLabel] = useState<string | null>(null)
+  const showsShortLabel =
+    !!shortDateLabel && (isNarrow || overflowingLabel === dateLabel)
+  useLayoutEffect(() => {
+    const title = titleRef.current
+    if (!title || showsShortLabel) return
+    const observer = new ResizeObserver(() => {
+      if (title.scrollHeight > title.clientHeight + 1) {
+        setOverflowingLabel(dateLabel)
+      }
+    })
+    observer.observe(title)
+    return (): void => observer.disconnect()
+  }, [dateLabel, showsShortLabel])
 
   const onToggleDatePicker = (): void => {
     setOpenDatePicker(prev => {
@@ -118,7 +136,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                 size="xsmall"
                 onClick={onOpenSidebar}
                 aria-label={t('menubar.toggleSidebar')}
-                sx={{ mr: 1 }}
+                sx={{ mr: isNarrow ? 0 : 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -126,6 +144,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                 <SmallNavigationControls
                   currentView={currentView}
                   onNavigate={handleNavigation}
+                  compact={isNarrow}
                 />
               </div>
               <div className="menu-items date-title">
@@ -135,17 +154,20 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                   className="current-date-time"
                 >
                   <Typography
+                    ref={titleRef}
                     sx={{
                       minWidth: 0,
                       lineHeight: 1.2,
                       overflow: 'hidden',
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical'
+                      WebkitBoxOrient: 'vertical',
+                      // the short label breaks its lines itself
+                      whiteSpace: 'pre-line'
                     }}
                     onClick={onToggleDatePicker}
                   >
-                    {isNarrow && shortDateLabel ? shortDateLabel : dateLabel}
+                    {showsShortLabel ? shortDateLabel : dateLabel}
                   </Typography>
                   <Tooltip title={toggleDatePickerTitle}>
                     <IconButton
@@ -170,7 +192,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
               <div className="search-container">
                 <IconButton
                   size="xsmall"
-                  sx={{ mr: 1 }}
+                  sx={{ mr: isNarrow ? 0 : 1 }}
                   onClick={() => {
                     setOpenDatePicker(false)
                     dispatch(setView('search'))

@@ -49,6 +49,15 @@ export const formatPeriodLabel = (
     period ? new Date(period.end.getTime() - 1) : fallbackDate
   )
 
+  if (monthFormat === 'short' && first.month !== last.month) {
+    // Two lines of their own, the months over the year: a phone below 360px
+    // has room for "Oct–Nov" but not for "Oct – Nov 2026" on a line
+    const years =
+      first.year === last.year
+        ? `${last.year}`
+        : `${first.year}–${String(last.year).slice(-2)}`
+    return `${month(first)}–${month(last)}\n${years}`
+  }
   if (first.year !== last.year) {
     return `${month(first)} ${first.year} – ${month(last)} ${last.year}`
   }

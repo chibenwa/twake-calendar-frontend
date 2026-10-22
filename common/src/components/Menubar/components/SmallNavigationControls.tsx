@@ -8,13 +8,19 @@ import { useNavigationLabels } from './useNavigationLabels'
 export const SmallNavigationControls: React.FC<{
   currentView: string
   onNavigate: (action: 'today' | 'next' | 'prev') => void
-}> = ({ currentView, onNavigate }) => {
+  // Tighter, for the narrowest phones: the period title needs the room
+  compact?: boolean
+}> = ({ currentView, onNavigate, compact = false }) => {
   const { t } = useI18n()
   const labels = useNavigationLabels(currentView)
 
   return (
     <div className="navigation-controls">
-      <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
+      <Stack
+        direction="row"
+        spacing={compact ? 0.25 : 1.25}
+        sx={{ alignItems: 'center' }}
+      >
         <IconButton
           size="xsmall"
           onClick={() => onNavigate('prev')}
