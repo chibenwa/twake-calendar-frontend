@@ -431,6 +431,7 @@ const CalendarController: React.FC<CalendarControllerProps> = ({
             afterChoiceFunc(type)
           }
         }}
+        onCancel={() => afterChoiceFunc?.(undefined)}
       />
       {openEventDisplay && eventDisplayedId && eventDisplayedCalId && (
         <EventPreviewModal

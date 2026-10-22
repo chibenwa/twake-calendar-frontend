@@ -354,13 +354,15 @@ export const createEventHandlers = (
     calendar,
     calId,
     computedNewStart,
-    computedNewEnd
+    computedNewEnd,
+    revert
   }: {
     event: CalendarEvent
     calendar: Calendar
     calId: string
     computedNewStart: Date
     computedNewEnd: Date
+    revert: () => void
   }): Promise<void> => {
     const isRecurring = event.uid.includes('/')
 
@@ -396,6 +398,9 @@ export const createEventHandlers = (
                 computedNewStart,
                 computedNewEnd
               })
+            } else {
+              // the dialog was dismissed: the chip goes back where it was
+              revert()
             }
           }
       )
@@ -406,7 +411,8 @@ export const createEventHandlers = (
 
   const handleTimeChangeAction = async (
     eventApi: EventApi,
-    getDeltas: () => { startDeltaMs: number; endDeltaMs: number }
+    getDeltas: () => { startDeltaMs: number; endDeltaMs: number },
+    revert: () => void
   ): Promise<void> => {
     const data = getEventAndCalendar(eventApi)
     if (!data) return
@@ -434,22 +440,31 @@ export const createEventHandlers = (
       calendar,
       calId,
       computedNewStart,
-      computedNewEnd
+      computedNewEnd,
+      revert
     })
   }
 
   const handleEventDrop = async (arg: EventDropArg): Promise<void> => {
-    await handleTimeChangeAction(arg.event, () => {
-      const delta = getDeltaInMilliseconds(arg.delta)
-      return { startDeltaMs: delta, endDeltaMs: delta }
-    })
+    await handleTimeChangeAction(
+      arg.event,
+      () => {
+        const delta = getDeltaInMilliseconds(arg.delta)
+        return { startDeltaMs: delta, endDeltaMs: delta }
+      },
+      arg.revert
+    )
   }
 
   const handleEventResize = async (arg: EventResizeDoneArg): Promise<void> => {
-    await handleTimeChangeAction(arg.event, () => ({
-      startDeltaMs: getDeltaInMilliseconds(arg.startDelta),
-      endDeltaMs: getDeltaInMilliseconds(arg.endDelta)
-    }))
+    await handleTimeChangeAction(
+      arg.event,
+      () => ({
+        startDeltaMs: getDeltaInMilliseconds(arg.startDelta),
+        endDeltaMs: getDeltaInMilliseconds(arg.endDelta)
+      }),
+      arg.revert
+    )
   }
 
   return {

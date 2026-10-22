@@ -15,11 +15,14 @@ import { useI18n } from 'twake-i18n'
 export function EditModeDialog({
   type,
   setOpen,
-  eventAction
+  eventAction,
+  onCancel
 }: {
   type: string | null
   setOpen: (e: string | null) => void
   eventAction: (type: 'solo' | 'all' | undefined) => void
+  /** Called when the dialog closes without a choice: Cancel, Escape, backdrop */
+  onCancel?: () => void
 }) {
   const { t } = useI18n()
   const [typeOfAction, setTypeOfAction] = useState<'solo' | 'all' | undefined>(
@@ -33,8 +36,12 @@ export function EditModeDialog({
     setOpen(null)
     setTypeOfAction('solo')
   }
+  const handleCancel = () => {
+    onCancel?.()
+    handleClose()
+  }
   return (
-    <Dialog open={Boolean(type)} onClose={handleClose}>
+    <Dialog open={Boolean(type)} onClose={handleCancel}>
       <DialogTitle>
         {type === 'edit' && t('editModeDialog.updateRecurrentEvent')}
         {type === 'delete' && t('editModeDialog.deleteRecurrentEvent')}
@@ -61,7 +68,7 @@ export function EditModeDialog({
       </DialogContent>
       <DialogActions>
         <ButtonGroup>
-          <Button variant="text" onClick={handleClose}>
+          <Button variant="text" onClick={handleCancel}>
             {t('common.cancel')}
           </Button>
           <Button variant="text" onClick={handleEvent}>
