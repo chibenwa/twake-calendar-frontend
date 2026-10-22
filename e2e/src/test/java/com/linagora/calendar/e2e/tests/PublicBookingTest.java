@@ -18,12 +18,16 @@ import org.junit.jupiter.api.Test;
 import com.linagora.calendar.e2e.TwakeCalendarE2ETest;
 import com.linagora.calendar.e2e.backend.CalendarProbe;
 import com.linagora.calendar.e2e.backend.E2EUser;
+import com.linagora.calendar.e2e.backend.Ics;
+import com.linagora.calendar.e2e.backend.MailProbe;
 import com.linagora.calendar.e2e.docker.E2EClock;
 import com.linagora.calendar.e2e.docker.E2ESessions;
 import com.linagora.calendar.e2e.pages.CalendarPage;
+import com.linagora.calendar.e2e.pages.EventPreviewPopover;
 import com.linagora.calendar.e2e.pages.LoginPage;
 import com.linagora.calendar.e2e.pages.PublicBookingPage;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 
 /**
@@ -359,5 +363,145 @@ class PublicBookingTest extends TwakeCalendarE2ETest {
         assertThat(visitor.locator("a").allInnerTexts().toString())
             .containsIgnoringCase("Privacy")
             .containsIgnoringCase("Terms");
+    }
+
+    // ------------------------------------------------- after the booking
+
+    private static final Duration MAIL_DELAY = Duration.ofSeconds(60);
+
+    private static String aVisitorAddress() {
+        return "visitor-" + UUID.randomUUID().toString().substring(0, 8) + "@external.test";
+    }
+
+    /**
+     * The link of the visitor's "Booking request received" mail, the only way back to their
+     * meeting. The mail names the private origin: the confirmed page is served by the public
+     * application, as for a real visitor whose link goes through the same host.
+     */
+    private String confirmedLinkFromTheMail(MailProbe mails, String visitorEmail) {
+        String link = Awaitility.await().atMost(MAIL_DELAY).pollInterval(Duration.ofSeconds(2))
+            .until(() -> mails.linkTo(visitorEmail, "/booking/confirmed/"), java.util.Optional::isPresent)
+            .orElseThrow();
+        return link.replaceFirst("^https?://[^/]+", "http://public");
+    }
+
+    /** Opens the booked event in the owner's calendar, through its deep link. */
+    private EventPreviewPopover openTheBookedEvent(Page owner, E2EUser user, CalendarProbe probe) {
+        Awaitility.await().atMost(MAIL_DELAY).untilAsserted(() ->
+            assertThat(probe.rawEvents(user)).isNotEmpty());
+        String uid = Ics.property(Ics.event(probe.singleEvent(user)), "UID").orElseThrow();
+        owner.navigate("/events/" + uid);
+        EventPreviewPopover preview = new EventPreviewPopover(owner);
+        owner.getByLabel("Edit event").waitFor();
+        return preview;
+    }
+
+    /** A visitor books the first slot of the day and comes back later, from their mail. */
+    private Page bookAndComeBack(E2ESessions sessions, MailProbe mails, String publicId,
+                                 LocalDate day, String visitorName, String visitorEmail) {
+        PublicBookingPage.open(sessions.blankPage(), publicId)
+            .selectDay(day).pickSlot("09:00").bookAs(visitorName, visitorEmail)
+            .successMessage();
+        String confirmed = confirmedLinkFromTheMail(mails, visitorEmail);
+        Page back = sessions.blankPage(); // a browser that never saw the booking
+        back.navigate(confirmed);
+        return back;
+    }
+
+    /** Reloads the confirmed page until it reads the given status. */
+    private void awaitStatus(Page confirmed, String status) {
+        Awaitility.await().atMost(MAIL_DELAY).pollInterval(Duration.ofSeconds(3))
+            .ignoreExceptions()
+            .untilAsserted(() -> {
+                confirmed.reload();
+                PlaywrightAssertions.assertThat(confirmed.getByText(status).first())
+                    .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(5_000));
+            });
+    }
+
+    @Test
+    @DisplayName("PUB-27 The visitor's mail leads back to their meeting, waiting for the owner")
+    void theVisitorFollowsTheirBookingFromTheMail(Page page, E2EUser user, E2ESessions sessions,
+                                                  MailProbe mails) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String name = uniqueName("Follow-up");
+        String publicId = publish(owner, name, day, "09:00", "12:00");
+        String visitorName = uniqueName("Visitor");
+        String visitorEmail = aVisitorAddress();
+
+        Page back = bookAndComeBack(sessions, mails, publicId, day, visitorName, visitorEmail);
+
+        PlaywrightAssertions.assertThat(back.locator("body")).containsText(name);
+        PlaywrightAssertions.assertThat(back.getByText("Waiting for organizer response").first()).isVisible();
+        PlaywrightAssertions.assertThat(back.getByText("Need to make changes?").first()).isVisible();
+        // the owner is asked to answer, from links of their own mail
+        Awaitility.await().atMost(MAIL_DELAY).untilAsserted(() ->
+            assertThat(mails.mailsTo(user.email()))
+                .anySatisfy(mail -> assertThat(mail.body()).contains(visitorName).contains("/excal")));
+    }
+
+    @Test
+    @DisplayName("BOOK-17 The owner accepts the booking in their calendar, and the visitor learns it")
+    void theOwnerAcceptsTheBooking(Page page, E2EUser user, E2ESessions sessions,
+                                   CalendarProbe probe, MailProbe mails) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String name = uniqueName("Accepted");
+        String publicId = publish(owner, name, day, "09:00", "12:00");
+        String visitorEmail = aVisitorAddress();
+        Page back = bookAndComeBack(sessions, mails, publicId, day, uniqueName("Visitor"), visitorEmail);
+        int mailsBefore = mails.mailsTo(visitorEmail).size();
+
+        openTheBookedEvent(page, user, probe).answer("Yes");
+
+        awaitStatus(back, "Meeting accepted by organizer");
+        Awaitility.await().atMost(MAIL_DELAY).untilAsserted(() ->
+            assertThat(mails.mailsTo(visitorEmail))
+                .as("the visitor is told by mail that the owner answered")
+                .hasSizeGreaterThan(mailsBefore)
+                .last().satisfies(mail -> assertThat(mail.body()).contains("accepted")));
+    }
+
+    @Test
+    @DisplayName("BOOK-18 The owner declines the booking in their calendar, and the visitor learns it")
+    void theOwnerDeclinesTheBooking(Page page, E2EUser user, E2ESessions sessions,
+                                    CalendarProbe probe, MailProbe mails) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String name = uniqueName("Declined");
+        String publicId = publish(owner, name, day, "09:00", "12:00");
+        String visitorEmail = aVisitorAddress();
+        Page back = bookAndComeBack(sessions, mails, publicId, day, uniqueName("Visitor"), visitorEmail);
+        int mailsBefore = mails.mailsTo(visitorEmail).size();
+
+        openTheBookedEvent(page, user, probe).answer("No");
+
+        awaitStatus(back, "Meeting declined by organizer");
+        Awaitility.await().atMost(MAIL_DELAY).untilAsserted(() ->
+            assertThat(mails.mailsTo(visitorEmail))
+                .as("the visitor is told by mail that the owner answered")
+                .hasSizeGreaterThan(mailsBefore)
+                .last().satisfies(mail -> assertThat(mail.body()).contains("declined")));
+    }
+
+    @Test
+    @DisplayName("PUB-28 The visitor cancels their meeting from the page their mail leads to")
+    void theVisitorCancelsFromTheConfirmedPage(Page page, E2EUser user, E2ESessions sessions,
+                                               CalendarProbe probe, MailProbe mails) {
+        CalendarPage owner = LoginPage.loginAs(page, user);
+        LocalDate day = nextWeekSameDay();
+        String publicId = publish(owner, uniqueName("Called off"), day, "09:00", "12:00");
+        Page back = bookAndComeBack(sessions, mails, publicId, day, uniqueName("Visitor"),
+            aVisitorAddress());
+
+        new PublicBookingPage(back).cancelBooking();
+
+        Awaitility.await().atMost(MAIL_DELAY).untilAsserted(() ->
+            assertThat(probe.singleEvent(user))
+                .as("the owner's copy must carry the cancellation")
+                .contains("STATUS:CANCELLED"));
+        assertThat(PublicBookingPage.open(sessions.blankPage(), publicId).selectDay(day).slots())
+            .as("the cancelled slot is offered again").contains("09:00");
     }
 }

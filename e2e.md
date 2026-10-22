@@ -549,8 +549,8 @@ day, 23:45) — 48 tests.
 - [x] `BOOK-14` A slot already taken by an event is not offered
 - [x] `BOOK-15` A confirmed booking creates an event in the owner's calendar
 - [x] `BOOK-16` The owner sees the name and email of the person who booked
-- [ ] `BOOK-17` The owner can accept the booking in his own calendar event copy
-- [ ] `BOOK-18` The owner can decline the booking in hos own event calendar copy
+- [x] `BOOK-17` The owner can accept the booking in his own calendar event copy
+- [x] `BOOK-18` The owner can decline the booking in hos own event calendar copy
 - [ ] `BOOK-19` Cancelling the event frees the slot on the public side
 - [ ] `BOOK-20` The schedule timezone is independent from the user's own
 - [x] `BOOK-21` Two schedules can coexist without overlapping
@@ -579,6 +579,8 @@ day, 23:45) — 48 tests.
 - [x] `PUB-23` The footer exposes the Privacy and Terms links
 - [x] `PUB-25` The public preview of a recurring occurrence shows the right date
 - [x] `PUB-26` No data of another user is reachable through a public token
+- [x] `PUB-27` The visitor's mail leads back to their meeting, waiting for the owner
+- [x] `PUB-28` The visitor cancels their meeting from the page their mail leads to
 
 ## VISIO — Video conferencing (12)
 
