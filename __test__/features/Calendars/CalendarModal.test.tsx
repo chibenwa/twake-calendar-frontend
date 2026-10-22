@@ -48,14 +48,23 @@ describe('CalendarPopover', () => {
   it('renders popover and inputs', () => {
     renderPopover()
 
-    expect(screen.getByLabelText(/Name/i)).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: /Name/i })).toBeInTheDocument()
     expect(screen.getByText('event.form.addDescription')).toBeInTheDocument()
+  })
+
+  it('is named after its purpose, not after its tabs (#1761)', () => {
+    renderPopover()
+
+    expect(
+      screen.getByRole('dialog', { name: 'calendarPopover.tabs.addNew' })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 2 })).toBeNull()
   })
 
   it('updates name and description fields', () => {
     renderPopover()
 
-    const nameInput = screen.getByLabelText(/Name/i)
+    const nameInput = screen.getByRole('textbox', { name: /Name/i })
     fireEvent.change(nameInput, { target: { value: 'My Calendar' } })
     expect(nameInput).toHaveValue('My Calendar')
 
@@ -72,7 +81,7 @@ describe('CalendarPopover', () => {
 
     renderPopover()
 
-    fireEvent.change(screen.getByLabelText(/Name/i), {
+    fireEvent.change(screen.getByRole('textbox', { name: /Name/i }), {
       target: { value: 'Test Calendar' }
     })
     fireEvent.click(screen.getByText('event.form.addDescription'))
@@ -144,8 +153,25 @@ describe('CalendarPopover (editing mode)', () => {
       { user: baseUser }
     )
 
-    expect(screen.getByLabelText(/Name/i)).toHaveValue('Work Calendar')
+    expect(screen.getByRole('textbox', { name: /Name/i })).toHaveValue(
+      'Work Calendar'
+    )
     expect(screen.getByLabelText(/Description/i)).toHaveValue('Team meetings')
+  })
+
+  it('is named after the calendar it edits', () => {
+    renderWithProviders(
+      <CalendarPopover
+        open={true}
+        onClose={mockOnClose}
+        calendar={existingCalendar}
+      />,
+      { user: baseUser }
+    )
+
+    expect(
+      screen.getByRole('dialog', { name: 'Work Calendar' })
+    ).toBeInTheDocument()
   })
 
   test('Save button is disabled when name is empty or whitespace only', () => {
@@ -181,7 +207,7 @@ describe('CalendarPopover (editing mode)', () => {
     )
 
     // Change name
-    fireEvent.change(screen.getByLabelText(/Name/i), {
+    fireEvent.change(screen.getByRole('textbox', { name: /Name/i }), {
       target: { value: 'Updated Calendar' }
     })
 
@@ -229,7 +255,7 @@ describe('CalendarPopover (editing mode)', () => {
     it('shows the display name instead of the internal #default name', () => {
       renderDefaultCalendar()
 
-      expect(screen.getByLabelText(/Name/i)).toHaveValue(
+      expect(screen.getByRole('textbox', { name: /Name/i })).toHaveValue(
         'calendar.defaultPersonalCalendarName'
       )
     })
@@ -267,7 +293,7 @@ describe('CalendarPopover (editing mode)', () => {
     it('saves the new name when the user renames it', async () => {
       renderDefaultCalendar()
 
-      fireEvent.change(screen.getByLabelText(/Name/i), {
+      fireEvent.change(screen.getByRole('textbox', { name: /Name/i }), {
         target: { value: 'Personal' }
       })
       fireEvent.click(screen.getByRole('button', { name: 'actions.save' }))
@@ -357,7 +383,7 @@ describe('CalendarPopover - Tabs Scenarios', () => {
     )
 
     // Enter some data
-    fireEvent.change(screen.getByLabelText(/Name/i), {
+    fireEvent.change(screen.getByRole('textbox', { name: /Name/i }), {
       target: { value: 'Temp Calendar' }
     })
     fireEvent.click(screen.getByRole('button', { name: /Cancel/i }))
@@ -366,7 +392,7 @@ describe('CalendarPopover - Tabs Scenarios', () => {
 
     // Reopen: state should be reset
     rerender(<CalendarPopover open={true} onClose={mockOnClose} />)
-    expect(screen.getByLabelText(/Name/i)).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: /Name/i })).toHaveValue('')
   })
 
   it('shows Access tab only when editing an existing calendar', () => {
@@ -532,7 +558,7 @@ describe('CalendarPopover - Tabs Scenarios', () => {
       fireEvent.click(screen.getByRole('tab', { name: /Import/i }))
 
       // Provide new calendar params
-      fireEvent.change(screen.getByLabelText(/Name/i), {
+      fireEvent.change(screen.getByRole('textbox', { name: /Name/i }), {
         target: { value: 'Imported Calendar' }
       })
       const fileInput = screen.getByLabelText('common.select_file')

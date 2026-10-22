@@ -322,6 +322,10 @@ function CalendarPopover({
     <ResponsiveDialog
       open={open}
       onClose={() => handleClose({}, 'backdropClick')}
+      // the header holds the tabs, not a title: neither names the dialog,
+      // and the header is no heading
+      ariaLabel={displayedName || t('calendarPopover.tabs.addNew')}
+      dialogTitleProps={{ component: 'div' }}
       title={
         <Tabs value={tab} onChange={(_e, v) => setTab(v)}>
           <Tab

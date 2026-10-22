@@ -108,6 +108,8 @@ interface ResponsiveDialogProps extends Omit<
   draggable?: boolean
   /** Element to align the dialog next to (e.g. event chip) */
   anchorEl?: HTMLElement | null
+  /** Names the dialog when its title is no name for it, e.g. tabs */
+  ariaLabel?: string
   /** Enable dynamic positioning relative to anchor element (default: false) */
   dynamicPositioning?: boolean
   /** Optional action element rendered on the right side of header title bar next to header action icons */
@@ -220,6 +222,7 @@ function ResponsiveDialog({
   anchorEl,
   dynamicPositioning = false,
   headerRightAction,
+  ariaLabel,
   ...otherDialogProps
 }: ResponsiveDialogProps): JSX.Element {
   const { t } = useI18n()
@@ -395,6 +398,15 @@ function ResponsiveDialog({
         {...otherDialogProps}
         slotProps={{
           ...otherDialogProps.slotProps,
+          // MUI hands aria-labelledby to the dialog element, not aria-label
+          ...(ariaLabel
+            ? {
+                paper: {
+                  ...otherDialogProps.slotProps?.paper,
+                  'aria-label': ariaLabel
+                }
+              }
+            : {}),
           ...(isDynamic || isExpanded
             ? {
                 transition: {
@@ -412,7 +424,7 @@ function ResponsiveDialog({
         }
         style={isExpanded ? { zIndex: 1200 } : undefined}
         PaperComponent={DraggablePaper}
-        aria-labelledby={titleTextId}
+        aria-labelledby={ariaLabel ? undefined : titleTextId}
       >
         <DialogTitle
           {...dialogTitleProps}
