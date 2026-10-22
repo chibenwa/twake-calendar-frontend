@@ -447,6 +447,42 @@ public class CalendarPage {
         return new CalendarModal(page).waitUntilOpen();
     }
 
+    // ------------------------------------------------- checking availability
+
+    /** Types into the sidebar "Check availability" field and hands back the suggestions. */
+    public List<String> searchAvailability(String query) {
+        Locator field = page.getByPlaceholder("Check availability");
+        field.click();
+        field.fill("");
+        field.pressSequentially(query, new Locator.PressSequentiallyOptions().setDelay(30));
+        page.locator("[role=option]").first().waitFor();
+        page.waitForTimeout(1500);
+        return page.locator("[role=option]").allInnerTexts().stream()
+            .map(option -> option.replace("\n", " ").trim())
+            .toList();
+    }
+
+    /** Overlays the calendar of somebody, or of a resource, picked in "Check availability". */
+    public CalendarPage checkAvailabilityOf(String query, String option) {
+        searchAvailability(query);
+        page.locator("[role=option]").filter(new Locator.FilterOptions().setHasText(option))
+            .first().click();
+        return this;
+    }
+
+    /** The chip "Check availability" shows for somebody whose calendar is overlaid. */
+    public Locator availabilityChip(String text) {
+        return page.locator(".MuiChip-root").filter(new Locator.FilterOptions().setHasText(text));
+    }
+
+    /** Takes an overlaid calendar away, by the delete control of its chip. */
+    public CalendarPage removeAvailabilityOf(String text) {
+        availabilityChip(text).first().locator(".MuiChip-deleteIcon").click();
+        availabilityChip(text).first().waitFor(
+            new Locator.WaitForOptions().setState(WaitForSelectorState.DETACHED));
+        return this;
+    }
+
     // ------------------------------------------------- browsing other calendars
 
     /**

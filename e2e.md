@@ -626,8 +626,11 @@ day, 23:45) — 48 tests.
 - [ ] `FB-10` A resource's availability is computed like a user's
 - [x] `FB-11` A guest outside the domain shows the unknown status
 - [x] `FB-12` Availability accounts for recurring occurrences
-- [ ] `FB-13` The "Check availability" field searches both users and resources
+- [x] `FB-13` The "Check availability" field searches both users and resources
 - [x] `FB-14` Removing a guest removes their availability row
+- [x] `FB-15` "Check availability" overlays the public events of a colleague
+- [x] `FB-16` Removing the chip of "Check availability" takes the overlay away
+- [x] `FB-17` "Check availability" shows nothing of a colleague whose calendar is private
 
 ## TZ — Timezones (22)
 
