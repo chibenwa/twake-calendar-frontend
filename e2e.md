@@ -472,6 +472,14 @@ day, 23:45) — 48 tests.
 - [x] `TEAM-18` Moving a personal event to a team calendar changes its organizer
 - [x] `TEAM-19` A team event inviting another member shows as its organizer answered ([#1545](https://github.com/linagora/twake-calendar-frontend/issues/1545))
 
+## EMBED — The team calendar framed by Twake Workplace (5)
+
+- [x] `EMBED-01` The embed route shows the team calendar alone, as a month list
+- [x] `EMBED-02` Create on the embed route writes into the team calendar
+- [x] `EMBED-03` Somebody who is not a member is refused the embedded team calendar
+- [x] `EMBED-04` The event route of the embed opens the preview of that event ([#1671](https://github.com/linagora/twake-calendar-frontend/issues/1671))
+- [x] `EMBED-05` Opening the embed route leaves the selection of the main app alone ([#1669](https://github.com/linagora/twake-calendar-frontend/issues/1669))
+
 ## SHARE — Sharing and delegation (29)
 
 - [x] `SHARE-01` The Access tab allows granting a right to another user
