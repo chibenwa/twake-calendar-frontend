@@ -68,7 +68,7 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-18` The recurrence interval never accepts a float ([#961](https://github.com/linagora/twake-calendar-frontend/issues/961))
 - [x] `PAST-53` Answering a single occurrence keeps the recurrence rule in its preview ([#1700](https://github.com/linagora/twake-calendar-frontend/issues/1700))
 
-## PAST — Timezones (7)
+## PAST — Timezones (8)
 
 - [x] `PAST-19` The update modal reopens an event in the timezone it was created with ([#490](https://github.com/linagora/twake-calendar-frontend/issues/490))
 - [x] `PAST-20` Answering an invitation twice never normalises `DTSTART` to UTC and drops its `TZID` ([#1031](https://github.com/linagora/twake-calendar-frontend/issues/1031))
@@ -77,6 +77,7 @@ and double scrollbars belong to pixel level tooling, not to this suite.
 - [x] `PAST-52` An all day event on the day the clocks fall back ends on that same day, in the preview and in the form ([#1455](https://github.com/linagora/twake-calendar-frontend/pull/1455))
 - [x] `PAST-54` West of UTC, a weekly all day series created on a Monday repeats on Mondays, from that Monday ([#1760](https://github.com/linagora/twake-calendar-frontend/issues/1760))
 - [x] `PAST-55` West of UTC, switching an all day repetition to weekly proposes the weekday of the event ([#1760](https://github.com/linagora/twake-calendar-frontend/issues/1760))
+- [x] `PAST-56` West of UTC, the search shows an all day event on its own day, not the day before
 
 ## PAST — All day events (4)
 

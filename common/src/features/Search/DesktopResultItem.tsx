@@ -7,6 +7,7 @@ import { useI18n } from 'twake-i18n'
 import { SearchEventResult } from './types/SearchEventResult'
 import { useEventPreview } from './useEventPreview'
 import {
+  dayZoneOf,
   RenderDate,
   RenderLocation,
   RenderDescription,
@@ -72,7 +73,7 @@ export default function DesktopResultItem({
             endDate={endDate}
             allDay={!!eventData.data.allDay}
             t={t}
-            timeZone={timeZone}
+            timeZone={dayZoneOf(!!eventData.data.allDay, timeZone)}
           />
           <RenderTime
             startDate={startDate}

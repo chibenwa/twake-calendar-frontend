@@ -12,6 +12,7 @@ import {
   RenderMobileDate,
   RenderMobileEventCard
 } from './mobileSearchResultsComponents'
+import { dayZoneOf } from './searchResultsComponents'
 import { SearchEventResult } from './types/SearchEventResult'
 import { useEventPreview } from './useEventPreview'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
@@ -117,7 +118,11 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
         }}
         onClick={() => void handleOpen()}
       >
-        <RenderMobileDate startDate={startDate} t={t} timeZone={timeZone} />
+        <RenderMobileDate
+          startDate={startDate}
+          t={t}
+          timeZone={dayZoneOf(!!eventData.data.allDay, timeZone)}
+        />
         <RenderMobileEventCard
           eventData={eventData}
           calendar={calendar}

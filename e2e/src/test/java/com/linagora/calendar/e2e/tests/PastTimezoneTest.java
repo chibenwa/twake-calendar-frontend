@@ -220,6 +220,28 @@ class PastTimezoneTest extends TwakeCalendarE2ETest {
         assertThat(repeat.isWeekdaySelected("SU")).isFalse();
     }
 
+    @Test
+    @DisplayName("PAST-56 (#1760) West of UTC, the search shows an all day event on its own day")
+    void theSearchShowsAnAllDayEventOnItsDayWestOfUtc(E2EUser user, CalendarProbe probe, E2ESessions sessions) {
+        LocalDate day = aMondayAhead().plusDays(1);
+        String title = title("NY searched");
+
+        CalendarPage calendar = sessions.openFor(user, "America/New_York");
+        calendar.goToDate(day);
+        calendar.selectAllDayCell(day).title(title).save();
+        Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() ->
+            assertThat(Ics.property(Ics.event(probe.singleEvent(user)), "DTSTART"))
+                .hasValue(day.format(DateTimeFormatter.BASIC_ISO_DATE)));
+
+        DateTimeFormatter resultDay = DateTimeFormatter.ofPattern("dd MMM", Locale.UK);
+        calendar.searchUntil(title, title);
+        // the results list replaces the grid: the only dates on screen are those of the result
+        assertThat(calendar.searchResults())
+            .as("an all day event starts at midnight UTC, which is the evening before in New York")
+            .contains(day.format(resultDay))
+            .doesNotContain(day.minusDays(1).format(resultDay));
+    }
+
     /** A Monday at least a week ahead, so that the series is created in the future. */
     private static LocalDate aMondayAhead() {
         return E2EClock.today().with(TemporalAdjusters.next(DayOfWeek.MONDAY)).plusWeeks(1);

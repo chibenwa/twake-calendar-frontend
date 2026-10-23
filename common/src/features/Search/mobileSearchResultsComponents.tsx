@@ -7,7 +7,7 @@ import { Calendar } from '@common/types/CalendarTypes'
 import { Box, Card, CardHeader, Typography } from '@linagora/twake-mui'
 import React from 'react'
 import { useI18n } from 'twake-i18n'
-import { lastDayOf } from './searchResultsComponents'
+import { dayZoneOf, lastDayOf } from './searchResultsComponents'
 import { SearchEventResult } from './types/SearchEventResult'
 
 interface MobileDateProps {
@@ -69,11 +69,16 @@ export const formatMobileEventSpan = (
   timeZone: string
 ): string | null => {
   const lastDay = lastDayOf(startDate, endDate, allDay)
+  const dayZone = dayZoneOf(allDay, timeZone)
   const isMultiDay =
-    formatDateInTimezone(startDate, timeZone) !==
-    formatDateInTimezone(lastDay, timeZone)
+    formatDateInTimezone(startDate, dayZone) !==
+    formatDateInTimezone(lastDay, dayZone)
   const formatDay = (d: Date): string =>
-    d.toLocaleDateString(locale, { day: '2-digit', month: 'short', timeZone })
+    d.toLocaleDateString(locale, {
+      day: '2-digit',
+      month: 'short',
+      timeZone: dayZone
+    })
   const formatTime = (d: Date): string =>
     d.toLocaleTimeString(locale, {
       hour: '2-digit',

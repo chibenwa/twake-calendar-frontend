@@ -51,9 +51,13 @@ describe('SearchResultsPage on mobile', () => {
       timeZone: 'UTC'
     })
 
-  const renderResult = (data: Record<string, unknown>): void => {
+  const renderResult = (
+    data: Record<string, unknown>,
+    timeZone?: string
+  ): void => {
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
+      ...(timeZone ? { settings: { timeZone } } : {}),
       searchResult: {
         searchParams: defaultSearchParams,
         error: null,
@@ -154,6 +158,27 @@ describe('SearchResultsPage on mobile', () => {
     expect(
       screen.getByText(
         `${formatDay(start)} ${formatTime(start)} - ${formatDay(end)} ${formatTime(end)}`
+      )
+    ).toBeInTheDocument()
+  })
+
+  it('shows the days of an all-day result for a user west of UTC (#1760)', () => {
+    renderResult(
+      {
+        summary: 'New York span',
+        start: `${currentYear}-11-04T00:00:00Z`,
+        end: `${currentYear}-11-09T00:00:00Z`,
+        allDay: true
+      },
+      'America/New_York'
+    )
+
+    // the date column, then the span of the card
+    expect(screen.getByText('04')).toBeInTheDocument()
+    expect(screen.queryByText('03')).not.toBeInTheDocument()
+    expect(
+      screen.getByText(
+        `${formatDay(`${currentYear}-11-04T00:00:00Z`)} - ${formatDay(`${currentYear}-11-08T00:00:00Z`)}`
       )
     ).toBeInTheDocument()
   })

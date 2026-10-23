@@ -279,4 +279,31 @@ describe('SearchResultsPage', () => {
       )
     ).toBeInTheDocument()
   })
+
+  it('shows an all-day result on its day for a user west of UTC (#1760)', () => {
+    const mockResults = [
+      {
+        data: {
+          uid: '1',
+          summary: 'New York day off',
+          start: '2026-10-27T00:00:00Z',
+          end: '2026-10-28T00:00:00Z',
+          allDay: true
+        }
+      }
+    ]
+
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      settings: { timeZone: 'America/New_York' },
+      searchResult: { results: mockResults, hits: 1 }
+    })
+
+    expect(
+      screen.getByText(formatDay('2026-10-27T00:00:00Z'))
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText(formatDay('2026-10-26T00:00:00Z'), { exact: false })
+    ).not.toBeInTheDocument()
+  })
 })
