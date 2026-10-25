@@ -91,6 +91,7 @@
     "organizers": "Organisatoren",
     "participants": "Teilnehmer",
     "noResults": "Keine Termine gefunden",
+    "resultsCount": "%{smart_count} Termin gefunden |||| %{smart_count} Termine gefunden",
     "resultsTitle": "Suchergebnisse",
     "noResultsSubtitle": "Passen Sie Ihre Filter oder Suchbegriffe an.",
     "error": {

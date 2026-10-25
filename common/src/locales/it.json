@@ -91,6 +91,7 @@
     "organizers": "Organizzatori",
     "participants": "Partecipanti",
     "noResults": "Nessun evento trovato",
+    "resultsCount": "%{smart_count} evento trovato |||| %{smart_count} eventi trovati",
     "resultsTitle": "Risultati della ricerca",
     "noResultsSubtitle": "Prova a modificare i filtri o i termini di ricerca.",
     "error": {

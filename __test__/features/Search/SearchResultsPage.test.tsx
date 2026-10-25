@@ -145,7 +145,29 @@ describe('SearchResultsPage', () => {
       ...preloadedState,
       searchResult: { loading: false, error: null, hits: null, results: [] }
     })
-    expect(screen.getByText('search.noResults')).toBeInTheDocument()
+    expect(
+      screen.getByText('search.noResults', { ignore: '[role="status"]' })
+    ).toBeInTheDocument()
+  })
+
+  it('announces that nothing was found, once (#1789)', () => {
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      searchResult: { loading: false, error: null, hits: 0, results: [] }
+    })
+
+    expect(screen.getByRole('status')).toHaveTextContent('search.noResults')
+    // The illustration does not repeat the message
+    expect(screen.queryByRole('img', { name: 'search.noResults' })).toBeNull()
+  })
+
+  it('announces nothing while searching (#1789)', () => {
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      searchResult: { loading: true, error: null, hits: 0, results: [] }
+    })
+
+    expect(screen.getByRole('status')).toBeEmptyDOMElement()
   })
 
   it('should render search results', () => {
@@ -175,6 +197,9 @@ describe('SearchResultsPage', () => {
       searchResult: { results: mockResults, hits: 2 }
     })
     expect(screen.getByText('search.resultsTitle')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'search.resultsCount(smart_count=2)'
+    )
     expect(screen.getByText('Team Meeting')).toBeInTheDocument()
     expect(screen.getByText('Project Review')).toBeInTheDocument()
     expect(screen.getByText('John Doe')).toBeInTheDocument()

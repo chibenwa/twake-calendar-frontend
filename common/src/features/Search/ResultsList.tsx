@@ -9,6 +9,15 @@ import { useI18n } from 'twake-i18n'
 import logo from '@common/static/noResult-logo.svg'
 import { SearchEventResult } from './types/SearchEventResult'
 
+const visuallyHidden = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap'
+} as const
+
 interface ResultsListProps {
   loading: boolean
   error: string | null
@@ -20,7 +29,38 @@ interface ResultsListProps {
   stackSx?: SxProps
 }
 
-export const ResultsList: React.FC<ResultsListProps> = ({
+// Rendered all along, so that a screen reader hears each change of count
+const ResultsStatus: React.FC<{
+  loading: boolean
+  error: string | null
+  hits: number | null
+}> = ({ loading, error, hits }) => {
+  const { t } = useI18n()
+  const text =
+    loading || error
+      ? ''
+      : hits
+        ? t('search.resultsCount', { smart_count: hits })
+        : t('search.noResults')
+  return (
+    <Box role="status" aria-live="polite" sx={visuallyHidden}>
+      {text}
+    </Box>
+  )
+}
+
+export const ResultsList: React.FC<ResultsListProps> = props => (
+  <>
+    <ResultsStatus
+      loading={props.loading}
+      error={props.error}
+      hits={props.hits}
+    />
+    <ResultsListContent {...props} />
+  </>
+)
+
+const ResultsListContent: React.FC<ResultsListProps> = ({
   loading,
   error,
   hits,
@@ -51,12 +91,7 @@ export const ResultsList: React.FC<ResultsListProps> = ({
   if (!hits) {
     return (
       <Box className="noResults">
-        <img
-          className="logoNoResults"
-          width={100}
-          src={logo}
-          alt={t('search.noResults')}
-        />
+        <img className="logoNoResults" width={100} src={logo} alt="" />
         <Typography
           sx={noResultsTitleSx}
           variant={noResultsTitleSx ? undefined : 'h5'}
