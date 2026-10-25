@@ -116,6 +116,9 @@
       "editor": "Biên tập viên",
       "owner": "Chủ sở hữu",
       "administrator": "Quản trị viên",
+      "removeUser": "Gỡ bỏ %{name}",
+      "userAccessRight": "Quyền truy cập của %{name}",
+      "newUserAccessRight": "Quyền truy cập sẽ cấp",
       "privateEventsNotice": "Chỉ chủ sở hữu của lịch mới có thể xem các sự kiện riêng tư của lịch đó."
     }
   },

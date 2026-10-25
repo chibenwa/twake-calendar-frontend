@@ -131,8 +131,63 @@ describe('CalendarAccessRights', () => {
       { ...userState }
     )
 
-    fireEvent.click(screen.getByLabelText('actions.remove'))
+    fireEvent.click(
+      screen.getByLabelText('calendarPopover.access.removeUser(name=Alice)')
+    )
     expect(mockOnChange).toHaveBeenCalledWith([])
+  })
+
+  it('names the remove button and the right selector of each row after its user', () => {
+    const users: UserWithAccess[] = [
+      {
+        openpaasId: 'user1',
+        displayName: 'Alice',
+        email: 'alice@example.com',
+        accessRight: 3
+      },
+      {
+        openpaasId: 'user2',
+        displayName: 'Bob',
+        email: 'bob@example.com',
+        accessRight: 2
+      }
+    ]
+
+    renderWithProviders(
+      <CalendarAccessRights
+        calendar={baseCalendar}
+        value={users}
+        onChange={mockOnChange}
+        onInvitesLoaded={mockOnInvitesLoaded}
+      />,
+      { ...userState }
+    )
+
+    expect(
+      screen.getByRole('button', {
+        name: 'calendarPopover.access.removeUser(name=Alice)'
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: 'calendarPopover.access.removeUser(name=Bob)'
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('combobox', {
+        name: 'calendarPopover.access.userAccessRight(name=Alice)'
+      })
+    ).toHaveTextContent('calendarPopover.access.editor')
+    expect(
+      screen.getByRole('combobox', {
+        name: 'calendarPopover.access.userAccessRight(name=Bob)'
+      })
+    ).toHaveTextContent('calendarPopover.access.viewAllEvents')
+    expect(
+      screen.getByRole('combobox', {
+        name: 'calendarPopover.access.newUserAccessRight'
+      })
+    ).toBeInTheDocument()
   })
 
   it('loads invited users from calendar.invite on mount', async () => {

@@ -116,6 +116,9 @@
       "editor": "Editor",
       "owner": "Owner",
       "administrator": "Administrator",
+      "removeUser": "Remove %{name}",
+      "userAccessRight": "Access right of %{name}",
+      "newUserAccessRight": "Access right to grant",
       "privateEventsNotice": "Only the owner of a calendar can see its private events."
     }
   },

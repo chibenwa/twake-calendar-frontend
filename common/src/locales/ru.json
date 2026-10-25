@@ -116,6 +116,9 @@
       "editor": "Редактор",
       "owner": "Владелец",
       "administrator": "Администратор",
+      "removeUser": "Удалить %{name}",
+      "userAccessRight": "Право доступа: %{name}",
+      "newUserAccessRight": "Предоставляемое право доступа",
       "privateEventsNotice": "Только владелец календаря может видеть его частные события."
     }
   },

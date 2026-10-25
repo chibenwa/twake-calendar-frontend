@@ -116,6 +116,9 @@
       "editor": "Bearbeiter",
       "owner": "Eigentümer",
       "administrator": "Administrator",
+      "removeUser": "%{name} entfernen",
+      "userAccessRight": "Zugriffsrecht von %{name}",
+      "newUserAccessRight": "Zu gewährendes Zugriffsrecht",
       "privateEventsNotice": "Nur der Eigentümer eines Kalenders kann dessen private Termine sehen."
     }
   },

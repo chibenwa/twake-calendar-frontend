@@ -100,11 +100,16 @@ function UserAccessRow({
           setAccessRight={right => onChangeRight(user.email, right)}
           accessRightOptions={accessRightOptions}
           disabled={!canEdit}
+          label={t('calendarPopover.access.userAccessRight', {
+            name: user.displayName
+          })}
         />
         {canEdit && (
           <IconButton
             size="small"
-            aria-label={t('actions.remove')}
+            aria-label={t('calendarPopover.access.removeUser', {
+              name: user.displayName
+            })}
             onClick={() => onRemove(user.email)}
             sx={{ color: 'text.secondary' }}
           >
@@ -387,6 +392,7 @@ export function CalendarAccessRights({
                           accessRight={accessRight}
                           setAccessRight={setAccessRight}
                           accessRightOptions={accessRightOptions}
+                          label={t('calendarPopover.access.newUserAccessRight')}
                         />
                       </InputAdornment>
                     )

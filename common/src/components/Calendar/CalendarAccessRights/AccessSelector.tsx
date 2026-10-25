@@ -22,7 +22,9 @@ export const AccessSelector: React.FC<{
   setAccessRight: (r: AccessRight) => void
   accessRightOptions: { value: AccessRight; label: string }[]
   disabled?: boolean
-}> = ({ accessRight, setAccessRight, accessRightOptions, disabled }) => {
+  /** Names the selector, e.g. "Access right of Bob" */
+  label?: string
+}> = ({ accessRight, setAccessRight, accessRightOptions, disabled, label }) => {
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   if (isMobile) {
@@ -37,6 +39,7 @@ export const AccessSelector: React.FC<{
         accessRightOptions={accessRightOptions}
         accessRight={accessRight}
         setAccessRight={setAccessRight}
+        label={label}
       />
     )
   }
@@ -47,6 +50,7 @@ export const AccessSelector: React.FC<{
       setAccessRight={setAccessRight}
       disabled={disabled}
       accessRightOptions={accessRightOptions}
+      label={label}
     />
   )
 }
@@ -56,10 +60,12 @@ const DesktopAccessSelector: React.FC<{
   setAccessRight: (r: AccessRight) => void
   disabled: boolean | undefined
   accessRightOptions: { value: AccessRight; label: string }[]
-}> = ({ accessRight, setAccessRight, disabled, accessRightOptions }) => {
+  label?: string
+}> = ({ accessRight, setAccessRight, disabled, accessRightOptions, label }) => {
   return (
     <Select
       value={accessRight}
+      inputProps={{ 'aria-label': label }}
       onChange={e => setAccessRight(e.target.value as AccessRight)}
       variant="standard"
       disableUnderline
@@ -93,17 +99,20 @@ const MobileAccessSelector: React.FC<{
   accessRightOptions: { value: AccessRight; label: string }[]
   accessRight: number
   setAccessRight: (r: AccessRight) => void
+  label?: string
 }> = ({
   displayText,
   disabled,
   accessRightOptions,
   accessRight,
-  setAccessRight
+  setAccessRight,
+  label
 }) => {
   return (
     <MobileSelector
       displayText={displayText}
       disabled={disabled}
+      label={label}
       selectorButtonSx={{
         '& .MuiTypography-root': {
           fontSize: '0.875rem',
