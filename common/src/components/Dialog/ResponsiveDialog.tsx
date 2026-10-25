@@ -12,6 +12,7 @@ import {
   Stack,
   SxProps,
   Theme,
+  Typography,
   useMediaQuery,
   useTheme
 } from '@linagora/twake-mui'
@@ -424,7 +425,9 @@ function ResponsiveDialog({
         PaperComponent={DraggablePaper}
         aria-labelledby={ariaLabel ? undefined : titleTextId}
       >
+        {/* Only the title is the heading: the header buttons stay out of it */}
         <DialogTitle
+          component="div"
           {...dialogTitleProps}
           id={titleId}
           className="draggable-dialog-title"
@@ -459,13 +462,20 @@ function ResponsiveDialog({
               )}
               {/* The back button replaces the title on screen, but the
                   dialog keeps it as its name */}
-              <Box
-                component="span"
-                id={titleTextId}
-                sx={showsBackButton ? visuallyHidden : { display: 'contents' }}
-              >
-                {title}
-              </Box>
+              {/* A text title is the dialog's heading; other titles (e.g.
+                  tabs) are no heading */}
+              {title && (
+                <Typography
+                  component={typeof title === 'string' ? 'h2' : 'span'}
+                  variant="inherit"
+                  id={titleTextId}
+                  sx={
+                    showsBackButton ? visuallyHidden : { display: 'contents' }
+                  }
+                >
+                  {title}
+                </Typography>
+              )}
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {headerRightAction}

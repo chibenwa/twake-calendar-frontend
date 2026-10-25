@@ -44,6 +44,7 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
           ))}
         <Typography
           variant="h3"
+          component="h2"
           sx={{
             minWidth: 0,
             overflowWrap: 'anywhere'

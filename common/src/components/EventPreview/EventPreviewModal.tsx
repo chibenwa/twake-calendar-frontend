@@ -1,4 +1,5 @@
 import ResponsiveDialog from '@common/components/Dialog/ResponsiveDialog'
+import { formatEventChipTitle } from '@common/components/Calendar/utils/calendarUtils'
 import { EditModeDialog } from '@common/components/Event/EditModeDialog'
 import { CalendarSelectField } from '@common/components/Event/fields/CalendarSelectField'
 import { EventPreviewActionMenu } from '@common/components/EventPreview/EventPreviewActionMenu'
@@ -151,6 +152,7 @@ const EventPreviewModal: React.FC<{
         contentSx={{ overflowX: 'hidden', overflowY: 'auto' }}
         titleSx={{ backgroundColor: 'background.contrast' }}
         title=""
+        ariaLabel={formatEventChipTitle(event, t)}
         headerRightAction={header}
         actions={actions}
       >

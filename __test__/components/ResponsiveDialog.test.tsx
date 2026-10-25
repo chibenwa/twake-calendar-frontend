@@ -96,6 +96,47 @@ describe('ResponsiveDialog', () => {
     expect(screen.getByRole('dialog', { name: 'My Title' })).toBeInTheDocument()
   })
 
+  it('keeps the header buttons out of the title heading (#1787)', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title="My Title"
+        onExpandToggle={mockOnExpandToggle}
+        headerRightAction={<button>Export</button>}
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    const heading = screen.getByRole('heading', { level: 2 })
+    expect(heading).toHaveAccessibleName('My Title')
+    expect(heading.querySelector('button')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'tooltip.expand' })
+    ).toBeInTheDocument()
+  })
+
+  it('renders no heading without a text title (#1787)', () => {
+    renderWithTheme(
+      <ResponsiveDialog
+        open={true}
+        onClose={mockOnClose}
+        title=""
+        ariaLabel="Weekly sync"
+        showHeaderActions={false}
+        headerRightAction={<button>Export</button>}
+      >
+        <div>Content</div>
+      </ResponsiveDialog>
+    )
+
+    expect(
+      screen.getByRole('dialog', { name: 'Weekly sync' })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+  })
+
   it('calls onExpandToggle when back arrow is clicked', () => {
     renderWithTheme(
       <ResponsiveDialog

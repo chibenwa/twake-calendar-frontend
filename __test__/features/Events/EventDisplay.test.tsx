@@ -217,6 +217,24 @@ describe('Event Preview Display', () => {
 
     expect(screen.getByText('Projector Room')).toBeInTheDocument()
   })
+  it('names the preview after the event, its only level-2 heading (#1787)', () => {
+    renderWithProviders(
+      <EventPreviewModal
+        open={true}
+        onClose={mockOnClose}
+        calId="667037022b752d0026472254/cal1"
+        eventId="event1"
+      />,
+      preloadedState
+    )
+
+    expect(
+      screen.getByRole('dialog', { name: 'Test Event' })
+    ).toBeInTheDocument()
+    const headings = screen.getAllByRole('heading', { level: 2 })
+    expect(headings).toHaveLength(1)
+    expect(headings[0]).toHaveTextContent('Test Event')
+  })
   it('calls onClose when Cancel clicked', () => {
     renderWithProviders(
       <EventPreviewModal
