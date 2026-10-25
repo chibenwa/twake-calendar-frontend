@@ -139,6 +139,7 @@
     "teamOrganizer": "Организатор команды",
     "sentBy": "Отправлено: %{email}",
     "untitled": "Без названия",
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "noEventsToDisplay": "Нет событий для отображения",
     "list": {
       "until": "До"

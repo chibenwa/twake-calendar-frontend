@@ -139,6 +139,7 @@
     "teamOrganizer": "Người tổ chức của nhóm",
     "sentBy": "Được gửi bởi: %{email}",
     "untitled": "Không có tiêu đề",
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "noEventsToDisplay": "Không có sự kiện để hiển thị",
     "list": {
       "until": "Đến"

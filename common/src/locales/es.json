@@ -139,6 +139,7 @@
     "teamOrganizer": "Organizador del equipo",
     "sentBy": "Enviado por: %{email}",
     "untitled": "Sin título",
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "noEventsToDisplay": "No hay eventos que mostrar",
     "list": {
       "until": "Hasta"

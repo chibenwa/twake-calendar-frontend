@@ -4,6 +4,10 @@ import { Calendar } from '@common/types/CalendarTypes'
 import { userAttendee } from '@common/features/User/models/attendee'
 import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
 import {
+  calendarLabel,
+  eventAccessibleLabel
+} from '@common/components/Event/utils/eventAccessibleLabel'
+import {
   CalendarApi,
   DayHeaderContentArg,
   DayHeaderMountArg,
@@ -40,8 +44,9 @@ export interface ViewHandlersProps {
   timezone: string
   isTablet: boolean
   isMobile: boolean
-  t: (key: string) => string
+  t: (key: string, options?: Record<string, string>) => string
   upcommingEventId?: string
+  userId?: string
   currentView?: string
   view?: string
   calendarWrapperRef?: React.RefObject<HTMLDivElement>
@@ -75,7 +80,8 @@ export const createViewHandlers = (props: ViewHandlersProps): ViewHandlers => {
     isTablet,
     isMobile,
     t,
-    upcommingEventId
+    upcommingEventId,
+    userId
   } = props
 
   const handleNowIndicatorContent = (
@@ -252,11 +258,36 @@ export const createViewHandlers = (props: ViewHandlersProps): ViewHandlers => {
       calId: string
     }
 
+    const calendar =
+      calendars[extendedProps.calId] ?? tempcalendars[extendedProps.calId]
     const partstat = getCalendarOwnerAttendee(
       calendars[extendedProps.calId],
       extendedProps.attendee,
       extendedProps.organizer
     )?.partstat
+
+    // FullCalendar already opens a focused event on Enter and Space
+    if (
+      !isListView(arg.view.type) &&
+      arg.el.tabIndex === 0 &&
+      arg.event.start
+    ) {
+      arg.el.setAttribute('role', 'button')
+      arg.el.setAttribute(
+        'aria-label',
+        eventAccessibleLabel({
+          title: arg.event.title,
+          start: arg.event.start,
+          end: arg.event.end,
+          allDay: arg.event.allDay,
+          calendarName: calendarLabel(calendar, userId, t),
+          partstat,
+          timeZone: timezone,
+          t
+        })
+      )
+    }
+
     if (!partstat) return
 
     const statusClass = PARTSTAT_CLASS_MAP[partstat]

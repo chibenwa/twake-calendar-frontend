@@ -16,6 +16,10 @@ import { dayZoneOf } from './searchResultsComponents'
 import { SearchEventResult } from './types/SearchEventResult'
 import { useEventPreview } from './useEventPreview'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
+import {
+  calendarLabel,
+  eventAccessibleLabel
+} from '@common/components/Event/utils/eventAccessibleLabel'
 
 const MobileSearchResultsPage: React.FC = () => {
   const searchResults = useAppSelector(state => state.searchResult)
@@ -95,6 +99,7 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
 
   const calId = `${eventData.data.userId}/${eventData.data.calendarId}`
   const calendar = calendars[calId]
+  const userId = useAppSelector(state => state.user.userData?.openpaasId)
 
   const { openPreview, setOpenPreview, handleOpen, timeZone } = useEventPreview(
     eventData,
@@ -102,6 +107,7 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
   )
 
   const startDate = new Date(eventData.data.start)
+  const endDate = eventData.data.end ? new Date(eventData.data.end) : startDate
 
   return (
     <>
@@ -116,7 +122,24 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
           alignItems: 'center',
           textAlign: 'left'
         }}
+        role="button"
+        tabIndex={0}
+        aria-label={eventAccessibleLabel({
+          title: eventData.data.summary,
+          start: startDate,
+          end: endDate,
+          allDay: !!eventData.data.allDay,
+          calendarName: calendarLabel(calendar, userId, t),
+          timeZone,
+          t
+        })}
         onClick={() => void handleOpen()}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            void handleOpen()
+          }
+        }}
       >
         <RenderMobileDate
           startDate={startDate}

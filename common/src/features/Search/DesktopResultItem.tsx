@@ -17,6 +17,10 @@ import {
   RenderVideoJoin
 } from './searchResultsComponents'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
+import {
+  calendarLabel,
+  eventAccessibleLabel
+} from '@common/components/Event/utils/eventAccessibleLabel'
 
 export default function DesktopResultItem({
   eventData
@@ -35,6 +39,7 @@ export default function DesktopResultItem({
       ]
   )
   const calendarColor = calendar?.color?.light
+  const userId = useAppSelector(state => state.user.userData?.openpaasId)
 
   const { openPreview, setOpenPreview, handleOpen, timeZone } = useEventPreview(
     eventData,
@@ -58,7 +63,15 @@ export default function DesktopResultItem({
         }}
         role="button"
         tabIndex={0}
-        aria-label={eventData.data.summary}
+        aria-label={eventAccessibleLabel({
+          title: eventData.data.summary,
+          start: startDate,
+          end: endDate,
+          allDay: !!eventData.data.allDay,
+          calendarName: calendarLabel(calendar, userId, t),
+          timeZone,
+          t
+        })}
         onClick={() => void handleOpen()}
         onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') {

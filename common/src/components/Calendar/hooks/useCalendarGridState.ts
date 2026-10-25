@@ -298,6 +298,7 @@ export const useCalendarGridState = ({
     isMobile,
     t,
     upcommingEventId: upcomingEventId,
+    userId,
     currentView,
     view,
     calendarWrapperRef,
