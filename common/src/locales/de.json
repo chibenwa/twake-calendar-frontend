@@ -342,6 +342,11 @@
     "hideDatePicker": "Datumsauswahl ausblenden",
     "showDatePicker": "Datumsauswahl einblenden"
   },
+  "pageTitle": {
+    "search": "Suchergebnisse für „%{query}“",
+    "booking": "%{name} bei %{owner} buchen",
+    "rsvp": "Einladung: %{title}"
+  },
   "settings": {
     "title": "Einstellungen",
     "notifications": "Benachrichtigungen",

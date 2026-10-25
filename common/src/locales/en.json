@@ -342,6 +342,11 @@
     "hideDatePicker": "Hide date picker",
     "showDatePicker": "Show date picker"
   },
+  "pageTitle": {
+    "search": "Search results for “%{query}”",
+    "booking": "Book %{name} with %{owner}",
+    "rsvp": "Invitation: %{title}"
+  },
   "settings": {
     "title": "Settings",
     "notifications": "Notifications",

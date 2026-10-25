@@ -14,6 +14,7 @@ import { EventStatus } from '@/components/EventPreview/EventStatus'
 import { SnackbarAlert } from '@common/components/Loading/SnackBarAlert'
 import { useRsvpAction } from './hooks/useRsvpAction'
 import React, { useMemo } from 'react'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 
 const isUnableToLoad = (
   error: boolean,
@@ -48,6 +49,14 @@ export const EventPreviewPage: React.FC = () => {
       (!decodedClaims ? t('error.invalidOrExpiredToken') : undefined)
     )
   }, [errorDetail, decodedClaims, t])
+
+  useDocumentTitle(
+    event?.title
+      ? t('pageTitle.rsvp', { title: event.title })
+      : !loading
+        ? t('error.cannotLoadEvent')
+        : undefined
+  )
 
   if (loading) {
     return <Loading />

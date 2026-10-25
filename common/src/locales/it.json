@@ -342,6 +342,11 @@
     "hideDatePicker": "Nascondi il selettore di date",
     "showDatePicker": "Mostra il selettore di date"
   },
+  "pageTitle": {
+    "search": "Risultati della ricerca per «%{query}»",
+    "booking": "Prenota %{name} con %{owner}",
+    "rsvp": "Invito: %{title}"
+  },
   "settings": {
     "title": "Impostazioni",
     "notifications": "Notifiche",

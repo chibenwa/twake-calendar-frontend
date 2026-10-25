@@ -342,6 +342,11 @@
     "hideDatePicker": "Ẩn chọn ngày",
     "showDatePicker": "Hiện chọn ngày"
   },
+  "pageTitle": {
+    "search": "Kết quả tìm kiếm cho “%{query}”",
+    "booking": "Đặt lịch %{name} với %{owner}",
+    "rsvp": "Lời mời: %{title}"
+  },
   "settings": {
     "title": "Cài đặt",
     "notifications": "Thông báo",

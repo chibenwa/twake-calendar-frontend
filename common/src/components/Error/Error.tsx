@@ -12,6 +12,7 @@ import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined'
 import ReplayIcon from '@mui/icons-material/Replay'
 import { translateErrorMessage } from '@common/utils/translateErrorMessage'
 import { useI18n } from 'twake-i18n'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 
 interface ErrorProps {
   isCrashFallback?: boolean
@@ -23,6 +24,7 @@ export const Error: React.FC<ErrorProps> = ({
   errorBoundaryMessage
 }) => {
   const { t } = useI18n()
+  useDocumentTitle(t('error.title'))
   const userError = useAppSelector(state => state.user.error)
   const calendarError = useAppSelector(state => state.calendars.error)
   const [initialError] = useState(userError || calendarError)

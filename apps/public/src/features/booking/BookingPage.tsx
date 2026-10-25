@@ -12,6 +12,7 @@ import { BookingConfirmDialog } from './components/BookingDialog'
 import { BookingSuccessDialog } from './components/BookingSuccessDialog'
 import { BookingTimeSlotSection } from '../../components/Booking/BookingTimeSlotSection'
 import { useI18n } from 'twake-i18n'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 import { useBookingData } from './hooks/useBookingData'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
@@ -40,6 +41,14 @@ export const BookingPage: React.FC = () => {
       timezone: selectedTimezone,
       loadErrorMessage: t('booking.error.loadFailed')
     })
+  useDocumentTitle(
+    bookingInfo
+      ? t('pageTitle.booking', {
+          name: bookingInfo.name || t('booking.defaultEventTitle'),
+          owner: bookingInfo.owner.displayName || bookingInfo.owner.email
+        })
+      : undefined
+  )
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedDay, setSelectedDay] = useState<Dayjs | null>(null)

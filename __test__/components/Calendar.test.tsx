@@ -158,6 +158,16 @@ describe('CalendarSelection', () => {
       screen.getByRole('checkbox', { name: 'Calendar shared' })
     ).toBeInTheDocument()
   })
+  it('names the tab after the period shown (#1790)', async () => {
+    await act(async () => {
+      renderWithProviders(<CalendarLayout />, preloadedState)
+    })
+
+    // The menubar's period title, e.g. "October 2026"
+    expect(document.title).toMatch(
+      /^months\.standalone\.\d+.* – Twake Calendar$/
+    )
+  })
   it('open accordeon when clicking on button only', async () => {
     await act(async () => {
       renderWithProviders(<CalendarLayout />, preloadedState)

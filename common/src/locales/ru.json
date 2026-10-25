@@ -342,6 +342,11 @@
     "hideDatePicker": "Скрыть выбор даты",
     "showDatePicker": "Показать выбор даты"
   },
+  "pageTitle": {
+    "search": "Результаты поиска: «%{query}»",
+    "booking": "Записаться: %{name}, %{owner}",
+    "rsvp": "Приглашение: %{title}"
+  },
   "settings": {
     "title": "Настройки",
     "notifications": "Уведомления",

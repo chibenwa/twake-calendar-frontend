@@ -4,7 +4,11 @@ import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import { refreshCalendars } from '@common/components/Event/utils/eventUtils'
 import { Menubar, MenubarProps } from '@common/components/Menubar/Menubar'
-import { DisplayedPeriod } from '@common/components/Menubar/periodLabel'
+import {
+  DisplayedPeriod,
+  formatPeriodLabel
+} from '@common/components/Menubar/periodLabel'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
@@ -14,6 +18,7 @@ import type { CalendarApi } from '@fullcalendar/core'
 import CalendarController, { CalendarControllerRef } from './CalendarController'
 import cx from 'classnames'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from 'twake-i18n'
 import { useManageCalendarSelection } from './hooks/useManageCalendarSelection'
 import Sidebar from './Sidebar/SideBar'
 
@@ -26,6 +31,13 @@ export default function CalendarLayout(): JSX.Element {
   const calendars = useAppSelector(state => state.calendars.list)
   const tempcalendars = useAppSelector(state => state.calendars.templist)
   const view = useAppSelector(state => state.settings.view)
+  // The menubar search hands its text over as the keywords
+  const searchQuery = useAppSelector(
+    state =>
+      state.searchResult.searchParams.filters.keywords ||
+      state.searchResult.searchParams.search
+  )
+  const { t } = useI18n()
 
   const { isTablet, isTooSmall: isMobile } = useScreenSizeDetection()
   const [openSidebar, setOpenSideBar] = useState(false)
@@ -53,6 +65,16 @@ export default function CalendarLayout(): JSX.Element {
 
     setViewMode()
   }, [isTablet, isMobile])
+
+  useDocumentTitle(
+    view === 'settings'
+      ? t('settings.title')
+      : view === 'search'
+        ? searchQuery
+          ? t('pageTitle.search', { query: searchQuery })
+          : t('search.resultsTitle')
+        : formatPeriodLabel(displayedPeriod, currentDate, t)
+  )
 
   // Manage calendar selection states
   const {
