@@ -39,7 +39,7 @@ describe('ColorPicker', () => {
     )
 
     expect(
-      screen.getByRole('button', {
+      screen.getByRole('radio', {
         name: `colorPicker.selectPreset(color=${defaultColors[0].light})`
       })
     ).toBeInTheDocument()
@@ -90,5 +90,50 @@ describe('ColorPicker', () => {
 
     expect(screen.getByDisplayValue(loadedColor.light)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'actions.save' })).toBeEnabled()
+  })
+
+  it('groups the swatches as radios walked with the arrow keys', () => {
+    const onChange = jest.fn()
+    const { rerender } = renderWithProviders(
+      <ColorPicker selectedColor={defaultColors[1]} onChange={onChange} />
+    )
+
+    expect(
+      screen.getByRole('radiogroup', { name: 'calendar.color' })
+    ).toBeInTheDocument()
+    const radios = screen.getAllByRole('radio')
+    expect(radios).toHaveLength(4)
+    expect(radios[1]).toHaveAttribute('aria-checked', 'true')
+    expect(radios[0]).toHaveAttribute('aria-checked', 'false')
+    expect(radios.map(r => r.tabIndex)).toEqual([-1, 0, -1, -1])
+
+    radios[1].focus()
+    fireEvent.keyDown(radios[1], { key: 'ArrowRight' })
+    expect(onChange).toHaveBeenLastCalledWith(defaultColors[2])
+    expect(radios[2]).toHaveFocus()
+
+    rerender(
+      <ColorPicker selectedColor={defaultColors[0]} onChange={onChange} />
+    )
+    fireEvent.keyDown(screen.getAllByRole('radio')[0], { key: 'ArrowLeft' })
+    expect(onChange).toHaveBeenLastCalledWith(defaultColors[3])
+  })
+
+  it('opens the custom picker from the keyboard with focus on the Hex field', () => {
+    renderWithProviders(
+      <ColorPicker selectedColor={defaultColors[0]} onChange={jest.fn()} />
+    )
+    const custom = screen.getByRole('button', {
+      name: 'colorPicker.selectCustom'
+    })
+    expect(custom).toHaveAttribute('tabindex', '0')
+    expect(custom).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.keyDown(custom, { key: 'Enter' })
+
+    expect(custom).toHaveAttribute('aria-expanded', 'true')
+    expect(
+      screen.getByRole('textbox', { name: 'colorPicker.hex' })
+    ).toHaveFocus()
   })
 })

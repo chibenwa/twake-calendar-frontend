@@ -12,43 +12,80 @@ import {
   useTheme
 } from '@linagora/twake-mui'
 import { Dialog } from '@common/ds/Dialog/Dialog'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { useI18n } from 'twake-i18n'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { getAccessiblePair } from '@common/utils/getAccessiblePair'
 import { defaultColors } from '@common/utils/defaultColors'
 
+const swatchFocusSx = {
+  '&:focus-visible': {
+    outline: '2px solid',
+    outlineColor: 'primary.main',
+    outlineOffset: '2px'
+  }
+}
+
 export function ColorPicker({
   selectedColor,
   colors = defaultColors.slice(0, 4),
-  onChange
+  onChange,
+  label
 }: {
   selectedColor: Record<string, string>
   colors?: Record<string, string>[]
   onChange: (color: Record<string, string>) => void
+  label?: string
 }): JSX.Element {
+  const { t } = useI18n()
+  const swatchRefs = useRef<(HTMLDivElement | null)[]>([])
   const customColor = !colors.find(c => c.light === selectedColor?.light)
     ? selectedColor
     : undefined
+  const swatches = customColor ? [...colors, customColor] : colors
+  const checkedIndex = swatches.findIndex(c => c.light === selectedColor?.light)
+  // Roving tabindex: Tab stops once on the group, the arrows move inside it
+  const focusableIndex = Math.max(checkedIndex, 0)
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLDivElement>,
+    index: number
+  ): void => {
+    const step =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown'
+        ? 1
+        : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
+          ? -1
+          : 0
+    if (step === 0 && e.key !== ' ') return
+    e.preventDefault()
+    const next = (index + step + swatches.length) % swatches.length
+    onChange(swatches[next])
+    swatchRefs.current[next]?.focus()
+  }
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      {colors.map(c => (
-        <ColorBox
-          key={c.light}
-          color={c}
-          onChange={onChange}
-          selectedColor={selectedColor}
-        />
-      ))}
-      {customColor && (
-        <ColorBox
-          color={customColor ?? {}}
-          onChange={onChange}
-          selectedColor={selectedColor}
-        />
-      )}
+      <Box
+        role="radiogroup"
+        aria-label={label ?? t('calendar.color')}
+        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+      >
+        {swatches.map((c, index) => (
+          <ColorBox
+            key={c.light ?? 'custom'}
+            boxRef={el => {
+              swatchRefs.current[index] = el
+            }}
+            color={c}
+            checked={index === checkedIndex}
+            tabIndex={index === focusableIndex ? 0 : -1}
+            onKeyDown={e => handleKeyDown(e, index)}
+            onChange={onChange}
+          />
+        ))}
+      </Box>
 
       <ColorPickerBox
         onChange={c => {
@@ -61,20 +98,31 @@ export function ColorPicker({
 }
 
 function ColorBox({
+  boxRef,
   color,
-  onChange,
-  selectedColor
+  checked,
+  tabIndex,
+  onKeyDown,
+  onChange
 }: {
+  boxRef: React.Ref<HTMLDivElement>
   color: Record<string, string>
+  checked: boolean
+  tabIndex: number
+  onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
   onChange: (color: Record<string, string>) => void
-  selectedColor: Record<string, string>
 }): JSX.Element {
   const { t } = useI18n()
   return (
     <Box
-      role="button"
+      ref={boxRef}
+      role="radio"
+      aria-checked={checked}
       aria-label={t('colorPicker.selectPreset', { color: color.light })}
+      tabIndex={tabIndex}
       onClick={() => onChange(color)}
+      onKeyDown={onKeyDown}
+      sx={swatchFocusSx}
       style={{
         width: '46px',
         height: '32px',
@@ -98,8 +146,7 @@ function ColorBox({
       ></Box>
       <CheckIcon
         style={{
-          visibility:
-            selectedColor?.light === color.light ? 'visible' : 'hidden',
+          visibility: checked ? 'visible' : 'hidden',
           color: color.dark
         }}
       />
@@ -185,6 +232,7 @@ function ColorPickerFields({
           fullWidth={fullWidth}
           error={invalid}
           helperText={invalid ? t('colorPicker.invalidHex') : undefined}
+          autoFocus
           slotProps={{
             inputLabel: { shrink: true },
             htmlInput: { 'aria-label': t('colorPicker.hex') }
@@ -242,13 +290,13 @@ function ColorPickerBox({
   const theme = useTheme()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>): void => {
+  const openPicker = (anchor: HTMLElement): void => {
     // The selected colour may have changed since mount (e.g. loaded
     // asynchronously): start from the current one when opening the picker
     setOldColor(currentColor)
     setColor(currentColor)
     setOpenings(n => n + 1)
-    setAnchorEl(event.currentTarget)
+    setAnchorEl(anchor)
   }
 
   const handleClose = (): void => {
@@ -278,12 +326,22 @@ function ColorPickerBox({
       <Box
         key="colorPicker"
         role="button"
+        tabIndex={0}
         aria-label={t('colorPicker.selectCustom')}
-        onClick={handleClick}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={e => openPicker(e.currentTarget)}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            openPicker(e.currentTarget)
+          }
+        }}
         sx={{
           border: '1px solid',
           borderColor: 'text.disabled',
-          bgcolor: 'background.paper'
+          bgcolor: 'background.paper',
+          ...swatchFocusSx
         }}
         style={{
           width: '46px',

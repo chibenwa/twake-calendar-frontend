@@ -31,6 +31,7 @@ export const ColorField: React.FC<ColorFieldProps> = ({
           dark: getAccessiblePair(color, theme)
         }}
         onChange={c => setColor(c.light)}
+        label={t('booking.color')}
       />
     </FieldWithLabel>
   )
