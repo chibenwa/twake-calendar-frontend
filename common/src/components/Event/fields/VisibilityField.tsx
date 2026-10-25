@@ -4,7 +4,10 @@ import { Public as PublicIcon } from '@mui/icons-material'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import React from 'react'
 import { useI18n } from 'twake-i18n'
-import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
+import {
+  FieldWithLabel,
+  useFieldLabelId
+} from '@common/components/Event/components/FieldWithLabel'
 
 export interface VisibilityFieldProps {
   eventClass: 'PUBLIC' | 'PRIVATE' | 'CONFIDENTIAL'
@@ -26,25 +29,40 @@ export const VisibilityField: React.FC<VisibilityFieldProps> = ({
       label={t('event.form.visibleTo')}
       isExpanded={showMore && !isMobile}
     >
-      <ToggleButtonGroup
-        value={eventClass}
-        exclusive
-        onChange={(_e, newValue: string | null) => {
-          if (newValue !== null) {
-            setEventClass(newValue as 'PUBLIC' | 'PRIVATE' | 'CONFIDENTIAL')
-          }
-        }}
-        size="medium"
-      >
-        <ToggleButton value="PUBLIC" sx={{ minWidth: '160px' }}>
-          <PublicIcon sx={{ mr: 1 }} />
-          {t('event.form.visibleAll')}
-        </ToggleButton>
-        <ToggleButton value="PRIVATE" sx={{ minWidth: '160px' }}>
-          <LockOutlinedIcon sx={{ mr: 1 }} />
-          {t('event.form.visibleParticipants')}
-        </ToggleButton>
-      </ToggleButtonGroup>
+      <VisibilityToggleGroup
+        eventClass={eventClass}
+        setEventClass={setEventClass}
+      />
     </FieldWithLabel>
+  )
+}
+
+const VisibilityToggleGroup: React.FC<
+  Pick<VisibilityFieldProps, 'eventClass' | 'setEventClass'>
+> = ({ eventClass, setEventClass }) => {
+  const { t } = useI18n()
+  const labelId = useFieldLabelId()
+
+  return (
+    <ToggleButtonGroup
+      aria-labelledby={labelId}
+      value={eventClass}
+      exclusive
+      onChange={(_e, newValue: string | null) => {
+        if (newValue !== null) {
+          setEventClass(newValue as 'PUBLIC' | 'PRIVATE' | 'CONFIDENTIAL')
+        }
+      }}
+      size="medium"
+    >
+      <ToggleButton value="PUBLIC" sx={{ minWidth: '160px' }}>
+        <PublicIcon sx={{ mr: 1 }} />
+        {t('event.form.visibleAll')}
+      </ToggleButton>
+      <ToggleButton value="PRIVATE" sx={{ minWidth: '160px' }}>
+        <LockOutlinedIcon sx={{ mr: 1 }} />
+        {t('event.form.visibleParticipants')}
+      </ToggleButton>
+    </ToggleButtonGroup>
   )
 }

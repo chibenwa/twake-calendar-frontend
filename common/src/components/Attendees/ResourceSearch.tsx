@@ -25,6 +25,7 @@ import {
   type SyntheticEvent
 } from 'react'
 import { useI18n } from 'twake-i18n'
+import { useFieldLabelId } from '@common/components/Event/components/FieldWithLabel'
 
 export interface Resource {
   email?: string
@@ -78,6 +79,7 @@ export function ResourceSearch({
   getChipIcon?: (resource: Resource) => ReactElement
 }) {
   const { t } = useI18n()
+  const fieldLabelId = useFieldLabelId()
   const searchPlaceholder = placeholder ?? t('resourceSearch.placeholder')
   const errorMessage = t('resourceSearch.searchError')
 
@@ -152,10 +154,19 @@ export function ResourceSearch({
           input: inputProps,
           htmlInput: {
             ...params.slotProps?.htmlInput,
-            autoComplete: 'off'
+            autoComplete: 'off',
+            // "Resource, Search by name"
+            'aria-labelledby': fieldLabelId
+              ? `${fieldLabelId} ${params.id}-placeholder`
+              : undefined
           }
         }
       }
+      const placeholderLabel = fieldLabelId && (
+        <span id={`${params.id}-placeholder`} className="visually-hidden">
+          {searchPlaceholder}
+        </span>
+      )
 
       const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && onToggleEventPreview) {
@@ -180,6 +191,7 @@ export function ResourceSearch({
                 {t('resourceSearch.label')}
               </Typography>
             )}
+            {placeholderLabel}
             {inputSlot({
               ...enhancedParams,
               error: !!inputError,
@@ -199,6 +211,7 @@ export function ResourceSearch({
               {t('resourceSearch.label')}
             </Typography>
           )}
+          {placeholderLabel}
           <TextField
             {...enhancedParams}
             {...defaultTextFieldProps}
@@ -214,7 +227,8 @@ export function ResourceSearch({
       onToggleEventPreview,
       loading,
       searchPlaceholder,
-      selectedResources?.length
+      selectedResources?.length,
+      fieldLabelId
     ]
   )
 

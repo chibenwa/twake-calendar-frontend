@@ -16,7 +16,10 @@ import { useI18n } from 'twake-i18n'
 import { CalendarItemList } from '@common/components/Calendar/CalendarItemList'
 import { SelectSeparator } from '@common/components/Calendar/SelectSeparator'
 import { OwnerCaption } from '@common/components/Calendar/OwnerCaption'
-import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
+import {
+  FieldWithLabel,
+  useFieldLabelId
+} from '@common/components/Event/components/FieldWithLabel'
 import { SectionPreviewRow } from '@common/components/Event/components/SectionPreviewRow'
 import { useResponsiveInputSize } from '@common/hooks/useResponsiveInputSize'
 import { useEmbeddedCalendarId } from '@common/features/Embed/embeddedCalendar'
@@ -110,8 +113,8 @@ const CalendarSelectFieldExpanded: React.FC<{
   onCalendarChange,
   disabled
 }) => {
-  const { t } = useI18n()
   const inputSize = useResponsiveInputSize()
+  const labelId = useFieldLabelId()
 
   const delegatedCalendars = userPersonalCalendars.filter(cal => cal.delegated)
   const personalCalendars = userPersonalCalendars.filter(cal => !cal.delegated)
@@ -126,8 +129,8 @@ const CalendarSelectFieldExpanded: React.FC<{
       <Select
         value={calendarid ?? ''}
         label=""
+        labelId={labelId}
         disabled={disabled}
-        SelectDisplayProps={{ 'aria-label': t('event.form.calendar') }}
         displayEmpty
         open={calendarSelectOpen}
         onOpen={() => setCalendarSelectOpen(true)}

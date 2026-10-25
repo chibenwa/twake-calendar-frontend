@@ -1965,7 +1965,9 @@ describe('Event Preview Display', () => {
           makeDelegatedState()
         )
         clickCalendarRow()
-        expect(screen.getByLabelText('event.form.calendar')).toBeInTheDocument()
+        expect(
+          screen.getByRole('listbox', { name: 'event.form.calendar' })
+        ).toBeInTheDocument()
       })
 
       it('does not offer to move the event when the owner is not organizer', () => {

@@ -1,5 +1,12 @@
 import { Box, SxProps, Theme, Typography } from '@linagora/twake-mui'
-import React from 'react'
+import React, { createContext, useContext, useId, useRef } from 'react'
+
+// The id of the visible label of the field around, for controls that cannot
+// be reached by a <label for>: Selects, toggle groups, search inputs
+const FieldLabelContext = createContext<string | undefined>(undefined)
+
+export const useFieldLabelId = (): string | undefined =>
+  useContext(FieldLabelContext)
 
 /**
  * Helper component for field with label
@@ -17,15 +24,36 @@ export const FieldWithLabel = React.memo(
     children: React.ReactNode
     sx?: SxProps<Theme>
   }) => {
+    const labelId = useId()
+    const contentRef = useRef<HTMLDivElement>(null)
     const isEmptyLabel =
       label === null ||
       label === undefined ||
       (typeof label === 'string' && label.trim() === '')
+    // Like a <label for>: a click on the label moves to its field
+    const labelProps = {
+      id: labelId,
+      component: 'div' as const,
+      onClick: (e: React.MouseEvent<HTMLElement>): void => {
+        if ((e.target as HTMLElement).closest('button, a, input')) return
+        contentRef.current
+          ?.querySelector<HTMLElement>(
+            'input:not([type="hidden"]), textarea, [role="combobox"], button'
+          )
+          ?.focus()
+      }
+    }
+    const content = (
+      <FieldLabelContext.Provider value={isEmptyLabel ? undefined : labelId}>
+        {children}
+      </FieldLabelContext.Provider>
+    )
 
     if (!isExpanded) {
       // Normal mode: label on top
       return (
         <Box
+          ref={contentRef}
           sx={[
             {
               '& > *:not(:first-of-type)': {
@@ -61,11 +89,11 @@ export const FieldWithLabel = React.memo(
           ]}
         >
           {!isEmptyLabel && (
-            <Typography component="div" variant="h6" sx={{ display: 'block' }}>
+            <Typography {...labelProps} variant="h6" sx={{ display: 'block' }}>
               {label}
             </Typography>
           )}
-          {children}
+          {content}
         </Box>
       )
     }
@@ -73,6 +101,7 @@ export const FieldWithLabel = React.memo(
     // Extended mode: label on left
     return (
       <Box
+        ref={contentRef}
         sx={[
           {
             display: 'flex',
@@ -83,7 +112,7 @@ export const FieldWithLabel = React.memo(
       >
         {!isEmptyLabel && (
           <Typography
-            component="div"
+            {...labelProps}
             variant="h6"
             sx={{
               minWidth: '115px',
@@ -112,7 +141,7 @@ export const FieldWithLabel = React.memo(
             }
           }}
         >
-          {children}
+          {content}
         </Box>
       </Box>
     )

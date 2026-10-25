@@ -14,7 +14,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined'
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import PublicIcon from '@mui/icons-material/Public'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { AddDescButton } from '@common/components/Event/AddDescButton'
 import { ColorPicker } from './CalendarColorPicker'
@@ -45,6 +45,7 @@ export function SettingsTab({
   autoFocusName?: boolean
 }): JSX.Element {
   const { t } = useI18n()
+  const visibilityLabelId = useId()
   const inputSize = useResponsiveInputSize()
   const [toggleDesc, setToggleDesc] = useState(Boolean(description))
   const userData = useAppSelector(state => state.user.userData)
@@ -165,11 +166,12 @@ export function SettingsTab({
       {/* Form group 4: New events visibility */}
       {showsVisibility && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" sx={{ margin: 0 }}>
+          <Typography id={visibilityLabelId} variant="h6" sx={{ margin: 0 }}>
             {t('calendar.newEventsVisibility')}
           </Typography>
           <Box sx={{ marginTop: '6px' }}>
             <ToggleButtonGroup
+              aria-labelledby={visibilityLabelId}
               value={visibility}
               exclusive
               disabled={!canManageVisibility}

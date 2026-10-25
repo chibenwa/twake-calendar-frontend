@@ -8,7 +8,10 @@ import {
 } from '@linagora/twake-mui'
 import { ListItemText } from '@common/ds/ListItemText/ListItemText'
 import { useI18n } from 'twake-i18n'
-import { FieldWithLabel } from '@common/components/Event/components/FieldWithLabel'
+import {
+  FieldWithLabel,
+  useFieldLabelId
+} from '@common/components/Event/components/FieldWithLabel'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { translateDuration } from '@common/components/EventPreview/utils/parseDuration'
 import { VAlarm } from '@common/types/VAlarm'
@@ -101,24 +104,43 @@ export const NotificationField: React.FC<NotificationFieldProps> = ({
       isExpanded={showMore && !isMobile}
     >
       <FormControl fullWidth margin="dense" size={inputSize}>
-        <Select
-          SelectDisplayProps={{ 'aria-label': t('event.form.notification') }}
-          multiple
-          displayEmpty
-          value={selectedTriggers}
+        <NotificationSelect
+          selectedTriggers={selectedTriggers}
+          allValues={allValues}
           onChange={handleChange}
-          input={<OutlinedInput />}
           renderValue={renderValue}
-        >
-          <MenuItem value="">{t('event.form.notifications.')}</MenuItem>
-          {allValues.map(value => (
-            <MenuItem key={value} value={value}>
-              <ListItemText primary={translateDuration(value, t)} />
-              <Checkbox checked={selectedTriggers.includes(value)} />
-            </MenuItem>
-          ))}
-        </Select>
+        />
       </FormControl>
     </FieldWithLabel>
+  )
+}
+
+const NotificationSelect: React.FC<{
+  selectedTriggers: string[]
+  allValues: string[]
+  onChange: (e: SelectChangeEvent<string[]>) => void
+  renderValue: (selected: string[]) => string
+}> = ({ selectedTriggers, allValues, onChange, renderValue }) => {
+  const { t } = useI18n()
+  const labelId = useFieldLabelId()
+
+  return (
+    <Select
+      labelId={labelId}
+      multiple
+      displayEmpty
+      value={selectedTriggers}
+      onChange={onChange}
+      input={<OutlinedInput />}
+      renderValue={renderValue}
+    >
+      <MenuItem value="">{t('event.form.notifications.')}</MenuItem>
+      {allValues.map(value => (
+        <MenuItem key={value} value={value}>
+          <ListItemText primary={translateDuration(value, t)} />
+          <Checkbox checked={selectedTriggers.includes(value)} />
+        </MenuItem>
+      ))}
+    </Select>
   )
 }

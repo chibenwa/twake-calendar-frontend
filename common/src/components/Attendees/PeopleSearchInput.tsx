@@ -6,6 +6,7 @@ import {
 } from '@linagora/twake-mui'
 import PeopleOutlineOutlinedIcon from '@mui/icons-material/PeopleOutlineOutlined'
 import React, { type ReactNode } from 'react'
+import { useFieldLabelId } from '@common/components/Event/components/FieldWithLabel'
 
 export interface ExtendedAutocompleteRenderInputParams extends AutocompleteRenderInputParams {
   error?: boolean
@@ -43,6 +44,8 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
   onEnterKeyDown
 }) => {
   const inputSize = useResponsiveInputSize()
+  const fieldLabelId = useFieldLabelId()
+  const searchLabelId = `${params.id}-search-label`
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     onKeyDown?.(e)
@@ -98,7 +101,11 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
         ...params.slotProps?.htmlInput,
         autoComplete: 'off',
         onPaste: handlePaste,
-        onKeyDown: handleKeyDown
+        onKeyDown: handleKeyDown,
+        // "Participants, Start typing a name or email"
+        'aria-labelledby': fieldLabelId
+          ? `${fieldLabelId} ${searchLabelId}`
+          : undefined
       }
     }
   }
@@ -113,7 +120,11 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
   if (inputSlot) {
     return (
       <>
-        <label htmlFor={params.id} className="visually-hidden">
+        <label
+          id={searchLabelId}
+          htmlFor={params.id}
+          className="visually-hidden"
+        >
           {searchLabel}
         </label>
         {inputSlot({
@@ -129,7 +140,7 @@ export const PeopleSearchInput: React.FC<PeopleSearchInputProps> = ({
 
   return (
     <>
-      <label htmlFor={params.id} className="visually-hidden">
+      <label id={searchLabelId} htmlFor={params.id} className="visually-hidden">
         {searchLabel}
       </label>
       <TextField

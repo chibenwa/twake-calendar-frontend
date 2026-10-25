@@ -27,7 +27,11 @@ describe('MobileTimeSlotSelectField', () => {
     const setDuration = jest.fn()
     renderField(setDuration)
 
-    fireEvent.click(screen.getByRole('button', { name: 'booking.30minutes' }))
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'booking.chooseTimeSlot: booking.30minutes'
+      })
+    )
     const sheet = await screen.findByRole('presentation')
     fireEvent.click(
       within(sheet).getByRole('button', { name: 'booking.45minutes' })
@@ -42,7 +46,11 @@ describe('MobileTimeSlotSelectField', () => {
   it('closes the bottom sheet when the selected duration is tapped again', async () => {
     renderField()
 
-    fireEvent.click(screen.getByRole('button', { name: 'booking.30minutes' }))
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'booking.chooseTimeSlot: booking.30minutes'
+      })
+    )
     const sheet = await screen.findByRole('presentation')
     fireEvent.click(
       within(sheet).getByRole('button', { name: 'booking.30minutes' })
