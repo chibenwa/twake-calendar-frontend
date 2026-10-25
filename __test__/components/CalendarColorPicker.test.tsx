@@ -44,4 +44,51 @@ describe('ColorPicker', () => {
       })
     ).toBeInTheDocument()
   })
+
+  it('flags an invalid hex value and disables Save until it is fixed', () => {
+    const onChange = jest.fn()
+    renderLoadedAfterMount(onChange)
+
+    fireEvent.click(screen.getByLabelText('colorPicker.selectCustom'))
+    const hex = screen.getByRole('textbox', { name: 'colorPicker.hex' })
+    const save = screen.getByRole('button', { name: 'actions.save' })
+
+    fireEvent.change(hex, { target: { value: 'zzz' } })
+    fireEvent.blur(hex)
+
+    expect(hex).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByText('colorPicker.invalidHex')).toBeInTheDocument()
+    expect(save).toBeDisabled()
+    expect(onChange).not.toHaveBeenCalledWith(
+      expect.objectContaining({ light: 'ZZZ' })
+    )
+
+    fireEvent.change(hex, { target: { value: '#12345' } })
+    expect(save).toBeDisabled()
+
+    fireEvent.change(hex, { target: { value: '#123456' } })
+    fireEvent.blur(hex)
+
+    expect(hex).toHaveAttribute('aria-invalid', 'false')
+    expect(screen.queryByText('colorPicker.invalidHex')).not.toBeInTheDocument()
+    expect(save).toBeEnabled()
+    fireEvent.click(save)
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ light: '#123456' })
+    )
+  })
+
+  it('opens again on a valid colour after an invalid value was cancelled', () => {
+    renderLoadedAfterMount(jest.fn())
+
+    fireEvent.click(screen.getByLabelText('colorPicker.selectCustom'))
+    fireEvent.change(screen.getByRole('textbox', { name: 'colorPicker.hex' }), {
+      target: { value: 'zzz' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'common.cancel' }))
+    fireEvent.click(screen.getByLabelText('colorPicker.selectCustom'))
+
+    expect(screen.getByDisplayValue(loadedColor.light)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'actions.save' })).toBeEnabled()
+  })
 })

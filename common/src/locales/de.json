@@ -124,7 +124,8 @@
     "selectPreset": "Farbe %{color} auswählen",
     "title": "Benutzerdefinierte Farbe wählen",
     "subtitle": "Wählen Sie eine Hintergrundfarbe für diesen Kalender",
-    "hex": "Hex"
+    "hex": "Hex",
+    "invalidHex": "Geben Sie eine Farbe wie #1A73E8 ein"
   },
   "event": {
     "createEvent": "Erstellen",

@@ -107,6 +107,12 @@ function ColorBox({
   )
 }
 
+const HEX_COLOR = /^#([0-9A-F]{3}|[0-9A-F]{6})$/
+
+function isHexColor(value: string): boolean {
+  return HEX_COLOR.test(value.trim().toUpperCase())
+}
+
 function ColorPickerHeader(): JSX.Element {
   const { t } = useI18n()
   return (
@@ -122,14 +128,21 @@ function ColorPickerHeader(): JSX.Element {
 function ColorPickerFields({
   color,
   onColorChange,
+  onValidityChange,
   fullWidth = false
 }: {
   color: Record<string, string>
   onColorChange: (c: string) => void
+  onValidityChange: (valid: boolean) => void
   fullWidth?: boolean
 }): JSX.Element {
   const { t } = useI18n()
   const [draftLight, setDraftLight] = useState(color.light)
+  const invalid = !isHexColor(draftLight ?? '')
+
+  useEffect(() => {
+    onValidityChange(!invalid)
+  }, [invalid, onValidityChange])
 
   useEffect(() => {
     const updateDraftColor = (): void => {
@@ -170,7 +183,12 @@ function ColorPickerFields({
           variant="standard"
           size="small"
           fullWidth={fullWidth}
-          slotProps={{ inputLabel: { shrink: true } }}
+          error={invalid}
+          helperText={invalid ? t('colorPicker.invalidHex') : undefined}
+          slotProps={{
+            inputLabel: { shrink: true },
+            htmlInput: { 'aria-label': t('colorPicker.hex') }
+          }}
         />
       </Box>
     </>
@@ -179,10 +197,12 @@ function ColorPickerFields({
 
 function ColorPickerActions({
   onCancel,
-  onSave
+  onSave,
+  saveDisabled
 }: {
   onCancel: () => void
   onSave: () => void
+  saveDisabled: boolean
 }): JSX.Element {
   const { t } = useI18n()
   return (
@@ -193,6 +213,7 @@ function ColorPickerActions({
       <Button
         variant="contained"
         onClick={onSave}
+        disabled={saveDisabled}
         sx={{ textTransform: 'none' }}
       >
         {t('actions.save')}
@@ -212,6 +233,10 @@ function ColorPickerBox({
   const currentColor = selectedColor ?? { light: '#ffffff', dark: '#808080' }
   const [oldColor, setOldColor] = useState(currentColor)
   const [color, setColor] = useState(currentColor)
+  const [hexValid, setHexValid] = useState(true)
+  // Remounts the fields on each opening, so that a value typed and left
+  // invalid last time does not come back
+  const [openings, setOpenings] = useState(0)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)
   const theme = useTheme()
@@ -222,6 +247,7 @@ function ColorPickerBox({
     // asynchronously): start from the current one when opening the picker
     setOldColor(currentColor)
     setColor(currentColor)
+    setOpenings(n => n + 1)
     setAnchorEl(event.currentTarget)
   }
 
@@ -236,8 +262,8 @@ function ColorPickerBox({
   }
 
   const handleColorChange = (c: string): void => {
+    if (!isHexColor(c)) return
     const newLight = c.trim().toUpperCase()
-    if (!/^#([0-9A-F]{3}|[0-9A-F]{6})$/.test(newLight)) return
 
     const newColor = {
       light: newLight,
@@ -294,13 +320,19 @@ function ColorPickerBox({
               {t('colorPicker.subtitle')}
             </Typography>
             <ColorPickerFields
+              key={openings}
               color={color}
               onColorChange={handleColorChange}
+              onValidityChange={setHexValid}
               fullWidth
             />
           </DialogContent>
           <DialogActions sx={{ px: 3, pb: 2 }}>
-            <ColorPickerActions onCancel={handleClose} onSave={handleSave} />
+            <ColorPickerActions
+              onCancel={handleClose}
+              onSave={handleSave}
+              saveDisabled={!hexValid}
+            />
           </DialogActions>
         </Dialog>
       ) : (
@@ -322,9 +354,18 @@ function ColorPickerBox({
           }}
         >
           <ColorPickerHeader />
-          <ColorPickerFields color={color} onColorChange={handleColorChange} />
+          <ColorPickerFields
+            key={openings}
+            color={color}
+            onColorChange={handleColorChange}
+            onValidityChange={setHexValid}
+          />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <ColorPickerActions onCancel={handleClose} onSave={handleSave} />
+            <ColorPickerActions
+              onCancel={handleClose}
+              onSave={handleSave}
+              saveDisabled={!hexValid}
+            />
           </Box>
         </Popover>
       )}

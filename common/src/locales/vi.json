@@ -124,7 +124,8 @@
     "selectPreset": "Chọn màu %{color}",
     "title": "Chọn màu tùy chỉnh",
     "subtitle": "Chọn màu nền cho lịch này",
-    "hex": "Hex"
+    "hex": "Hex",
+    "invalidHex": "Nhập một màu như #1A73E8"
   },
   "event": {
     "createEvent": "Tạo sự kiện",

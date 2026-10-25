@@ -124,7 +124,8 @@
     "selectPreset": "Выбрать цвет %{color}",
     "title": "Выберите цвет",
     "subtitle": "Выберите цвет фона",
-    "hex": "Hex"
+    "hex": "Hex",
+    "invalidHex": "Введите цвет, например #1A73E8"
   },
   "event": {
     "createEvent": "Создать",

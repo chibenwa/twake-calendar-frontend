@@ -124,7 +124,8 @@
     "selectPreset": "Select color %{color}",
     "title": "Choose custom color",
     "subtitle": "Choose a background color for this calendar",
-    "hex": "Hex"
+    "hex": "Hex",
+    "invalidHex": "Enter a color like #1A73E8"
   },
   "event": {
     "createEvent": "Create",
