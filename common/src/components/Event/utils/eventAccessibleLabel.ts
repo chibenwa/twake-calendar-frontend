@@ -36,13 +36,18 @@ export function calendarLabel(
   )
 }
 
+// How the user reads dates and times
+interface Reading {
+  locale: string
+  timeZone: string
+}
+
 // The day, or the first and last days of an event over several days
 function dateLabel(
   start: Date,
   end: Date | undefined,
   allDay: boolean,
-  locale: string,
-  timeZone: string
+  { locale, timeZone }: Reading
 ): string {
   const formatDay = (d: Date): string =>
     d.toLocaleDateString(locale, {
@@ -67,8 +72,7 @@ function dateLabel(
 function timeLabel(
   start: Date,
   end: Date | undefined,
-  locale: string,
-  timeZone: string
+  { locale, timeZone }: Reading
 ): string {
   const formatTime = (d: Date): string =>
     d.toLocaleTimeString(locale, {
@@ -100,16 +104,16 @@ export function eventAccessibleLabel({
   timeZone,
   t
 }: EventAccessibleLabelParams): string {
-  const locale = t('locale')
+  const reading = { locale: t('locale'), timeZone }
   // An end at or before the start says nothing more than the start
   const actualEnd = end && end > start ? end : undefined
 
   return t('event.chipLabel', {
     title: title || t('event.untitled'),
-    date: dateLabel(start, actualEnd, allDay, locale, timeZone),
+    date: dateLabel(start, actualEnd, allDay, reading),
     time: allDay
       ? t('event.form.allDay')
-      : timeLabel(start, actualEnd, locale, timeZone),
+      : timeLabel(start, actualEnd, reading),
     calendar: calendarName ?? '',
     status: statusLabel(partstat, t)
   })
