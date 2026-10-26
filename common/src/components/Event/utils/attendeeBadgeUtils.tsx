@@ -14,6 +14,41 @@ import { stripMailto } from '@common/utils/normalizeIdentity'
 
 type Translate = (key: string, options?: Record<string, string>) => string
 
+const visuallyHidden = {
+  position: 'absolute',
+  width: '1px',
+  height: '1px',
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap'
+} as const
+
+const ANSWERED_PARTSTATS: PartStat[] = ['ACCEPTED', 'DECLINED', 'TENTATIVE']
+
+const answerText = (partstat: PartStat, t: Translate): string | undefined =>
+  ANSWERED_PARTSTATS.includes(partstat)
+    ? t(`eventPreview.attendingStatus.${partstat}`)
+    : undefined
+
+/**
+ * The answer badge of an avatar (see classIcon) is hidden from screen readers
+ * along with the whole MUI badge: say it in text instead.
+ */
+function AnswerText({
+  partstat,
+  t
+}: {
+  partstat: PartStat
+  t: Translate
+}): JSX.Element | null {
+  if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED') return null
+  return (
+    <Box component="span" sx={visuallyHidden}>
+      {answerText(partstat, t)}
+    </Box>
+  )
+}
+
 const clickableCaptionSx = {
   color: 'text.secondary',
   cursor: 'pointer',
@@ -80,10 +115,21 @@ export const classIcon = (
   }
 }
 
-function renderSimpleAttendeeBadge(a: userAttendee, key: string): JSX.Element {
+function renderSimpleAttendeeBadge(
+  a: userAttendee,
+  key: string,
+  t: Translate
+): JSX.Element {
+  // The bare avatar shows initials only: it names the button that wraps it
+  const displayName = a?.cn || a?.cal_address
+  const answer = answerText(a.partstat, t)
   return (
     <AttendeePopover key={key} attendee={a}>
-      <Avatar {...stringAvatar(a?.cn || a?.cal_address)} />
+      <Avatar
+        {...stringAvatar(displayName)}
+        role="img"
+        aria-label={answer ? `${displayName}, ${answer}` : displayName}
+      />
     </AttendeePopover>
   )
 }
@@ -157,6 +203,7 @@ function renderTeamOrganizerFullBadge({
           <GroupsIcon />
         </Avatar>
       </Badge>
+      <AnswerText partstat={a.partstat} t={t} />
       <Box style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Typography variant="body2" noWrap>
@@ -260,6 +307,7 @@ function renderFullAttendeeBadge({
           <Avatar {...stringAvatar(displayName)} />
         </Badge>
       )}
+      {a.cutype !== 'RESOURCE' && <AnswerText partstat={a.partstat} t={t} />}
       <Box style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {name}
         {isOrganizer && (
@@ -327,7 +375,7 @@ export function renderAttendeeBadge({
     if (isTeamOverride && originalOrganizer) {
       return renderTeamOrganizerSimpleBadge(a, key)
     }
-    return renderSimpleAttendeeBadge(a, key)
+    return renderSimpleAttendeeBadge(a, key, t)
   }
 
   if (isTeamOverride && originalOrganizer) {
