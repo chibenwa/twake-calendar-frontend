@@ -132,7 +132,7 @@ class EventCreationTest extends TwakeCalendarE2ETest {
         com.microsoft.playwright.assertions.PlaywrightAssertions
             .assertThat(page.getByTestId("start-date-input")).hasCount(0);
         Awaitility.await().atMost(java.time.Duration.ofSeconds(10)).untilAsserted(() ->
-            assertThat(page.getByLabel("Title").first()
+            assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first()
                 .evaluate("(input) => input === document.activeElement"))
                 .as("the user should be able to type the title straight away")
                 .isEqualTo(Boolean.TRUE));
@@ -165,9 +165,9 @@ class EventCreationTest extends TwakeCalendarE2ETest {
         com.microsoft.playwright.assertions.PlaywrightAssertions
             .assertThat(page.getByTestId("start-date-input")).isVisible();
         com.microsoft.playwright.assertions.PlaywrightAssertions
-            .assertThat(page.getByLabel("Description")).isVisible();
+            .assertThat(page.getByLabel("Description", new Page.GetByLabelOptions().setExact(true))).isVisible();
         com.microsoft.playwright.assertions.PlaywrightAssertions
-            .assertThat(page.getByLabel("Location")).isVisible();
+            .assertThat(page.getByLabel("Location", new Page.GetByLabelOptions().setExact(true))).isVisible();
         assertThat(page.locator("[role=dialog]").last().innerText())
             .contains("Notification")
             .contains("Show me as")

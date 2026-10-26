@@ -48,7 +48,7 @@ class ShellTest extends TwakeCalendarE2ETest {
 
         calendar.createEvent();
 
-        assertThat(page.getByLabel("Title").first()).isVisible();
+        assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first()).isVisible();
         assertThat(page.getByPlaceholder("Add title")).isVisible();
     }
 

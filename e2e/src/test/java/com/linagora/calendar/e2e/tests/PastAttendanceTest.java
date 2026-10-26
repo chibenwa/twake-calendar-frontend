@@ -133,7 +133,7 @@ class PastAttendanceTest extends TwakeCalendarE2ETest {
 
         var form = calendar.createEvent().title(title("External guest"));
         form.typeGuest(unknown);
-        page.getByLabel("Title").first().click();
+        page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first().click();
         page.waitForTimeout(1000);
 
         assertThat(form.text())

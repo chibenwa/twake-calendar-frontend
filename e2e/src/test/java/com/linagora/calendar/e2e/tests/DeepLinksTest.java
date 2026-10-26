@@ -94,7 +94,7 @@ class DeepLinksTest extends TwakeCalendarE2ETest {
 
         page.navigate("/newEvent?attendee=" + guest.email());
 
-        PlaywrightAssertions.assertThat(page.getByLabel("Title").first())
+        PlaywrightAssertions.assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         assertThat(page.locator("[role=dialog]").last().innerText()).contains(guest.email());
     }
@@ -109,7 +109,7 @@ class DeepLinksTest extends TwakeCalendarE2ETest {
 
         page.navigate("/newEvent?attendee=" + first.email() + "&attendee=" + second.email());
 
-        PlaywrightAssertions.assertThat(page.getByLabel("Title").first())
+        PlaywrightAssertions.assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         String form = page.locator("[role=dialog]").last().innerText();
         assertThat(form).contains(first.email()).contains(second.email());
@@ -125,7 +125,7 @@ class DeepLinksTest extends TwakeCalendarE2ETest {
 
         page.navigate("/newEvent?attendee=" + first.email() + "," + second.email());
 
-        PlaywrightAssertions.assertThat(page.getByLabel("Title").first())
+        PlaywrightAssertions.assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         String form = page.locator("[role=dialog]").last().innerText();
         assertThat(form).contains(first.email()).contains(second.email());
@@ -138,7 +138,7 @@ class DeepLinksTest extends TwakeCalendarE2ETest {
 
         page.navigate("/newEvent?attendee=not-an-email");
 
-        PlaywrightAssertions.assertThat(page.getByLabel("Title").first())
+        PlaywrightAssertions.assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         // whatever it does with the value, the user must still be able to create their event
         PlaywrightAssertions.assertThat(page.getByRole(
@@ -154,7 +154,7 @@ class DeepLinksTest extends TwakeCalendarE2ETest {
         CalendarPage calendar = LoginPage.loginAs(page, user);
 
         page.navigate("/newEvent?attendee=" + guest.email());
-        PlaywrightAssertions.assertThat(page.getByLabel("Title").first())
+        PlaywrightAssertions.assertThat(page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first())
             .isVisible(new LocatorAssertions.IsVisibleOptions().setTimeout(30_000));
         page.getByLabel("close").click();
         page.waitForTimeout(1000);
