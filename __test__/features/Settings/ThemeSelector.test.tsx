@@ -143,4 +143,25 @@ describe('ThemeSelector', () => {
 
     expect(theme).toHaveAttribute('aria-expanded', 'true')
   })
+
+  it.each([
+    ['settings.theme', 'settings.theme: settings.themes.dark'],
+    ['settings.language', 'settings.language: English']
+  ])(
+    'names the phone %s bottom sheet and moves the focus into it',
+    async (sheetName, buttonName) => {
+      ;(useScreenSizeDetection as jest.Mock).mockReturnValue({
+        isTooSmall: true,
+        isTablet: false
+      })
+      renderWithProviders(<SettingsPage />, makeState('dark'))
+
+      fireEvent.click(screen.getByRole('button', { name: buttonName }))
+
+      const sheet = await screen.findByRole('dialog', { name: sheetName })
+      await waitFor(() => {
+        expect(sheet).toContainElement(document.activeElement as HTMLElement)
+      })
+    }
+  )
 })

@@ -127,6 +127,7 @@ export const SmallTimezoneSelector: React.FC<
       slotProps={{
         paper: {
           ref: paperRef,
+          'aria-label': t('settings.timeZone'),
           sx: { height: '90%', maxHeight: '90dvh' }
         }
       }}

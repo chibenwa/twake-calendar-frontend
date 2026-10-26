@@ -131,6 +131,7 @@ const MobileAccessSelector: React.FC<{
                 open={open}
                 onClose={onClose}
                 onOpen={(): void => {}}
+                slotProps={{ paper: { 'aria-label': label } }}
               >
                 <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
                   {accessRightOptions.map(opt => (

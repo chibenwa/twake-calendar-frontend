@@ -39,6 +39,7 @@ interface FilterDrawerProps {
   handleContactSelect: UseFilterSearchResult['handleContactSelect']
   clearAll: UseFilterSearchResult['clearAll']
   objectTypes: string[]
+  label: string
 }
 
 const FilterDrawer: React.FC<FilterDrawerProps> = ({
@@ -51,7 +52,8 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
   handleSearchChange,
   handleContactSelect,
   clearAll,
-  objectTypes
+  objectTypes,
+  label
 }) => {
   const { t } = useI18n()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -71,6 +73,7 @@ const FilterDrawer: React.FC<FilterDrawerProps> = ({
       onOpen={(): void => {}}
       slotProps={{
         paper: {
+          'aria-label': label,
           sx: { height: '100dvh' }
         }
       }}
@@ -155,6 +158,7 @@ export const MobileFilterPicker: React.FC<MobileFilterPickerProps> = ({
           handleContactSelect={handleContactSelect}
           clearAll={clearAll}
           objectTypes={objectTypes}
+          label={displayText}
         />
       )}
     />

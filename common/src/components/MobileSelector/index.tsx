@@ -36,6 +36,16 @@ const SelectorButton = styled(ButtonBase)(({ theme }) => ({
   }
 }))
 
+// A non-text value (e.g. a calendar chip) still names the button by itself
+const buttonLabel = (
+  label: string | undefined,
+  displayText: React.ReactNode
+): string | undefined => {
+  if (!label) return undefined
+  if (typeof displayText === 'string') return `${label}: ${displayText}`
+  return displayText == null ? label : undefined
+}
+
 interface MobileSelectorProps {
   displayText: React.ReactNode
   children?: React.ReactNode
@@ -48,7 +58,10 @@ interface MobileSelectorProps {
   fullscreen?: boolean
   selectorButtonSx?: React.ComponentProps<typeof ButtonBase>['sx']
   disabled?: boolean
-  /** What the field sets, e.g. "Theme": names the button "Theme: Dark" */
+  /**
+   * What the field sets, e.g. "Theme": names the button "Theme: Dark" and
+   * the bottom sheet "Theme"
+   */
   label?: string
 }
 
@@ -83,11 +96,7 @@ export const MobileSelector = forwardRef<
           sx={selectorButtonSx}
           aria-haspopup="dialog"
           aria-expanded={open}
-          aria-label={
-            label && typeof displayText === 'string'
-              ? `${label}: ${displayText}`
-              : label
-          }
+          aria-label={buttonLabel(label, displayText)}
         >
           {typeof displayText === 'string' ? (
             <Typography variant="body1" noWrap>
@@ -111,9 +120,9 @@ export const MobileSelector = forwardRef<
             open={open}
             onClose={onClose}
             onOpen={(): void => {}}
-            disableAutoFocus
             slotProps={{
               paper: {
+                'aria-label': label,
                 sx: fullscreen ? { height: '100dvh' } : { maxHeight: '90dvh' }
               }
             }}

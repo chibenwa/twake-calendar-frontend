@@ -30,6 +30,7 @@ export const MobileTimeSlotSelectField: React.FC<TimeSlotSelectFieldProps> = ({
   return (
     <MobileSelector
       ref={selectorRef}
+      label={t('booking.chooseTimeSlot')}
       displayText={<span style={{ fontSize: 16 }}>{currentLabel}</span>}
     >
       <List sx={{ overflow: 'auto', flex: 1, pt: 0 }}>
