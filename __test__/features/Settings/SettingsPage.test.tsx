@@ -69,6 +69,29 @@ describe('SettingsPage', () => {
     expect(settingsNavItem).toBeInTheDocument()
   })
 
+  it('marks each language name with its own language (#1793)', async () => {
+    renderWithProviders(<SettingsPage />, preloadedState)
+
+    const languageSelect = screen.getByLabelText('settings.languageSelector')
+    // The closed Select shows the current language in its own language
+    expect(languageSelect.querySelector('[lang="en"]')).toHaveTextContent(
+      'English'
+    )
+
+    fireEvent.mouseDown(languageSelect)
+
+    expect(
+      (await screen.findByRole('option', { name: 'Русский' })).querySelector(
+        '[lang="ru"]'
+      )
+    ).toHaveTextContent('Русский')
+    expect(
+      screen
+        .getByRole('option', { name: 'Tiếng Việt' })
+        .querySelector('[lang="vi"]')
+    ).toBeInTheDocument()
+  })
+
   it('navigates back to calendar view when clicking back button', async () => {
     const { store } = renderWithProviders(<SettingsPage />, preloadedState)
 

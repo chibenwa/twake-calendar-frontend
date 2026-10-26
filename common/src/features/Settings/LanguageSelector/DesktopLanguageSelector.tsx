@@ -19,7 +19,8 @@ export const DesktopSelectLanguage: React.FC<LanguageSelectorInputProps> = ({
       >
         {AVAILABLE_LANGUAGES.map(({ code, label }) => (
           <MenuItem key={code} value={code}>
-            {label}
+            {/* Read in its own voice, here and in the closed Select */}
+            <span lang={code}>{label}</span>
           </MenuItem>
         ))}
       </Select>
