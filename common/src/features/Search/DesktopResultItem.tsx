@@ -17,6 +17,7 @@ import {
   RenderVideoJoin
 } from './searchResultsComponents'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
+import { buildEventChipLabel } from '@common/components/Event/utils/eventChipLabel'
 
 export default function DesktopResultItem({
   eventData
@@ -58,7 +59,18 @@ export default function DesktopResultItem({
         }}
         role="button"
         tabIndex={0}
-        aria-label={eventData.data.summary}
+        aria-label={buildEventChipLabel(
+          {
+            title: eventData.data.summary,
+            start: startDate,
+            end: endDate,
+            allDay: !!eventData.data.allDay,
+            dayZone: dayZoneOf(!!eventData.data.allDay, timeZone),
+            timeZone,
+            calendarName: calendar?.name
+          },
+          t
+        )}
         onClick={() => void handleOpen()}
         onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') {

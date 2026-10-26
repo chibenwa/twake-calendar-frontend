@@ -306,4 +306,48 @@ describe('SearchResultsPage', () => {
       screen.queryByText(formatDay('2026-10-26T00:00:00Z'), { exact: false })
     ).not.toBeInTheDocument()
   })
+
+  it('names each result with its day, time and calendar (#1784)', () => {
+    const mockResults = [
+      {
+        data: {
+          uid: '1',
+          summary: 'Standup',
+          start: '2026-10-25T17:00:00Z',
+          end: '2026-10-25T18:00:00Z',
+          userId: 'user1',
+          calendarId: 'cal1',
+          allDay: false
+        }
+      },
+      {
+        data: {
+          uid: '2',
+          summary: 'Standup',
+          start: '2026-10-26T17:00:00Z',
+          end: '2026-10-26T18:00:00Z',
+          userId: 'user3',
+          calendarId: 'cal1',
+          allDay: false
+        }
+      }
+    ]
+
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      settings: { timeZone: 'Europe/Paris' },
+      searchResult: { results: mockResults, hits: 2 }
+    })
+
+    expect(
+      screen.getByRole('button', {
+        name: /^event\.chipLabel\(title=Standup,date=Sunday, October 25, 2026,time=18:00 – 19:00,calendar=Calendar personal,status=\)$/
+      })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /^event\.chipLabel\(title=Standup,date=Monday, October 26, 2026,time=18:00 – 19:00,calendar=Calendar shared,status=\)$/
+      })
+    ).toBeInTheDocument()
+  })
 })

@@ -22,6 +22,7 @@ import {
 } from '@common/components/Calendar/utils/constants'
 import { createMouseHandlers } from './mouseHandlers'
 import { EventChipSchedule } from '@common/components/Event/EventChip/EventChipSchedule'
+import { buildEventChipLabel } from '@common/components/Event/utils/eventChipLabel'
 
 const PARTSTAT_CLASS_MAP: Record<string, string> = {
   DECLINED: 'declined-event',
@@ -40,7 +41,7 @@ export interface ViewHandlersProps {
   timezone: string
   isTablet: boolean
   isMobile: boolean
-  t: (key: string) => string
+  t: (key: string, options?: Record<string, unknown>) => string
   upcommingEventId?: string
   currentView?: string
   view?: string
@@ -250,13 +251,39 @@ export const createViewHandlers = (props: ViewHandlersProps): ViewHandlers => {
       attendee?: userAttendee[]
       organizer?: { cal_address?: string }
       calId: string
+      temp?: boolean
     }
 
+    const calendar = (extendedProps.temp ? tempcalendars : calendars)[
+      extendedProps.calId
+    ]
     const partstat = getCalendarOwnerAttendee(
-      calendars[extendedProps.calId],
+      calendar,
       extendedProps.attendee,
       extendedProps.organizer
     )?.partstat
+
+    // List views render table rows, which must keep their row role
+    if (arg.event.start && !isListView(arg.view.type)) {
+      arg.el.setAttribute('role', 'button')
+      arg.el.setAttribute(
+        'aria-label',
+        buildEventChipLabel(
+          {
+            title: arg.event.title,
+            start: arg.event.start,
+            end: arg.event.end,
+            allDay: arg.event.allDay,
+            dayZone: timezone,
+            timeZone: timezone,
+            calendarName: calendar?.name,
+            partstat
+          },
+          t
+        )
+      )
+    }
+
     if (!partstat) return
 
     const statusClass = PARTSTAT_CLASS_MAP[partstat]

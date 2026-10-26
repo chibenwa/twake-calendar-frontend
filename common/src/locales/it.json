@@ -131,6 +131,7 @@
     "invalidHex": "Inserisci un colore come #1A73E8"
   },
   "event": {
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "createEvent": "Crea",
     "createInAgenda": "Crea nel calendario di %{owner}",
     "updateEvent": "Aggiorna evento",

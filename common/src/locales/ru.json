@@ -131,6 +131,7 @@
     "invalidHex": "Введите цвет, например #1A73E8"
   },
   "event": {
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "createEvent": "Создать",
     "createInAgenda": "Создать в календаре %{owner}",
     "updateEvent": "Обновить событие",

@@ -131,6 +131,7 @@
     "invalidHex": "Nhập một màu như #1A73E8"
   },
   "event": {
+    "chipLabel": "%{title}, %{date}, %{time}, %{calendar}%{status}",
     "createEvent": "Tạo sự kiện",
     "createInAgenda": "Tạo trong lịch của %{owner}",
     "updateEvent": "Cập nhật sự kiện",
