@@ -3,6 +3,9 @@ import { stringAvatar } from '@common/components/Event/utils/eventUtils'
 import Tooltip from '@common/components/Tooltip'
 import { openMeetingInTwakeSpace } from '@common/features/Embed/twakeSpace'
 import { EventDescriptionBuilder } from '@common/utils/EventDescriptionBuilder'
+import { getCalendarOwnerAttendee } from '@common/utils/getCalendarOwnerAttendee'
+import { Calendar } from '@common/types/CalendarTypes'
+import { SearchEventData } from './types/SearchEventData'
 import { Box, Button, radius, Typography, useTheme } from '@linagora/twake-mui'
 import { Avatar } from '@common/ds/Avatar/Avatar'
 import RepeatIcon from '@mui/icons-material/Repeat'
@@ -51,6 +54,19 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000
 // west of UTC.
 export const dayZoneOf = (allDay: boolean, timeZone: string): string =>
   allDay ? 'UTC' : timeZone
+
+// The answer of the calendar owner, as the grid chip of the same event says it
+export const ownerPartstatOf = (
+  calendar: Calendar | undefined,
+  data: SearchEventData
+): string | undefined =>
+  getCalendarOwnerAttendee(
+    calendar,
+    data.attendees,
+    data.organizer && 'cal_address' in data.organizer
+      ? data.organizer
+      : undefined
+  )?.partstat
 
 // The end (DTEND) of an all-day event is the day following its last day.
 // An end before the start (accepted by the server) falls back to the start.

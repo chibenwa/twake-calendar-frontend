@@ -8,6 +8,7 @@ import { SearchEventResult } from './types/SearchEventResult'
 import { useEventPreview } from './useEventPreview'
 import {
   dayZoneOf,
+  ownerPartstatOf,
   RenderDate,
   RenderLocation,
   RenderDescription,
@@ -69,6 +70,7 @@ export default function DesktopResultItem({
           end: endDate,
           allDay: !!eventData.data.allDay,
           calendarName: calendarLabel(calendar, userId, t),
+          partstat: ownerPartstatOf(calendar, eventData.data),
           timeZone,
           t
         })}

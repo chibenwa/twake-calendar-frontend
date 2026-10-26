@@ -13,7 +13,7 @@ import {
   RenderMobileDate,
   RenderMobileEventCard
 } from './mobileSearchResultsComponents'
-import { dayZoneOf } from './searchResultsComponents'
+import { dayZoneOf, ownerPartstatOf } from './searchResultsComponents'
 import { SearchEventResult } from './types/SearchEventResult'
 import { useEventPreview } from './useEventPreview'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
@@ -135,6 +135,7 @@ const MobileResultItem: React.FC<{ eventData: SearchEventResult }> = ({
           end: endDate,
           allDay: !!eventData.data.allDay,
           calendarName: calendarLabel(calendar, userId, t),
+          partstat: ownerPartstatOf(calendar, eventData.data),
           timeZone,
           t
         })}

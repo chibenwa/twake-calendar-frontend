@@ -36,6 +36,55 @@ export function calendarLabel(
   )
 }
 
+// The day, or the first and last days of an event over several days
+function dateLabel(
+  start: Date,
+  end: Date | undefined,
+  allDay: boolean,
+  locale: string,
+  timeZone: string
+): string {
+  const formatDay = (d: Date): string =>
+    d.toLocaleDateString(locale, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      // All-day dates are calendar dates, stored at midnight UTC
+      timeZone: allDay ? 'UTC' : timeZone
+    })
+  // The end of an all-day event is the day following its last day
+  const lastDay = end
+    ? new Date(end.getTime() - (allDay ? ONE_DAY_MS : 0))
+    : start
+  const firstDayLabel = formatDay(start)
+  const lastDayLabel = formatDay(lastDay)
+  return lastDay > start && lastDayLabel !== firstDayLabel
+    ? `${firstDayLabel} – ${lastDayLabel}`
+    : firstDayLabel
+}
+
+function timeLabel(
+  start: Date,
+  end: Date | undefined,
+  locale: string,
+  timeZone: string
+): string {
+  const formatTime = (d: Date): string =>
+    d.toLocaleTimeString(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone
+    })
+  return end ? `${formatTime(start)} – ${formatTime(end)}` : formatTime(start)
+}
+
+function statusLabel(partstat: string | undefined, t: Translate): string {
+  return partstat && ANNOUNCED_PARTSTATS.includes(partstat)
+    ? `, ${t(`eventPreview.attendee.${partstat}`)}`
+    : ''
+}
+
 /**
  * The name a screen reader gives an event chip or a search result: what the
  * user reads on screen (title, day, time) plus what is only drawn (calendar
@@ -52,50 +101,16 @@ export function eventAccessibleLabel({
   t
 }: EventAccessibleLabelParams): string {
   const locale = t('locale')
-  // All-day dates are calendar dates, stored at midnight UTC
-  const dayZone = allDay ? 'UTC' : timeZone
-  const hasEnd = !!end && end > start
-  const formatDay = (d: Date): string =>
-    d.toLocaleDateString(locale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      timeZone: dayZone
-    })
-  const formatTime = (d: Date): string =>
-    d.toLocaleTimeString(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone
-    })
-
-  // The end of an all-day event is the day following its last day
-  const lastDay =
-    hasEnd && end ? new Date(end.getTime() - (allDay ? ONE_DAY_MS : 0)) : start
-  const firstDayLabel = formatDay(start)
-  const lastDayLabel = formatDay(lastDay)
-  const date =
-    lastDay > start && lastDayLabel !== firstDayLabel
-      ? `${firstDayLabel} – ${lastDayLabel}`
-      : firstDayLabel
-
-  const time = allDay
-    ? t('event.form.allDay')
-    : hasEnd && end
-      ? `${formatTime(start)} – ${formatTime(end)}`
-      : formatTime(start)
-
-  const status =
-    partstat && ANNOUNCED_PARTSTATS.includes(partstat)
-      ? `, ${t(`eventPreview.attendee.${partstat}`)}`
-      : ''
+  // An end at or before the start says nothing more than the start
+  const actualEnd = end && end > start ? end : undefined
 
   return t('event.chipLabel', {
     title: title || t('event.untitled'),
-    date,
-    time,
+    date: dateLabel(start, actualEnd, allDay, locale, timeZone),
+    time: allDay
+      ? t('event.form.allDay')
+      : timeLabel(start, actualEnd, locale, timeZone),
     calendar: calendarName ?? '',
-    status
+    status: statusLabel(partstat, t)
   })
 }
