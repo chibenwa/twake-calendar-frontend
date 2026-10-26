@@ -18,6 +18,7 @@ import { useI18n } from 'twake-i18n'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { getAccessiblePair } from '@common/utils/getAccessiblePair'
 import { defaultColors } from '@common/utils/defaultColors'
+import { expandHexColor } from '@common/utils/expandHexColor'
 
 const swatchFocusSx = {
   '&:focus-visible': {
@@ -311,7 +312,7 @@ function ColorPickerBox({
 
   const handleColorChange = (c: string): void => {
     if (!isHexColor(c)) return
-    const newLight = c.trim().toUpperCase()
+    const newLight = expandHexColor(c.trim().toUpperCase())
 
     const newColor = {
       light: newLight,

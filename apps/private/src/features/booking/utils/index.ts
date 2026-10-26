@@ -2,6 +2,7 @@ import { Resource } from '@common/components/Attendees/ResourceSearch'
 import { Valarms } from '@common/types/Valarms'
 import { VAlarm } from '@common/types/VAlarm'
 import { userAttendee } from '@common/features/User/models/attendee'
+import { expandHexColor } from '@common/utils/expandHexColor'
 import {
   DayAvailability,
   TimeSlot
@@ -73,7 +74,7 @@ export const buildBookingPayload = (data: {
     data.timezone
   ),
   description: data.description || undefined,
-  color: data.color,
+  color: expandHexColor(data.color),
   location: data.location.trim() || undefined,
   visibility: data.eventClass as 'PUBLIC' | 'PRIVATE' | 'CONFIDENTIAL',
   transparency:
@@ -113,7 +114,7 @@ export const buildUpdateBookingPayload = (data: {
     data.timezone
   ),
   description: data.description || null,
-  color: data.color,
+  color: expandHexColor(data.color),
   location: data.location.trim() || null,
   visibility:
     data.eventClass === 'PRIVATE' || data.eventClass === 'CONFIDENTIAL'

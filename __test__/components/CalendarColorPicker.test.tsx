@@ -136,4 +136,19 @@ describe('ColorPicker', () => {
       screen.getByRole('textbox', { name: 'colorPicker.hex' })
     ).toHaveFocus()
   })
+
+  it('expands a three-digit hex value to six digits', () => {
+    const onChange = jest.fn()
+    renderLoadedAfterMount(onChange)
+
+    fireEvent.click(screen.getByLabelText('colorPicker.selectCustom'))
+    const hex = screen.getByRole('textbox', { name: 'colorPicker.hex' })
+    fireEvent.change(hex, { target: { value: '#abc' } })
+    fireEvent.blur(hex)
+    fireEvent.click(screen.getByRole('button', { name: 'actions.save' }))
+
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ light: '#AABBCC' })
+    )
+  })
 })
