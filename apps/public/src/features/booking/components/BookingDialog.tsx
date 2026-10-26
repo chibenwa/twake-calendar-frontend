@@ -5,7 +5,7 @@ import {
 import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { isValidEmail } from '@common/utils/isValidEmail'
 import { Box, Button, TextField, Typography } from '@linagora/twake-mui'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { BookingOwnerDisplay } from '@/components/Booking/BookingHeader/BookingOwnerInfo'
 import { StaticDateTimeSummary } from './StaticDateTimeSummary'
@@ -83,6 +83,8 @@ interface BookingFormProps {
   bookingError: string | null
   onNameChange: (value: string) => void
   onEmailChange: (value: string) => void
+  nameRef: React.Ref<HTMLInputElement>
+  emailRef: React.Ref<HTMLInputElement>
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({
@@ -92,13 +94,20 @@ const BookingForm: React.FC<BookingFormProps> = ({
   emailError,
   bookingError,
   onNameChange,
-  onEmailChange
+  onEmailChange,
+  nameRef,
+  emailRef
 }) => {
   const { t } = useI18n()
   return (
     <>
+      <Typography variant="caption" component="p" sx={{ mt: 2 }}>
+        {t('booking.form.requiredHint')}
+      </Typography>
       <TextField
-        placeholder={t('booking.form.name')}
+        label={t('booking.form.name')}
+        autoComplete="name"
+        inputRef={nameRef}
         value={name}
         onChange={e => onNameChange(e.target.value)}
         fullWidth
@@ -109,7 +118,9 @@ const BookingForm: React.FC<BookingFormProps> = ({
         helperText={nameError}
       />
       <TextField
-        placeholder={t('booking.form.email')}
+        label={t('booking.form.email')}
+        autoComplete="email"
+        inputRef={emailRef}
         type="email"
         value={email}
         onChange={e => onEmailChange(e.target.value)}
@@ -144,6 +155,19 @@ export const BookingConfirmDialog: React.FC<BookingConfirmDialogProps> = ({
   const [emailError, setEmailError] = useState<string | null>(null)
   const [bookingInProgress, setBookingInProgress] = useState<boolean>(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
+  const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  // After a refused Confirm, the first wrong field takes the focus, once its
+  // error is rendered, so that a screen reader reads it
+  const [invalidField, setInvalidField] = useState<'name' | 'email' | null>(
+    null
+  )
+
+  useEffect(() => {
+    if (!invalidField) return
+    ;(invalidField === 'name' ? nameRef : emailRef).current?.focus()
+    setInvalidField(null)
+  }, [invalidField])
 
   const handleEmailChange = (value: string): void => {
     setEmail(value)
@@ -161,16 +185,19 @@ export const BookingConfirmDialog: React.FC<BookingConfirmDialogProps> = ({
 
     if (!name.trim()) {
       setNameError(t('booking.error.nameRequired'))
+      setInvalidField('name')
       return
     }
 
     if (!email) {
       setEmailError(t('booking.error.emailRequired'))
+      setInvalidField('email')
       return
     }
 
     if (!isValidEmail(email)) {
       setEmailError(t('peopleSearch.invalidEmail').replace('%{email}', email))
+      setInvalidField('email')
       return
     }
 
@@ -248,6 +275,8 @@ export const BookingConfirmDialog: React.FC<BookingConfirmDialogProps> = ({
         bookingError={bookingError}
         onNameChange={setName}
         onEmailChange={handleEmailChange}
+        nameRef={nameRef}
+        emailRef={emailRef}
       />
     </ResponsiveDialog>
   )

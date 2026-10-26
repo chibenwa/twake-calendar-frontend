@@ -640,7 +640,8 @@
     },
     "form": {
       "name": "Tên",
-      "email": "Email"
+      "email": "Email",
+      "requiredHint": "Các trường có dấu * là bắt buộc."
     },
     "error": {
       "nameRequired": "Tên là bắt buộc",

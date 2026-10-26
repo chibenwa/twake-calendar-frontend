@@ -641,7 +641,8 @@
     },
     "form": {
       "name": "Name",
-      "email": "E-Mail"
+      "email": "E-Mail",
+      "requiredHint": "Mit * markierte Felder sind Pflichtfelder."
     },
     "error": {
       "nameRequired": "Der Name ist erforderlich",

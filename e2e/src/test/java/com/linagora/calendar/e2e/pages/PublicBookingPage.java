@@ -137,7 +137,7 @@ public class PublicBookingPage {
     public PublicBookingPage pickSlot(String hhmm) {
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName(hhmm).setExact(true))
             .first().click();
-        page.getByPlaceholder("Name").waitFor();
+        visitorField("Name").waitFor();
         return this;
     }
 
@@ -149,9 +149,14 @@ public class PublicBookingPage {
     }
 
     public PublicBookingPage fillVisitor(String name, String email) {
-        page.getByPlaceholder("Name").first().fill(name);
-        page.getByPlaceholder("Email").first().fill(email);
+        visitorField("Name").fill(name);
+        visitorField("Email").fill(email);
         return this;
+    }
+
+    private Locator visitorField(String label) {
+        return page.getByRole(AriaRole.TEXTBOX, new Page.GetByRoleOptions().setName(label).setExact(true))
+            .first();
     }
 
     public PublicBookingPage confirm() {

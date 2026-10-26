@@ -640,7 +640,8 @@
     },
     "form": {
       "name": "Имя",
-      "email": "Email"
+      "email": "Email",
+      "requiredHint": "Поля, отмеченные *, обязательны."
     },
     "error": {
       "nameRequired": "Требуется имя",

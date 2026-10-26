@@ -641,7 +641,8 @@
     },
     "form": {
       "name": "Nom",
-      "email": "Email"
+      "email": "Email",
+      "requiredHint": "Les champs marqués d'un * sont obligatoires."
     },
     "error": {
       "nameRequired": "Le nom est requis",
