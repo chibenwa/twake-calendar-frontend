@@ -54,7 +54,7 @@ export const MobileLanguageSelector: React.FC<LanguageSelectorInputProps> = ({
               <ListItemText
                 primary={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography>{label}</Typography>
+                    <Typography lang={code}>{label}</Typography>
                   </Box>
                 }
               />

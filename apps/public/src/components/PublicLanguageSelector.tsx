@@ -45,7 +45,7 @@ export const PublicLanguageSelector = (): JSX.Element => {
     >
       {AVAILABLE_LANGUAGES.map(({ code, label }) => (
         <MenuItem key={code} value={code}>
-          {label}
+          <span lang={code}>{label}</span>
         </MenuItem>
       ))}
     </Select>
