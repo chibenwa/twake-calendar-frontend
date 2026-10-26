@@ -705,5 +705,9 @@
   "embed": {
     "signInRequired": "Sie sind abgemeldet. Melden Sie sich erneut an, um diesen Kalender zu sehen.",
     "calendarUnavailable": "Dieser Kalender ist nicht verfügbar. Möglicherweise sind Sie kein Mitglied."
+  },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "calendarsHeading": "Kalender"
   }
 }

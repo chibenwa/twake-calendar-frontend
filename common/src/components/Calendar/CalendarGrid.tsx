@@ -36,6 +36,7 @@ import { WeekNumberContent } from './WeekNumberContent'
 import { DayCellContent } from './DayCellContent'
 import { MoreLinkContent } from './MoreLinkContent'
 import { EventErrorHandler } from '@common/components/Error/EventErrorHandler'
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink/SkipLink'
 import { useCalendarGridState } from './hooks/useCalendarGridState'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { useI18n } from 'twake-i18n'
@@ -182,6 +183,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     <>
       <div
         ref={calendarWrapperRef}
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
         className={cx({
           'calendar-swipe-container': isNotDesktop,
           'hide-selection-highlight': !!otherProps.selectedRange

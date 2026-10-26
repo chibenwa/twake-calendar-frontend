@@ -1,6 +1,10 @@
 import { useAppSelector } from '@common/app/hooks'
 import EventPreviewModal from '@common/components/EventPreview'
-import { Box } from '@linagora/twake-mui'
+import {
+  MAIN_CONTENT_ID,
+  visuallyHidden
+} from '@common/components/SkipLink/SkipLink'
+import { Box, Typography } from '@linagora/twake-mui'
 import { useI18n } from 'twake-i18n'
 import { AttendeesFilter } from './AttendeesFilter'
 import { normalizeCalendars } from './calendarColorUtils'
@@ -18,6 +22,7 @@ import { useEventPreview } from './useEventPreview'
 import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 
 const MobileSearchResultsPage: React.FC = () => {
+  const { t } = useI18n()
   const searchResults = useAppSelector(state => state.searchResult)
   const hasSearchParams =
     searchResults.searchParams.search !== '' ||
@@ -33,6 +38,8 @@ const MobileSearchResultsPage: React.FC = () => {
 
   return (
     <Box
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -40,6 +47,9 @@ const MobileSearchResultsPage: React.FC = () => {
         overflow: 'hidden'
       }}
     >
+      <Typography component="h1" sx={visuallyHidden}>
+        {t('search.resultsTitle')}
+      </Typography>
       <FiltersButtons />
       {displaySearch && (
         <Box sx={{ m: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>

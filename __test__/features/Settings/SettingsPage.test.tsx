@@ -61,6 +61,28 @@ describe('SettingsPage', () => {
     expect(screen.getByText(/settings.notifications/i)).toBeInTheDocument()
   })
 
+  it('heads the page with one h1 and its sections with h2', () => {
+    renderWithProviders(<SettingsPage />, preloadedState)
+
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'settings.title' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'settings.language' })
+    ).toBeInTheDocument()
+    expect(screen.queryAllByRole('heading', { level: 6 })).toHaveLength(0)
+  })
+
+  it('makes the settings content the skip link target', () => {
+    renderWithProviders(<SettingsPage />, preloadedState)
+
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(document.getElementById('main-content')).toHaveClass(
+      'settings-content'
+    )
+  })
+
   it('highlights active navigation item', () => {
     const { container } = renderWithProviders(<SettingsPage />, preloadedState)
 

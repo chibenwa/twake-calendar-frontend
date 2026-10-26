@@ -27,7 +27,7 @@ export const WorkingDaysSettings: React.FC<WorkingDaysSettingsProps> = ({
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
         {t('settings.chooseWorkingDays')}
       </Typography>
       <WeekDaySelector

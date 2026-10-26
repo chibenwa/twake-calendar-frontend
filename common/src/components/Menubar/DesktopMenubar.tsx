@@ -4,6 +4,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { NavigationControls } from './components/NavigationControls'
+import { PeriodTitle } from './components/PeriodTitle'
 import SearchBar from './EventSearchBar'
 import { SharedMenubarProps } from './Menubar'
 import { SelectView } from './SelectView'
@@ -37,7 +38,7 @@ export const DesktopMenubar: React.FC<SharedMenubarProps> = ({
         {!isSearchExpanded && (
           <div className="menu-items">
             <div className="current-date-time">
-              <p>{dateLabel}</p>
+              <PeriodTitle label={dateLabel} />
             </div>
           </div>
         )}

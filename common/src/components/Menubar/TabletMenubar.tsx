@@ -9,6 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import SearchIcon from '@mui/icons-material/Search'
 import { useState } from 'react'
 import { useI18n } from 'twake-i18n'
+import { PeriodTitle } from './components/PeriodTitle'
 import { SmallNavigationControls } from './components/SmallNavigationControls'
 import { SharedMenubarProps } from './Menubar'
 import MobileSearchBar from './MobileEventSearchBar'
@@ -70,7 +71,7 @@ export const TabletMenubar: React.FC<SharedMenubarProps> = ({
 
         <div className="menu-items">
           <div className="current-date-time">
-            <p>{dateLabel}</p>
+            <PeriodTitle label={dateLabel} />
           </div>
         </div>
       </div>

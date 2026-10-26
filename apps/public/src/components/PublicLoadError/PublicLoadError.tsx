@@ -19,7 +19,7 @@ export const PublicLoadError: React.FC<PublicLoadErrorProps> = ({
   return (
     <Box sx={{ p: 4, textAlign: 'center' }}>
       <img src={logo} alt={t('search.noResults')} />
-      <Typography color="error" variant="h5">
+      <Typography color="error" variant="h5" component="h1">
         {title}
       </Typography>
       {detailMessage && (

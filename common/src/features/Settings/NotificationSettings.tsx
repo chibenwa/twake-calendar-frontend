@@ -41,7 +41,7 @@ export const NotificationsSettings: React.FC<NotificationsSettingsProps> = ({
 
   return (
     <Box className="settings-tab-content">
-      <Typography variant="h6" sx={{ mb: 3 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 3 }}>
         {t('settings.notifications.deliveryMethod')}
       </Typography>
       <FormControlLabel

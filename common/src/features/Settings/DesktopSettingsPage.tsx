@@ -5,6 +5,7 @@ import {
   ListItemIcon,
   Typography
 } from '@linagora/twake-mui'
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink/SkipLink'
 import { ListItemText } from '@common/ds/ListItemText/ListItemText'
 import SettingsIcon from '@mui/icons-material/Settings'
 import { useState } from 'react'
@@ -75,7 +76,7 @@ export const DesktopSettingsPage: React.FC<{
           </Typography>
         </Box>
       </Box>
-      <Box className="settings-content">
+      <Box className="settings-content" id={MAIN_CONTENT_ID} tabIndex={-1}>
         <SettingsHeader
           activeNavItem={activeNavItem}
           activeSettingsSubTab={activeSettingsSubTab}

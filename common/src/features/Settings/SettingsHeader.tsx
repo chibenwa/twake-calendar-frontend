@@ -1,5 +1,6 @@
 import { useAppDispatch } from '@common/app/hooks'
-import { Box, IconButton, Tab, Tabs } from '@linagora/twake-mui'
+import { visuallyHidden } from '@common/components/SkipLink/SkipLink'
+import { Box, IconButton, Tab, Tabs, Typography } from '@linagora/twake-mui'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useI18n } from 'twake-i18n'
 import { SettingsSubTab, SidebarNavItem } from './SettingsPage'
@@ -25,6 +26,12 @@ export const SettingsHeader: React.FC<{
 
   return (
     <Box className="settings-content-header">
+      {/* On mobile, the menubar shows the page title */}
+      {!isMobile && (
+        <Typography component="h1" sx={visuallyHidden}>
+          {t('settings.title')}
+        </Typography>
+      )}
       {!isMobile && (
         <IconButton
           onClick={handleBackClick}

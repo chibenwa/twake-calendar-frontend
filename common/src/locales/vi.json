@@ -706,5 +706,9 @@
   "embed": {
     "signInRequired": "Bạn đã đăng xuất. Hãy đăng nhập lại để xem lịch này.",
     "calendarUnavailable": "Lịch này không khả dụng. Có thể bạn không phải là thành viên của lịch."
+  },
+  "a11y": {
+    "skipToContent": "Đi tới nội dung",
+    "calendarsHeading": "Lịch"
   }
 }

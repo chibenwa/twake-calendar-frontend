@@ -5,6 +5,7 @@ import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import { refreshCalendars } from '@common/components/Event/utils/eventUtils'
 import { Menubar, MenubarProps } from '@common/components/Menubar/Menubar'
 import { DisplayedPeriod } from '@common/components/Menubar/periodLabel'
+import { SkipLink } from '@common/components/SkipLink/SkipLink'
 import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
@@ -124,6 +125,7 @@ export default function CalendarLayout(): JSX.Element {
 
   return (
     <div className={cx('App ', { 'App--mobile': isMobile })}>
+      <SkipLink />
       {(view === 'calendar' || view === 'search') && (
         <main className="main-layout calendar-layout">
           <Sidebar

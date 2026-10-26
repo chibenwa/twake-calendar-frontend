@@ -93,7 +93,7 @@ export function ThemeSelector({
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
         {t('settings.theme')}
       </Typography>
       <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>

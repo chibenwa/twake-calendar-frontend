@@ -1,0 +1,19 @@
+// Out of sight until it gets the keyboard focus
+.skip-link
+  position absolute
+  top 8px
+  left -9999px
+  z-index 2000
+  padding 8px 12px
+  background #FFFFFF
+  color #000000
+  font-size 16px
+  text-decoration none
+
+  &:focus
+    left 8px
+    outline 3px solid #000000
+
+// The skip link target takes the focus without drawing a ring around the page
+#main-content:focus
+  outline none

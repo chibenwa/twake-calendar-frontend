@@ -1,4 +1,5 @@
 import { HeaderLogo } from '@common/components/HeaderLogo'
+import { MAIN_CONTENT_ID, SkipLink } from '@common/components/SkipLink/SkipLink'
 import { Box, Button, Link, Typography, useTheme } from '@linagora/twake-mui'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined'
 import React from 'react'
@@ -27,7 +28,9 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
         position: 'relative'
       }}
     >
+      <SkipLink />
       <Box
+        component="header"
         sx={{
           position: 'absolute',
           top: 16,
@@ -60,6 +63,9 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
       </Box>
 
       <Box
+        component="main"
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
         sx={{
           flex: 1,
           display: 'flex',

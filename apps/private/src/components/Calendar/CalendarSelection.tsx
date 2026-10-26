@@ -7,6 +7,7 @@ import { OwnerCaption } from '@common/components/Calendar/OwnerCaption'
 import RegisterCalendars from '@common/components/Calendar/RegisterCalendars'
 import type { ResourceCal } from '@common/components/Calendar/RegisterCalendars/index.types'
 import { SnackbarAlert } from '@common/components/Loading/SnackBarAlert'
+import { visuallyHidden } from '@common/components/SkipLink/SkipLink'
 import {
   deleteBookingLink,
   listBookingLinks
@@ -585,6 +586,10 @@ const CalendarSelection: React.FC<{
   return (
     <>
       <div>
+        {/* Heads the h3 of the sections below, under the h1 of the page */}
+        <Typography component="h2" sx={visuallyHidden}>
+          {t('a11y.calendarsHeading')}
+        </Typography>
         {bookingLinkEnabled && (
           <BookingLinksAccordion
             header={{

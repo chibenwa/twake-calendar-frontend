@@ -1,4 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@common/app/hooks'
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink/SkipLink'
 import { Box, IconButton, Typography } from '@linagora/twake-mui'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { useI18n } from 'twake-i18n'
@@ -15,7 +16,7 @@ export default function DesktopSearchResultsPage(): JSX.Element {
   )
 
   return (
-    <Box className="search-layout">
+    <Box className="search-layout" id={MAIN_CONTENT_ID} tabIndex={-1}>
       <Box className="search-result-content-header">
         <Box className="back-button">
           <IconButton
@@ -24,7 +25,9 @@ export default function DesktopSearchResultsPage(): JSX.Element {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h5">{t('search.resultsTitle')}</Typography>
+          <Typography variant="h5" component="h1">
+            {t('search.resultsTitle')}
+          </Typography>
         </Box>
       </Box>
 

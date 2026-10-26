@@ -92,6 +92,7 @@ export const BookedEventPreviewPage: React.FC = () => {
         isOwn={false}
         timezone={selectedTimezone}
         t={t}
+        titleComponent="h1"
       />
       <EventStatus partStat={organizerPartstat} isOrganizer />
       <EventPreviewDetails event={event} isOwn={false} isNotPrivate={true} />

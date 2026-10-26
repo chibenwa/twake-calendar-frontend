@@ -705,5 +705,9 @@
   "embed": {
     "signInRequired": "Sei disconnesso. Accedi di nuovo per vedere questo calendario.",
     "calendarUnavailable": "Questo calendario non è disponibile. Potresti non esserne membro."
+  },
+  "a11y": {
+    "skipToContent": "Vai al contenuto",
+    "calendarsHeading": "Calendari"
   }
 }

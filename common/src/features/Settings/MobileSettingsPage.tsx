@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink/SkipLink'
 import { Box } from '@linagora/twake-mui'
 import { GeneralSettings } from './GeneralSettings'
 import { NotificationsSettings } from './NotificationSettings'
@@ -31,7 +32,12 @@ export const MobileSettingsPage: React.FC<{
   handleSettingsSubTabChange
 }) => {
   return (
-    <Box className="settings-content" sx={{ borderRadius: 0 }}>
+    <Box
+      className="settings-content"
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      sx={{ borderRadius: 0 }}
+    >
       <SettingsHeader
         activeNavItem="settings"
         activeSettingsSubTab={activeSettingsSubTab}

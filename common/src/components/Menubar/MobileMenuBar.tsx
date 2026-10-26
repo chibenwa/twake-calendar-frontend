@@ -17,6 +17,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from 'twake-i18n'
 import { Tooltip } from '../Tooltip'
 import { DatePickerMobile } from './components/DatePickerMobile'
+import { usePeriodTitleTag } from './components/PeriodTitle'
 import { SmallNavigationControls } from './components/SmallNavigationControls'
 import './Menubar.styl'
 import MobileSearchBar from './MobileEventSearchBar'
@@ -49,6 +50,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
   const dispatch = useAppDispatch()
 
   const view = useAppSelector(state => state.settings.view)
+  const periodTitleTag = usePeriodTitleTag()
 
   const [openDatePicker, setOpenDatePicker] = useState(false)
   const [openEventSearch, setOpenEventSearch] = useState(false)
@@ -125,7 +127,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
               <ArrowBackIcon />
             </IconButton>
 
-            <Typography variant="h3" sx={{ width: '100%' }}>
+            <Typography variant="h3" component="h1" sx={{ width: '100%' }}>
               {t('menubar.settings')}
             </Typography>
           </>
@@ -155,6 +157,8 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
                 >
                   <Typography
                     ref={titleRef}
+                    // either tag fits the HTMLElement ref
+                    component={periodTitleTag as React.ElementType}
                     sx={{
                       minWidth: 0,
                       lineHeight: 1.2,

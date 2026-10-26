@@ -108,6 +108,24 @@ describe('Menubar', () => {
     expect(refreshButton).toBeNull()
   })
 
+  it.each([
+    ['calendar', 1],
+    ['search', 0]
+  ])('heads the %s view with the displayed period %i time', (view, h1Count) => {
+    renderWithProviders(
+      <Menubar
+        calendarRef={{ current: null }}
+        onRefresh={jest.fn()}
+        onToggleSidebar={() => {}}
+        currentDate={new Date('2024-04-15')}
+        currentView={CALENDAR_VIEWS.dayGridMonth}
+      />,
+      { ...preloadedState, settings: { language: 'en', view } }
+    )
+
+    expect(screen.queryAllByRole('heading', { level: 1 })).toHaveLength(h1Count)
+  })
+
   it('has view selector element with correct class', () => {
     const mockCalendarRef = { current: null }
     const mockOnRefresh = jest.fn()

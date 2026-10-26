@@ -12,13 +12,16 @@ export interface EventPreviewTitleRowProps {
   isOwn: boolean
   timezone: string
   t: (key: string, options?: Record<string, unknown>) => string
+  // The level of the title: h1 when the event is the whole page
+  titleComponent?: 'h1' | 'h3'
 }
 
 export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
   event,
   isOwn,
   timezone,
-  t
+  t,
+  titleComponent = 'h3'
 }) => {
   return (
     <Box>
@@ -44,6 +47,7 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
           ))}
         <Typography
           variant="h3"
+          component={titleComponent}
           sx={{
             minWidth: 0,
             overflowWrap: 'anywhere'
