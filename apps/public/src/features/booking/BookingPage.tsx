@@ -17,6 +17,7 @@ import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
 import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { BookingErrorBoundary } from './components/BookingErrorBoundary'
+import { getTimezoneReferenceDate } from './utils/timezoneReferenceDate'
 
 export const BookingPage: React.FC = () => {
   const { t } = useI18n()
@@ -96,6 +97,16 @@ export const BookingPage: React.FC = () => {
     }
     return slotsByDay.get(effectiveSelectedDay.format('YYYY-MM-DD')) ?? []
   }, [effectiveSelectedDay, slotsByDay])
+
+  const timezoneReferenceDate = useMemo<Date>(
+    () =>
+      getTimezoneReferenceDate(
+        effectiveSelectedDay,
+        visibleMonth,
+        selectedTimezone
+      ),
+    [effectiveSelectedDay, visibleMonth, selectedTimezone]
+  )
 
   const handleMonthChange = (month: Dayjs): void => {
     setVisibleMonth(new Date(month.year(), month.month(), 1))
@@ -217,7 +228,7 @@ export const BookingPage: React.FC = () => {
                     bookingInfo={bookingInfo}
                     selectedTimezone={selectedTimezone}
                     onTimezoneChange={handleTimezoneChange}
-                    referenceDate={visibleMonth}
+                    referenceDate={timezoneReferenceDate}
                   />
                 )}
                 {!isMobile && <Divider />}
