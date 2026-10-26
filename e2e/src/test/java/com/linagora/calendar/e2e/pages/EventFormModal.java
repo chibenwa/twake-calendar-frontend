@@ -324,13 +324,18 @@ public class EventFormModal {
     }
 
     public EventFormModal allDay() {
-        page.getByLabel("All day").check();
+        allDayCheckbox().check();
         return this;
     }
 
     public EventFormModal notAllDay() {
-        page.getByLabel("All day").uncheck();
+        allDayCheckbox().uncheck();
         return this;
+    }
+
+    // exact: the chips of all day events in the grid are named "<title>, <day>, All day, ..."
+    private Locator allDayCheckbox() {
+        return page.getByLabel("All day", new Page.GetByLabelOptions().setExact(true));
     }
 
     public EventFormModal description(String description) {
