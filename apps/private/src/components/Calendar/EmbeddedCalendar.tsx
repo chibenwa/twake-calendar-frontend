@@ -59,7 +59,12 @@ function EmbeddedCalendarContent(): JSX.Element | null {
     if (pending) return null
     return (
       <Stack
-        sx={{ alignItems: 'center', justifyContent: 'center', height: '100vh' }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          // under the Twake bar, when the embed is opened outside a frame
+          height: 'calc(100vh - var(--twake-bar-height, 0px))'
+        }}
       >
         <Typography>{t('embed.calendarUnavailable')}</Typography>
       </Stack>

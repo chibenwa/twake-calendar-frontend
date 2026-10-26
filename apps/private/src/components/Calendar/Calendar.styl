@@ -8,13 +8,14 @@
   display flex
 
 // TwakeSpace frames the embed edge to edge: the embed keeps 16px to its edges
-// and shows the body, painted with the paper of the theme
+// and shows the body, painted with the paper of the theme. Opened outside a
+// frame, it fits under the Twake bar, whose height the body reserves
 .App.isEmbedded
   background-color transparent
 
 .App.isEmbedded .main-layout
   margin 16px
-  height calc(100vh - 32px)
+  height calc(100vh - 32px - var(--twake-bar-height, 0px))
 
 .App.isEmbedded .menubar
   padding 0 0 16px

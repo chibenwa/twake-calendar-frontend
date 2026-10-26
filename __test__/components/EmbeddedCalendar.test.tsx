@@ -93,4 +93,28 @@ describe('EmbeddedCalendar', () => {
     ).toHaveLength(1)
     expect(screen.queryByText('event.createEvent')).not.toBeInTheDocument()
   })
+
+  it('fits the unavailable message under the Twake bar', () => {
+    renderWithProviders(<EmbeddedCalendar />, {
+      router: {
+        location: {
+          pathname: '/embed/calendars/doesnotexist',
+          search: '',
+          hash: '',
+          state: null,
+          key: 'k'
+        },
+        action: 'POP'
+      },
+      user: {
+        userData: { sub: 'test', email: 'test@test.com', openpaasId: 'user1' },
+        tokens: { accessToken: 'token' }
+      },
+      calendars: { pending: false, list: {} }
+    })
+
+    expect(
+      screen.getByText('embed.calendarUnavailable').parentElement
+    ).toHaveStyle({ height: 'calc(100vh - var(--twake-bar-height, 0px))' })
+  })
 })
