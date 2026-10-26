@@ -2,6 +2,7 @@ import { Box, Typography } from '@linagora/twake-mui'
 import React from 'react'
 import logo from '@common/static/noResult-logo.svg'
 import { useI18n } from 'twake-i18n'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 
 export interface PublicLoadErrorProps {
   title: string
@@ -15,6 +16,8 @@ export const PublicLoadError: React.FC<PublicLoadErrorProps> = ({
   action
 }) => {
   const { t } = useI18n()
+  // The page never got the name of what it failed to load: the error names it
+  useDocumentTitle(title)
 
   return (
     <Box sx={{ p: 4, textAlign: 'center' }}>
