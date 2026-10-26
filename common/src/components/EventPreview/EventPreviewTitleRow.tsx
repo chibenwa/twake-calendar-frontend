@@ -12,13 +12,16 @@ export interface EventPreviewTitleRowProps {
   isOwn: boolean
   timezone: string
   t: (key: string, options?: Record<string, unknown>) => string
+  /** h2 in the preview dialog, h1 on the invitation page */
+  headingComponent?: 'h1' | 'h2'
 }
 
 export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
   event,
   isOwn,
   timezone,
-  t
+  t,
+  headingComponent = 'h2'
 }) => {
   return (
     <Box>
@@ -44,7 +47,7 @@ export const EventPreviewTitleRow: React.FC<EventPreviewTitleRowProps> = ({
           ))}
         <Typography
           variant="h3"
-          component="h2"
+          component={headingComponent}
           sx={{
             minWidth: 0,
             overflowWrap: 'anywhere'

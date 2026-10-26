@@ -342,6 +342,10 @@
     "hideDatePicker": "Datumsauswahl ausblenden",
     "showDatePicker": "Datumsauswahl einblenden"
   },
+  "a11y": {
+    "skipToContent": "Zum Inhalt springen",
+    "calendarsHeading": "Kalender"
+  },
   "pageTitle": {
     "search": "Suchergebnisse für „%{query}“",
     "booking": "%{name} bei %{owner} buchen",

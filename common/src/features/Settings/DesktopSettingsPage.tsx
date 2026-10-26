@@ -12,6 +12,7 @@ import { useI18n } from 'twake-i18n'
 import { GeneralSettings } from './GeneralSettings'
 import { NotificationsSettings } from './NotificationSettings'
 import './SettingsPage.styl'
+import { visuallyHidden } from '@common/utils/visuallyHidden'
 import { SettingsHeader } from './SettingsHeader'
 import type { SidebarNavItem, SettingsSubTab } from './SettingsPage'
 
@@ -76,6 +77,9 @@ export const DesktopSettingsPage: React.FC<{
         </Box>
       </Box>
       <Box className="settings-content">
+        <Typography component="h1" sx={visuallyHidden}>
+          {t('settings.title')}
+        </Typography>
         <SettingsHeader
           activeNavItem={activeNavItem}
           activeSettingsSubTab={activeSettingsSubTab}

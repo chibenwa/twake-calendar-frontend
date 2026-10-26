@@ -125,7 +125,7 @@ export const MobileMenubar: React.FC<MobileMenubarProps> = ({
               <ArrowBackIcon />
             </IconButton>
 
-            <Typography variant="h3" sx={{ width: '100%' }}>
+            <Typography variant="h3" component="h1" sx={{ width: '100%' }}>
               {t('menubar.settings')}
             </Typography>
           </>

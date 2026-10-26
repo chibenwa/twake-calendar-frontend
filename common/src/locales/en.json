@@ -342,6 +342,10 @@
     "hideDatePicker": "Hide date picker",
     "showDatePicker": "Show date picker"
   },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "calendarsHeading": "Calendars"
+  },
   "pageTitle": {
     "search": "Search results for “%{query}”",
     "booking": "Book %{name} with %{owner}",

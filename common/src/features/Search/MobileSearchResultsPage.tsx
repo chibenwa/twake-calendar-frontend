@@ -1,6 +1,7 @@
 import { useAppSelector } from '@common/app/hooks'
 import EventPreviewModal from '@common/components/EventPreview'
-import { Box } from '@linagora/twake-mui'
+import { Box, Typography } from '@linagora/twake-mui'
+import { visuallyHidden } from '@common/utils/visuallyHidden'
 import { useI18n } from 'twake-i18n'
 import { AttendeesFilter } from './AttendeesFilter'
 import { normalizeCalendars } from './calendarColorUtils'
@@ -22,6 +23,7 @@ import {
 } from '@common/components/Event/utils/eventAccessibleLabel'
 
 const MobileSearchResultsPage: React.FC = () => {
+  const { t } = useI18n()
   const searchResults = useAppSelector(state => state.searchResult)
   const hasSearchParams =
     searchResults.searchParams.search !== '' ||
@@ -44,6 +46,9 @@ const MobileSearchResultsPage: React.FC = () => {
         overflow: 'hidden'
       }}
     >
+      <Typography component="h1" sx={visuallyHidden}>
+        {t('search.resultsTitle')}
+      </Typography>
       <FiltersButtons />
       {displaySearch && (
         <Box sx={{ m: 2, flex: 1, minHeight: 0, overflow: 'auto' }}>

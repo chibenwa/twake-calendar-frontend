@@ -105,7 +105,7 @@ export const TimezoneSelector: React.FC<TimezoneSelectorProps> = ({
         mb: 4
       }}
     >
-      <Typography variant="h6" sx={{ mb: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
         {t('settings.timeZone')}
       </Typography>
       <Box>

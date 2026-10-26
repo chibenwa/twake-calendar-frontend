@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MAIN_CONTENT_ID } from '@common/components/SkipLink/SkipLink'
 import './SettingsPage.styl'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { SettingErrorSnackbars } from './SettingErrorSnackbars'
@@ -57,6 +58,8 @@ const SettingsPage: React.FC<{
       {isMobile && menubarProps && <Menubar {...menubarProps} />}
 
       <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
         className={`main-layout settings-layout ${isMobile ? 'settings-layout--mobile' : ''}`}
       >
         {isMobile ? (

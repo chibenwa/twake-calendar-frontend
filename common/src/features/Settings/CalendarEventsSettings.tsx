@@ -66,7 +66,7 @@ export const CalendarEventsSettings: React.FC<CalendarEventsSettingsProps> = ({
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
         {t('settings.calAndEvent')}
       </Typography>
       <FormControl size="small" sx={{ minWidth: inputMinWidth }}>

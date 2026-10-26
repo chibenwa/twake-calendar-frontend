@@ -80,7 +80,9 @@ export const Error: React.FC<ErrorProps> = ({
               <ErrorOutlinedIcon sx={{ fontSize: 40 }} />
             </Box>
 
-            <Typography variant="h5">{t('error.title')}</Typography>
+            <Typography variant="h5" component="h1">
+              {t('error.title')}
+            </Typography>
 
             <Typography
               variant="body1"

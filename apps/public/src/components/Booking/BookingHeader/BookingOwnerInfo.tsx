@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { visuallyHidden } from '@common/utils/visuallyHidden'
 import { Box, Typography } from '@linagora/twake-mui'
 import { Avatar } from '@common/ds/Avatar/Avatar'
 import { useI18n } from 'twake-i18n'
@@ -66,8 +67,14 @@ export const BookingTitle: React.FC<{ bookingInfo: BookingSlotsResponse }> = ({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', ml: 1 }}>
-      {bookingInfo.name && (
-        <Typography variant="h6">{bookingInfo.name}</Typography>
+      {bookingInfo.name ? (
+        <Typography variant="h6" component="h1">
+          {bookingInfo.name}
+        </Typography>
+      ) : (
+        <Typography component="h1" sx={visuallyHidden}>
+          {t('booking.defaultEventTitle')}
+        </Typography>
       )}
       <TimerOutlinedIcon sx={{ color: 'text.secondary' }} />
       <Typography

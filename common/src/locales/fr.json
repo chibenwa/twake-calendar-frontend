@@ -342,6 +342,10 @@
     "hideDatePicker": "Masquer le sélecteur de date",
     "showDatePicker": "Afficher le sélecteur de date"
   },
+  "a11y": {
+    "skipToContent": "Aller au contenu",
+    "calendarsHeading": "Agendas"
+  },
   "pageTitle": {
     "search": "Résultats de recherche pour « %{query} »",
     "booking": "Réserver %{name} avec %{owner}",

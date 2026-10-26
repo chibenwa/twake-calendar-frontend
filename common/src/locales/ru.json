@@ -342,6 +342,10 @@
     "hideDatePicker": "Скрыть выбор даты",
     "showDatePicker": "Показать выбор даты"
   },
+  "a11y": {
+    "skipToContent": "Перейти к содержимому",
+    "calendarsHeading": "Календари"
+  },
   "pageTitle": {
     "search": "Результаты поиска: «%{query}»",
     "booking": "Записаться: %{name}, %{owner}",

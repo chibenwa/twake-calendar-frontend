@@ -168,6 +168,21 @@ describe('CalendarSelection', () => {
       /^months\.standalone\.\d+.* – Twake Calendar$/
     )
   })
+  it('has one level-1 heading, the period, and a skip link to the grid (#1791)', async () => {
+    await act(async () => {
+      renderWithProviders(<CalendarLayout />, preloadedState)
+    })
+
+    const h1 = screen.getAllByRole('heading', { level: 1 })
+    expect(h1).toHaveLength(1)
+    expect(h1[0].textContent).toMatch(/^months\.standalone\./)
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'a11y.calendarsHeading' })
+    ).toBeInTheDocument()
+    const skip = screen.getByRole('link', { name: 'a11y.skipToContent' })
+    expect(skip).toHaveAttribute('href', '#main-content')
+    expect(document.getElementById('main-content')).toHaveClass('calendar')
+  })
   it('open accordeon when clicking on button only', async () => {
     await act(async () => {
       renderWithProviders(<CalendarLayout />, preloadedState)

@@ -9,6 +9,9 @@ import {
   formatPeriodLabel
 } from '@common/components/Menubar/periodLabel'
 import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
+import { MAIN_CONTENT_ID, SkipLink } from '@common/components/SkipLink/SkipLink'
+import { visuallyHidden } from '@common/utils/visuallyHidden'
+import { Typography } from '@linagora/twake-mui'
 import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
@@ -66,6 +69,7 @@ export default function CalendarLayout(): JSX.Element {
     setViewMode()
   }, [isTablet, isMobile])
 
+  const periodLabel = formatPeriodLabel(displayedPeriod, currentDate, t)
   useDocumentTitle(
     view === 'settings'
       ? t('settings.title')
@@ -73,7 +77,7 @@ export default function CalendarLayout(): JSX.Element {
         ? searchQuery
           ? t('pageTitle.search', { query: searchQuery })
           : t('search.resultsTitle')
-        : formatPeriodLabel(displayedPeriod, currentDate, t)
+        : periodLabel
   )
 
   // Manage calendar selection states
@@ -146,8 +150,15 @@ export default function CalendarLayout(): JSX.Element {
 
   return (
     <div className={cx('App ', { 'App--mobile': isMobile })}>
+      <SkipLink />
       {(view === 'calendar' || view === 'search') && (
         <main className="main-layout calendar-layout">
+          {/* Ahead of the sidebar headings, in reading order */}
+          {view === 'calendar' && (
+            <Typography component="h1" sx={visuallyHidden}>
+              {periodLabel}
+            </Typography>
+          )}
           <Sidebar
             open={openSidebar}
             onClose={() => setOpenSideBar(false)}
@@ -163,7 +174,7 @@ export default function CalendarLayout(): JSX.Element {
             currentView={currentView}
             onDateChange={handleDateChange}
           />
-          <div className="calendar">
+          <div className="calendar" id={MAIN_CONTENT_ID} tabIndex={-1}>
             <Menubar {...menubarProps} />
             <CalendarController
               calendarRef={calendarRef}

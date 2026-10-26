@@ -80,6 +80,7 @@ export const EventPreviewPage: React.FC = () => {
         isOwn={false}
         timezone={event?.timezone as string}
         t={t}
+        headingComponent="h1"
       />
       <EventStatus partStat={action} />
       <EventPreviewDetails
