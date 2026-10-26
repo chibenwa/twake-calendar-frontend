@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
@@ -267,22 +268,28 @@ class DragAndDropTest extends TwakeCalendarE2ETest {
         // Refuse every write towards a calendar, whatever verb carries it: a move does not
         // necessarily travel as a PUT, and letting the real one through would have the event
         // move for good while the test believes it was refused.
+        AtomicInteger refused = new AtomicInteger();
         page.route("**/*", route -> {
             String method = route.request().method();
             boolean write = "PUT".equals(method) || "POST".equals(method)
                 || "PATCH".equals(method) || "DELETE".equals(method);
             if (write && route.request().url().contains("calendars")) {
+                refused.incrementAndGet();
                 route.fulfill(new com.microsoft.playwright.Route.FulfillOptions()
                     .setStatus(500).setBody("nope"));
             } else {
                 route.resume();
             }
         });
-        boolean moved = calendar.tryDragEventToSlot(title, E2EClock.today(), "19:00:00");
+        calendar.tryDragEventToSlot(title, E2EClock.today(), "19:00:00", () -> refused.get() > 0);
 
-        assertThat(moved)
-            .as("a move the server refused must not be left on screen")
-            .isFalse();
+        assertThat(refused.get())
+            .as("the grid registered the move and handed it to the server")
+            .isPositive();
+        Awaitility.await().atMost(Duration.ofSeconds(10)).untilAsserted(() ->
+            assertThat(calendar.eventSitsOnSlot(title, "19:00:00"))
+                .as("a move the server refused must not be left on screen")
+                .isFalse());
 
         // Writes stay refused until the end: the drop reads the event before writing it, and
         // a write going out once the route is gone would move the event for real.
