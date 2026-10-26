@@ -604,20 +604,39 @@ public class CalendarPage {
      * the event ended up where it was aimed.
      */
     public boolean tryDragEventToSlot(String title, java.time.LocalDate day, String slot) {
+        return tryDragEventToSlot(title, day, slot, () -> false);
+    }
+
+    /**
+     * Same gesture, for a move the server answers before the grid is checked: a refused move is
+     * already back in place by then, and repeating the gesture would only drop the event on the
+     * error the first one raised. Once {@code answered} holds, the gesture is not repeated.
+     */
+    public boolean tryDragEventToSlot(String title, java.time.LocalDate day, String slot,
+                                      java.util.function.BooleanSupplier answered) {
         // the destination first: reaching it may scroll the grid, and every box read before
         // that would then describe a position the card no longer occupies
-        BoundingBox target = requireBox(
-            page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first(), "the " + slot + " slot");
+        BoundingBox target = requireBox(slot(slot), "the " + slot + " slot");
         BoundingBox column = boxOf(
             page.locator(".fc-timegrid-col[data-date='" + day + "']").last(), "the column of " + day);
-        BoundingBox card = boxOf(eventCard(title).first(), "the card of " + title);
-        return dragUntilMoved(
+        boolean done = dragUntilMoved(
             () -> {
                 BoundingBox now = boxOf(eventCard(title).first(), "the card of " + title);
                 drag(now.x + now.width / 2, now.y + now.height / 2,
                     column.x + column.width / 2, now.y + now.height / 2 + (target.y - now.y));
             },
-            () -> Math.abs(boxOf(eventCard(title).first(), "the card of " + title).y - target.y) < 12);
+            () -> eventSitsOnSlot(title, slot) || answered.getAsBoolean());
+        return done && eventSitsOnSlot(title, slot);
+    }
+
+    /** Whether the card of an event starts on the given slot of the time grid. */
+    public boolean eventSitsOnSlot(String title, String slot) {
+        BoundingBox target = boxOf(slot(slot), "the " + slot + " slot");
+        return Math.abs(boxOf(eventCard(title).first(), "the card of " + title).y - target.y) < 12;
+    }
+
+    private Locator slot(String slot) {
+        return page.locator(".fc-timegrid-slot[data-time='" + slot + "']").first();
     }
 
     /** Same day of the week grid, another column: only the date changes. */
