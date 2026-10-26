@@ -41,10 +41,11 @@ function AnswerText({
   partstat: PartStat
   t: Translate
 }): JSX.Element | null {
-  if (partstat !== 'ACCEPTED' && partstat !== 'DECLINED') return null
+  const answer = answerText(partstat, t)
+  if (!answer) return null
   return (
     <Box component="span" sx={visuallyHidden}>
-      {answerText(partstat, t)}
+      {answer}
     </Box>
   )
 }

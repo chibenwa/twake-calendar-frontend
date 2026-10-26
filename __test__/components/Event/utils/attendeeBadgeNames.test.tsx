@@ -35,7 +35,7 @@ describe('participant answers have a text alternative (#1788)', () => {
     ).toBeInTheDocument()
   })
 
-  it.each(['ACCEPTED', 'DECLINED'] as PartStat[])(
+  it.each(['ACCEPTED', 'DECLINED', 'TENTATIVE'] as PartStat[])(
     'says the %s badge of a full participant row',
     partstat => {
       renderWithProviders(
