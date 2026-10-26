@@ -1,4 +1,5 @@
 import SearchResultsPage from '@common/features/Search/SearchResultsPage'
+import { defaultSearchParams } from '@common/features/Search/SearchSlice'
 import { screen } from '@testing-library/react'
 import { renderWithProviders } from '../../utils/Renderwithproviders'
 
@@ -8,6 +9,7 @@ describe('SearchResultsPage', () => {
   start.setHours(10, 0, 0, 0)
   const end = new Date(today)
   end.setHours(11, 0, 0, 0)
+  const searchParams = { ...defaultSearchParams, search: 'a10y' }
   const preloadedState = {
     user: {
       userData: {
@@ -122,15 +124,30 @@ describe('SearchResultsPage', () => {
   it('should show loading spinner when loading', () => {
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { loading: true, error: null, hits: 0, results: [] }
+      searchResult: {
+        searchParams,
+        loading: true,
+        error: null,
+        hits: 0,
+        results: []
+      }
     })
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
+  })
+
+  it('names the page after the query in the browser title', () => {
+    renderWithProviders(<SearchResultsPage />, {
+      ...preloadedState,
+      searchResult: { searchParams, loading: false, hits: null, results: [] }
+    })
+    expect(document.title).toBe('pageTitle.search(query=a10y) – Twake Calendar')
   })
 
   it('should show error message when error occurs', () => {
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
       searchResult: {
+        searchParams,
         loading: false,
         error: 'Network error',
         hits: 0,
@@ -143,7 +160,13 @@ describe('SearchResultsPage', () => {
   it('should show no results message when no hits', () => {
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { loading: false, error: null, hits: null, results: [] }
+      searchResult: {
+        searchParams,
+        loading: false,
+        error: null,
+        hits: null,
+        results: []
+      }
     })
     expect(screen.getByText('search.noResults')).toBeInTheDocument()
   })
@@ -172,7 +195,7 @@ describe('SearchResultsPage', () => {
 
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { results: mockResults, hits: 2 }
+      searchResult: { searchParams, results: mockResults, hits: 2 }
     })
     expect(screen.getByText('search.resultsTitle')).toBeInTheDocument()
     expect(screen.getByText('Team Meeting')).toBeInTheDocument()
@@ -195,7 +218,7 @@ describe('SearchResultsPage', () => {
 
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { results: mockResults, hits: 1 }
+      searchResult: { searchParams, results: mockResults, hits: 1 }
     })
 
     expect(screen.getByText('Untitled Event')).toBeInTheDocument()
@@ -216,7 +239,7 @@ describe('SearchResultsPage', () => {
 
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { results: mockResults, hits: 1 }
+      searchResult: { searchParams, results: mockResults, hits: 1 }
     })
 
     expect(screen.getByText('All Day Event')).toBeInTheDocument()
@@ -244,7 +267,7 @@ describe('SearchResultsPage', () => {
 
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { results: mockResults, hits: 1 }
+      searchResult: { searchParams, results: mockResults, hits: 1 }
     })
 
     expect(
@@ -270,7 +293,7 @@ describe('SearchResultsPage', () => {
 
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
-      searchResult: { results: mockResults, hits: 1 }
+      searchResult: { searchParams, results: mockResults, hits: 1 }
     })
 
     expect(
@@ -296,7 +319,7 @@ describe('SearchResultsPage', () => {
     renderWithProviders(<SearchResultsPage />, {
       ...preloadedState,
       settings: { timeZone: 'America/New_York' },
-      searchResult: { results: mockResults, hits: 1 }
+      searchResult: { searchParams, results: mockResults, hits: 1 }
     })
 
     expect(

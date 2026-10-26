@@ -5,6 +5,8 @@ import { SettingErrorSnackbars } from './SettingErrorSnackbars'
 import { DesktopSettingsPage } from './DesktopSettingsPage'
 import { MobileSettingsPage } from './MobileSettingsPage'
 import { Menubar, type MenubarProps } from '@common/components/Menubar/Menubar'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
+import { useI18n } from 'twake-i18n'
 
 export type SidebarNavItem = 'settings' | 'sync'
 export type SettingsSubTab = 'settings' | 'notifications'
@@ -12,6 +14,8 @@ export type SettingsSubTab = 'settings' | 'notifications'
 const SettingsPage: React.FC<{
   menubarProps?: MenubarProps
 }> = ({ menubarProps }) => {
+  const { t } = useI18n()
+  useDocumentTitle(t('settings.title'))
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
   const [activeSettingsSubTab, setActiveSettingsSubTab] =

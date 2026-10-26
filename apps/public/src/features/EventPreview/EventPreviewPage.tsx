@@ -13,6 +13,7 @@ import { CalendarEvent } from '@common/types/EventsTypes'
 import { EventStatus } from '@/components/EventPreview/EventStatus'
 import { SnackbarAlert } from '@common/components/Loading/SnackBarAlert'
 import { useRsvpAction } from './hooks/useRsvpAction'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 import React, { useMemo } from 'react'
 
 const isUnableToLoad = (
@@ -40,6 +41,10 @@ export const EventPreviewPage: React.FC = () => {
     action,
     event,
     setSearchParams
+  )
+
+  useDocumentTitle(
+    event?.title ? t('pageTitle.rsvp', { title: event.title }) : undefined
   )
 
   const detailMessage = useMemo(() => {

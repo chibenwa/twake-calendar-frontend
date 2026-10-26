@@ -4,16 +4,21 @@ import { CALENDAR_VIEWS } from '@common/components/Calendar/utils/constants'
 import { ErrorSnackbar } from '@common/components/Error/ErrorSnackbar'
 import { refreshCalendars } from '@common/components/Event/utils/eventUtils'
 import { Menubar, MenubarProps } from '@common/components/Menubar/Menubar'
-import { DisplayedPeriod } from '@common/components/Menubar/periodLabel'
+import {
+  DisplayedPeriod,
+  formatPeriodLabel
+} from '@common/components/Menubar/periodLabel'
 import { setIsMobileSearchOpen } from '@common/features/Calendars/CalendarSlice'
 import SettingsPage from '@common/features/Settings/SettingsPage'
 import { setView } from '@common/features/Settings/SettingsSlice'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { getViewRange } from '@common/utils/dateUtils'
 import type { CalendarApi } from '@fullcalendar/core'
 import CalendarController, { CalendarControllerRef } from './CalendarController'
 import cx from 'classnames'
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from 'twake-i18n'
 import { useManageCalendarSelection } from './hooks/useManageCalendarSelection'
 import Sidebar from './Sidebar/SideBar'
 
@@ -21,6 +26,7 @@ export default function CalendarLayout(): JSX.Element {
   const calendarRef = useRef<CalendarApi | null>(null)
   const controllerRef = useRef<CalendarControllerRef | null>(null)
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
 
   const error = useAppSelector(state => state.calendars.error)
   const calendars = useAppSelector(state => state.calendars.list)
@@ -36,6 +42,15 @@ export default function CalendarLayout(): JSX.Element {
     isTablet || isMobile
       ? CALENDAR_VIEWS.timeGridDay
       : CALENDAR_VIEWS.timeGridWeek
+  )
+
+  // Settings and search results name themselves
+  useDocumentTitle(
+    view === 'calendar'
+      ? t('pageTitle.calendar', {
+          period: formatPeriodLabel(displayedPeriod, currentDate, t)
+        })
+      : undefined
   )
 
   const currentViewModeRef = useRef<string>()

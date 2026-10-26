@@ -704,5 +704,11 @@
   "embed": {
     "signInRequired": "Bạn đã đăng xuất. Hãy đăng nhập lại để xem lịch này.",
     "calendarUnavailable": "Lịch này không khả dụng. Có thể bạn không phải là thành viên của lịch."
+  },
+  "pageTitle": {
+    "calendar": "%{period}",
+    "search": "Kết quả tìm kiếm cho “%{query}”",
+    "booking": "Đặt lịch %{name} với %{owner}",
+    "rsvp": "Lời mời: %{title}"
   }
 }

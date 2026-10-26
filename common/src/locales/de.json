@@ -702,5 +702,11 @@
   "embed": {
     "signInRequired": "Sie sind abgemeldet. Melden Sie sich erneut an, um diesen Kalender zu sehen.",
     "calendarUnavailable": "Dieser Kalender ist nicht verfügbar. Möglicherweise sind Sie kein Mitglied."
+  },
+  "pageTitle": {
+    "calendar": "%{period}",
+    "search": "Suchergebnisse für „%{query}“",
+    "booking": "%{name} bei %{owner} buchen",
+    "rsvp": "Einladung: %{title}"
   }
 }

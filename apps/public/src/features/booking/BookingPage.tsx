@@ -17,6 +17,7 @@ import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { browserDefaultTimeZone } from '@common/utils/timezone'
 import { formatDateInTimezone } from '@common/components/Event/utils/dateTimeFormatters'
 import { BookingErrorBoundary } from './components/BookingErrorBoundary'
+import { useDocumentTitle } from '@common/hooks/useDocumentTitle'
 
 export const BookingPage: React.FC = () => {
   const { t } = useI18n()
@@ -40,6 +41,15 @@ export const BookingPage: React.FC = () => {
       timezone: selectedTimezone,
       loadErrorMessage: t('booking.error.loadFailed')
     })
+
+  useDocumentTitle(
+    bookingInfo
+      ? t('pageTitle.booking', {
+          name: bookingInfo.name || t('booking.defaultEventTitle'),
+          owner: bookingInfo.owner.displayName || bookingInfo.owner.email
+        })
+      : undefined
+  )
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedDay, setSelectedDay] = useState<Dayjs | null>(null)

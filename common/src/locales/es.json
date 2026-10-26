@@ -702,5 +702,11 @@
   "embed": {
     "signInRequired": "Has cerrado sesión. Vuelve a iniciar sesión para ver este calendario.",
     "calendarUnavailable": "Este calendario no está disponible. Es posible que no seas miembro."
+  },
+  "pageTitle": {
+    "calendar": "%{period}",
+    "search": "Resultados de búsqueda de «%{query}»",
+    "booking": "Reservar %{name} con %{owner}",
+    "rsvp": "Invitación: %{title}"
   }
 }

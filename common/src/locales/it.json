@@ -702,5 +702,11 @@
   "embed": {
     "signInRequired": "Sei disconnesso. Accedi di nuovo per vedere questo calendario.",
     "calendarUnavailable": "Questo calendario non è disponibile. Potresti non esserne membro."
+  },
+  "pageTitle": {
+    "calendar": "%{period}",
+    "search": "Risultati della ricerca per «%{query}»",
+    "booking": "Prenota %{name} con %{owner}",
+    "rsvp": "Invito: %{title}"
   }
 }
