@@ -41,7 +41,7 @@ public class EventFormModal {
     }
 
     private Locator titleInput() {
-        return page.getByLabel("Title").first();
+        return page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first();
     }
 
     public EventFormModal title(String title) {
@@ -221,11 +221,11 @@ public class EventFormModal {
     }
 
     public String description() {
-        return page.getByLabel("Description").inputValue();
+        return page.getByLabel("Description", new Page.GetByLabelOptions().setExact(true)).inputValue();
     }
 
     public String location() {
-        return page.getByLabel("Location").inputValue();
+        return page.getByLabel("Location", new Page.GetByLabelOptions().setExact(true)).inputValue();
     }
 
     /** Whether the form actually offers to move the event to another calendar. */
@@ -324,21 +324,21 @@ public class EventFormModal {
     }
 
     public EventFormModal allDay() {
-        page.getByLabel("All day").check();
+        page.getByLabel("All day", new Page.GetByLabelOptions().setExact(true)).check();
         return this;
     }
 
     public EventFormModal notAllDay() {
-        page.getByLabel("All day").uncheck();
+        page.getByLabel("All day", new Page.GetByLabelOptions().setExact(true)).uncheck();
         return this;
     }
 
     public EventFormModal description(String description) {
-        return fillAndHold(page.getByLabel("Description"), description);
+        return fillAndHold(page.getByLabel("Description", new Page.GetByLabelOptions().setExact(true)), description);
     }
 
     public EventFormModal location(String location) {
-        return fillAndHold(page.getByLabel("Location"), location);
+        return fillAndHold(page.getByLabel("Location", new Page.GetByLabelOptions().setExact(true)), location);
     }
 
     /**

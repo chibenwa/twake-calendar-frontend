@@ -150,7 +150,7 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
 
         Awaitility.await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
             page.getByLabel(FR_CREATE).click();
-            page.getByLabel("Titre").first().waitFor();
+            page.getByLabel("Titre", new Page.GetByLabelOptions().setExact(true)).first().waitFor();
             page.getByLabel(FR_EXPAND).click();
             assertThat(page.getByTestId("start-date-input").inputValue())
                 .as("English read %s", english)
@@ -167,7 +167,7 @@ class InternationalisationTest extends TwakeCalendarE2ETest {
         speaking(calendar, "Français");
 
         page.getByLabel(FR_CREATE).click();
-        page.getByLabel("Titre").first().fill(title("Invalide"));
+        page.getByLabel("Titre", new Page.GetByLabelOptions().setExact(true)).first().fill(title("Invalide"));
         page.getByLabel(FR_EXPAND).click();
         
         // Ensure start and end dates are identical so time validation triggers reliably

@@ -81,7 +81,7 @@ class AccessibilityTest extends TwakeCalendarE2ETest {
     void tabMovesFromOneFieldToTheNext(Page page, E2EUser user) {
         CalendarPage calendar = LoginPage.loginAs(page, user);
         EventFormModal form = calendar.createEvent().title(unique("Walkable"));
-        page.getByLabel("Title").first().focus();
+        page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first().focus();
         String first = focused(page);
 
         page.keyboard().press("Tab");

@@ -39,7 +39,7 @@ public class RecurrenceSection {
      * checked, the field being entitled to normalise it -- some tests are about exactly that.
      */
     private RecurrenceSection fillKeepingTheTitle(Locator field, String value) {
-        Locator title = page.getByLabel("Title").first();
+        Locator title = page.getByLabel("Title", new Page.GetByLabelOptions().setExact(true)).first();
         String before = title.inputValue();
         field.fill(value);
         if (!before.equals(title.inputValue())) {
