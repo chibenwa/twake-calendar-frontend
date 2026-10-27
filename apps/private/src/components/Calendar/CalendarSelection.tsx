@@ -913,7 +913,7 @@ const CalendarSelector: React.FC<{
           aria-label={t('common.moreOptions')}
           onClick={handleClick}
         >
-          <MoreHorizIcon />
+          <MoreHorizIcon fontSize="small" />
         </IconButton>
       </ListItem>
 
