@@ -148,22 +148,28 @@ describe('getEventByUid on a team calendar', () => {
     )
   })
 
-  it('reports a canceled event as canceled, without storing it', async () => {
-    fetchEventByUid.mockResolvedValue(
-      found(PERSONAL_CAL_ID, [['status', {}, 'text', 'CANCELLED']])
-    )
-    const store = storeFactory()
+  // iCalendar enumerated values are case-insensitive (RFC 5545)
+  it.each(['CANCELLED', 'cancelled'])(
+    'reports a %s event as canceled, without storing it',
+    async status => {
+      fetchEventByUid.mockResolvedValue(
+        found(PERSONAL_CAL_ID, [['status', {}, 'text', status]])
+      )
+      const store = storeFactory()
 
-    const result = await store.dispatch(
-      getEventByUid({ userId: 'alice', uid: 'event1' })
-    )
+      const result = await store.dispatch(
+        getEventByUid({ userId: 'alice', uid: 'event1' })
+      )
 
-    expect(result.meta.requestStatus).toBe('rejected')
-    expect(store.getState().calendars.error).toBe(
-      'TRANSLATION:error.eventCanceled'
-    )
-    expect(store.getState().calendars.list[PERSONAL_CAL_ID].events).toEqual({})
-  })
+      expect(result.meta.requestStatus).toBe('rejected')
+      expect(store.getState().calendars.error).toBe(
+        'TRANSLATION:error.eventCanceled'
+      )
+      expect(store.getState().calendars.list[PERSONAL_CAL_ID].events).toEqual(
+        {}
+      )
+    }
+  )
 
   it('only asks the home of the embedded calendar', async () => {
     fetchEventByUid.mockResolvedValue(found(TEAM_CAL_ID))

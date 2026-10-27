@@ -221,7 +221,8 @@ const PROPERTY_PARSERS: Record<
     event.exdates.push(safeString(value))
   },
   status: (params, value, event) => {
-    event.status = safeString(value)
+    // Enumerated values are case-insensitive (RFC 5545): compared upper-cased
+    event.status = safeString(value).toUpperCase()
   },
   duration: (params, value, event, context) => {
     context.duration = safeString(value)
