@@ -22,11 +22,11 @@ jest.mock('@common/features/booking/BookingDao', () => ({
 }))
 
 describe('CalendarSelection on a phone-sized screen', () => {
-  const renderSelection = (): void => {
+  const renderSelection = (setSelectedCalendars = jest.fn()): jest.Mock => {
     renderWithProviders(
       <CalendarSelection
         selectedCalendars={['user1/cal1']}
-        setSelectedCalendars={jest.fn()}
+        setSelectedCalendars={setSelectedCalendars}
       />,
       {
         user: {
@@ -50,6 +50,28 @@ describe('CalendarSelection on a phone-sized screen', () => {
           pending: false
         }
       }
+    )
+    return setSelectedCalendars
+  }
+
+  const longPress = (row: HTMLElement): void => {
+    const touch = { pageX: 0, pageY: 0, clientX: 0, clientY: 0 }
+    fireEvent.touchStart(row, { touches: [touch] })
+    act(() => {
+      jest.advanceTimersByTime(300)
+    })
+    fireEvent.touchEnd(row, { changedTouches: [touch] })
+  }
+
+  const dismissActionsSheet = async (): Promise<void> => {
+    fireEvent.keyDown(
+      await screen.findByRole('button', { name: 'actions.modify' }),
+      { key: 'Escape' }
+    )
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'actions.modify' })
+      ).not.toBeInTheDocument()
     )
   }
 
@@ -81,6 +103,23 @@ describe('CalendarSelection on a phone-sized screen', () => {
     )
   })
 
+  it('does not toggle the calendar with the click ending a long press', () => {
+    jest.useFakeTimers()
+    try {
+      const setSelectedCalendars = renderSelection()
+      const checkbox = screen.getByRole('checkbox', {
+        name: 'Calendar personal'
+      })
+
+      longPress(checkbox.closest('li') as HTMLElement)
+      fireEvent.click(checkbox)
+
+      expect(setSelectedCalendars).not.toHaveBeenCalled()
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
   it('opens the actions sheet with the button after a long press', async () => {
     jest.useFakeTimers()
     try {
@@ -89,22 +128,32 @@ describe('CalendarSelection on a phone-sized screen', () => {
         .getByRole('checkbox', { name: 'Calendar personal' })
         .closest('li') as HTMLElement
 
-      const touch = { pageX: 0, pageY: 0, clientX: 0, clientY: 0 }
-      fireEvent.touchStart(row, { touches: [touch] })
-      act(() => {
-        jest.advanceTimersByTime(300)
-      })
-      fireEvent.touchEnd(row, { changedTouches: [touch] })
+      longPress(row)
       fireEvent.click(row)
-      fireEvent.keyDown(
-        await screen.findByRole('button', { name: 'actions.modify' }),
-        { key: 'Escape' }
+      await dismissActionsSheet()
+
+      fireEvent.click(
+        within(row).getByRole('button', { name: 'common.moreOptions' })
       )
-      await waitFor(() =>
-        expect(
-          screen.queryByRole('button', { name: 'actions.modify' })
-        ).not.toBeInTheDocument()
-      )
+
+      expect(
+        await screen.findByRole('button', { name: 'actions.modify' })
+      ).toBeInTheDocument()
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('opens the actions sheet with the button when a long press delivered no click', async () => {
+    jest.useFakeTimers()
+    try {
+      renderSelection()
+      const row = screen
+        .getByRole('checkbox', { name: 'Calendar personal' })
+        .closest('li') as HTMLElement
+
+      longPress(row)
+      await dismissActionsSheet()
 
       fireEvent.click(
         within(row).getByRole('button', { name: 'common.moreOptions' })
