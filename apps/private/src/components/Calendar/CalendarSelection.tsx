@@ -905,16 +905,14 @@ const CalendarSelector: React.FC<{
             </div>
           </label>
         </Tooltip>
-        {!isMobile && (
-          <IconButton
-            className="MoreBtn"
-            size="xsmall"
-            aria-label={t('common.moreOptions')}
-            onClick={handleClick}
-          >
-            <MoreHorizIcon />
-          </IconButton>
-        )}
+        <IconButton
+          className="MoreBtn"
+          size="xsmall"
+          aria-label={t('common.moreOptions')}
+          onClick={handleClick}
+        >
+          <MoreHorizIcon />
+        </IconButton>
       </ListItem>
 
       <CalendarSelectorMenu
