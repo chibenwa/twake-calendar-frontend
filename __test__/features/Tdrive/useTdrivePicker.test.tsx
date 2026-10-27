@@ -218,6 +218,11 @@ describe('useTdrivePicker', () => {
 
     expect(result.current.isOpen).toBe(false)
     expect(result.current.openPickerError).toBe('tdrivePickerFailed')
+
+    act(() => {
+      result.current.dismissOpenPickerError()
+    })
+    expect(result.current.openPickerError).toBeNull()
   })
 
   it('calls onFilesSelected with file from intent result', async () => {

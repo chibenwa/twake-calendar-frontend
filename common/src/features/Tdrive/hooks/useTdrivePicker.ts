@@ -29,6 +29,7 @@ interface UseTdrivePickerReturn {
   openPickerError: string | null
   openPicker: () => Promise<void>
   closePicker: () => void
+  dismissOpenPickerError: () => void
   onReadyToUse: (callback: () => void) => void
 }
 
@@ -256,6 +257,10 @@ export function useTdrivePicker({
     setIsOpen(false)
   }, [])
 
+  const dismissOpenPickerError = useCallback(() => {
+    setOpenPickerError(null)
+  }, [])
+
   useEffect(
     () => () => {
       activeCancellationRef.current?.cancel()
@@ -270,6 +275,7 @@ export function useTdrivePicker({
     openPickerError,
     openPicker,
     closePicker,
+    dismissOpenPickerError,
     onReadyToUse
   }
 }

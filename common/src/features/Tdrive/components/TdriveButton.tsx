@@ -74,8 +74,19 @@ export const TdriveButton: React.FC<TdriveButtonProps> = ({
     openPickerError,
     openPicker,
     closePicker,
+    dismissOpenPickerError,
     onReadyToUse
   } = useTdrivePicker({ onFilesSelected })
+
+  // A click away from the alert may be the click that reopens the picker:
+  // only the timeout and the alert's close button dismiss it.
+  const handleErrorClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ): void => {
+    if (reason === 'clickaway') return
+    dismissOpenPickerError()
+  }
 
   const isExpanded = showMore && !isMobile
 
@@ -108,10 +119,10 @@ export const TdriveButton: React.FC<TdriveButtonProps> = ({
       <Snackbar
         open={openPickerError !== null}
         autoHideDuration={4000}
-        onClose={closePicker}
+        onClose={handleErrorClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity="error" onClose={closePicker}>
+        <Alert severity="error" onClose={handleErrorClose}>
           {t('event.form.tdrivePickerError')}
         </Alert>
       </Snackbar>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TdriveButton } from '@common/features/Tdrive/components/TdriveButton'
 import { Provider } from 'react-redux'
@@ -23,6 +23,7 @@ jest.mock('@common/features/Tdrive/components/TdrivePickerDialog', () => ({
 
 const mockOpenPicker = jest.fn()
 const mockClosePicker = jest.fn()
+const mockDismissOpenPickerError = jest.fn()
 const mockOnReadyToUse = jest.fn()
 
 const defaultHookReturn = {
@@ -31,6 +32,7 @@ const defaultHookReturn = {
   openPickerError: null,
   openPicker: mockOpenPicker,
   closePicker: mockClosePicker,
+  dismissOpenPickerError: mockDismissOpenPickerError,
   onReadyToUse: mockOnReadyToUse
 }
 
@@ -159,6 +161,57 @@ describe('TdriveButton', () => {
       { wrapper: Wrapper }
     )
     expect(screen.getByText('event.form.tdrivePickerError')).toBeInTheDocument()
+  })
+
+  describe('error snackbar', () => {
+    const renderWithError = () => {
+      mockUseTdrivePicker.mockReturnValue({
+        ...defaultHookReturn,
+        openPickerError: 'tdrivePickerFailed'
+      })
+      render(
+        React.createElement(TdriveButton, {
+          onFilesSelected: mockOnFilesSelected,
+          showMore: true
+        }),
+        { wrapper: Wrapper }
+      )
+    }
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('dismisses the error when its close button is clicked', async () => {
+      renderWithError()
+      await userEvent.click(screen.getByRole('button', { name: /close/i }))
+      expect(mockDismissOpenPickerError).toHaveBeenCalledTimes(1)
+      expect(mockClosePicker).not.toHaveBeenCalled()
+    })
+
+    it('dismisses the error after its auto hide duration', () => {
+      jest.useFakeTimers()
+      renderWithError()
+      act(() => {
+        jest.advanceTimersByTime(4000)
+      })
+      expect(mockDismissOpenPickerError).toHaveBeenCalledTimes(1)
+      expect(mockClosePicker).not.toHaveBeenCalled()
+    })
+
+    it('reopens the picker without closing it on a click away from the error', async () => {
+      renderWithError()
+      // The Snackbar listens to click away only once mounted
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0))
+      })
+      fireEvent.click(
+        screen.getByRole('button', { name: 'event.form.addTdriveFile' })
+      )
+      expect(mockOpenPicker).toHaveBeenCalledTimes(1)
+      expect(mockClosePicker).not.toHaveBeenCalled()
+      expect(mockDismissOpenPickerError).not.toHaveBeenCalled()
+    })
   })
 
   it('renders TdrivePickerDialog', () => {
