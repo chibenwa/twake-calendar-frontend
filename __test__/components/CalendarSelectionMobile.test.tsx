@@ -1,6 +1,6 @@
 import CalendarSelection from '../../apps/private/src/components/Calendar/CalendarSelection'
 import '@testing-library/jest-dom'
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { renderWithProviders } from '../utils/Renderwithproviders'
 
 jest.mock('@common/useScreenSizeDetection', () => ({
@@ -66,5 +66,55 @@ describe('CalendarSelection on a phone-sized screen', () => {
     expect(
       await screen.findByRole('button', { name: 'actions.modify' })
     ).toBeInTheDocument()
+  })
+
+  it('moves the focus into the calendar actions sheet', async () => {
+    renderSelection()
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.moreOptions' }))
+
+    const modify = await screen.findByRole('button', { name: 'actions.modify' })
+    await waitFor(() =>
+      expect(
+        modify.closest('.MuiDrawer-paper')?.contains(document.activeElement)
+      ).toBe(true)
+    )
+  })
+
+  it('opens the actions sheet with the button after a long press', async () => {
+    jest.useFakeTimers()
+    try {
+      renderSelection()
+      const row = screen
+        .getByRole('checkbox', { name: 'Calendar personal' })
+        .closest('li') as HTMLElement
+
+      const touch = { pageX: 0, pageY: 0, clientX: 0, clientY: 0 }
+      fireEvent.touchStart(row, { touches: [touch] })
+      act(() => {
+        jest.advanceTimersByTime(300)
+      })
+      fireEvent.touchEnd(row, { changedTouches: [touch] })
+      fireEvent.click(row)
+      fireEvent.keyDown(
+        await screen.findByRole('button', { name: 'actions.modify' }),
+        { key: 'Escape' }
+      )
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: 'actions.modify' })
+        ).not.toBeInTheDocument()
+      )
+
+      fireEvent.click(
+        within(row).getByRole('button', { name: 'common.moreOptions' })
+      )
+
+      expect(
+        await screen.findByRole('button', { name: 'actions.modify' })
+      ).toBeInTheDocument()
+    } finally {
+      jest.useRealTimers()
+    }
   })
 })

@@ -781,12 +781,13 @@ const CalendarSelector: React.FC<{
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
     setAnchorEl(event.currentTarget)
   }
-  const handleClose = (): void => {
-    setAnchorEl(null)
-  }
-
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isLongPressedRef = useRef(false)
+
+  const handleClose = (): void => {
+    isLongPressedRef.current = false
+    setAnchorEl(null)
+  }
 
   const handleTouchStart = (): void => {
     if (!isMobile) return
@@ -859,6 +860,7 @@ const CalendarSelector: React.FC<{
         onTouchMove={handleTouchMove}
         onClickCapture={e => {
           if (isLongPressedRef.current) {
+            isLongPressedRef.current = false
             e.stopPropagation()
             e.preventDefault()
           }

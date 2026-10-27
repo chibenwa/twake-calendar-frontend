@@ -47,7 +47,6 @@ export const CalendarSelectorMobileMenu: React.FC<
       open={open}
       onClose={onClose}
       onOpen={() => {}}
-      disableAutoFocus
     >
       <List>
         {onToggleVisibility !== undefined && (
