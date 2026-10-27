@@ -212,6 +212,7 @@
       "videoMeeting": "Videoconferenza",
       "meetCopied": "Link della riunione copiato!",
       "addVisioConference": "Aggiungi videoconferenza",
+      "videoConferenceCreationFailed": "Impossibile creare la sala per la videoconferenza, riprova",
       "joinVisioConference": "Partecipa alla videoconferenza",
       "joinVisio": "Partecipa con Visio",
       "attachments": "Allegati",

@@ -212,6 +212,7 @@
       "videoMeeting": "Video meeting",
       "meetCopied": "Meeting link copied!",
       "addVisioConference": "Add Visio conference",
+      "videoConferenceCreationFailed": "The video conference room could not be created, please try again",
       "joinVisioConference": "Join Visio conference",
       "joinVisio": "Join Visio",
       "attachments": "Attachments",

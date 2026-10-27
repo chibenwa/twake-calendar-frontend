@@ -6,18 +6,20 @@ export function SnackbarAlert({
   setOpen,
   message,
   severity = 'success',
+  autoHideDuration = 2000,
   sx
 }: {
   open: boolean
   setOpen: (o: boolean) => void
   message: string
   severity?: AlertColor
+  autoHideDuration?: number
   sx?: object
 }): JSX.Element {
   return (
     <Snackbar
       open={open}
-      autoHideDuration={2000}
+      autoHideDuration={autoHideDuration}
       onClose={() => setOpen(false)}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >

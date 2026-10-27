@@ -212,6 +212,7 @@
       "videoMeeting": "Видеовстреча",
       "meetCopied": "Ссылка на встречу скопирована",
       "addVisioConference": "Добавить видеоконференцию",
+      "videoConferenceCreationFailed": "Не удалось создать комнату видеоконференции, попробуйте ещё раз",
       "joinVisioConference": "Подключиться сейчас",
       "joinVisio": "Подключиться к Visio",
       "attachments": "Вложения",

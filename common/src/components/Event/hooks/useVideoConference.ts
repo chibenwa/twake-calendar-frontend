@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useAppSelector } from '@common/app/hooks'
 import { createVideoConferenceRoom } from '@common/features/Events/VideoConferenceDao'
 import { generateMeetingLink } from '@common/utils/videoConferenceUtils'
@@ -15,6 +15,9 @@ interface UseVideoConferenceProps {
 interface UseVideoConferenceReturn {
   handleAddVideoConference: () => void
   handleDeleteVideoConference: () => void
+  isCreatingRoom: boolean
+  hasCreationFailed: boolean
+  dismissCreationFailure: () => void
 }
 
 export const useVideoConference = ({
@@ -28,6 +31,8 @@ export const useVideoConference = ({
   )
   const email = useAppSelector(state => state.user.userData?.email)
   const isAddingRef = useRef(false)
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false)
+  const [hasCreationFailed, setHasCreationFailed] = useState(false)
 
   const generateLocalMeetingLink = (): string =>
     generateMeetingLink({
@@ -54,6 +59,8 @@ export const useVideoConference = ({
       return
     }
     isAddingRef.current = true
+    setIsCreatingRoom(true)
+    setHasCreationFailed(false)
     try {
       const newMeetingLink = await resolveMeetingLink()
       setHasVideoConference(true)
@@ -63,8 +70,12 @@ export const useVideoConference = ({
       }
     } catch (error) {
       console.error('Failed to create the video conference room:', error)
+      // Without feedback, the user may send an invitation believing it
+      // carries a meeting link
+      setHasCreationFailed(true)
     } finally {
       isAddingRef.current = false
+      setIsCreatingRoom(false)
     }
   }
 
@@ -77,8 +88,15 @@ export const useVideoConference = ({
     setMeetingLink(null)
   }
 
+  const dismissCreationFailure = (): void => {
+    setHasCreationFailed(false)
+  }
+
   return {
     handleAddVideoConference,
-    handleDeleteVideoConference
+    handleDeleteVideoConference,
+    isCreatingRoom,
+    hasCreationFailed,
+    dismissCreationFailure
   }
 }

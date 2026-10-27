@@ -212,6 +212,7 @@
       "videoMeeting": "Videokonferenz",
       "meetCopied": "Besprechungslink kopiert!",
       "addVisioConference": "Videokonferenz hinzufügen",
+      "videoConferenceCreationFailed": "Der Videokonferenzraum konnte nicht erstellt werden, bitte versuchen Sie es erneut",
       "joinVisioConference": "An der Videokonferenz teilnehmen",
       "joinVisio": "Über Visio teilnehmen",
       "attachments": "Anhänge",

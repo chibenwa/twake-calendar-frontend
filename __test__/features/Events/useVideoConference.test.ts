@@ -96,11 +96,68 @@ describe('useVideoConference', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {})
 
-    await addVideoConference()
+    const { result } = renderVideoConferenceHook()
+    await act(async () => {
+      result.current.handleAddVideoConference()
+    })
 
     expect(setHasVideoConference).not.toHaveBeenCalled()
     expect(setMeetingLink).not.toHaveBeenCalled()
+    expect(result.current.hasCreationFailed).toBe(true)
+    expect(result.current.isCreatingRoom).toBe(false)
     consoleError.mockRestore()
+  })
+
+  it('clears the failure when retrying and when dismissed', async () => {
+    window.MEET_BACKEND_INTEGRATION = true
+    ;(createVideoConferenceRoom as jest.Mock).mockRejectedValueOnce(
+      new Error('Failed to fetch')
+    )
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {})
+    const { result } = renderVideoConferenceHook()
+    await act(async () => {
+      result.current.handleAddVideoConference()
+    })
+    expect(result.current.hasCreationFailed).toBe(true)
+
+    act(() => {
+      result.current.dismissCreationFailure()
+    })
+    expect(result.current.hasCreationFailed).toBe(false)
+    ;(createVideoConferenceRoom as jest.Mock).mockResolvedValueOnce(
+      'https://meet.example.com/vep-txbc-trh'
+    )
+    await act(async () => {
+      result.current.handleAddVideoConference()
+    })
+    expect(result.current.hasCreationFailed).toBe(false)
+    expect(setMeetingLink).toHaveBeenCalledWith(
+      'https://meet.example.com/vep-txbc-trh'
+    )
+    consoleError.mockRestore()
+  })
+
+  it('reports the room creation as pending until it settles', async () => {
+    window.MEET_BACKEND_INTEGRATION = true
+    let resolveRoom: (url: string) => void = () => {}
+    ;(createVideoConferenceRoom as jest.Mock).mockReturnValue(
+      new Promise<string>(resolve => {
+        resolveRoom = resolve
+      })
+    )
+    const { result } = renderVideoConferenceHook()
+
+    act(() => {
+      result.current.handleAddVideoConference()
+    })
+    expect(result.current.isCreatingRoom).toBe(true)
+
+    await act(async () => {
+      resolveRoom('https://meet.example.com/vep-txbc-trh')
+    })
+    expect(result.current.isCreatingRoom).toBe(false)
   })
 
   it('creates a single room when adding twice while the request is pending', async () => {

@@ -9,6 +9,7 @@ import { SectionPreviewRow } from '@common/components/Event/components/SectionPr
 import { useScreenSizeDetection } from '@common/useScreenSizeDetection'
 import { VideoLink } from '@common/components/Event/components/VideoLink'
 import Tooltip from '@common/components/Tooltip'
+import { SnackbarAlert } from '@common/components/Loading/SnackBarAlert'
 
 export interface VideoConferenceFieldProps {
   hasVideoConference: boolean
@@ -90,12 +91,14 @@ const VideoConferenceFieldInExpandedMode: React.FC<{
   cameraIcon: React.ReactNode
   handleDeleteVideoConference: () => void
   handleAddVideoConference: () => void
+  isCreatingRoom: boolean
 }> = ({
   hasVideoConference,
   meetingLink,
   cameraIcon,
   handleDeleteVideoConference,
-  handleAddVideoConference
+  handleAddVideoConference,
+  isCreatingRoom
 }) => {
   const { t } = useI18n()
 
@@ -104,6 +107,7 @@ const VideoConferenceFieldInExpandedMode: React.FC<{
       <Button
         startIcon={cameraIcon}
         onClick={handleAddVideoConference}
+        disabled={isCreatingRoom}
         size="medium"
         variant="contained"
         color="secondary"
@@ -141,15 +145,20 @@ export const VideoConferenceField: React.FC<VideoConferenceFieldProps> = ({
   const { t } = useI18n()
   const { isTooSmall: isMobile } = useScreenSizeDetection()
 
-  const { handleAddVideoConference, handleDeleteVideoConference } =
-    useVideoConference({
-      description,
-      setDescription,
-      setHasVideoConference,
-      setMeetingLink,
-      showMore,
-      setShowDescription
-    })
+  const {
+    handleAddVideoConference,
+    handleDeleteVideoConference,
+    isCreatingRoom,
+    hasCreationFailed,
+    dismissCreationFailure
+  } = useVideoConference({
+    description,
+    setDescription,
+    setHasVideoConference,
+    setMeetingLink,
+    showMore,
+    setShowDescription
+  })
 
   const cameraIcon = (
     <img src={iconCamera} alt="camera" width={18} height={18} />
@@ -176,9 +185,17 @@ export const VideoConferenceField: React.FC<VideoConferenceFieldProps> = ({
             cameraIcon={cameraIcon}
             handleDeleteVideoConference={handleDeleteVideoConference}
             handleAddVideoConference={handleAddVideoConference}
+            isCreatingRoom={isCreatingRoom}
           />
         )}
       </FieldWithLabel>
+      <SnackbarAlert
+        open={hasCreationFailed}
+        setOpen={dismissCreationFailure}
+        message={t('event.form.videoConferenceCreationFailed')}
+        severity="error"
+        autoHideDuration={6000}
+      />
     </>
   )
 }
