@@ -289,6 +289,7 @@
     "cannotLoadEvent": "Không thể tải sự kiện",
     "missingToken": "Liên kết của bạn không hợp lệ",
     "eventNotFound": "Không tìm thấy sự kiện. Sự kiện có thể đã bị xóa hoặc liên kết không hợp lệ.",
+    "eventCanceled": "Sự kiện này đã bị hủy.",
     "invalidOrExpiredToken": "Liên kết lời mời của bạn không hợp lệ hoặc đã hết hạn.",
     "needHelp": "Cần giúp đỡ",
     "calendarsNotFound": "Không thể tải danh sách lịch của bạn. Một số lịch có thể đã bị xóa.",

@@ -19,6 +19,7 @@ import { ReducerCreators } from '@reduxjs/toolkit'
 import { CalendarState } from '../CalendarSlice'
 
 const EVENT_NOT_FOUND_ERROR = 'TRANSLATION:error.eventNotFound'
+const EVENT_CANCELED_ERROR = 'TRANSLATION:error.eventCanceled'
 
 type FoundEvent = { calId: string; events: CalendarEvent[] }
 
@@ -33,12 +34,18 @@ export const getEventByUidThunk = (create: ReducerCreators<CalendarState>) =>
       const listed = Object.values((getState() as RootState).calendars.list)
       const calendars = calId ? listed.filter(cal => cal.id === calId) : listed
       try {
-        return await findEventInHomes(
+        const found = await findEventInHomes(
           searchedHomes(userId, calendars, Boolean(calId)),
           uid,
           calendars,
           signal
         )
+        // An attendee keeps a canceled copy of an event its organizer deleted:
+        // the grid hides it, a deep link must not open it as if it took place.
+        if (found && isCanceled(found, uid)) {
+          return rejectWithValue({ message: EVENT_CANCELED_ERROR })
+        }
+        return found
       } catch (err) {
         return rejectWithValue(toRejectedError(err))
       }
@@ -136,6 +143,12 @@ async function findEventInHomes(
   }
   if (!answered && firstMiss) throw firstMiss
   return null
+}
+
+// The event the UID names: its master VEVENT, which a canceled series carries
+function isCanceled({ events }: FoundEvent, uid: string): boolean {
+  const event = events.find(event => event.uid === uid) ?? events[0]
+  return event?.status === 'CANCELLED'
 }
 
 function isMissingFromHome(err: unknown): boolean {

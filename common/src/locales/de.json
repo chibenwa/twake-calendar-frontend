@@ -289,6 +289,7 @@
     "cannotLoadEvent": "Der Termin kann nicht geladen werden",
     "missingToken": "Ihr Link ist ungültig",
     "eventNotFound": "Der Termin wurde nicht gefunden. Möglicherweise wurde er gelöscht oder der Link ist ungültig.",
+    "eventCanceled": "Dieser Termin wurde abgesagt.",
     "invalidOrExpiredToken": "Ihr Einladungslink ist ungültig oder abgelaufen.",
     "needHelp": "Benötigen Sie Hilfe?",
     "calendarsNotFound": "Ihre Kalenderliste konnte nicht geladen werden. Möglicherweise wurden einige Kalender gelöscht.",

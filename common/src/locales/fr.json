@@ -289,6 +289,7 @@
     "cannotLoadEvent": "Impossible de charger l'événement",
     "missingToken": "Votre lien est invalide",
     "eventNotFound": "L'événement est introuvable. Il a peut-être été supprimé ou le lien est invalide.",
+    "eventCanceled": "Cet événement a été annulé.",
     "invalidOrExpiredToken": "Votre lien d'invitation est invalide ou a expiré.",
     "needHelp": "Besoin d'aide",
     "calendarsNotFound": "Votre liste de calendriers n'a pas pu être chargée. Certains calendriers ont peut-être été supprimés.",

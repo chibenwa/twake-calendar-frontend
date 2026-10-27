@@ -289,6 +289,7 @@
     "cannotLoadEvent": "No se puede cargar el evento",
     "missingToken": "Su enlace no es válido",
     "eventNotFound": "No se ha encontrado el evento. Es posible que se haya eliminado o que el enlace no sea válido.",
+    "eventCanceled": "Este evento se ha cancelado.",
     "invalidOrExpiredToken": "Su enlace de invitación no es válido o ha caducado.",
     "needHelp": "¿Necesita ayuda?",
     "calendarsNotFound": "No se ha podido cargar su lista de calendarios. Es posible que se hayan eliminado algunos calendarios.",

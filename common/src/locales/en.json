@@ -289,6 +289,7 @@
     "cannotLoadEvent": "Unable to load event",
     "missingToken": "Your link is invalid",
     "eventNotFound": "The event could not be found. It may have been deleted or the link is invalid.",
+    "eventCanceled": "This event was canceled.",
     "invalidOrExpiredToken": "Your invitation link is invalid or has expired.",
     "needHelp": "Need help",
     "calendarsNotFound": "Your calendar list could not be loaded. Some calendars may have been deleted.",
