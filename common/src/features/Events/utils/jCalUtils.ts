@@ -1,4 +1,5 @@
 import { VObjectProperty } from '@common/features/Calendars/types/CalendarData'
+import { resolveTimezone } from '@common/utils/timezone'
 import moment from 'moment-timezone'
 import { getTzidParam } from '../transformers/recurrenceInstant'
 
@@ -21,10 +22,20 @@ export function parseMoment(
   fallbackTimezone: string
 ): moment.Moment | null {
   if (!prop || typeof prop[3] !== 'string') return null
-  const tzid = getTzidParam(prop[1]) || fallbackTimezone
+  const tzid = knownZone(getTzidParam(prop[1]), fallbackTimezone)
   const val = prop[3]
   const m = val.endsWith('Z') ? moment.utc(val) : moment.tz(val, tzid)
   return m.isValid() ? m : null
+}
+
+// A Windows or alias TZID (Outlook writes "Romance Standard Time") resolves to
+// its IANA zone: moment.tz reads a name it does not know as UTC
+export function knownZone(
+  tzid: string | undefined,
+  fallbackTimezone: string
+): string {
+  const resolved = tzid ? resolveTimezone(tzid) : undefined
+  return resolved && moment.tz.zone(resolved) ? resolved : fallbackTimezone
 }
 
 export function parseInstant(

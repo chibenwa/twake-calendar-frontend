@@ -4,7 +4,11 @@ import {
   VObjectValue
 } from '@common/features/Calendars/types/CalendarData'
 import { VcalendarProperties } from '@common/features/Calendars/types/VcalendarProperties'
-import { makeTimezone, parseCalendarEvent } from '@common/features/Events/utils'
+import {
+  knownZone,
+  makeTimezone,
+  parseCalendarEvent
+} from '@common/features/Events/utils'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { TIMEZONES } from '@common/utils/timezone-data'
@@ -53,7 +57,10 @@ export function makeDeleteEventInstanceJCal(
 
   let exdateProperty = exdateValue as VObjectValue
   if (useTzidForm) {
-    const zoned = moment.tz(exdateValue, dtstartTzid)
+    const zoned = moment.tz(
+      exdateValue,
+      knownZone(dtstartTzid, seriesEvent.timezone || 'UTC')
+    )
     exdateProperty = zoned.format('YYYY-MM-DDTHH:mm:ss')
   }
 

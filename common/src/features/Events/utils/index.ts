@@ -12,6 +12,7 @@ export { parseCalendarEvent } from './parseCalendarEvent'
 export {
   findFieldValue,
   getFieldValues,
+  knownZone,
   parseMoment,
   parseInstant
 } from './jCalUtils'

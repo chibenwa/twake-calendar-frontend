@@ -834,6 +834,66 @@ describe('makeSeriesJCal', () => {
       expect(valuesOf(renamed, 'dtstart')).toEqual(['2026-11-01T10:00:00Z'])
     })
 
+    describe('series stored with a Windows zone name (#1844)', () => {
+      const tzid = { tzid: 'Romance Standard Time' }
+      const windowsSeries: VCalComponent[] = [
+        [
+          'vevent',
+          [
+            ['uid', {}, 'text', 'event1'],
+            ['dtstart', tzid, 'date-time', '2026-10-11T10:00:00'],
+            ['dtend', tzid, 'date-time', '2026-10-11T11:00:00'],
+            ['rrule', {}, 'recur', { freq: 'WEEKLY', count: 5 }],
+            ['summary', {}, 'text', 'Series'],
+            ['exdate', tzid, 'date-time', '2026-10-18T10:00:00']
+          ],
+          []
+        ],
+        [
+          'vevent',
+          [
+            ['uid', {}, 'text', 'event1'],
+            ['recurrence-id', tzid, 'date-time', '2026-11-01T10:00:00'],
+            ['dtstart', tzid, 'date-time', '2026-11-01T10:00:00'],
+            ['dtend', tzid, 'date-time', '2026-11-01T11:00:00'],
+            ['summary', {}, 'text', 'EXC']
+          ],
+          []
+        ]
+      ]
+
+      it('moves overrides and EXDATE by the wall clock shift', () => {
+        // 10:00 -> 11:00 Paris, the zone parseFetchedEvent resolves the TZID to
+        const jCal = makeSeriesJCal(
+          windowsSeries,
+          {
+            ...parisEvent,
+            start: '2026-10-11T09:00:00.000Z',
+            end: '2026-10-11T10:00:00.000Z'
+          },
+          { removeOverrides: false, followTimeChange: true }
+        )
+
+        expect(valuesOf(master(jCal), 'exdate')).toEqual([
+          '2026-10-18T11:00:00'
+        ])
+        expect(overrideOf(jCal, '2026-11-01T11:00:00')).toBeDefined()
+      })
+
+      it('leaves overrides and EXDATE in place when the time is unchanged', () => {
+        const jCal = makeSeriesJCal(windowsSeries, parisEvent, {
+          removeOverrides: false,
+          followTimeChange: true
+        })
+
+        expect(valuesOf(master(jCal), 'exdate')).toEqual([
+          '2026-10-18T10:00:00'
+        ])
+        const override = overrideOf(jCal, '2026-11-01T10:00:00')
+        expect(valuesOf(override, 'dtstart')).toEqual(['2026-11-01T10:00:00'])
+      })
+    })
+
     it('drops overrides and EXDATE when asked to', () => {
       const jCal = makeSeriesJCal(
         parisSeries,

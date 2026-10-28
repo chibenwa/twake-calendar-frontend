@@ -312,6 +312,35 @@ describe('makeDeleteEventInstanceJCal', () => {
       expect(exdate![3]).toBe('2026-06-25T05:00:00')
     })
 
+    it('reads the occurrence in the IANA zone of a Windows TZID (#1844)', () => {
+      // 08:00Z === 10:00 Paris (summer time)
+      const event: CalendarEvent = {
+        ...baseCalendarEvent,
+        recurrenceId: '2026-06-25T08:00:00Z'
+      } as unknown as CalendarEvent
+      const master: VCalComponent = [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event-uid-1'],
+          [
+            'dtstart',
+            { tzid: 'Romance Standard Time' },
+            'date-time',
+            '2026-06-25T10:00:00'
+          ],
+          ['rrule', {}, 'recur', { freq: 'DAILY' }]
+        ],
+        []
+      ]
+
+      const result = makeDeleteEventInstanceJCal([master], event)
+
+      const masterProps = result[2][0][1] as VObjectProperty[]
+      const exdate = masterProps.find(([k]) => k === 'exdate')
+      expect(exdate?.[1]).toEqual({ tzid: 'Romance Standard Time' })
+      expect(exdate?.[3]).toBe('2026-06-25T10:00:00')
+    })
+
     it('does not add a duplicate EXDATE when an existing one points at the same instant in another form', () => {
       const existingExdate: VObjectProperty = [
         'exdate',
