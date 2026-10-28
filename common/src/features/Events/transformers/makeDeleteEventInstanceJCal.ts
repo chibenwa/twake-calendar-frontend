@@ -17,6 +17,12 @@ import { incrementSequenceNumber } from './makeSeriesJCal'
 import { filterComponents } from './parseFetchedEvent'
 import { getTzidParam, sameRecurrence } from './recurrenceInstant'
 
+// sameRecurrence only compares instants in zones moment knows: resolve a
+// Windows TZID to its IANA zone, keep an unresolvable one as-is
+function ianaTzid(tzid: string | undefined): string | undefined {
+  return tzid && knownZone(tzid, tzid)
+}
+
 export function makeDeleteEventInstanceJCal(
   vevents: VCalComponent[],
   event: CalendarEvent
@@ -68,10 +74,13 @@ export function makeDeleteEventInstanceJCal(
     if (prop[0].toLowerCase() !== 'exdate' || !prop[3]) {
       return false
     }
-    const existingTzid = getTzidParam(prop[1])
+    const existingTzid = ianaTzid(getTzidParam(prop[1]))
     return sameRecurrence(
       { value: prop[3], tzid: existingTzid },
-      { value: exdateProperty, tzid: useTzidForm ? dtstartTzid : undefined },
+      {
+        value: exdateProperty,
+        tzid: useTzidForm ? ianaTzid(dtstartTzid) : undefined
+      },
       seriesEvent.timezone
     )
   })
@@ -93,7 +102,7 @@ export function makeDeleteEventInstanceJCal(
       ([k]) => k.toLowerCase() === 'recurrence-id'
     )
     if (!recurrenceIdProp) return true // Keep master
-    const overrideTzid = getTzidParam(recurrenceIdProp[1])
+    const overrideTzid = ianaTzid(getTzidParam(recurrenceIdProp[1]))
     return !sameRecurrence(
       { value: recurrenceIdProp[3], tzid: overrideTzid },
       { value: exdateValue },

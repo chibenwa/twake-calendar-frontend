@@ -341,6 +341,80 @@ describe('makeDeleteEventInstanceJCal', () => {
       expect(exdate?.[3]).toBe('2026-06-25T10:00:00')
     })
 
+    describe('with a Windows TZID (#1844)', () => {
+      const romanceMaster = (
+        extraProps: VObjectProperty[] = []
+      ): VCalComponent => [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event-uid-1'],
+          [
+            'dtstart',
+            { tzid: 'Romance Standard Time' },
+            'date-time',
+            '2026-06-25T10:00:00'
+          ],
+          ['rrule', {}, 'recur', { freq: 'DAILY' }],
+          ...extraProps
+        ],
+        []
+      ]
+      // 08:00Z === 10:00 Paris (summer time)
+      const event: CalendarEvent = {
+        ...baseCalendarEvent,
+        recurrenceId: '2026-06-25T08:00:00Z'
+      } as unknown as CalendarEvent
+
+      it('removes the override whose RECURRENCE-ID carries the Windows TZID', () => {
+        const override: VCalComponent = [
+          'vevent',
+          [
+            ['uid', {}, 'text', 'event-uid-1'],
+            [
+              'recurrence-id',
+              { tzid: 'Romance Standard Time' },
+              'date-time',
+              '2026-06-25T10:00:00'
+            ],
+            [
+              'dtstart',
+              { tzid: 'Romance Standard Time' },
+              'date-time',
+              '2026-06-25T11:00:00'
+            ]
+          ],
+          []
+        ]
+
+        const result = makeDeleteEventInstanceJCal(
+          [romanceMaster(), override],
+          event
+        )
+
+        const remainingVevents = (result[2] as VCalComponent[]).filter(
+          ([name]) => name === 'vevent'
+        )
+        expect(remainingVevents).toHaveLength(1)
+      })
+
+      it('does not duplicate an EXDATE already stored with the Windows TZID', () => {
+        const existingExdate: VObjectProperty = [
+          'exdate',
+          { tzid: 'Romance Standard Time' },
+          'date-time',
+          '2026-06-25T10:00:00'
+        ]
+
+        const result = makeDeleteEventInstanceJCal(
+          [romanceMaster([existingExdate])],
+          event
+        )
+
+        const masterProps = result[2][0][1] as VObjectProperty[]
+        expect(masterProps.filter(([k]) => k === 'exdate')).toHaveLength(1)
+      })
+    })
+
     it('does not add a duplicate EXDATE when an existing one points at the same instant in another form', () => {
       const existingExdate: VObjectProperty = [
         'exdate',
