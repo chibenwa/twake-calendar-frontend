@@ -303,9 +303,15 @@ function parseAlarmAttendees(
   return attendees
 }
 
+// RFC 5545 §3.6.6: ACTION and TRIGGER are both required in a VALARM.
+// An alarm missing either one cannot be rebuilt, so it is ignored.
+function isCompleteAlarm(alarm: Partial<AlarmData>): alarm is AlarmData {
+  return Boolean(alarm.trigger) && Boolean(alarm.action)
+}
+
 function parseSingleAlarm(
   valarm: [string, [string, unknown, unknown, unknown][], unknown[]]
-): VAlarm {
+): VAlarm | undefined {
   const alarm: Partial<AlarmData> = {}
   const valarmProps = valarm[1]
 
@@ -317,7 +323,7 @@ function parseSingleAlarm(
   const attendees = parseAlarmAttendees(valarmProps)
   if (attendees.length > 0) alarm.attendees = attendees
 
-  return new VAlarm(alarm as AlarmData)
+  return isCompleteAlarm(alarm) ? new VAlarm(alarm) : undefined
 }
 
 function parseAlarms(valarms: unknown): Valarms | undefined {
@@ -325,9 +331,11 @@ function parseAlarms(valarms: unknown): Valarms | undefined {
 
   const alarms = (
     valarms as Array<[string, [string, unknown, unknown, unknown][], unknown[]]>
-  ).map(parseSingleAlarm)
+  )
+    .map(parseSingleAlarm)
+    .filter((alarm): alarm is VAlarm => alarm !== undefined)
 
-  return Valarms.fromList(alarms)
+  return alarms.length ? Valarms.fromList(alarms) : undefined
 }
 
 function processEventDates(

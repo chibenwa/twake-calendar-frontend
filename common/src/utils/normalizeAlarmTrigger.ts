@@ -5,10 +5,12 @@
  *
  * Triggers stored with the misplaced designator are normalized back to the
  * standard form. Anything else (absolute date-time triggers, time based
- * durations) is returned untouched.
+ * durations) is returned untouched. A missing trigger becomes an empty string.
  */
 const MISPLACED_TIME_DESIGNATOR = /^([+-]?)PT(\d+[WD])$/i
 
-export function normalizeAlarmTrigger(trigger: string): string {
-  return trigger.replace(MISPLACED_TIME_DESIGNATOR, '$1P$2')
+export function normalizeAlarmTrigger(trigger: string | undefined): string {
+  return typeof trigger === 'string'
+    ? trigger.replace(MISPLACED_TIME_DESIGNATOR, '$1P$2')
+    : ''
 }

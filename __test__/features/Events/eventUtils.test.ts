@@ -1646,3 +1646,64 @@ describe('parseCalendarEvent - delegated calendar URL handling', () => {
     })
   })
 })
+
+describe('parseCalendarEvent with an incomplete VALARM', () => {
+  const data = [
+    ['uid', {}, 'text', 'event-1'],
+    ['dtstart', {}, 'date-time', '2025-03-17T09:00:00Z'],
+    ['dtend', {}, 'date-time', '2025-03-17T10:00:00Z']
+  ] as VObjectProperty[]
+  const parse = (valarms: VCalComponent[]): CalendarEvent =>
+    parseCalendarEvent({
+      data,
+      color: {},
+      calendar: { id: 'cal-1' } as Calendar,
+      eventURL: '/calendars/cal-1/event-1.ics',
+      valarms
+    })
+
+  it('reads an event whose VALARM has no TRIGGER', () => {
+    const event = parse([['valarm', [['action', {}, 'text', 'DISPLAY']], []]])
+
+    expect(event.uid).toBe('event-1')
+    expect(event.alarms).toBeUndefined()
+  })
+
+  it('ignores a VALARM that has no ACTION', () => {
+    const event = parse([
+      ['valarm', [['trigger', {}, 'duration', '-PT15M']], []]
+    ])
+
+    expect(event.alarms).toBeUndefined()
+  })
+
+  it('keeps the complete VALARMs next to an incomplete one', () => {
+    const event = parse([
+      ['valarm', [['trigger', {}, 'duration', '-PT15M']], []],
+      [
+        'valarm',
+        [
+          ['trigger', {}, 'duration', '-PT30M'],
+          ['action', {}, 'text', 'EMAIL']
+        ],
+        []
+      ]
+    ])
+
+    const alarms = event.alarms?.getAlarms() ?? []
+    expect(alarms).toHaveLength(1)
+    expect(alarms[0].trigger).toBe('-PT30M')
+    expect(alarms[0].action).toBe('EMAIL')
+  })
+
+  it('writes no alarm property without a value', () => {
+    const event = parse([
+      ['valarm', [['trigger', {}, 'duration', '-PT15M']], []],
+      ['valarm', [['action', {}, 'text', 'DISPLAY']], []]
+    ])
+
+    for (const alarm of event.alarms?.asJcal() ?? []) {
+      for (const [, , , value] of alarm[1]) expect(value).toBeDefined()
+    }
+  })
+})

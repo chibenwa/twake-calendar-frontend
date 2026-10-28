@@ -29,6 +29,10 @@ describe('normalizeAlarmTrigger', () => {
   it('keeps empty triggers', () => {
     expect(normalizeAlarmTrigger('')).toBe('')
   })
+
+  it('turns a missing trigger into an empty one', () => {
+    expect(normalizeAlarmTrigger(undefined)).toBe('')
+  })
 })
 
 describe('VAlarm', () => {
