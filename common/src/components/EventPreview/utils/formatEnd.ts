@@ -17,6 +17,11 @@ export function formatEnd({
 }: FormatEndParams): string | null {
   const startDate = new Date(start)
   const endDate = new Date(end)
+  // A DTEND the client cannot read (e.g. VALUE=TEXT:20250312) is not shown:
+  // formatting an Invalid Date throws a RangeError
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return null
+  }
 
   const formatDatePart = (d: Date): string => formatDateInTimezone(d, timeZone)
   if (allday) {

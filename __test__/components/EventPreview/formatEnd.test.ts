@@ -72,4 +72,38 @@ describe('formatEnd', () => {
       })
     ).toBeNull()
   })
+
+  it('shows no end for an all-day event whose end it cannot read', () => {
+    expect(
+      formatEnd({
+        start: '2025-03-10',
+        end: '20250312',
+        t,
+        timeZone: 'UTC',
+        allday: true
+      })
+    ).toBeNull()
+  })
+
+  it('shows no end for a timed event whose end it cannot read', () => {
+    expect(
+      formatEnd({
+        start: '2025-12-30T16:00:00.000Z',
+        end: 'not a date',
+        t,
+        timeZone: 'Asia/Ho_Chi_Minh'
+      })
+    ).toBeNull()
+  })
+
+  it('shows no end for an event whose start it cannot read', () => {
+    expect(
+      formatEnd({
+        start: 'not a date',
+        end: '2025-12-30T17:00:00.000Z',
+        t,
+        timeZone: 'UTC'
+      })
+    ).toBeNull()
+  })
 })
