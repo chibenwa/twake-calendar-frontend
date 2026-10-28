@@ -15,6 +15,7 @@ import {
   parseInstant
 } from '@common/features/Events/utils'
 import { VcalendarProperties } from '@common/features/Calendars/types/VcalendarProperties'
+import { makeSeriesVtimezones } from './seriesVtimezones'
 
 const METADATA_FIELDS = [
   'summary',
@@ -443,6 +444,8 @@ export interface MakeSeriesJCalOptions {
   // The time of day of the series changed (same day, same rule): overrides,
   // EXDATE and RDATE move along with the occurrences they designate
   followTimeChange?: boolean
+  // VTIMEZONE components of the stored calendar object
+  storedVtimezones?: VCalComponent[]
 }
 
 export const makeSeriesJCal = (
@@ -470,9 +473,6 @@ export const makeSeriesJCal = (
     updatedMaster[1].push(rrule)
   }
 
-  const timezoneData = TIMEZONES.zones[event.timezone]
-  const vtimezone = makeTimezone(timezoneData, event)
-
   let finalVevents: VCalComponent[]
 
   if (removeOverrides) {
@@ -494,9 +494,17 @@ export const makeSeriesJCal = (
     })
   }
 
+  const vtimezones = makeSeriesVtimezones(
+    finalVevents,
+    options.storedVtimezones ?? [],
+    () =>
+      makeTimezone(TIMEZONES.zones[event.timezone], event).component
+        .jCal as VCalComponent
+  )
+
   return [
     'vcalendar',
     VcalendarProperties,
-    [...finalVevents, vtimezone.component.jCal as VCalComponent]
+    [...finalVevents, ...vtimezones]
   ] as VCalComponent
 }

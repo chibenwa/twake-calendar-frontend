@@ -1,6 +1,6 @@
 import { RejectedError } from '@common/features/Calendars/types/RejectedError'
 import {
-  fetchAllRecurrentVevents,
+  fetchRecurrentSeries,
   putEvent
 } from '@common/features/Events/EventDao'
 import { makeSeriesJCal } from '@common/features/Events/transformers/makeSeriesJCal'
@@ -33,8 +33,9 @@ export const updateSeriesThunk = (create: ReducerCreators<CalendarState>) =>
       { rejectWithValue }
     ) => {
       try {
-        const vevents = await fetchAllRecurrentVevents(event)
+        const { vevents, vtimezones } = await fetchRecurrentSeries(event)
         const jCal = makeSeriesJCal(vevents, event, {
+          storedVtimezones: vtimezones,
           calOwnerEmail: cal.owner?.emails?.[0],
           removeOverrides,
           sourceRecurrenceId,

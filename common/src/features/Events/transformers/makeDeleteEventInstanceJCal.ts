@@ -12,10 +12,12 @@ import moment from 'moment-timezone'
 import { incrementSequenceNumber } from './makeSeriesJCal'
 import { filterComponents } from './parseFetchedEvent'
 import { getTzidParam, sameRecurrence } from './recurrenceInstant'
+import { makeSeriesVtimezones } from './seriesVtimezones'
 
 export function makeDeleteEventInstanceJCal(
   vevents: VCalComponent[],
-  event: CalendarEvent
+  event: CalendarEvent,
+  storedVtimezones: VCalComponent[] = []
 ): VCalComponent {
   // Find the master VEVENT
   const masterIndex = vevents.findIndex(
@@ -110,13 +112,14 @@ export function makeDeleteEventInstanceJCal(
   // Update the master VEVENT with the new properties
   vevents[masterIndex][1] = updatedMasterProps
 
-  // Build the updated jCal with all VEVENTs and timezone
-  const timezoneData = TIMEZONES.zones[seriesEvent.timezone]
-  const vtimezone = makeTimezone(timezoneData, seriesEvent)
+  // Build the updated jCal with all VEVENTs and a VTIMEZONE for each TZID
+  const vtimezones = makeSeriesVtimezones(
+    filteredVevents,
+    storedVtimezones,
+    () =>
+      makeTimezone(TIMEZONES.zones[seriesEvent.timezone], seriesEvent).component
+        .jCal as VCalComponent
+  )
 
-  return [
-    'vcalendar',
-    VcalendarProperties,
-    [...filteredVevents, vtimezone.component.jCal as VCalComponent]
-  ]
+  return ['vcalendar', VcalendarProperties, [...filteredVevents, ...vtimezones]]
 }

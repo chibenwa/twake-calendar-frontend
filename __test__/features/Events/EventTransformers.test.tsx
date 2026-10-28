@@ -845,4 +845,74 @@ describe('makeSeriesJCal', () => {
       expect(valuesOf(master(jCal), 'exdate')).toEqual([])
     })
   })
+
+  describe('VTIMEZONE components', () => {
+    const tzidsOf = (jCal: VCalComponent, component: string) =>
+      (jCal[2] as VCalComponent[])
+        .filter(([name]) => name === component)
+        .flatMap(([, props]) =>
+          props.map(([k, params, , value]) =>
+            component === 'vtimezone'
+              ? k === 'tzid' && String(value)
+              : (params as Record<string, string>).tzid
+          )
+        )
+        .filter(Boolean)
+
+    const customVtimezone: VCalComponent = [
+      'vtimezone',
+      [['tzid', {}, 'text', 'Customized Time Zone']],
+      []
+    ]
+    const vevents: VCalComponent[] = [
+      [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event1'],
+          [
+            'dtstart',
+            { tzid: 'Europe/Paris' },
+            'date-time',
+            '2024-02-01T10:00:00'
+          ],
+          ['rrule', {}, 'recur', { freq: 'DAILY' }],
+          ['exdate', { tzid: 'US/Central' }, 'date-time', '2024-02-03T03:00:00']
+        ],
+        []
+      ],
+      [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event1'],
+          [
+            'recurrence-id',
+            { tzid: 'Europe/Paris' },
+            'date-time',
+            '2024-02-02T10:00:00'
+          ],
+          [
+            'dtstart',
+            { tzid: 'Customized Time Zone' },
+            'date-time',
+            '2024-02-02T12:00:00'
+          ]
+        ],
+        []
+      ]
+    ]
+
+    it('gives every TZID of the written series its VTIMEZONE', () => {
+      const jCal = makeSeriesJCal(
+        vevents,
+        { ...mockEvent, timezone: 'Europe/Paris' } as any,
+        { removeOverrides: false, storedVtimezones: [customVtimezone] }
+      )
+
+      const vtimezoneTzids = tzidsOf(jCal, 'vtimezone')
+      tzidsOf(jCal, 'vevent').forEach(tzid =>
+        expect(vtimezoneTzids).toContain(tzid)
+      )
+      expect(jCal[2]).toContainEqual(customVtimezone)
+    })
+  })
 })

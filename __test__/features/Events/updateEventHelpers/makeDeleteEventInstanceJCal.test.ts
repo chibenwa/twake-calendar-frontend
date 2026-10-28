@@ -43,6 +43,56 @@ const baseCalendarEvent: CalendarEvent = {
   recurrenceId: null
 } as unknown as CalendarEvent
 
+function vtimezoneTzids(jCal: VCalComponent): string[] {
+  return (jCal[2] as VCalComponent[])
+    .filter(([name]) => name === 'vtimezone')
+    .map(([, props]) => String(props.find(([k]) => k === 'tzid')?.[3]))
+}
+
+function veventTzids(jCal: VCalComponent): string[] {
+  return (jCal[2] as VCalComponent[])
+    .filter(([name]) => name === 'vevent')
+    .flatMap(([, props]) =>
+      props.map(([, params]) => (params as Record<string, string>).tzid)
+    )
+    .filter(Boolean)
+}
+
+function usCentralSeries(): VCalComponent[] {
+  const master: VCalComponent = [
+    'vevent',
+    [
+      ['uid', {}, 'text', 'event-uid-1'],
+      ['dtstart', { tzid: 'US/Central' }, 'date-time', '2025-03-17T09:00:00'],
+      ['dtend', { tzid: 'US/Central' }, 'date-time', '2025-03-17T10:00:00'],
+      ['rrule', {}, 'recur', { freq: 'WEEKLY' }]
+    ],
+    []
+  ]
+  const override: VCalComponent = [
+    'vevent',
+    [
+      ['uid', {}, 'text', 'event-uid-1'],
+      [
+        'recurrence-id',
+        { tzid: 'US/Central' },
+        'date-time',
+        '2025-03-24T09:00:00'
+      ],
+      ['dtstart', { tzid: 'Europe/Paris' }, 'date-time', '2025-03-24T18:00:00'],
+      ['dtend', { tzid: 'Europe/Paris' }, 'date-time', '2025-03-24T19:00:00']
+    ],
+    []
+  ]
+  return [master, override]
+}
+
+const deletedUsCentralOccurrence = {
+  ...baseCalendarEvent,
+  recurrenceId: '2025-03-31T09:00:00',
+  start: '2025-03-31T14:00:00.000Z'
+} as unknown as CalendarEvent
+
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -458,6 +508,116 @@ describe('makeDeleteEventInstanceJCal', () => {
       const result = makeDeleteEventInstanceJCal(vevents, baseCalendarEvent)
 
       expect(sequenceOf(result)).toBe(2)
+    })
+  })
+
+  describe('VTIMEZONE components', () => {
+    it('gives every TZID of the written series its VTIMEZONE', () => {
+      const jCal = makeDeleteEventInstanceJCal(
+        usCentralSeries(),
+        deletedUsCentralOccurrence
+      )
+
+      const tzids = vtimezoneTzids(jCal)
+      veventTzids(jCal).forEach(tzid => expect(tzids).toContain(tzid))
+    })
+
+    it('writes the known zone rules under the exact TZID of an alias', () => {
+      const jCal = makeDeleteEventInstanceJCal(
+        usCentralSeries(),
+        deletedUsCentralOccurrence
+      )
+
+      expect(vtimezoneTzids(jCal).sort()).toEqual([
+        'Europe/Paris',
+        'US/Central'
+      ])
+    })
+
+    it('resolves a Windows zone name to its VTIMEZONE', () => {
+      const master: VCalComponent = [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event-uid-1'],
+          [
+            'dtstart',
+            { tzid: 'Romance Standard Time' },
+            'date-time',
+            '2025-03-17T09:00:00'
+          ],
+          ['rrule', {}, 'recur', { freq: 'WEEKLY' }]
+        ],
+        []
+      ]
+
+      const jCal = makeDeleteEventInstanceJCal([master], {
+        ...baseCalendarEvent,
+        recurrenceId: '2025-03-24T09:00:00'
+      } as unknown as CalendarEvent)
+
+      expect(vtimezoneTzids(jCal)).toEqual(['Romance Standard Time'])
+    })
+
+    it('keeps the stored VTIMEZONE of a custom zone as it was', () => {
+      const customVtimezone: VCalComponent = [
+        'vtimezone',
+        [
+          ['tzid', {}, 'text', 'Customized Time Zone'],
+          ['x-custom', {}, 'text', 'kept']
+        ],
+        []
+      ]
+      const master: VCalComponent = [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'event-uid-1'],
+          [
+            'dtstart',
+            { tzid: 'Customized Time Zone' },
+            'date-time',
+            '2025-03-17T09:00:00'
+          ],
+          ['rrule', {}, 'recur', { freq: 'WEEKLY' }]
+        ],
+        []
+      ]
+
+      const jCal = makeDeleteEventInstanceJCal(
+        [master],
+        {
+          ...baseCalendarEvent,
+          recurrenceId: '2025-03-24T09:00:00'
+        } as unknown as CalendarEvent,
+        [customVtimezone]
+      )
+
+      const vtimezones = (jCal[2] as VCalComponent[]).filter(
+        ([name]) => name === 'vtimezone'
+      )
+      expect(vtimezones).toEqual([customVtimezone])
+    })
+
+    it('prefers the stored VTIMEZONE over the known zone rules', () => {
+      const storedUsCentral: VCalComponent = [
+        'vtimezone',
+        [['tzid', {}, 'text', 'US/Central']],
+        []
+      ]
+
+      const jCal = makeDeleteEventInstanceJCal(
+        usCentralSeries(),
+        deletedUsCentralOccurrence,
+        [storedUsCentral]
+      )
+
+      const vtimezones = (jCal[2] as VCalComponent[]).filter(
+        ([name]) => name === 'vtimezone'
+      )
+      expect(vtimezones).toContainEqual(storedUsCentral)
+      expect(vtimezoneTzids(jCal).sort()).toEqual([
+        'Europe/Paris',
+        'US/Central'
+      ])
     })
   })
 

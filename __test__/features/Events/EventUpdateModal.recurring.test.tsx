@@ -729,85 +729,88 @@ describe("EventUpdateModal - Recurring Event 'Edit All' Handling", () => {
           )
         )
 
-      jest.spyOn(EventDao, 'fetchAllRecurrentVevents').mockResolvedValue([
-        [
-          'vevent',
+      jest.spyOn(EventDao, 'fetchRecurrentSeries').mockResolvedValue({
+        vtimezones: [],
+        vevents: [
           [
-            ['uid', {}, 'text', baseUID],
+            'vevent',
             [
-              'dtstart',
-              { tzid: 'America/New_York' },
-              'date-time',
-              '2025-01-15T09:00:00Z'
+              ['uid', {}, 'text', baseUID],
+              [
+                'dtstart',
+                { tzid: 'America/New_York' },
+                'date-time',
+                '2025-01-15T09:00:00Z'
+              ],
+              [
+                'dtend',
+                { tzid: 'America/New_York' },
+                'date-time',
+                '2025-01-15T09:30:00Z'
+              ],
+              ['summary', {}, 'text', 'Daily Standup'],
+              ['sequence', {}, 'integer', 3],
+              ['transp', {}, 'text', 'OPAQUE'],
+              ['class', {}, 'text', 'PUBLIC'],
+              ['rrule', {}, 'recur', { freq: 'DAILY', interval: 1 }],
+              [
+                'organizer',
+                { cn: 'test' },
+                'cal-address',
+                'mailto:test@test.com'
+              ],
+              [
+                'attendee',
+                {
+                  partstat: 'ACCEPTED',
+                  rsvp: 'FALSE',
+                  role: 'CHAIR',
+                  cutype: 'INDIVIDUAL',
+                  cn: 'test'
+                },
+                'cal-address',
+                'mailto:test@test.com'
+              ],
+              ['dtstamp', {}, 'date-time', '2025-01-15T08:00:00Z']
             ],
-            [
-              'dtend',
-              { tzid: 'America/New_York' },
-              'date-time',
-              '2025-01-15T09:30:00Z'
-            ],
-            ['summary', {}, 'text', 'Daily Standup'],
-            ['sequence', {}, 'integer', 3],
-            ['transp', {}, 'text', 'OPAQUE'],
-            ['class', {}, 'text', 'PUBLIC'],
-            ['rrule', {}, 'recur', { freq: 'DAILY', interval: 1 }],
-            [
-              'organizer',
-              { cn: 'test' },
-              'cal-address',
-              'mailto:test@test.com'
-            ],
-            [
-              'attendee',
-              {
-                partstat: 'ACCEPTED',
-                rsvp: 'FALSE',
-                role: 'CHAIR',
-                cutype: 'INDIVIDUAL',
-                cn: 'test'
-              },
-              'cal-address',
-              'mailto:test@test.com'
-            ],
-            ['dtstamp', {}, 'date-time', '2025-01-15T08:00:00Z']
+            []
           ],
-          []
-        ],
 
-        [
-          'vevent',
           [
-            ['uid', {}, 'text', baseUID],
-            ['dtstart', {}, 'date-time', '2025-01-16T09:00:00Z'],
-            ['dtend', {}, 'date-time', '2025-01-16T09:30:00Z'],
-            ['summary', {}, 'text', 'Daily Standup'],
-            ['sequence', {}, 'integer', 4],
-            ['recurrence-id', {}, 'date-time', '2025-01-16T09:00:00Z'],
-            ['transp', {}, 'text', 'OPAQUE'],
-            ['class', {}, 'text', 'PUBLIC'],
+            'vevent',
             [
-              'organizer',
-              { cn: 'test' },
-              'cal-address',
-              'mailto:test@test.com'
+              ['uid', {}, 'text', baseUID],
+              ['dtstart', {}, 'date-time', '2025-01-16T09:00:00Z'],
+              ['dtend', {}, 'date-time', '2025-01-16T09:30:00Z'],
+              ['summary', {}, 'text', 'Daily Standup'],
+              ['sequence', {}, 'integer', 4],
+              ['recurrence-id', {}, 'date-time', '2025-01-16T09:00:00Z'],
+              ['transp', {}, 'text', 'OPAQUE'],
+              ['class', {}, 'text', 'PUBLIC'],
+              [
+                'organizer',
+                { cn: 'test' },
+                'cal-address',
+                'mailto:test@test.com'
+              ],
+              [
+                'attendee',
+                {
+                  partstat: 'ACCEPTED',
+                  rsvp: 'FALSE',
+                  role: 'CHAIR',
+                  cutype: 'INDIVIDUAL',
+                  cn: 'test'
+                },
+                'cal-address',
+                'mailto:test@test.com'
+              ],
+              ['dtstamp', {}, 'date-time', '2025-01-15T08:00:00Z']
             ],
-            [
-              'attendee',
-              {
-                partstat: 'ACCEPTED',
-                rsvp: 'FALSE',
-                role: 'CHAIR',
-                cutype: 'INDIVIDUAL',
-                cn: 'test'
-              },
-              'cal-address',
-              'mailto:test@test.com'
-            ],
-            ['dtstamp', {}, 'date-time', '2025-01-15T08:00:00Z']
-          ],
-          []
+            []
+          ]
         ]
-      ])
+      })
 
       jest.spyOn(CalendarDAO, 'fetchCalendar').mockResolvedValue({
         _embedded: { 'dav:item': [] }

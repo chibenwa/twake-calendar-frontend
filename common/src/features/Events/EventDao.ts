@@ -131,6 +131,27 @@ function normalizeVeventRrule(vevents: VCalComponent[]): VCalComponent[] {
   })
 }
 
+export interface RecurrentSeries {
+  vevents: VCalComponent[]
+  vtimezones: VCalComponent[]
+}
+
+/**
+ * Fetches all VEVENTs (master + overrides) of a recurring series, with RRULE.wkst
+ * normalized to a weekday string, and the VTIMEZONEs defining their TZIDs.
+ */
+export async function fetchRecurrentSeries(
+  event: CalendarEvent
+): Promise<RecurrentSeries> {
+  const components = (await fetchEvent(event))[2] ?? []
+  return {
+    vevents: normalizeVeventRrule(
+      components.filter(([name]) => name === 'vevent')
+    ),
+    vtimezones: components.filter(([name]) => name === 'vtimezone')
+  }
+}
+
 /**
  * Fetches all VEVENTs (master + overrides) for a recurring series.
  * Returns the raw jCal VEVENT components with RRULE.wkst normalized to a weekday string.
@@ -138,9 +159,7 @@ function normalizeVeventRrule(vevents: VCalComponent[]): VCalComponent[] {
 export async function fetchAllRecurrentVevents(
   event: CalendarEvent
 ): Promise<VCalComponent[]> {
-  const jcal = await fetchEvent(event)
-  const vevents = (jcal[2] ?? []).filter(([name]) => name === 'vevent')
-  return normalizeVeventRrule(vevents)
+  return (await fetchRecurrentSeries(event)).vevents
 }
 
 /**

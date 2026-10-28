@@ -1,6 +1,6 @@
 import { RejectedError } from '@common/features/Calendars/types/RejectedError'
 import {
-  fetchAllRecurrentVevents,
+  fetchRecurrentSeries,
   putEvent
 } from '@common/features/Events/EventDao'
 import { makeDeleteEventInstanceJCal } from '@common/features/Events/transformers/makeDeleteEventInstanceJCal'
@@ -23,8 +23,8 @@ export const deleteEventInstanceThunk = (
   >(
     async ({ cal, event }, { rejectWithValue }) => {
       try {
-        const vevents = await fetchAllRecurrentVevents(event)
-        const newJCal = makeDeleteEventInstanceJCal(vevents, event)
+        const { vevents, vtimezones } = await fetchRecurrentSeries(event)
+        const newJCal = makeDeleteEventInstanceJCal(vevents, event, vtimezones)
         await putEvent(event, newJCal)
 
         return { calId: cal.id, eventId: event.uid }

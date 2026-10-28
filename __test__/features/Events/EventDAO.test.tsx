@@ -2,6 +2,7 @@ import {
   deleteEvent,
   fetchAllRecurrentVevents,
   fetchEventJCal,
+  fetchRecurrentSeries,
   importEvent,
   moveEvent,
   putEvent
@@ -210,6 +211,15 @@ describe('eventDAO', () => {
       const rrule = master[1].find(([name]) => name === 'rrule')
 
       expect(rrule?.[3]).toEqual({ freq: 'WEEKLY', interval: 1, wkst: 'MO' })
+    })
+
+    it('fetchRecurrentSeries keeps the stored VTIMEZONEs next to the VEVENTs', async () => {
+      const { vevents, vtimezones } = await fetchRecurrentSeries(mockEvent)
+
+      expect(vevents).toHaveLength(2)
+      expect(vtimezones).toEqual([
+        ['vtimezone', [['tzid', {}, 'text', 'Europe/Paris']], []]
+      ])
     })
   })
 
