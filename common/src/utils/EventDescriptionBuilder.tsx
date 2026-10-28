@@ -11,6 +11,18 @@ export const SEPARATORS_NEED_HANDLE = [
   '-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~::~:~::-'
 ]
 
+function tryLinkify(html: string): string | null {
+  try {
+    return linkifyHtml(html, linkifyOptions)
+  } catch {
+    return null
+  }
+}
+
+function serializeAsDom(html: string): string {
+  return new DOMParser().parseFromString(html, 'text/html').body.innerHTML
+}
+
 export class EventDescriptionBuilder {
   private text: string
   private attachments: Attachment[]
@@ -66,10 +78,19 @@ export class EventDescriptionBuilder {
     this.text = (result + this.text.slice(cursor)).trimEnd()
   }
 
+  /**
+   * The tokenizer bundled in linkify-html throws on some markup browsers
+   * accept, e.g. an end tag carrying an attribute (`</p class="x">`). Such a
+   * description is then linkified once re-serialised by the DOM, which never
+   * emits that markup, and left without clickable links as a last resort.
+   */
   public linkify(): this {
     if (!this.text) return this
 
-    this.text = linkifyHtml(this.text, linkifyOptions)
+    this.text =
+      tryLinkify(this.text) ??
+      tryLinkify(serializeAsDom(this.text)) ??
+      this.text
 
     return this
   }

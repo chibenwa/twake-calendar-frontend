@@ -248,5 +248,20 @@ describe('EventDescriptionBuilder', () => {
         'Visit <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">www.example.com</a> today'
       )
     })
+
+    it('should not throw on an end tag carrying an attribute', () => {
+      const text = 'Hello</p class="x">world https://linagora.com'
+      expect(() =>
+        new EventDescriptionBuilder(text).removeFooter().linkify().sanitize()
+      ).not.toThrow()
+    })
+
+    it('should still linkify a description with an end tag carrying an attribute', () => {
+      const text = 'Hello</p class="x">world https://linagora.com'
+      const builder = new EventDescriptionBuilder(text).linkify().sanitize()
+      expect(builder.buildHtml()).toBe(
+        'Hello<p></p>world <a href="https://linagora.com" target="_blank" rel="noopener noreferrer">https://linagora.com</a>'
+      )
+    })
   })
 })
