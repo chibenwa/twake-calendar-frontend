@@ -148,3 +148,24 @@ describe('makeEventWithOverrides — RECURRENCE-ID form (#1088)', () => {
     expect(summary![3]).toBe('Updated by the organiser')
   })
 })
+
+describe('makeEventWithOverrides — zone named like an Object.prototype member (#1887)', () => {
+  it.each(['toString', 'constructor', 'hasOwnProperty'])(
+    'writes the occurrence of a series in the %s zone',
+    timezone => {
+      const updatedInstance = {
+        uid: 'uid-1',
+        timezone,
+        recurrenceId: '2026-06-25T05:00:00',
+        start: '2026-06-25T05:00:00',
+        end: '2026-06-25T06:00:00',
+        attendee: [],
+        title: 'Updated by the organiser'
+      } as unknown as CalendarEvent
+
+      const jCal = makeEventWithOverrides(updatedInstance, [masterVEvent()])
+
+      expect(listOverrides(jCal)).toHaveLength(1)
+    }
+  )
+})
