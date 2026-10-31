@@ -1,4 +1,4 @@
-import { TIMEZONES } from '@common/utils/timezone-data'
+import { getTimezoneData } from '@common/utils/timezone'
 import { CalendarEvent } from '@common/types/EventsTypes'
 import { makeVevent } from './makeVevent'
 import { makeTimezone } from './makeTimezone'
@@ -9,7 +9,7 @@ export function calendarEventToJCal(event: CalendarEvent) {
 
   const vevent = makeVevent(event, tzid)
 
-  const timezoneData = TIMEZONES.zones[event.timezone]
+  const timezoneData = getTimezoneData(event.timezone)
   const vtimezone = makeTimezone(timezoneData, event)
 
   return ['vcalendar', VcalendarProperties, [vevent, vtimezone.component.jCal]]

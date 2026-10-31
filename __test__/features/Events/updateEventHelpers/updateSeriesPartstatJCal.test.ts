@@ -326,4 +326,36 @@ describe('updateSeriesPartstatJCal', () => {
       expect(futureTargetAttendee[1].partstat).toBe('ACCEPTED')
     })
   })
+
+  it.each(['toString', 'constructor', 'hasOwnProperty'])(
+    'answers a series whose zone is named like the Object.prototype member %s (#1887)',
+    timezone => {
+      const master: VCalComponent = [
+        'vevent',
+        [
+          ['uid', {}, 'text', 'recurring-event'],
+          ['dtstart', { tzid: timezone }, 'date-time', '2025-03-17T09:00:00'],
+          ['rrule', {}, 'recur', { freq: 'WEEKLY' }],
+          [
+            'attendee',
+            { partstat: 'NEEDS-ACTION' },
+            'cal-address',
+            'mailto:user@example.com'
+          ]
+        ],
+        []
+      ]
+
+      const result = updateSeriesPartstatJCal(
+        [master],
+        { ...baseEvent, timezone },
+        targetEmail,
+        'ACCEPTED',
+        fixedNow
+      )
+
+      const vtimezone = result[2].find(([name]) => name === 'vtimezone')
+      expect(vtimezone).toBeDefined()
+    }
+  )
 })

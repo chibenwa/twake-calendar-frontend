@@ -1,4 +1,4 @@
-import { TIMEZONES } from '@common/utils/timezone-data'
+import { getTimezoneData } from '@common/utils/timezone'
 import {
   VCalComponent,
   VObjectProperty
@@ -51,7 +51,7 @@ export function makeEventWithOverrides(
     nextVevents.push(updatedVevent as VCalComponent)
   }
 
-  const timezoneData = TIMEZONES.zones[updatedEvent.timezone]
+  const timezoneData = getTimezoneData(updatedEvent.timezone)
   const vtimezone = makeTimezone(timezoneData, updatedEvent)
 
   return [

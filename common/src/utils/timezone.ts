@@ -29,27 +29,60 @@ function buildTimezone(tzid: string, ics: string): ICAL.Timezone {
   )
 }
 
+type TimezoneData = (typeof TIMEZONES.zones)[string]
+
+/**
+ * The data of a known zone. A plain index would also return the members
+ * inherited from Object.prototype: a TZID named `toString` or `constructor`
+ * (written by another client) must be as unknown as any other bogus name.
+ */
+export function getTimezoneData(
+  tzName: string | undefined
+): TimezoneData | undefined {
+  return tzName !== undefined && Object.hasOwn(TIMEZONES.zones, tzName)
+    ? TIMEZONES.zones[tzName]
+    : undefined
+}
+
+function getTimezoneAlias(tzName: string): string | undefined {
+  return Object.hasOwn(TIMEZONES.aliases, tzName)
+    ? TIMEZONES.aliases[tzName].aliasTo
+    : undefined
+}
+
 function findTimezone(tzid: string): ICAL.Timezone {
-  if (TIMEZONES.zones[tzid]) {
-    return buildTimezone(tzid, TIMEZONES.zones[tzid].ics)
+  const timezoneData = getTimezoneData(tzid)
+  if (timezoneData) {
+    return buildTimezone(tzid, timezoneData.ics)
   }
 
-  const alias = TIMEZONES.aliases[tzid]
-  if (alias && alias.aliasTo) {
-    return findTimezone(alias.aliasTo)
+  const alias = getTimezoneAlias(tzid)
+  if (alias) {
+    return findTimezone(alias)
   }
 
   throw new Error(`Unknown timezone alias: ${tzid}`)
 }
 
 export function resolveTimezone(tzName: string): string {
-  if (TIMEZONES.zones[tzName]) {
+  if (getTimezoneData(tzName)) {
     return tzName
   }
-  if (TIMEZONES.aliases[tzName]) {
-    return TIMEZONES.aliases[tzName].aliasTo
+  return getTimezoneAlias(tzName) ?? tzName
+}
+
+/**
+ * Whether moment-timezone knows the zone. moment.tz.zone() looks the name up
+ * in plain objects: `constructor` reaches Object.prototype and makes it throw
+ * a TypeError instead of answering null.
+ */
+export function isMomentZone(tzName: string | undefined): boolean {
+  if (!tzName) return false
+  try {
+    return moment.tz.zone(tzName) !== null
+  } catch {
+    return false
   }
-  return tzName
 }
 
 /**

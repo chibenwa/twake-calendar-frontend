@@ -1,15 +1,11 @@
-import {
-  VCalComponent,
-  VObjectProperty
-} from '@common/features/Calendars/types/CalendarData'
-import { resolveTimezone } from '@common/utils/timezone'
-import { TIMEZONES } from '@common/utils/timezone-data'
+import { VCalComponent } from '@common/features/Calendars/types/CalendarData'
+import { getTimezoneData, resolveTimezone } from '@common/utils/timezone'
 import ICAL from 'ical.js'
 import { getTzidParam } from './recurrenceInstant'
 
 function collectTzids(component: VCalComponent, tzids: Set<string>): void {
   const [, props, subComponents = []] = component
-  ;(props as VObjectProperty[])
+  props
     .map(([, params]) => getTzidParam(params))
     .filter((tzid): tzid is string => Boolean(tzid))
     .forEach(tzid => tzids.add(tzid))
@@ -23,9 +19,7 @@ function usedTzids(vevents: VCalComponent[]): Set<string> {
 }
 
 function tzidOf([, props]: VCalComponent): string | undefined {
-  const tzid = (props as VObjectProperty[]).find(
-    ([k]) => k.toLowerCase() === 'tzid'
-  )?.[3]
+  const tzid = props.find(([k]) => k.toLowerCase() === 'tzid')?.[3]
   return typeof tzid === 'string' && tzid ? tzid : undefined
 }
 
@@ -35,7 +29,7 @@ function tzidOf([, props]: VCalComponent): string | undefined {
  * `America/Chicago` rules under `TZID:US/Central`.
  */
 function knownVtimezone(tzid: string): VCalComponent | undefined {
-  const timezoneData = TIMEZONES.zones[resolveTimezone(tzid)]
+  const timezoneData = getTimezoneData(resolveTimezone(tzid))
   if (!timezoneData) {
     return undefined
   }

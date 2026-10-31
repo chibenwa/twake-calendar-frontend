@@ -11,7 +11,7 @@ import {
 } from '@common/features/Events/utils'
 import { Calendar } from '@common/types/CalendarTypes'
 import { CalendarEvent } from '@common/types/EventsTypes'
-import { TIMEZONES } from '@common/utils/timezone-data'
+import { getTimezoneData } from '@common/utils/timezone'
 import moment from 'moment-timezone'
 import { incrementSequenceNumber } from './makeSeriesJCal'
 import { filterComponents } from './parseFetchedEvent'
@@ -130,7 +130,7 @@ export function makeDeleteEventInstanceJCal(
     filteredVevents,
     storedVtimezones,
     () =>
-      makeTimezone(TIMEZONES.zones[seriesEvent.timezone], seriesEvent).component
+      makeTimezone(getTimezoneData(seriesEvent.timezone), seriesEvent).component
         .jCal as VCalComponent
   )
 

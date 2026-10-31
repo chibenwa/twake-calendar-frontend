@@ -1,6 +1,9 @@
 import {
   convertEventDateTimeToISO,
-  isValidTimeZone
+  getTimezoneData,
+  isMomentZone,
+  isValidTimeZone,
+  resolveTimezone
 } from '@common/utils/timezone'
 
 describe('isValidTimeZone', () => {
@@ -50,5 +53,27 @@ describe('convertEventDateTimeToISO', () => {
       'Europe/Paris'
     )
     expect(result).toBe('2024-03-08T17:00:00+01:00')
+  })
+})
+
+describe('zone lookups and Object.prototype members (#1887)', () => {
+  const prototypeNames = ['toString', 'constructor', 'hasOwnProperty']
+
+  it.each(prototypeNames)('knows no zone named %s', name => {
+    expect(getTimezoneData(name)).toBeUndefined()
+  })
+
+  it.each(prototypeNames)('resolves %s to itself', name => {
+    expect(resolveTimezone(name)).toBe(name)
+  })
+
+  it.each(prototypeNames)('is no moment zone either: %s', name => {
+    expect(isMomentZone(name)).toBe(false)
+  })
+
+  it('finds a known zone and resolves an alias', () => {
+    expect(getTimezoneData('Europe/Paris')?.ics).toContain('Europe/Paris')
+    expect(resolveTimezone('Romance Standard Time')).toBe('Europe/Paris')
+    expect(isMomentZone('Europe/Paris')).toBe(true)
   })
 })
