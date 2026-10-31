@@ -3,7 +3,7 @@ import {
   VObjectProperty
 } from '@common/features/Calendars/types/CalendarData'
 import { resolveTimezone } from '@common/utils/timezone'
-import { findTimezoneData } from '@common/utils/timezone-data'
+import { findTimezoneData } from '@common/utils/timezoneLookup'
 import ICAL from 'ical.js'
 import { getTzidParam } from './recurrenceInstant'
 
